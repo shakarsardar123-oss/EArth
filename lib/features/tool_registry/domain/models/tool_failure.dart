@@ -238,7 +238,7 @@ class ToolFailure {
   ToolFailure._({
     required this.phase,
     required this.message,
-  }) : action = null : cause = null;
+  }) : action = null, cause = null;
 
   // ─── Factory constructors ───────────────────────────────────────────
 

@@ -224,7 +224,8 @@ class Step20ConfirmationAdapter {
   /// Interactive UI confirmation.
   Future<bool> _interactiveConfirmation(
     String toolId,
-    String message, {\n    required Duration timeout,
+    String message, {
+    required Duration timeout,
     bool mandatory = false,
   }) async {
     // In production, this shows a dialog to the user.
@@ -255,7 +256,8 @@ class Step20ConfirmationAdapter {
   /// Voice confirmation (Kurdish Sorani RTL first).
   Future<bool> _voiceConfirmation(
     String toolId,
-    String message, {\n    required Duration timeout,
+    String message, {
+    required Duration timeout,
   }) async {
     // In production, this uses voice interaction for confirmation.
     // Kurdish Sorani RTL message would be spoken.

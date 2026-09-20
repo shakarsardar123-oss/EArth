@@ -332,7 +332,8 @@ class DefaultToolExecutionGate implements ToolExecutionGate {
   /// still return a failure result.
   Future<ToolResult<ToolExecutionResult>> _attemptRecovery(
     String toolId,
-    Object error, {\n    Map<String, dynamic>? parameters,
+    Object error, {
+    Map<String, dynamic>? parameters,
   }) async {
     if (_recoveryAdapter == null) {
       // No recovery adapter → return the failure directly.
@@ -369,7 +370,8 @@ class DefaultToolExecutionGate implements ToolExecutionGate {
 
   /// Single retry attempt after recovery.
   Future<ToolResult<ToolExecutionResult>> _retryOnce(
-    String toolId, {\n    Map<String, dynamic>? parameters,
+    String toolId, {
+    Map<String, dynamic>? parameters,
   }) async {
     final executor = _executors[toolId];
     if (executor == null) {

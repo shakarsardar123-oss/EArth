@@ -54,7 +54,8 @@ class Step18RecoveryAdapter implements RecoveryRepository {
     if (failure.isPermanent) {
       return const RecoveryStrategy(
         action: RecoveryAction.abort,
-        message: 'Permanent failure — aborting (fail-closed).',\      );
+        message: 'Permanent failure — aborting (fail-closed).',
+      );
     }
 
     // Map failure type to appropriate action.

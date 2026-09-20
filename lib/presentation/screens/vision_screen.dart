@@ -18,8 +18,8 @@ import '../providers/vision_providers.dart';
 import '../../services/voice/voice_service.dart' show VoiceState;
 import '../widgets/widgets.dart';
 import '../../core/providers/phase3_connection_points.dart'
-import '../../core/errors/result.dart';
     show voiceStateProvider, voiceTranscriptProvider;
+import '../../core/errors/result.dart';
 
 // ─── Vision Screen ──────────────────────────────────────────────────
 

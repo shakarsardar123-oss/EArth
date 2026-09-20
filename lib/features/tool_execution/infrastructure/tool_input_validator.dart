@@ -139,7 +139,6 @@ class ToolInputValidator {
             ));
             sanitized[entry.key] = value
                 .replaceAll(RegExp(r'<[^>]*>'), '')
-                .replaceAll(RegExp(r'[;\'\"\\]'), '');
             wasModified = true;
             break;
           }
