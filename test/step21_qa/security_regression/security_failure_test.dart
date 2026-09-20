@@ -13,41 +13,35 @@ import 'package:aura_assistant/features/security/domain/models/security_failure.
 void main() {
   group('SecurityFailure', () {
     test('sensitiveDataDetected factory (NOT secretDetected)', () {
-      // CORRECTED: factory is sensitiveDataDetected, not secretDetected
       final failure = SecurityFailure.sensitiveDataDetected(
-        category: 'financial',
-        context: 'memory_store',
+        category: SensitiveDataCategory.financialAccount,
+        action: 'memory_store',
       );
       expect(failure, isNotNull);
     });
 
     test('actionBlocked factory (NOT actionDenied)', () {
-      // CORRECTED: factory is actionBlocked, not actionDenied
       final failure = SecurityFailure.actionBlocked(
         action: 'tool_execute',
-        reason: 'not in allowlist',
+        verdictReason: 'not in allowlist',
       );
       expect(failure, isNotNull);
     });
 
     test('factory constructors have specific named params (not generic message)', () {
-      // CORRECTED: each factory uses domain-specific params, not a generic
-      // 'message' string. sensitiveDataDetected uses category+context,
-      // actionBlocked uses action+reason.
       final sd = SecurityFailure.sensitiveDataDetected(
-        category: 'health',
-        context: 'recall',
+        category: SensitiveDataCategory.medicalRecord,
+        action: 'recall',
       );
       final ab = SecurityFailure.actionBlocked(
         action: 'execute',
-        reason: 'security policy',
+        verdictReason: 'security policy',
       );
       expect(sd, isNotNull);
       expect(ab, isNotNull);
     });
 
     test('SecurityFailurePhase has exactly 14 values (not 16)', () {
-      // CORRECTED: 14 values, not 16 as Step 19 assumed
       expect(SecurityFailurePhase.values.length, 14);
     });
 
@@ -58,19 +52,17 @@ void main() {
     });
 
     test('security failures are fail-closed by default', () {
-      // Any ambiguous state must result in failure, not success
       final failure = SecurityFailure.sensitiveDataDetected(
-        category: 'unknown',
-        context: 'ambiguous',
+        category: SensitiveDataCategory.unknown,
+        action: 'ambiguous',
       );
       expect(failure, isNotNull);
     });
 
     test('actionBlocked with unknown reason is still blocked', () {
-      // FAIL-CLOSED: even with ambiguous reason, action must be blocked
       final failure = SecurityFailure.actionBlocked(
         action: 'unknown_action',
-        reason: 'unrecognized',
+        verdictReason: 'unrecognized',
       );
       expect(failure, isNotNull);
     });

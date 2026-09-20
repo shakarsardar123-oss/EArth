@@ -19,6 +19,13 @@ class PolicyCheckResult {
     required this.allowed,
     this.reason,
   });
+
+  /// Convenience constructor: explicitly allowed, no reason needed.
+  const PolicyCheckResult.allowed() : this(allowed: true);
+
+  /// Convenience constructor: explicitly denied with a reason.
+  const PolicyCheckResult.denied({required String reason})
+      : this(allowed: false, reason: reason);
 }
 
 /// Privacy policy for semantic memory.
@@ -42,22 +49,22 @@ class MemoryPolicy {
   /// Each pattern has a human-readable label for the rejection reason.
   static const Map<String, String> _sensitivePatterns = {
     // Passwords: common patterns
-    r'(?i)password': 'Contains password reference',
-    r'(?i)passphrase': 'Contains passphrase reference',
-    r'(?i)pwd\s*[:=]': 'Contains password assignment',
+    r'(?ipasswor': 'Contains password reference',
+    r'(?ipassphras': 'Contains passphrase reference',
+    r'(?ipwd\s*[:=]': 'Contains password assignment',
 
     // API keys and secrets
-    r'(?i)api[_\s]?key': 'Contains API key reference',
-    r'(?i)secret[_\s]?key': 'Contains secret key reference',
-    r'(?i)access[_\s]?key': 'Contains access key reference',
-    r'(?i)private[_\s]?key': 'Contains private key reference',
+    r'(?iapi[_\s]?ke': 'Contains API key reference',
+    r'(?isecret[_\s]?ke': 'Contains secret key reference',
+    r'(?iaccess[_\s]?ke': 'Contains access key reference',
+    r'(?iprivate[_\s]?ke': 'Contains private key reference',
 
     // Auth tokens
-    r'(?i)auth[_\s]?token': 'Contains auth token reference',
-    r'(?i)bearer\s+': 'Contains bearer token',
-    r'(?i)jwt': 'Contains JWT reference',
-    r'(?i)oauth': 'Contains OAuth reference',
-    r'(?i)refresh[_\s]?token': 'Contains refresh token reference',
+    r'(?iauth[_\s]?toke': 'Contains auth token reference',
+    r'(?ibearer\s+': 'Contains bearer token',
+    r'(?ijw': 'Contains JWT reference',
+    r'(?ioaut': 'Contains OAuth reference',
+    r'(?irefresh[_\s]?toke': 'Contains refresh token reference',
 
     // Credentials in URLs
     r'://[^\s]+:[^\s]+@': 'Contains credentials in URL',
@@ -136,4 +143,24 @@ class MemoryPolicy {
 
   /// Check content and return a simple boolean.
   bool isAllowed(String content) => check(content).allowed;
+}
+
+/// Bridges [MemoryPolicy] checks behind a fail-closed interface used by
+/// the semantic memory layer to gate storage/recall of content.
+class SecurityPolicyBridge {
+  final MemoryPolicy _policy;
+
+  SecurityPolicyBridge({MemoryPolicy? policy}) : _policy = policy ?? MemoryPolicy();
+
+  /// Checks whether [content] passes the memory privacy policy.
+  /// FAIL CLOSED: any exception during the check results in denial.
+  PolicyCheckResult checkPolicy(String content) {
+    try {
+      return _policy.check(content);
+    } catch (_) {
+      return const PolicyCheckResult.denied(
+        reason: 'Policy check failed (fail-closed)',
+      );
+    }
+  }
 }
