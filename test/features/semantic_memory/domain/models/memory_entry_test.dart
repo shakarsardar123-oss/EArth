@@ -2,7 +2,7 @@
 /// Structural tests for MemoryEntry model.
 library;
 
-import 'package:test/test.dart';
+import 'package:flutter_test/flutter_test.dart';
 
 // ─── Inline mirror of MemoryEntry for structural testing ────────────
 // In the real project: import 'package:aura_assistant/features/semantic_memory/domain/models/memory_entry.dart';

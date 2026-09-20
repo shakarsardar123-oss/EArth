@@ -3,7 +3,7 @@
 /// No Flutter SDK — dart test only.
 library;
 
-import 'package:test/test.dart';
+import 'package:flutter_test/flutter_test.dart';
 
 // Inline import of the source under test.
 // In the real project this would be:

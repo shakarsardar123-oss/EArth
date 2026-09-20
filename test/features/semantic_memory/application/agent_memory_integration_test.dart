@@ -2,7 +2,7 @@
 /// Structural tests for AgentMemoryIntegration.
 library;
 
-import 'package:test/test.dart';
+import 'package:flutter_test/flutter_test.dart';
 
 // ─── Inline mirrors for structural testing ─────────────────────────
 

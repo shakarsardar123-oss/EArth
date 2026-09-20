@@ -6,7 +6,7 @@
 /// onCancellation callback, ToolExecutionCancelledException.
 library;
 
-import 'package:test/test.dart';
+import 'package:flutter_test/flutter_test.dart';
 import 'package:aura_assistant/features/tool_execution/tool_execution.dart';
 
 void main() {

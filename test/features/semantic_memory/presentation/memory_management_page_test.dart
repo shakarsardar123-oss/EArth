@@ -4,7 +4,7 @@
 /// and UI contract expectations rather than widget rendering.
 library;
 
-import 'package:test/test.dart';
+import 'package:flutter_test/flutter_test.dart';
 
 // ─── Inline mirrors ────────────────────────────────────────────────
 
