@@ -1,0 +1,73 @@
+============================================================
+STEP 28 — VALIDATION REPORT
+AURA Assistant v0.13.0+13
+Date: 2026-08-31
+============================================================
+
+1. IMPORT RESOLUTION AUDIT
+===========================
+Total package:aura_assistant imports found: 110
+Unique import targets: 31
+All 31 targets verified to exist on disk: YES (after fix)
+
+BREAKDOWN BY SOURCE FEATURE:
+- assistant_integration: 6 imports → core/errors/result.dart ✓
+- central_permissions: 28 imports → core/errors/result.dart, core/localization/s.dart,
+  device_integration/domain/models/permission_status.dart, own domain/application/presentation ✓
+- tool_execution: 6 imports → tool_registry/ (6 targets via bridge) ✓
+- tool_registry: 70 imports → core/errors/result.dart, own domain/application/infrastructure/presentation ✓
+
+ISSUES FOUND AND FIXED:
+- [FIXED] tool_registry/domain/services/tool_execution_gate.dart was missing
+  (referenced by step20_gate_adapter.dart line 23)
+  Fix: Created abstract interface file; updated services.dart barrel export
+- Bridge file tool_registry_providers.dart created to resolve
+  step20_gate_adapter.dart import to tool_registry_provider_names.dart ✓
+
+2. BARREL FILE EXPORTS
+=======================
+Verified barrel files with exports:
+- tool_registry/domain/models/models.dart ✓
+- tool_registry/domain/services/services.dart ✓ (updated to include tool_execution_gate.dart)
+- tool_registry/domain/services/tool_registry_service.dart ✓
+- tool_registry/domain/services/tool_confirmation_service.dart ✓
+- tool_registry/application/application.dart ✓
+- tool_registry/infrastructure/adapters/adapters.dart ✓
+- tool_registry/infrastructure/infrastructure.dart ✓
+
+3. FAIL-CLOSED AUDIT
+=====================
+Steps 20-27: All new modules follow fail-closed pattern ✓
+  - Step 20 tool_registry: unknown tool → DENY, no allowlist entry → DENY ✓
+  - Step 22 tool_execution: gate failure → DENY, execution error → DENY ✓
+  - Step 23 orchestration: unknown capability → DENY, connectivity loss → DENY ✓
+  - Step 24 trigger_integration: unauthorized trigger → DENY ✓
+  - Step 25 advanced_agent: unknown action → DENY ✓
+  - Step 26 integrity_audit: integrity violation → DENY ✓
+  - Step 27 modules: API failure → DENY, connectivity loss → DENY ✓
+
+ACTIVE PROJECT lib/ ORIGINAL FILES (Steps 1-19):
+  ⚠ FLAG: Original 69 files have NO explicit fail-closed patterns.
+  These were created before fail-closed was mandated (Step 20+).
+  Recommendation: Audit Steps 1-19 for fail-closed coverage in future step.
+
+4. METHODCHANNEL COMPLETENESS
+===============================
+MethodChannels declared in Dart:
+  - com.aura.assistant/permissions (Step 16, CentralPermissionsPlugin.kt ✓)
+  - com.aura.assistant/integration (Step 15, AssistantIntegrationPlugin.kt ✓)
+  - com.aura.assistant/trigger_integration (Step 24, NOT registered in Kotlin ⚠)
+  - Step 27 modules may need additional channels (device_connectivity, continuous_listening)
+
+STATUS: 2 of 3+ MethodChannels have Kotlin-side registration.
+Missing: trigger_integration channel registration in Kotlin.
+Missing: Step 27 native channel registrations.
+These will cause runtime MethodChannel MissingPluginException.
+
+5. CROSS-FEATURE INTEGRITY
+============================
+conversation_provider.dart: NOT MODIFIED ✓ (per requirement)
+Step 22 dedup: 68→46 files, infrastructure/ canonical ✓
+Integration order: 20→22→23→24→25→26→27 ✓
+No hardcoded secrets found ✓
+No invented APIs found ✓

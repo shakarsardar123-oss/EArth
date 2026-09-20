@@ -1,0 +1,314 @@
+# AURA Assistant – Step 20: Tool Registry & Allowlist
+# Localization keys
+# Kurdish Sorani (ckb) first (RTL), then English (en), then Arabic (ar)
+# Key prefix: tool_registry_
+
+tool_registry_title:
+  ckb: 'تۆمارکردنی ئامرازەکان'
+  en: 'Tool Registry'
+  ar: 'سجل الأدوات'
+
+tool_registry_description:
+  ckb: 'بەڕێوەبردن و کۆنترۆڵکردنی ئامرازەکان'
+  en: 'Manage and control available tools'
+  ar: 'إدارة والتحكم في الأدوات المتاحة'
+
+tool_registry_status_ready:
+  ckb: 'ئامادەیە'
+  en: 'Ready'
+  ar: 'جاهز'
+
+tool_registry_status_initializing:
+  ckb: 'دەستپێدەکات'
+  en: 'Initializing'
+  ar: 'جاري التهيئة'
+
+tool_registry_status_offline:
+  ckb: 'دەرهێڵە'
+  en: 'Offline'
+  ar: 'غير متصل'
+
+tool_registry_status_error:
+  ckb: 'هەڵە'
+  en: 'Error'
+  ar: 'خطأ'
+
+tool_registry_allowlist_title:
+  ckb: 'لیستی ڕێگەپێدراو'
+  en: 'Allowlist'
+  ar: 'قائمة السماح'
+
+tool_registry_allowlist_empty:
+  ckb: 'هیچ ئامرازێک ڕێگەپێدراو نییە'
+  en: 'No tools are allowed'
+  ar: 'لا توجد أدوات مسموح بها'
+
+tool_registry_allowlist_allowed:
+  ckb: 'ڕێگەپێدراو'
+  en: 'Allowed'
+  ar: 'مسموح'
+
+tool_registry_allowlist_denied:
+  ckb: 'ڕێگەپێنەدراو'
+  en: 'Denied'
+  ar: 'مرفوض'
+
+tool_registry_allowlist_source_user:
+  ckb: 'بەکارهێنەر'
+  en: 'User'
+  ar: 'المستخدم'
+
+tool_registry_allowlist_source_system:
+  ckb: 'سیستەم'
+  en: 'System'
+  ar: 'النظام'
+
+tool_registry_allowlist_source_admin:
+  ckb: 'بەڕێوەبەر'
+  en: 'Admin'
+  ar: 'المسؤول'
+
+tool_registry_allowlist_source_auto:
+  ckb: 'خۆکاری'
+  en: 'Auto'
+  ar: 'تلقائي'
+
+tool_registry_category_voice:
+  ckb: 'دەنگ'
+  en: 'Voice'
+  ar: 'صوت'
+
+tool_registry_category_screen:
+  ckb: 'شاشە'
+  en: 'Screen'
+  ar: 'شاشة'
+
+tool_registry_category_vision:
+  ckb: 'بینین'
+  en: 'Vision'
+  ar: 'رؤية'
+
+tool_registry_category_device:
+  ckb: 'ئامێر'
+  en: 'Device'
+  ar: 'جهاز'
+
+tool_registry_category_memory:
+  ckb: 'بیرگە'
+  en: 'Memory'
+  ar: 'ذاكرة'
+
+tool_registry_category_assistant:
+  ckb: 'یاریدەدەر'
+  en: 'Assistant'
+  ar: 'مساعد'
+
+tool_registry_category_recovery:
+  ckb: 'گەڕانەوە'
+  en: 'Recovery'
+  ar: 'استعادة'
+
+tool_registry_category_communication:
+  ckb: 'پەیوەندی'
+  en: 'Communication'
+  ar: 'اتصال'
+
+tool_registry_category_navigation:
+  ckb: 'گەشتکردن'
+  en: 'Navigation'
+  ar: 'تنقل'
+
+tool_registry_category_system:
+  ckb: 'سیستەم'
+  en: 'System'
+  ar: 'النظام'
+
+tool_registry_category_media:
+  ckb: 'میدیا'
+  en: 'Media'
+  ar: 'وسائط'
+
+tool_registry_category_data:
+  ckb: 'داتا'
+  en: 'Data'
+  ar: 'بيانات'
+
+tool_registry_category_external:
+  ckb: 'دەرەکی'
+  en: 'External'
+  ar: 'خارجي'
+
+tool_registry_risk_low:
+  ckb: 'مەترسی کەم'
+  en: 'Low Risk'
+  ar: 'مخاطر منخفضة'
+
+tool_registry_risk_medium:
+  ckb: 'مەترسی مامناوەندی'
+  en: 'Medium Risk'
+  ar: 'مخاطر متوسطة'
+
+tool_registry_risk_high:
+  ckb: 'مەترسی بەرز'
+  en: 'High Risk'
+  ar: 'مخاطر مرتفعة'
+
+tool_registry_risk_critical:
+  ckb: 'مەترسی زۆر بەرز'
+  en: 'Critical Risk'
+  ar: 'مخاطر حرجة'
+
+tool_registry_risk_unknown:
+  ckb: 'مەترسی نەزانراو'
+  en: 'Unknown Risk'
+  ar: 'مخاطر غير معروفة'
+
+tool_registry_confirmation_never:
+  ckb: 'هیچ کاتێک پشتڕاست ناکرێتەوە'
+  en: 'Never confirm'
+  ar: 'لا يؤكد أبداً'
+
+tool_registry_confirmation_always:
+  ckb: 'هەمیشە پشتڕاست دەکرێتەوە'
+  en: 'Always confirm'
+  ar: 'يؤكد دائماً'
+
+tool_registry_confirmation_when_sensitive:
+  ckb: 'پشتڕاستکردنەوە کاتێک هەستیارە'
+  en: 'Confirm when sensitive'
+  ar: 'تأكيد عند الحساسية'
+
+tool_registry_confirmation_unknown:
+  ckb: 'سیاسەتی نەزانراو'
+  en: 'Unknown policy'
+  ar: 'سياسة غير معروفة'
+
+tool_registry_execution_gate_registry:
+  ckb: 'ئامراز تۆمار نەکراوە'
+  en: 'Tool not registered'
+  ar: 'الأداة غير مسجلة'
+
+tool_registry_execution_gate_allowlist:
+  ckb: 'ئامراز ڕێگەپێدراو نییە'
+  en: 'Tool not allowed'
+  ar: 'الأداة غير مسموح بها'
+
+tool_registry_execution_gate_security:
+  ckb: 'ئامرازەکە ڕەتکرایەوە لەلایەن ئاسایشەوە'
+  en: 'Tool denied by security'
+  ar: 'الأداة مرفوضة من الأمان'
+
+tool_registry_execution_gate_permission:
+  ckb: 'مۆڵەت ڕەتکرایەوە'
+  en: 'Permission denied'
+  ar: 'الإذن مرفوض'
+
+tool_registry_execution_gate_confirmation:
+  ckb: 'پشتڕاستکردنەوە ڕەتکرایەوە'
+  en: 'Confirmation denied'
+  ar: 'التأكيد مرفوض'
+
+tool_registry_execution_gate_executor:
+  ckb: 'جێبەجێکار نییە'
+  en: 'No executor available'
+  ar: 'لا يوجد منفذ'
+
+tool_registry_execution_gate_disabled:
+  ckb: 'ئامرازەکە ناچالاکە'
+  en: 'Tool is disabled'
+  ar: 'الأداة معطلة'
+
+tool_registry_discovery_title:
+  ckb: 'گەڕانی ئامرازەکان'
+  en: 'Discover Tools'
+  ar: 'اكتشاف الأدوات'
+
+tool_registry_discovery_empty:
+  ckb: 'هیچ ئامرازێک نەدۆزرایەوە'
+  en: 'No tools found'
+  ar: 'لم يتم العثور على أدوات'
+
+tool_registry_discovery_results:
+  ckb: '{count} ئامراز دۆزرایەوە'
+  en: '{count} tools found'
+  ar: 'تم العثور على {count} أدوات'
+
+tool_registry_offline_message:
+  ckb: 'تۆمارکردنی ئامرازەکان دەرهێڵە. تەنها ئامرازە کاشکراوەکان بەردەستن.'
+  en: 'Tool registry is offline. Only cached tools are available.'
+  ar: 'سجل الأدوات غير متصل. الأدوات المخزنة مؤقتاً فقط متاحة.'
+
+tool_registry_error_message:
+  ckb: 'هەڵە لە تۆمارکردنی ئامرازەکان'
+  en: 'Tool registry error'
+  ar: 'خطأ في سجل الأدوات'
+
+tool_registry_register_success:
+  ckb: 'ئامرازەکە بە سەرکەوتوویی تۆمارکرا'
+  en: 'Tool registered successfully'
+  ar: 'تم تسجيل الأداة بنجاح'
+
+tool_registry_unregister_success:
+  ckb: 'ئامرازەکە بە سەرکەوتوویی لابرا'
+  en: 'Tool unregistered successfully'
+  ar: 'تم إلغاء تسجيل الأداة بنجاح'
+
+tool_registry_allowlist_set:
+  ckb: 'لیستی ڕێگەپێدراو نوێکرایەوە'
+  en: 'Allowlist updated'
+  ar: 'تم تحديث قائمة السماح'
+
+tool_registry_execution_started:
+  ckb: 'جێبەجێکردنی ئامراز دەستپێدەکات'
+  en: 'Tool execution started'
+  ar: 'بدأ تنفيذ الأداة'
+
+tool_registry_execution_success:
+  ckb: 'جێبەجێکردنی ئامراز سەرکەوتوو بوو'
+  en: 'Tool execution succeeded'
+  ar: 'نجح تنفيذ الأداة'
+
+tool_registry_execution_failed:
+  ckb: 'جێبەجێکردنی ئامراز سەرنەکەوت'
+  en: 'Tool execution failed'
+  ar: 'فشل تنفيذ الأداة'
+
+tool_registry_fail_closed:
+  ckb: 'ئامرازە نەزانراوەکان ڕێگەپێنادرێن'
+  en: 'Unknown tools are denied'
+  ar: 'الأدوات غير المعروفة مرفوضة'
+
+tool_registry_tool_enabled:
+  ckb: 'چالاک'
+  en: 'Enabled'
+  ar: 'مفعّل'
+
+tool_registry_tool_disabled:
+  ckb: 'ناچالاک'
+  en: 'Disabled'
+  ar: 'معطّل'
+
+tool_registry_tool_count:
+  ckb: '{count} ئامراز'
+  en: '{count} tools'
+  ar: '{count} أدوات'
+
+tool_registry_refresh:
+  ckb: 'نوێکردنەوە'
+  en: 'Refresh'
+  ar: 'تحديث'
+
+tool_registry_search_placeholder:
+  ckb: 'بگەڕێ بۆ ئامراز...'
+  en: 'Search tools...'
+  ar: 'البحث عن أدوات...'
+
+tool_registry_filter_category:
+  ckb: 'فلتەر بە پۆل'
+  en: 'Filter by category'
+  ar: 'تصفية حسب الفئة'
+
+tool_registry_filter_risk:
+  ckb: 'فلتەر بە مەترسی'
+  en: 'Filter by risk'
+  ar: 'تصفية حسب المخاطر'

@@ -1,0 +1,9 @@
+{
+  "@@locale": "ku",
+  "appTitle": "پشتبەندی API",
+  "circuitBreakerClosed": "سووتەپچی بازنە داخراوە",
+  "budgetExceeded": "بوودجە تێپەڕێندرا",
+  "rateLimitExceeded": "سنووری ڕێژە تێپەڕێندرا",
+  "retryDelay": "دواخستنی هەوڵی دووبارە",
+  "unavailable": "API بەردەست نییە"
+}

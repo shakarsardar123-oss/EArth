@@ -1,0 +1,221 @@
+/// AURA Assistant – Step 17: Localization additions
+///
+/// These are the keys to ADD to the existing s.dart, s_en.dart, and s_ku.dart
+/// files. They are presented here as additions to be merged into the
+/// existing localization classes.
+///
+/// Key prefix: memory_
+/// Kurdish-first, full RTL.
+///
+/// Total keys: 30
+library;
+
+// ═══════════════════════════════════════════════════════════════════
+// ─── s.dart additions (abstract base class) ─────────────────────────
+// ═══════════════════════════════════════════════════════════════════
+//
+// Add these static const String fields to the S class:
+
+  // ─── Page ────────────────────────────────────────────────────────
+  static const String memory_pageTitle = 'memory_pageTitle';
+  static const String memory_emptyMessage = 'memory_emptyMessage';
+  static const String memory_searchHint = 'memory_searchHint';
+  static const String memory_noSearchResults = 'memory_noSearchResults';
+
+  // ─── Actions ─────────────────────────────────────────────────────
+  static const String memory_addNew = 'memory_addNew';
+  static const String memory_save = 'memory_save';
+  static const String memory_cancel = 'memory_cancel';
+  static const String memory_close = 'memory_close';
+  static const String memory_retry = 'memory_retry';
+  static const String memory_forget = 'memory_forget';
+  static const String memory_forgetConfirmTitle = 'memory_forgetConfirmTitle';
+  static const String memory_forgetConfirmMessage = 'memory_forgetConfirmMessage';
+
+  // ─── Labels ──────────────────────────────────────────────────────
+  static const String memory_contentLabel = 'memory_contentLabel';
+  static const String memory_typeLabel = 'memory_typeLabel';
+  static const String memory_importance = 'memory_importance';
+  static const String memory_source = 'memory_source';
+  static const String memory_created = 'memory_created';
+  static const String memory_inactive = 'memory_inactive';
+
+  // ─── Type labels ─────────────────────────────────────────────────
+  static const String memory_typeUserPreference = 'memory_typeUserPreference';
+  static const String memory_typePersonalFact = 'memory_typePersonalFact';
+  static const String memory_typeConversation = 'memory_typeConversation';
+  static const String memory_typeTask = 'memory_typeTask';
+  static const String memory_typeProject = 'memory_typeProject';
+  static const String memory_typeDevice = 'memory_typeDevice';
+  static const String memory_typeLocation = 'memory_typeLocation';
+  static const String memory_typeInstruction = 'memory_typeInstruction';
+  static const String memory_typeOther = 'memory_typeOther';
+
+  // ─── Filter ──────────────────────────────────────────────────────
+  static const String memory_filterAll = 'memory_filterAll';
+
+  // ─── Errors ──────────────────────────────────────────────────────
+  static const String memory_errorPrefix = 'memory_errorPrefix';
+
+  // ─── Policy ──────────────────────────────────────────────────────
+  static const String memory_policySensitive = 'memory_policySensitive';
+  static const String memory_policyRejected = 'memory_policyRejected';
+
+  // ─── Integration ────────────────────────────────────────────────
+  static const String memory_contextEnriched = 'memory_contextEnriched';
+
+// ═══════════════════════════════════════════════════════════════════
+// ─── s_en.dart additions (English overrides) ────────────────────────
+// ═══════════════════════════════════════════════════════════════════
+//
+// Add these getters to the SEn class:
+
+  @override
+  String get memory_pageTitle => 'Semantic Memory';
+  @override
+  String get memory_emptyMessage => 'No memories stored yet. Add your first memory!';
+  @override
+  String get memory_searchHint => 'Search memories...';
+  @override
+  String get memory_noSearchResults => 'No memories match your search.';
+
+  @override
+  String get memory_addNew => 'Add Memory';
+  @override
+  String get memory_save => 'Save';
+  @override
+  String get memory_cancel => 'Cancel';
+  @override
+  String get memory_close => 'Close';
+  @override
+  String get memory_retry => 'Retry';
+  @override
+  String get memory_forget => 'Forget';
+  @override
+  String get memory_forgetConfirmTitle => 'Forget Memory?';
+  @override
+  String get memory_forgetConfirmMessage => 'Are you sure you want to forget this memory? This cannot be undone.';
+
+  @override
+  String get memory_contentLabel => 'Content';
+  @override
+  String get memory_typeLabel => 'Type';
+  @override
+  String get memory_importance => 'Importance';
+  @override
+  String get memory_source => 'Source';
+  @override
+  String get memory_created => 'Created';
+  @override
+  String get memory_inactive => 'Inactive';
+
+  @override
+  String get memory_typeUserPreference => 'Preference';
+  @override
+  String get memory_typePersonalFact => 'Personal Fact';
+  @override
+  String get memory_typeConversation => 'Conversation';
+  @override
+  String get memory_typeTask => 'Task';
+  @override
+  String get memory_typeProject => 'Project';
+  @override
+  String get memory_typeDevice => 'Device';
+  @override
+  String get memory_typeLocation => 'Location';
+  @override
+  String get memory_typeInstruction => 'Instruction';
+  @override
+  String get memory_typeOther => 'Other';
+
+  @override
+  String get memory_filterAll => 'All';
+
+  @override
+  String get memory_errorPrefix => 'Error';
+
+  @override
+  String get memory_policySensitive => 'Sensitive content detected';
+  @override
+  String get memory_policyRejected => 'Content rejected by privacy policy';
+
+  @override
+  String get memory_contextEnriched => 'Context enriched with memories';
+
+// ═══════════════════════════════════════════════════════════════════
+// ─── s_ku.dart additions (Kurdish Sorani overrides) ──────────────────
+// ═══════════════════════════════════════════════════════════════════
+//
+// Add these getters to the SKu class:
+
+  @override
+  String get memory_pageTitle => 'بیرگەی واتایی';
+  @override
+  String get memory_emptyMessage => 'هیچ بیرگەیەک هەنووکە نییە. یەکەم بیرگەت زیاد بکە!';
+  @override
+  String get memory_searchHint => 'گەڕان لە بیرگە...';
+  @override
+  String get memory_noSearchResults => 'هیچ بیرگەیەک لەگەڵ گەڕانەکەت نەدۆزرایەوە.';
+
+  @override
+  String get memory_addNew => 'زیادکردنی بیرگە';
+  @override
+  String get memory_save => 'پاشەکەوتکردن';
+  @override
+  String get memory_cancel => 'پاشگەزبوونەوە';
+  @override
+  String get memory_close => 'داخستن';
+  @override
+  String get memory_retry => 'هەوڵی نوێ';
+  @override
+  String get memory_forget => 'لەبیرکردن';
+  @override
+  String get memory_forgetConfirmTitle => 'لەبیرکردنی بیرگە؟';
+  @override
+  String get memory_forgetConfirmMessage => 'دڵنیایت لە لەبیرکردنی ئەم بیرگەیە؟ ئەم کردارە ناگەڕێتەوە.';
+
+  @override
+  String get memory_contentLabel => 'ناوەڕۆک';
+  @override
+  String get memory_typeLabel => 'جۆر';
+  @override
+  String get memory_importance => 'گرنگی';
+  @override
+  String get memory_source => 'سەرچاوە';
+  @override
+  String get memory_created => 'دروستکراوە';
+  @override
+  String get memory_inactive => 'ناچالاک';
+
+  @override
+  String get memory_typeUserPreference => 'ویستراو';
+  @override
+  String get memory_typePersonalFact => 'زانیاری کەسی';
+  @override
+  String get memory_typeConversation => 'وتووێژ';
+  @override
+  String get memory_typeTask => 'ئەرک';
+  @override
+  String get memory_typeProject => 'پرۆژە';
+  @override
+  String get memory_typeDevice => 'ئامێر';
+  @override
+  String get memory_typeLocation => 'شوێن';
+  @override
+  String get memory_typeInstruction => 'ڕێنمایی';
+  @override
+  String get memory_typeOther => 'هیتر';
+
+  @override
+  String get memory_filterAll => 'هەمووی';
+
+  @override
+  String get memory_errorPrefix => 'هەڵە';
+
+  @override
+  String get memory_policySensitive => 'ناوەڕۆکی هەستیار دۆزرایەوە';
+  @override
+  String get memory_policyRejected => 'ناوەڕۆک بەپێی سیاسەتی تایبەتمەندی ڕەدکرایەوە';
+
+  @override
+  String get memory_contextEnriched => 'بارودۆخ بە بیرگەکان دەوڵەمەند کرا';

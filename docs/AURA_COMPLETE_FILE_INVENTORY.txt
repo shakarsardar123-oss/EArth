@@ -1,0 +1,884 @@
+==============================================================================================================
+AURA COMPLETE FILE INVENTORY
+Generated: 2026-09-01T00:03:15.124743
+Backup Type: LOSSLESS (no modifications, no exclusions, no scrubbing)
+==============================================================================================================
+
+# SECTION 1: MAIN PROJECT (aura_assistant)
+# Source: /outputs/aura_assistant
+# Total files: 487 | Directories: 309 | Empty dirs: 37
+
+PATH                                                                                          SIZE TYPE       SHA-256                                                         
+-------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
+.dart_tool/flutter_build/dart_plugin_registrant.dart                                        10,384 dart       63c02bca0df2ab1c056ceb61311037b8e03a74161d91725288b807fe95895825
+.dart_tool/package_config.json                                                              23,026 json       928ec8e87f3c85f5ca18c5fe99589446826961666d78e9482ffda1374c20c791
+.dart_tool/package_config_subset                                                            23,546 none       f5bebb0359042fb1020bbd6691bcee33f6a8e6f0c5612ad2a21ba0dae004c1bd
+.dart_tool/pub/bin/test/test.dart-3.6.0.snapshot                                        25,436,160 snapshot   2da0d1e0968429e7efef60ce95d37b6a47ddb6aee5eed9afcf26f5179a50462d
+.dart_tool/test/incremental_kernel.Ly9AZGFydD0zLjY=                                     81,795,576 Ly9AZGFydD0zLjY= 5332f548af89678bcedc4b850f02e693b2b48abcb622d57eb518d0ef0fe2487c
+.dart_tool/version                                                                               6 none       997af92210108376cceb33489f18edc2fd01257000d01ac71dab06e117f0a7fa
+.flutter-plugins                                                                             4,394 none       45213bf686f089a5932f8c1be232688bf083e9c9d0f83c3a8bb0fc091a9cfc5f
+.flutter-plugins-dependencies                                                               14,241 none       282fb09f716072c83689b14f3f742d7b8618d00ad8a17aa31955d3a94cf49873
+AUDIT_REPORT.md                                                                             15,889 md         ca3150a06677b1c3c8f10e336fbf98450a57b3592a52092490969637d0f551be
+PHASE2_UI_UX_VERIFICATION_REPORT.md                                                         22,079 md         6eb8073afc12df0e42a1223dd784f6de83125098b25bbb2e8989c9151fb367a9
+PHASE6_STEP2_DEVICE_INFO_TOOL_REPORT.md                                                      4,274 md         b3eef6fa5e4b341c6bc2fc914dd8d92e2f44326e76f7e8caedaceedb31724f6a
+PHASE6_STEP3_BATTERY_INTEGRATION_REPORT.md                                                   9,730 md         1d5d49f9af82c5843e57e349c4ab947c1f2d2c1f2488bd5e0006858f1285fc14
+PHASE6_STEP4_NETWORK_INTEGRATION_REPORT.md                                                   7,181 md         d5d992e57944170407eeca8b7dcbf22ab97bc459d549cd749c150c77ee2b6772
+PHASE6_VERIFICATION_REPORT.md                                                                4,201 md         be4bbb6347bf55460662e20850192fde3423362a3d892f230d60f4e3de3ab3a3
+STEP10_VERIFICATION_REPORT.md                                                                4,617 md         f32a7e8f3a727489c90f0c36ba9f1cd61c70e7c1eb56e9749f32501fcf2aacd5
+analysis_options.yaml                                                                          318 yaml       d7648a0e098dc00d7d53bd4c083b7c0122439d0b4aee13edc220dc687a093330
+android/.gradle/8.4/checksums/checksums.lock                                                    17 lock       0d47a2582888f0d21dd2b004d31a9ca2282dc2d76c262a716098e176e5397c03
+android/.gradle/8.4/checksums/md5-checksums.bin                                             42,947 bin        af074a32551f5660fd2d263e691a0f93dd1ae76e0c0806f36c411ed608753eec
+android/.gradle/8.4/checksums/sha1-checksums.bin                                           133,505 bin        00848a39c3b0ee57ac14d9b40f39002071f129192041272b6bc36005bfcf147b
+android/.gradle/8.4/dependencies-accessors/dependencies-accessors.lock                          17 lock       886de0ec7d650f35e3d3c54ddc48e3390165def91818a7042a334a1d721bbd98
+android/.gradle/8.4/dependencies-accessors/gc.properties                                         0 properties e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855
+android/.gradle/8.4/executionHistory/executionHistory.lock                                      17 lock       53d89e20fc0b35ba7adaf963d6be19736235dcbbb400da9a8c6a909ab9b478de
+android/.gradle/8.4/fileChanges/last-build.bin                                                   1 bin        6e340b9cffb37a989ca544e6bb780a2c78901d3fb33738768511a30617afa01d
+android/.gradle/8.4/fileHashes/fileHashes.lock                                                  17 lock       96cde7cc49fa315e439ffcaecbc99993b9b1e13dff94de04a77c7188d0b98824
+android/.gradle/8.4/gc.properties                                                                0 properties e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855
+android/.gradle/buildOutputCleanup/buildOutputCleanup.lock                                      17 lock       fab48ba250085d7a3422cdd9e167ea4c6d985c444d8b6f3b109cb69d03f706b3
+android/.gradle/buildOutputCleanup/cache.properties                                             49 properties 5b0b7656d543267f3dc27a3b44297fb2b9732b16ef78cc62161893db653e59c9
+android/.gradle/buildOutputCleanup/outputFiles.bin                                          18,839 bin        a938953ef7a451ceca517d5f7b86a4090f872734f342b3405633019739a46b0f
+android/.gradle/vcs-1/gc.properties                                                              0 properties e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855
+android/.kotlin/errors/errors-1787351554875.log                                              8,281 log        f9eb510c7d4d3f9ebbaa23f271871570b741680e8c77e1292f1a5a48e42a54c1
+android/app/build.gradle                                                                     1,504 gradle     24027138e8c3f08d6e1eac0c899e7591a1291144dc2a3d13fcd98d09c2381c40
+android/app/build/intermediates/annotation_processor_list/debug/annotationProcessors.json            2 json       44136fa355b3678a1146ad16f7e8649e94fb4fc21fe77e8310c060f61caaff8a
+android/app/build/intermediates/app_metadata/debug/app-metadata.properties                      56 properties c24ce2c99ff94972b93dd34c95c66d5a780f9fd07a569bdf6d46ec5260cfef6b
+android/app/build/intermediates/assets/debug/flutter_assets/AssetManifest.bin                    2 bin        f566cc6fccc657365c0197accf3a7d6f80f85209ff666ff774f4dcbc524aa842
+android/app/build/intermediates/assets/debug/flutter_assets/AssetManifest.json                   2 json       44136fa355b3678a1146ad16f7e8649e94fb4fc21fe77e8310c060f61caaff8a
+android/app/build/intermediates/assets/debug/flutter_assets/FontManifest.json                   82 json       28b1eb2b3d2e1ad60b8c8b0f9100b1ccbf492f7fa97f5bebb51ea97e73926e7d
+android/app/build/intermediates/assets/debug/flutter_assets/NOTICES.Z                       98,103 Z          1214a6f936d54734f2e915b24b2e91ede79802a31548d97844a29dedea1e32d2
+android/app/build/intermediates/assets/debug/flutter_assets/fonts/MaterialIcons-Regular.otf    1,645,184 otf        d9865b671a09d683d13a863089d8825e0f61a37696ce5d7d448bc8023aa62453
+android/app/build/intermediates/assets/debug/flutter_assets/isolate_snapshot_data       10,552,370 none       bf388d6b6a00b03745d5a477574d8ead31e650307b6f75e663457ea0125e1b7f
+android/app/build/intermediates/assets/debug/flutter_assets/kernel_blob.bin             63,355,728 bin        832dfa7f2dd7bbad15e4890ac0634e10360dbe6fae26ca0a397ec50cec541074
+android/app/build/intermediates/assets/debug/flutter_assets/shaders/ink_sparkle.frag        17,304 frag       3aa09424d1dc391fd59a9735efe986ff43302b5e5bc310926afe11c68626c3b2
+android/app/build/intermediates/assets/debug/flutter_assets/vm_snapshot_data                12,858 none       a4ab13e1ea29def7c7118853e524223e07c41abed44697ec75d761da1e2c0dd6
+android/app/build/intermediates/compatible_screen_manifest/debug/output-metadata.json          199 json       b5f627498c5f538fc51dd42ea7ede3c1976194ac7ef5d3258bc993c2d08ba8c4
+android/app/build/intermediates/compile_and_runtime_not_namespaced_r_class_jar/debug/R.jar        2,875 jar        4caaec75de94db6e1f14d8eacfaef9cad362c3dc8a4101df4030a6aedcd393f9
+android/app/build/intermediates/compressed_assets/debug/out/assets/flutter_assets/AssetManifest.bin.jar          180 jar        cb08b85d584e2eeb6d766aebc72ed0f33e45c00005a8550fa5bd113ce120c9a4
+android/app/build/intermediates/compressed_assets/debug/out/assets/flutter_assets/AssetManifest.json.jar          182 jar        50883585fd64e4c5306d800fa21633481c8cb5e5a5960a8f41da1d3abb6c84e4
+android/app/build/intermediates/compressed_assets/debug/out/assets/flutter_assets/FontManifest.json.jar          245 jar        62a76346817122fa79e50d4789607a4745e6d540487b4eef0320a1c2f1f61f86
+android/app/build/intermediates/compressed_assets/debug/out/assets/flutter_assets/NOTICES.Z.jar       93,428 jar        200626eafdead4dce16a934d4769218be003251590f505754f740bd661f6808d
+android/app/build/intermediates/compressed_assets/debug/out/assets/flutter_assets/fonts/MaterialIcons-Regular.otf.jar      593,250 jar        529099f878f5e5871ca921f3080c036456de6d83f70ca9b37f1b422c20522fc5
+android/app/build/intermediates/compressed_assets/debug/out/assets/flutter_assets/isolate_snapshot_data.jar    4,043,473 jar        5e193b00d04e2b753f0e29471393f277ef76cc5c5d4c0aa9c4768e812304450d
+android/app/build/intermediates/compressed_assets/debug/out/assets/flutter_assets/kernel_blob.bin.jar   20,873,280 jar        6ae3eaa20de9bfc5228bd926dfa51fe0a8e9ada490bb7f53f35f674abfd4b726
+android/app/build/intermediates/compressed_assets/debug/out/assets/flutter_assets/shaders/ink_sparkle.frag.jar        5,907 jar        271f197ed738551b6154dced76fadd7635bffb2fb829bc3c9c305c0421998f29
+android/app/build/intermediates/compressed_assets/debug/out/assets/flutter_assets/vm_snapshot_data.jar        8,061 jar        b4b05b00bc61a600f28fb000ffc7c16d371b42e1041a88f43b4aa80d29929f9f
+android/app/build/intermediates/dex/debug/mergeExtDexDebug/classes.dex                   2,313,804 dex        9248132fc0ad15ac3c0eabcdfb886e460435d5a7f6da1d79802d607eed761aa2
+android/app/build/intermediates/flutter/debug/.last_build_id                                    32 none       6fb1507be34c4b4ab5faced86cdfa4e2336d1cb145d46950e39dd214307de401
+android/app/build/intermediates/flutter/debug/flutter_assets/AssetManifest.bin                   2 bin        f566cc6fccc657365c0197accf3a7d6f80f85209ff666ff774f4dcbc524aa842
+android/app/build/intermediates/flutter/debug/flutter_assets/AssetManifest.json                  2 json       44136fa355b3678a1146ad16f7e8649e94fb4fc21fe77e8310c060f61caaff8a
+android/app/build/intermediates/flutter/debug/flutter_assets/FontManifest.json                  82 json       28b1eb2b3d2e1ad60b8c8b0f9100b1ccbf492f7fa97f5bebb51ea97e73926e7d
+android/app/build/intermediates/flutter/debug/flutter_assets/NOTICES.Z                      98,103 Z          1214a6f936d54734f2e915b24b2e91ede79802a31548d97844a29dedea1e32d2
+android/app/build/intermediates/flutter/debug/flutter_assets/fonts/MaterialIcons-Regular.otf    1,645,184 otf        d9865b671a09d683d13a863089d8825e0f61a37696ce5d7d448bc8023aa62453
+android/app/build/intermediates/flutter/debug/flutter_assets/isolate_snapshot_data      10,552,370 none       bf388d6b6a00b03745d5a477574d8ead31e650307b6f75e663457ea0125e1b7f
+android/app/build/intermediates/flutter/debug/flutter_assets/kernel_blob.bin            63,355,728 bin        832dfa7f2dd7bbad15e4890ac0634e10360dbe6fae26ca0a397ec50cec541074
+android/app/build/intermediates/flutter/debug/flutter_assets/shaders/ink_sparkle.frag       17,304 frag       3aa09424d1dc391fd59a9735efe986ff43302b5e5bc310926afe11c68626c3b2
+android/app/build/intermediates/flutter/debug/flutter_assets/vm_snapshot_data               12,858 none       a4ab13e1ea29def7c7118853e524223e07c41abed44697ec75d761da1e2c0dd6
+android/app/build/intermediates/flutter/debug/flutter_build.d                              178,084 d          3e414304887e3b901428076972e56fcba27abce7d9dc92df0303a3c96bb50cbf
+android/app/build/intermediates/flutter/debug/libs.jar                                         261 jar        9b80c88d27ce986813ab54f4e28ae087ba51c15d00f566605935bbca23c2333c
+android/app/build/intermediates/incremental/debug/mergeDebugResources/compile-file-map.properties        1,158 properties 5ae31f8a97acf5791e4346b2d41bfa4a789917105bfd7a12f8c75d00431e4c15
+android/app/build/intermediates/incremental/debug/mergeDebugResources/merged.dir/values/values.xml          649 xml        b2ac66253b5c144e0f1d75e8f3003fb04d8fbed0a0f8a88b87f84aac5af464c0
+android/app/build/intermediates/incremental/debug/mergeDebugResources/merger.xml             3,769 xml        316ae03b9d2d1cdfda55adbb22efb8d382a9581d9f46bf73683327dd1198f0d9
+android/app/build/intermediates/incremental/debug/packageDebugResources/compile-file-map.properties        1,155 properties 51877b55d726e755f673c8ac0cdfc75d3bf6ed176545ba80727dee951073709f
+android/app/build/intermediates/incremental/debug/packageDebugResources/merged.dir/values/values.xml          649 xml        b2ac66253b5c144e0f1d75e8f3003fb04d8fbed0a0f8a88b87f84aac5af464c0
+android/app/build/intermediates/incremental/debug/packageDebugResources/merger.xml           3,769 xml        316ae03b9d2d1cdfda55adbb22efb8d382a9581d9f46bf73683327dd1198f0d9
+android/app/build/intermediates/incremental/mergeDebugAssets/merger.xml                        727 xml        bb4466312273689764ba045eb9b523b7e86c9c398318d2d6d58879719773e056
+android/app/build/intermediates/incremental/mergeDebugJniLibFolders/merger.xml                 488 xml        17a71d32d1c221bb45ed78ec92643e71e50017f8848de992ae36cf4c0dd58c66
+android/app/build/intermediates/incremental/mergeDebugShaders/merger.xml                       488 xml        c983efcb8991825db9696a4c63dbf6c179c469a0838c9135d5740b369edf3bd0
+android/app/build/intermediates/local_only_symbol_list/debug/R-def.txt                         234 txt        a80ce5878fbc294059bfea0129522c8029bd8786f3a185cfce938e879ee8c836
+android/app/build/intermediates/manifest_merge_blame_file/debug/manifest-merger-blame-debug-report.txt       11,349 txt        9cc4fd463146611a4952bb59f43580a9f01bd0e432b384eab01605bf44ba2868
+android/app/build/intermediates/merged_manifest/debug/AndroidManifest.xml                    4,020 xml        d2c537bf15e30f39e1bc6469d07a6c7a08ce56ee6e904e72991d01ad290bd418
+android/app/build/intermediates/merged_manifests/debug/AndroidManifest.xml                   4,020 xml        d2c537bf15e30f39e1bc6469d07a6c7a08ce56ee6e904e72991d01ad290bd418
+android/app/build/intermediates/merged_manifests/debug/output-metadata.json                    394 json       097cf4581cfab9843520d528a5d91159463c94fa76dfbc1eb373c1f548ef5dd9
+android/app/build/intermediates/merged_native_libs/debug/out/lib/arm64-v8a/libVkLayer_khronos_validation.so   13,203,632 so         3a1ea1df30a95879c3033ba7f29ae2c2bf5b9210ee7606cdf452eb1a9d935fff
+android/app/build/intermediates/merged_native_libs/debug/out/lib/arm64-v8a/libflutter.so   39,225,080 so         a7cf37b19b717b46a2f51949bab5f0974727d402c64657bfa194a960039bfd7a
+android/app/build/intermediates/merged_native_libs/debug/out/lib/armeabi-v7a/libflutter.so   33,794,464 so         06afdc4cfde07392b199de0ec8acccf42a27497cfb3b8a1caed21b79f01bca04
+android/app/build/intermediates/merged_native_libs/debug/out/lib/x86/libflutter.so      40,047,128 so         83adeb4dc23ac26084a1619f3131649ed4b28ad4de28d518b8c34627e49ac8bf
+android/app/build/intermediates/merged_native_libs/debug/out/lib/x86_64/libflutter.so   40,282,248 so         e16c92e5268ea43b2c4de3e3f9fb5289f0745cb669a583c1cba9d89a7d349a18
+android/app/build/intermediates/merged_res/debug/drawable_launch_background.xml.flat           324 flat       c10cde7d0355d4772cfc87c1065bb7abfe69320d6289d063e5dd3c64c1e7c2b4
+android/app/build/intermediates/merged_res/debug/mipmap-hdpi_ic_launcher.png.flat              200 flat       b0b2939004658a90f5772beca07232a745396a71e81853fa3c58103a8d27b7b5
+android/app/build/intermediates/merged_res/debug/mipmap-mdpi_ic_launcher.png.flat              200 flat       09ed095c4cd0a7e5b6fb6318c3df503c74693ef878a85f9ed10a76b66026d081
+android/app/build/intermediates/merged_res/debug/mipmap-xhdpi_ic_launcher.png.flat             200 flat       d62ac4673e6f3ede21f647308189f351410d5c3ce8fa79c7f1d7ddd2c2ad94e7
+android/app/build/intermediates/merged_res/debug/mipmap-xxhdpi_ic_launcher.png.flat            200 flat       c7ffc5c84f9547bca8d08d51bad4c905c80fc465d1bba5ca9bcaf250557b0264
+android/app/build/intermediates/merged_res/debug/mipmap-xxxhdpi_ic_launcher.png.flat           204 flat       1d1d166bc047476afe361626101748421ecbf2331cfd1c3b836a258f96e44688
+android/app/build/intermediates/merged_res/debug/values_values.arsc.flat                       756 flat       2a61f1ebae68ba2bbf440e73ad9a7c59646d2bd24ec79dbcc1eef23ded6904fc
+android/app/build/intermediates/merged_res_blame_folder/debug/out/multi-v2/debug.json        2,477 json       05c7209c5165c818ac2b70b37eced76077f70ce94f415ff20c77073c6af7738c
+android/app/build/intermediates/merged_res_blame_folder/debug/out/multi-v2/values.json        2,480 json       9be92159028a819a47bd6b22c0ceaf4d0a0d8fb5643d280da70bf3ae9bbca8ed
+android/app/build/intermediates/merged_res_blame_folder/debug/out/single/debug.json          1,178 json       bfacf519b73a410678b06b9323b32f9f436b03479734dbca9184a58b8903fe30
+android/app/build/intermediates/navigation_json/debug/navigation.json                            2 json       4f53cda18c2baa0c0354bb5f9a3ecbe5ed12ab4d8e11ba873c2f11161202b945
+android/app/build/intermediates/packaged_manifests/debug/AndroidManifest.xml                 4,020 xml        d2c537bf15e30f39e1bc6469d07a6c7a08ce56ee6e904e72991d01ad290bd418
+android/app/build/intermediates/packaged_manifests/debug/output-metadata.json                  396 json       05111585a8608d44ec25cd4345f834eb7edfd69b0e855a947af97b6b22908384
+android/app/build/intermediates/packaged_res/debug/drawable/launch_background.xml              182 xml        db6df1815a65e1671ed3b17c0b6f49c7ce0d45ccd29dfa5a2cacde3606f1c6da
+android/app/build/intermediates/packaged_res/debug/mipmap-hdpi-v4/ic_launcher.png               66 png        4a16ec40112698cf02b9abd3d18c8db65ce40f48f2c61076b45de58695f16532
+android/app/build/intermediates/packaged_res/debug/mipmap-mdpi-v4/ic_launcher.png               66 png        4a16ec40112698cf02b9abd3d18c8db65ce40f48f2c61076b45de58695f16532
+android/app/build/intermediates/packaged_res/debug/mipmap-xhdpi-v4/ic_launcher.png              66 png        4a16ec40112698cf02b9abd3d18c8db65ce40f48f2c61076b45de58695f16532
+android/app/build/intermediates/packaged_res/debug/mipmap-xxhdpi-v4/ic_launcher.png             66 png        4a16ec40112698cf02b9abd3d18c8db65ce40f48f2c61076b45de58695f16532
+android/app/build/intermediates/packaged_res/debug/mipmap-xxxhdpi-v4/ic_launcher.png            66 png        4a16ec40112698cf02b9abd3d18c8db65ce40f48f2c61076b45de58695f16532
+android/app/build/intermediates/packaged_res/debug/values/values.xml                           649 xml        b2ac66253b5c144e0f1d75e8f3003fb04d8fbed0a0f8a88b87f84aac5af464c0
+android/app/build/intermediates/processed_res/debug/out/output-metadata.json                   391 json       4bc5e4d20dd575d59395ae4c79b4631b501ef6827239dd94b145808d06097b01
+android/app/build/intermediates/processed_res/debug/out/resources-debug.ap_                  5,573 ap_        239c6f5454a4655601c142d488bd93a4fb05dfe579a0cdc328a011217a3e0359
+android/app/build/intermediates/runtime_symbol_list/debug/R.txt                                314 txt        f4a96a49f6cbdf0c403462809455228c6680b78fdd33f58e50198316274425b0
+android/app/build/intermediates/signing_config_versions/debug/signing-config-versions.json           96 json       d31e2c0c006d0991d24ed5c92b3c0bf3a8d1c06869f419f2676c81b0b38f2ffa
+android/app/build/intermediates/source_set_path_map/debug/file-map.txt                         916 txt        e68995e71c9b4975be9bf7e729e0cf1c5ee6849b94be702b3492b2fef06d802e
+android/app/build/intermediates/stripped_native_libs/debug/out/lib/arm64-v8a/libVkLayer_khronos_validation.so   13,203,632 so         3a1ea1df30a95879c3033ba7f29ae2c2bf5b9210ee7606cdf452eb1a9d935fff
+android/app/build/intermediates/stripped_native_libs/debug/out/lib/arm64-v8a/libflutter.so   39,225,080 so         a7cf37b19b717b46a2f51949bab5f0974727d402c64657bfa194a960039bfd7a
+android/app/build/intermediates/stripped_native_libs/debug/out/lib/armeabi-v7a/libflutter.so   33,794,464 so         06afdc4cfde07392b199de0ec8acccf42a27497cfb3b8a1caed21b79f01bca04
+android/app/build/intermediates/stripped_native_libs/debug/out/lib/x86/libflutter.so    40,047,128 so         83adeb4dc23ac26084a1619f3131649ed4b28ad4de28d518b8c34627e49ac8bf
+android/app/build/intermediates/stripped_native_libs/debug/out/lib/x86_64/libflutter.so   40,282,248 so         e16c92e5268ea43b2c4de3e3f9fb5289f0745cb669a583c1cba9d89a7d349a18
+android/app/build/kotlin/compileDebugKotlin/cacheable/caches-jvm/inputs/source-to-output.tab        4,096 tab        bc9450ff1c5d00eb48a90c9700314cf16e2464439605e6eacff26e273d80e23c
+android/app/build/kotlin/compileDebugKotlin/cacheable/caches-jvm/inputs/source-to-output.tab.keystream        4,096 keystream  3fdd7a635227c6707d3b188b269b4c64bcf85cb46bae2237e91709f3a1dbd601
+android/app/build/kotlin/compileDebugKotlin/cacheable/caches-jvm/inputs/source-to-output.tab.keystream.len            8 len        976aa270049d928d812c276cd65d3fcee5db0c4ce07fc78dd18c84962b4f4606
+android/app/build/kotlin/compileDebugKotlin/cacheable/caches-jvm/inputs/source-to-output.tab.len            8 len        708e21ef20762db9e4bbcd610d0ad759776a9a8d9766fd8da52760d74e6c9d76
+android/app/build/kotlin/compileDebugKotlin/cacheable/caches-jvm/inputs/source-to-output.tab.values.at          514 at         79af9b66e7cff3bc877f7f6305d221533c8ab4475aa6755c7f94cb49fce3725b
+android/app/build/kotlin/compileDebugKotlin/cacheable/caches-jvm/inputs/source-to-output.tab_i       32,768 tab_i      0bd1e2318d86336711e87871af46c329d436e916eec728eef854bb25ff24ce54
+android/app/build/kotlin/compileDebugKotlin/cacheable/caches-jvm/inputs/source-to-output.tab_i.len            8 len        24b5d6e79d4d3dab7575da7f0beceafa9281c19295c6ce5ab31951db761ef188
+android/app/build/kotlin/compileDebugKotlin/cacheable/caches-jvm/jvm/kotlin/class-attributes.tab        4,096 tab        35f389914350d15f869a22fbdcfd5d4ec19e5ad42f8559c9f44cc4f4f119c38d
+android/app/build/kotlin/compileDebugKotlin/cacheable/caches-jvm/jvm/kotlin/class-attributes.tab.keystream        4,096 keystream  59b81e1c6d6b5e3bf5ae72fc338de720557621fd1e01d5886c2a50637429cb6e
+android/app/build/kotlin/compileDebugKotlin/cacheable/caches-jvm/jvm/kotlin/class-attributes.tab.keystream.len            8 len        df845d8c36966e606001d2ba89ec5564bbfc0a2a360f4933135bfe431b6efa39
+android/app/build/kotlin/compileDebugKotlin/cacheable/caches-jvm/jvm/kotlin/class-attributes.tab.len            8 len        3ded5eeaf070351f2850639127bd69a67f3fe2868126b68738df054241a86131
+android/app/build/kotlin/compileDebugKotlin/cacheable/caches-jvm/jvm/kotlin/class-attributes.tab.values.at           58 at         2ca4f5119d37dfb0a287b2e6f136f099e17ac44b2294c5e134357ff74e13e310
+android/app/build/kotlin/compileDebugKotlin/cacheable/caches-jvm/jvm/kotlin/class-attributes.tab_i       32,768 tab_i      f6e369f43931a3674d411749a420f22ddd0c94eed3a4977c139d4fb7ebb047e6
+android/app/build/kotlin/compileDebugKotlin/cacheable/caches-jvm/jvm/kotlin/class-attributes.tab_i.len            8 len        24b5d6e79d4d3dab7575da7f0beceafa9281c19295c6ce5ab31951db761ef188
+android/app/build/kotlin/compileDebugKotlin/cacheable/caches-jvm/jvm/kotlin/class-fq-name-to-source.tab        4,096 tab        3fe4de45eb978a806098d3dfb5b8920ff8995f06c678a39d94a94e68bc2535ba
+android/app/build/kotlin/compileDebugKotlin/cacheable/caches-jvm/jvm/kotlin/class-fq-name-to-source.tab.keystream        4,096 keystream  59b81e1c6d6b5e3bf5ae72fc338de720557621fd1e01d5886c2a50637429cb6e
+android/app/build/kotlin/compileDebugKotlin/cacheable/caches-jvm/jvm/kotlin/class-fq-name-to-source.tab.keystream.len            8 len        df845d8c36966e606001d2ba89ec5564bbfc0a2a360f4933135bfe431b6efa39
+android/app/build/kotlin/compileDebugKotlin/cacheable/caches-jvm/jvm/kotlin/class-fq-name-to-source.tab.len            8 len        3ded5eeaf070351f2850639127bd69a67f3fe2868126b68738df054241a86131
+android/app/build/kotlin/compileDebugKotlin/cacheable/caches-jvm/jvm/kotlin/class-fq-name-to-source.tab.values.at          287 at         e7ffc85d43a37a6522024cbf276330385ac67ffb5e2348df853a5f9c46342ded
+android/app/build/kotlin/compileDebugKotlin/cacheable/caches-jvm/jvm/kotlin/class-fq-name-to-source.tab_i       32,768 tab_i      f6e369f43931a3674d411749a420f22ddd0c94eed3a4977c139d4fb7ebb047e6
+android/app/build/kotlin/compileDebugKotlin/cacheable/caches-jvm/jvm/kotlin/class-fq-name-to-source.tab_i.len            8 len        24b5d6e79d4d3dab7575da7f0beceafa9281c19295c6ce5ab31951db761ef188
+android/app/build/kotlin/compileDebugKotlin/cacheable/caches-jvm/jvm/kotlin/constants.tab        4,096 tab        fc810293aa8b74b3876bd9bbc15bec6d85cba59a74577752afce1a6886ad7b83
+android/app/build/kotlin/compileDebugKotlin/cacheable/caches-jvm/jvm/kotlin/constants.tab.keystream        4,096 keystream  18e9425c9d1cbd0588debabe03a274b7ade531a25b4a5eae981f7ca0492cbe0a
+android/app/build/kotlin/compileDebugKotlin/cacheable/caches-jvm/jvm/kotlin/constants.tab.keystream.len            8 len        a6bb133cb1e3638ad7b8a3ff0539668e9e56f9b850ef1b2a810f5422eaa6c323
+android/app/build/kotlin/compileDebugKotlin/cacheable/caches-jvm/jvm/kotlin/constants.tab.len            8 len        89e0c32363a8888175ce9f2e88e7d410b693b21a18a98c755d671dae7ac2a502
+android/app/build/kotlin/compileDebugKotlin/cacheable/caches-jvm/jvm/kotlin/constants.tab.values.at          141 at         d78f8582ff29f17d64d5451a0312e0a6f79048b8a5525d38ec02a0b3210c1340
+android/app/build/kotlin/compileDebugKotlin/cacheable/caches-jvm/jvm/kotlin/constants.tab_i       32,768 tab_i      7e68ade4a37abcec754f72c5ebca1bfa299cfa2020ea6001747811d252790797
+android/app/build/kotlin/compileDebugKotlin/cacheable/caches-jvm/jvm/kotlin/constants.tab_i.len            8 len        24b5d6e79d4d3dab7575da7f0beceafa9281c19295c6ce5ab31951db761ef188
+android/app/build/kotlin/compileDebugKotlin/cacheable/caches-jvm/jvm/kotlin/internal-name-to-source.tab        4,096 tab        3fe4de45eb978a806098d3dfb5b8920ff8995f06c678a39d94a94e68bc2535ba
+android/app/build/kotlin/compileDebugKotlin/cacheable/caches-jvm/jvm/kotlin/internal-name-to-source.tab.keystream        4,096 keystream  41fbf1f0e9a526aa524211f7d678c9904b630942c1a345d547eea9ba9abf1faf
+android/app/build/kotlin/compileDebugKotlin/cacheable/caches-jvm/jvm/kotlin/internal-name-to-source.tab.keystream.len            8 len        df845d8c36966e606001d2ba89ec5564bbfc0a2a360f4933135bfe431b6efa39
+android/app/build/kotlin/compileDebugKotlin/cacheable/caches-jvm/jvm/kotlin/internal-name-to-source.tab.len            8 len        3ded5eeaf070351f2850639127bd69a67f3fe2868126b68738df054241a86131
+android/app/build/kotlin/compileDebugKotlin/cacheable/caches-jvm/jvm/kotlin/internal-name-to-source.tab.values.at          287 at         e7ffc85d43a37a6522024cbf276330385ac67ffb5e2348df853a5f9c46342ded
+android/app/build/kotlin/compileDebugKotlin/cacheable/caches-jvm/jvm/kotlin/internal-name-to-source.tab_i       32,768 tab_i      0edb82175248264736fd553174094a3b5d24e2da99dd3bfdc5e0987d8697950d
+android/app/build/kotlin/compileDebugKotlin/cacheable/caches-jvm/jvm/kotlin/internal-name-to-source.tab_i.len            8 len        24b5d6e79d4d3dab7575da7f0beceafa9281c19295c6ce5ab31951db761ef188
+android/app/build/kotlin/compileDebugKotlin/cacheable/caches-jvm/jvm/kotlin/proto.tab        4,096 tab        586ed9c6f30eb5d2a23cd2f2b8dd0742058e68c41519ca5f05cfbd9f38b9d9c2
+android/app/build/kotlin/compileDebugKotlin/cacheable/caches-jvm/jvm/kotlin/proto.tab.keystream        4,096 keystream  ee32696db5a6664a89874fcc9377f0c7b61e854e749a931741f83b626a00f448
+android/app/build/kotlin/compileDebugKotlin/cacheable/caches-jvm/jvm/kotlin/proto.tab.keystream.len            8 len        dae1e2586576bcf809d109fd6dc4592b84cdc8949a38be1f0e20562f1cb21c47
+android/app/build/kotlin/compileDebugKotlin/cacheable/caches-jvm/jvm/kotlin/proto.tab.len            8 len        c8d98b097cfd0fb8ae5ac1f8c38e56bfdcb456aedb71853788c41e6051d70f34
+android/app/build/kotlin/compileDebugKotlin/cacheable/caches-jvm/jvm/kotlin/proto.tab.values.at          771 at         9d6e99a9378aea6f20ec8b5f65e9f7dab05fc88a991913084052dbe5afc5b47b
+android/app/build/kotlin/compileDebugKotlin/cacheable/caches-jvm/jvm/kotlin/proto.tab_i       32,768 tab_i      af6f186acaae403200f7c1c407a4826777011502ce1aa5a4c3b11943d87aebd9
+android/app/build/kotlin/compileDebugKotlin/cacheable/caches-jvm/jvm/kotlin/proto.tab_i.len            8 len        24b5d6e79d4d3dab7575da7f0beceafa9281c19295c6ce5ab31951db761ef188
+android/app/build/kotlin/compileDebugKotlin/cacheable/caches-jvm/jvm/kotlin/source-to-classes.tab        4,096 tab        701e4ffaddf28737379d09ef60555e94d758cc196aa311a1c35f12c4d731c262
+android/app/build/kotlin/compileDebugKotlin/cacheable/caches-jvm/jvm/kotlin/source-to-classes.tab.keystream        4,096 keystream  79a17dba59dd5b7c247264846c5dfab5ac90493eb2153e83bab33c3126e110e1
+android/app/build/kotlin/compileDebugKotlin/cacheable/caches-jvm/jvm/kotlin/source-to-classes.tab.keystream.len            8 len        976aa270049d928d812c276cd65d3fcee5db0c4ce07fc78dd18c84962b4f4606
+android/app/build/kotlin/compileDebugKotlin/cacheable/caches-jvm/jvm/kotlin/source-to-classes.tab.len            8 len        708e21ef20762db9e4bbcd610d0ad759776a9a8d9766fd8da52760d74e6c9d76
+android/app/build/kotlin/compileDebugKotlin/cacheable/caches-jvm/jvm/kotlin/source-to-classes.tab.values.at          214 at         8077d99bbfb60f452a2bca022342d2ff5e783410671f49248f3affa257a470a3
+android/app/build/kotlin/compileDebugKotlin/cacheable/caches-jvm/jvm/kotlin/source-to-classes.tab_i       32,768 tab_i      2debd60c92c8fae781f35f1b6f40ed59c8e8b563ca003cce72190324b30a7f1c
+android/app/build/kotlin/compileDebugKotlin/cacheable/caches-jvm/jvm/kotlin/source-to-classes.tab_i.len            8 len        24b5d6e79d4d3dab7575da7f0beceafa9281c19295c6ce5ab31951db761ef188
+android/app/build/kotlin/compileDebugKotlin/cacheable/caches-jvm/jvm/kotlin/subtypes.tab        4,096 tab        b61bccd126b1bc230920265e8bba72a58b3de51c6483159a978a4112c6dfe1b9
+android/app/build/kotlin/compileDebugKotlin/cacheable/caches-jvm/jvm/kotlin/subtypes.tab.keystream        4,096 keystream  daff0f15a5a09f9f444c8286747c5da3ea85a7a3af8cfdb5476a87f5b6d0acec
+android/app/build/kotlin/compileDebugKotlin/cacheable/caches-jvm/jvm/kotlin/subtypes.tab.keystream.len            8 len        220b2f8d3e09ffab8feb349a5a0876dcf3325fa0a91514839622d2aca8159041
+android/app/build/kotlin/compileDebugKotlin/cacheable/caches-jvm/jvm/kotlin/subtypes.tab.len            8 len        89e0c32363a8888175ce9f2e88e7d410b693b21a18a98c755d671dae7ac2a502
+android/app/build/kotlin/compileDebugKotlin/cacheable/caches-jvm/jvm/kotlin/subtypes.tab.values.at          130 at         79056de805c311d95fc089e8c7d104244bf9ef74c583408a4ef884d21ae109f4
+android/app/build/kotlin/compileDebugKotlin/cacheable/caches-jvm/jvm/kotlin/subtypes.tab_i       32,768 tab_i      ed2194adad7506141300a908ed72fc3c0034fa9d02c437c936636f9f07cad075
+android/app/build/kotlin/compileDebugKotlin/cacheable/caches-jvm/jvm/kotlin/subtypes.tab_i.len            8 len        24b5d6e79d4d3dab7575da7f0beceafa9281c19295c6ce5ab31951db761ef188
+android/app/build/kotlin/compileDebugKotlin/cacheable/caches-jvm/jvm/kotlin/supertypes.tab        4,096 tab        a58629220475de0a5255ce275e3d904d2c74e0d7815e1ed5dcc1b1b44ca0e6e7
+android/app/build/kotlin/compileDebugKotlin/cacheable/caches-jvm/jvm/kotlin/supertypes.tab.keystream        4,096 keystream  0480882ea0bcc7809608287cadd4963e0518120e1fa1aec67f644b05ad712e72
+android/app/build/kotlin/compileDebugKotlin/cacheable/caches-jvm/jvm/kotlin/supertypes.tab.keystream.len            8 len        baf3171d1044111c1e2cf1fcc0f9c94f045ff22d338fd8f0425ce228a2ec2ac6
+android/app/build/kotlin/compileDebugKotlin/cacheable/caches-jvm/jvm/kotlin/supertypes.tab.len            8 len        708e21ef20762db9e4bbcd610d0ad759776a9a8d9766fd8da52760d74e6c9d76
+android/app/build/kotlin/compileDebugKotlin/cacheable/caches-jvm/jvm/kotlin/supertypes.tab.values.at          143 at         8764453c2cdc586c898655f6615ff4cf2f8bb2cb39de198af1ed52cc3c973fff
+android/app/build/kotlin/compileDebugKotlin/cacheable/caches-jvm/jvm/kotlin/supertypes.tab_i       32,768 tab_i      c1b571cf88a3ff31d67f05054efa5d012aca60ece2c8f8dc4699e6f9968808b8
+android/app/build/kotlin/compileDebugKotlin/cacheable/caches-jvm/jvm/kotlin/supertypes.tab_i.len            8 len        24b5d6e79d4d3dab7575da7f0beceafa9281c19295c6ce5ab31951db761ef188
+android/app/build/kotlin/compileDebugKotlin/cacheable/caches-jvm/lookups/counters.tab            3 tab        f4264fa5a25ba11ef2d19da54dcfb3274407eb15c775cb355dd88722fe4aa5bc
+android/app/build/kotlin/compileDebugKotlin/cacheable/caches-jvm/lookups/file-to-id.tab        4,096 tab        6020237df03d9c797c54575f34312e2895f387e64401d539ef696b41ca8a8b6a
+android/app/build/kotlin/compileDebugKotlin/cacheable/caches-jvm/lookups/file-to-id.tab.keystream        4,096 keystream  79a17dba59dd5b7c247264846c5dfab5ac90493eb2153e83bab33c3126e110e1
+android/app/build/kotlin/compileDebugKotlin/cacheable/caches-jvm/lookups/file-to-id.tab.keystream.len            8 len        976aa270049d928d812c276cd65d3fcee5db0c4ce07fc78dd18c84962b4f4606
+android/app/build/kotlin/compileDebugKotlin/cacheable/caches-jvm/lookups/file-to-id.tab.len            8 len        708e21ef20762db9e4bbcd610d0ad759776a9a8d9766fd8da52760d74e6c9d76
+android/app/build/kotlin/compileDebugKotlin/cacheable/caches-jvm/lookups/file-to-id.tab.values.at           61 at         4e6d9daabb1d42a5c0ba92467eb7856e23d4d70cc00e401bd8bd0f2ad2bdc859
+android/app/build/kotlin/compileDebugKotlin/cacheable/caches-jvm/lookups/file-to-id.tab_i       32,768 tab_i      2debd60c92c8fae781f35f1b6f40ed59c8e8b563ca003cce72190324b30a7f1c
+android/app/build/kotlin/compileDebugKotlin/cacheable/caches-jvm/lookups/file-to-id.tab_i.len            8 len        24b5d6e79d4d3dab7575da7f0beceafa9281c19295c6ce5ab31951db761ef188
+android/app/build/kotlin/compileDebugKotlin/cacheable/caches-jvm/lookups/id-to-file.tab        4,096 tab        6d6e5e78b1d8803870679f14901a9e9f913ebb30051a6efcdd558bba75a30314
+android/app/build/kotlin/compileDebugKotlin/cacheable/caches-jvm/lookups/id-to-file.tab.keystream        4,096 keystream  9018bbab392749b2831fba33c3f7dfed67ae118d883fe92ae421f7fa7da7248c
+android/app/build/kotlin/compileDebugKotlin/cacheable/caches-jvm/lookups/id-to-file.tab.keystream.len            8 len        cd04a4754498e06db5a13c5f371f1f04ff6d2470f24aa9bd886540e5dce77f70
+android/app/build/kotlin/compileDebugKotlin/cacheable/caches-jvm/lookups/id-to-file.tab.len            8 len        708e21ef20762db9e4bbcd610d0ad759776a9a8d9766fd8da52760d74e6c9d76
+android/app/build/kotlin/compileDebugKotlin/cacheable/caches-jvm/lookups/id-to-file.tab.values.at          206 at         b5d3b337d3b90794575a835329c0618ada44b318658a96d587c59fe272fb9175
+android/app/build/kotlin/compileDebugKotlin/cacheable/caches-jvm/lookups/id-to-file.tab_i       32,768 tab_i      237de44a3f65c9413fc2e6cca3f713c08c0519943a6f3445e0c7cfb2bebec14d
+android/app/build/kotlin/compileDebugKotlin/cacheable/caches-jvm/lookups/id-to-file.tab_i.len            8 len        24b5d6e79d4d3dab7575da7f0beceafa9281c19295c6ce5ab31951db761ef188
+android/app/build/kotlin/compileDebugKotlin/cacheable/caches-jvm/lookups/lookups.tab         4,096 tab        9188d8d47bd69b675cf969e704cc7b4e18c1a1abdfc6efa7d1fda877be97df4b
+android/app/build/kotlin/compileDebugKotlin/cacheable/caches-jvm/lookups/lookups.tab.keystream        4,096 keystream  b9a2459873bdc4971fa34342d4a76255063f79326d5b01c43190ee8822a87f67
+android/app/build/kotlin/compileDebugKotlin/cacheable/caches-jvm/lookups/lookups.tab.keystream.len            8 len        0ce9f21feda8089ecd3ea33a4c4e54c271c1eedfdf7f02cfc0d315047b46a97a
+android/app/build/kotlin/compileDebugKotlin/cacheable/caches-jvm/lookups/lookups.tab.len            8 len        e0b5436a04eafac910a94583e71d772a2d786e9aa272a4e0cb9ac108c9c8a0a1
+android/app/build/kotlin/compileDebugKotlin/cacheable/caches-jvm/lookups/lookups.tab.values.at          641 at         85d7cd6727bd2caa13871d69efb647485e9211c137d829b60c555360795bc584
+android/app/build/kotlin/compileDebugKotlin/cacheable/caches-jvm/lookups/lookups.tab_i       32,768 tab_i      194bc59eac6c3e3b40efea9787c578976e4dd849f890b0b0613c3c46e7254d8a
+android/app/build/kotlin/compileDebugKotlin/cacheable/caches-jvm/lookups/lookups.tab_i.len            8 len        24b5d6e79d4d3dab7575da7f0beceafa9281c19295c6ce5ab31951db761ef188
+android/app/build/kotlin/compileDebugKotlin/cacheable/last-build.bin                            18 bin        88e58d03dc5572f46199216194f4dc787180c9239db76f8bab5bbb8698477620
+android/app/build/kotlin/compileDebugKotlin/classpath-snapshot/shrunk-classpath-snapshot.bin        4,800 bin        e3a6da58dccf9e6138a4f0dcb6dc021c562c9747a043801b1b9e90ce14500e82
+android/app/build/kotlin/compileDebugKotlin/local-state/build-history.bin                       31 bin        b78d619a703f0d46def4f85e385e763ac678578f31fccd5bff4ee7da6f09ea65
+android/app/build/outputs/logs/manifest-merger-debug-report.txt                             11,927 txt        1e4bd8d4105b8d59ce7fa11bda1505c433d2fd7472653be284ce5364b946cbd0
+android/app/build/tmp/kotlin-classes/debug/META-INF/app_debug.kotlin_module                     24 kotlin_module e2b8b5222719fa218b9edf00bd059ea76cac07e46ba03d8cf9a1569e3fe35f0e
+android/app/build/tmp/kotlin-classes/debug/com/aura/aura_assistant/AlarmWakeActivity$Companion.class          951 class      b02828603a0479911571198b5f195da9d37a1dc9ed1db722b6ee18b8771da5c3
+android/app/build/tmp/kotlin-classes/debug/com/aura/aura_assistant/AlarmWakeActivity.class        2,698 class      7e51e40ec0c81eb0dfe73261328418e995f250094470fbc4b6c4c15f909ed433
+android/app/build/tmp/kotlin-classes/debug/com/aura/aura_assistant/MainActivity.class          586 class      c547620949c41f701bfe7c545b6bd0b6ffe4d8362191f21b91cd063164dbc6fb
+android/app/build/tmp/packJniLibsflutterBuildDebug/MANIFEST.MF                                  25 MF         566ad1.9.200026d05099562645ce968ff0e7c36cde22634332605bb34cc3eff
+android/app/src/debug/AndroidManifest.xml                                                      206 xml        328b226e78d9b8c914131dd388a60df02cf1bcf0afe208888e4d97f126da2a83
+android/app/src/main/AndroidManifest.xml                                                     3,879 xml        2c19dfb4f698fc586ed3121fe4edf936462b49d5d5aaf1dc9e8c6680b56e3e3d
+android/app/src/main/java/io/flutter/plugins/GeneratedPluginRegistrant.java                  5,413 java       e6167229a468009b40d20aa8d3ca33b606343259352b970eaa70f6400ac672cc
+android/app/src/main/kotlin/com/aura/aura_assistant/AlarmWakeActivity.kt                     1,373 kt         4b4b82fc3ec04c867385514fc108371bf34e0b7aac2856b61b3c8f3903319166
+android/app/src/main/kotlin/com/aura/aura_assistant/MainActivity.kt                          9,624 kt         2b2971c49738d80f41ad31f6cb5612b76391cbe7564a6eb895380021507a41c0
+android/app/src/main/kotlin/com/aura/aura_assistant/OverlayPlugin.kt                        28,041 kt         f5a17258a0dd2e8b9dfab5a325434f38985316cb46793d6c776ef581bfd41224
+android/app/src/main/kotlin/com/aura/aura_assistant/ScreenCapturePlugin.kt                  17,495 kt         c9cc183ca242c3860878dc0638c198b0b93e057088dc1a36718579437b127f39
+android/app/src/main/res/drawable/launch_background.xml                                        182 xml        db6df1815a65e1671ed3b17c0b6f49c7ce0d45ccd29dfa5a2cacde3606f1c6da
+android/app/src/main/res/mipmap-hdpi/ic_launcher.png                                            66 png        4a16ec40112698cf02b9abd3d18c8db65ce40f48f2c61076b45de58695f16532
+android/app/src/main/res/mipmap-mdpi/ic_launcher.png                                            66 png        4a16ec40112698cf02b9abd3d18c8db65ce40f48f2c61076b45de58695f16532
+android/app/src/main/res/mipmap-xhdpi/ic_launcher.png                                           66 png        4a16ec40112698cf02b9abd3d18c8db65ce40f48f2c61076b45de58695f16532
+android/app/src/main/res/mipmap-xxhdpi/ic_launcher.png                                          66 png        4a16ec40112698cf02b9abd3d18c8db65ce40f48f2c61076b45de58695f16532
+android/app/src/main/res/mipmap-xxxhdpi/ic_launcher.png                                         66 png        4a16ec40112698cf02b9abd3d18c8db65ce40f48f2c61076b45de58695f16532
+android/app/src/main/res/values/colors.xml                                                     257 xml        8f2b7f7b5af8673f660fe4ddf52d17aeb9edb30336557a475cce4c6fd1e66ccd
+android/app/src/main/res/values/strings.xml                                                    116 xml        6dcd037c41a2747b60f20b7812984c8c66432328375c191f7c3779eef5757b7f
+android/app/src/main/res/values/styles.xml                                                     405 xml        672628198be07b7f969268fd572d8aec82346415f0254bfdee40de3d345793fb
+android/app/src/profile/AndroidManifest.xml                                                    208 xml        d67e589851a932d163df047101b0313ec131f775db4430cbdcc88f68aeae8a6e
+android/build.gradle                                                                           417 gradle     d3beab27a30c637f6d334526c33a6ffd879649a261e3383c67807bc7013b40f9
+android/build.gradle.bak                                                                       322 bak        8904cf3c607888fc5006d7d6e6f294cbe73c09dfeac553c24b3809a40a4ebbff
+android/gradle.properties                                                                      272 properties bae7ff639a5d470417c6219f03610496dc235a7f6ab5fce44450b99ddceba830
+android/gradle/wrapper/gradle-wrapper.jar                                                   53,636 jar        16caeaf66d57a0d1d2087fef6a97efa62de8da69afa5b908f40db35afc4342da
+android/gradle/wrapper/gradle-wrapper.properties                                               199 properties 4a4ca7895b1f1c8f573f9d8535d0594f8cea6c13c7d45c006646ee006a84466f
+android/gradlew                                                                              4,971 none       ec56c02543666d92d9ac5ae7fcc48f88ce4de0deb8b7f9b39928ca46f68c1b2b
+android/gradlew.bat                                                                          2,404 bat        c13c6e91b9a517783976de213d46398c661ea9e17651376d7301e839eaedcc62
+android/local.properties                                                                       151 properties 4be8e207661e44d55505fbde68e447e7e9d52637a4a67f7857c2c59f1b9b3534
+android/local_maven/androidx/annotation/annotation/1.1.0/annotation-1.1.0.jar               28,478 jar        d38d63edb30f1467818d50aaf05f8a692dea8b31392a049bfa991b159ad5b692
+android/local_maven/androidx/arch/core/core-common/2.2.0/core-common-2.2.0.jar              11,657 jar        65308a06b1c00ee186cb9e19321383f043b993813f1522c47f4a3e3303bdba41
+android/local_maven/androidx/lifecycle/lifecycle-common/2.6.2/lifecycle-common-2.6.2.jar       52,314 jar        f34831b6c71cd844e1d35d1be49d5e79447c5ab856346531b1e8676fda7374b1
+android/local_maven/androidx/lifecycle/lifecycle-common/2.6.2/lifecycle-common-2.6.2.pom        6,581 pom        57304cdac4da289a6ecdd0738e16b1d8858f1ef8e9fabe2d65a963719fd81dba
+android/local_maven/androidx/lifecycle/lifecycle-runtime/2.6.2/classes.jar                  20,559 jar        6ea060cc3ded80fe7ba7407d8b0b6fc7f8ce67c025f67c893ed07b386a86fc77
+android/local_maven/androidx/lifecycle/lifecycle-runtime/2.6.2/lifecycle-runtime-2.6.2.aar       21,738 aar        4867fd5279742fba8388821930cb2affe06d81a52814e7e41e70392ea0ef887c
+android/local_maven/androidx/lifecycle/lifecycle-runtime/2.6.2/lifecycle-runtime-2.6.2.pom        6,877 pom        8175255546e2a5f510865f84ace680660954730240b1905d9175b4345beda977
+android/settings.gradle                                                                      1,094 gradle     a4c3c66921544e569f7bf74a46567151ce7a442e8361469d9da4975bdf78df78
+build/native_assets/linux/native_assets.yaml                                                    51 yaml       b436be16ba59725cd801de21e287563571dc35d3ffd8e381a20929e7ced40896
+build/test_cache/build/cache.dill.track.dill                                            58,615,432 dill       70345905aa8c8932ccf8d6578942c0fd6f877584d9c906c684857016afad03cd
+build/unit_test_assets/AssetManifest.bin                                                         2 bin        f566cc6fccc657365c0197accf3a7d6f80f85209ff666ff774f4dcbc524aa842
+build/unit_test_assets/AssetManifest.json                                                        2 json       44136fa355b3678a1146ad16f7e8649e94fb4fc21fe77e8310c060f61caaff8a
+build/unit_test_assets/FontManifest.json                                                        82 json       28b1eb2b3d2e1ad60b8c8b0f9100b1ccbf492f7fa97f5bebb51ea97e73926e7d
+build/unit_test_assets/NOTICES.Z                                                            98,103 Z          1214a6f936d54734f2e915b24b2e91ede79802a31548d97844a29dedea1e32d2
+build/unit_test_assets/fonts/MaterialIcons-Regular.otf                                   1,645,184 otf        d9865b671a09d683d13a863089d8825e0f61a37696ce5d7d448bc8023aa62453
+build/unit_test_assets/shaders/ink_sparkle.frag                                             13,032 frag       98626fc0edf9ad459cb340a72833c1bd5b9503c1dceef375bdcae64d6a0522ce
+l10n.yaml                                                                                      194 yaml       9d2b3b2fd7c8a053ef53af853a3ff481322307cf6d5a0e784010e00a7be4d447
+lib/core/agent/agent_confirmation_manager.dart                                               5,573 dart       228549fbc86a5f6169da188467b04bbb7d1976f08193b327e2e3751fd5714023
+lib/core/agent/agent_context.dart                                                            9,028 dart       70ec483e6a3b04f12bcd81b75033c15d185780883fabd9a90839b64c4ad4c436
+lib/core/agent/agent_engine.dart                                                            29,262 dart       607dc36d44ae4a7a99709ce2f52508834762fc1c0d46ceb6ed0f859b7f321fcd
+lib/core/agent/agent_error.dart                                                              1,137 dart       95ba8e3089a521309f1eab384c95a670beeef1345691b24b93727d02d665bcf6
+lib/core/agent/agent_executor.dart                                                          13,536 dart       df7e944bf9104ebcfd1c3fa036c8891b0d1f28190ee606047a30cab34e24e0cb
+lib/core/agent/agent_intent.dart                                                             4,257 dart       9152123ad5e89891210e7a0144549835d33684975741a301ff4ce6a16f5187ab
+lib/core/agent/agent_observation.dart                                                          333 dart       193389f0cc41a9d97aeea9cceedaa253e659015764d0f3aa2f054a8544fc33b1
+lib/core/agent/agent_plan.dart                                                               5,842 dart       10dc3c605425a6b24396ae624d4a71e176a722c8d62e677d4b6e18406685a5fd
+lib/core/agent/agent_planner.dart                                                            9,775 dart       5fd4aab39d174fc951f0e673fb1a16bfea32c1dfbe15fe834182c34f240acd4b
+lib/core/agent/agent_recovery.dart                                                           7,295 dart       e4afe7165101a8e09a3471ebef71215d91c3382e35bd5f78a5bc3a75307e50fa
+lib/core/agent/agent_replanning.dart                                                         4,178 dart       33b4c13cca19a9cb38fc54fb7a6426889ed08ce559d8fa82b06231ba0c2c128b
+lib/core/agent/agent_result.dart                                                               920 dart       90b3eb921260d7f7ae913142fa5bbb1dbd84d6ac9c2f00dd7a474bf19619f76b
+lib/core/agent/agent_state.dart                                                              1,703 dart       3817aa6105def89681b5aa6dc781b8599b19fc88b0d18aad3ff332096d662b80
+lib/core/agent/agent_step.dart                                                               4,367 dart       f38478a3eb94912e92910dec21152e4c4c0f9ea48eb884b1c0cee1b5da2fcaeb
+lib/core/agent/agent_step_status.dart                                                          535 dart       ce82249195fafaee04de9e1f6721a84ae1fc76b7652e23d3c9b6e88580ee2f67
+lib/core/agent/agent_verification_engine.dart                                                8,842 dart       7e28186c1d76dba069dfb2a832f8bb7b4ef15b3980b099c784e756f8db8ecb9b
+lib/core/agent/retry_policy.dart                                                             2,046 dart       fca157f06949a43042a39f59f6fbc6c3e2f3fd3f903d5ea650f533927292ffdc
+lib/core/ai/agent_engine_adapter.dart                                                        1,630 dart       824a78665591f3681cf18499b63a241fadbef597ec756245bb7655abd739e3e6
+lib/core/ai/ai_message.dart                                                                  3,144 dart       615dff0f89012a6ba1f8f5b98f83d4a1ac93d1edbb6a6a60e29070d525cebd52
+lib/core/ai/ai_stream.dart                                                                   1,174 dart       e13ec3b89ba7deac59c4e154419fa7409ec853e412cc51cc96f17ab7b65d836e
+lib/core/ai/openai_provider.dart                                                             7,396 dart       9c1da5a090b597b7f715a6e85333b8b3e12c8c51210da80567d880457ef9b156
+lib/core/ai/provider_exception.dart                                                            899 dart       dcd97d74f75dabdea6e1774e46c759d191e00d104ae46d84c85d2695113029f3
+lib/core/alarm/alarm_audio_service.dart                                                      3,641 dart       aa645baede43d01eb1412807c7f9c712fa38e33b627c96aa0100d817ba42354f
+lib/core/alarm/alarm_scheduler_service.dart                                                  7,804 dart       00f5b62f58eb0cfe733400c7129878d190146a3044d1ea745440941389b9974b
+lib/core/alarm/wake_verification_service.dart                                                9,606 dart       52220db6614d5d3423223230351e7603533b9254c89141869f06b4ab6de78bcb
+lib/core/alarm/wake_verification_state_machine.dart                                          2,941 dart       c3a0a72a6548d44797bd13e0aea43b3d1aa7c4b68de658e14ed81516dc42f3b7
+lib/core/constants/app_constants.dart                                                        1,640 dart       95d2338a670d401206aae62f78179447e5c0485e0b75c980a7ab86995cf66ada
+lib/core/device/android_device_channel.dart                                                  3,566 dart       95c66e7d30a996e70d6fe7bbc1a621de47e27969cf251c4474b0c00774e7c19d
+lib/core/device/device_channel.dart                                                          4,404 dart       69864abc303b75db6f2a1474c6f44c357e313e5b7fca1bea80f3535cacd26a97
+lib/core/device/device_service_impl.dart                                                     2,128 dart       6b7bba9eb7c0b0cc1bb15e9fc88b463e2694a2503f3a093251ba7cb11dd64dd0
+lib/core/device/stub_device_channel.dart                                                     1,470 dart       af87eff54f467c89c433a115f49be2317b9b434c1fe4b6af33bf02aec3d2bb5d
+lib/core/errors/failures.dart                                                                7,087 dart       32a003c5919095a5d8e3fa9ad756cdd1dfdcddaacee239df9e76e6b3ac9f0788
+lib/core/errors/network_error.dart                                                           3,327 dart       0111d1aebaff6e22d828518c802e7f356221d5c5e392d358d9d816d4ba2b5388
+lib/core/errors/result.dart                                                                  3,073 dart       ba9bfbe67ce28a6f9f956941a0c58f9bb06ecd96d1ff4182302cc06653fa7746
+lib/core/floating_aura/floating_aura_constants.dart                                          1,960 dart       d842c3fab95aa023458d7c219df0aa578e14e2a6d5c004fd447382721a8015af
+lib/core/floating_aura/floating_aura_method_channel.dart                                    10,708 dart       227e7be293032a9bed5c3ebf7b32d37c149d6045f47f3f704c5249698c8de97c
+lib/core/floating_aura/floating_aura_overlay_position.dart                                   2,187 dart       933d2fbcff6c4deca03975a626733b3c50b1ec9e7564b98bc7ecd6e6e596f546
+lib/core/floating_aura/floating_aura_provider.dart                                          11,164 dart       01a25349d8d17e98624cac3c6ea93c8490b4a4dc749306c022a10c52e17623e5
+lib/core/floating_aura/floating_aura_service.dart                                            3,795 dart       78305fa18573e4371f7d2f94c93fd29d83b9fa5448a2859170336bb3406c4520
+lib/core/floating_aura/floating_aura_state.dart                                              3,460 dart       8d31c7295b65ac7a8ef094e620a8c7a98687fac1c540f2d951c902570b47ebb5
+lib/core/floating_aura/floating_aura_stub_channel.dart                                       2,793 dart       37f97886d262a20c7ef2d5032b17b31d9b80ce7f774991ccbc73f0ca8609f2e0
+lib/core/localization/app_en.arb                                                             4,087 arb        5941aee5978129ae2a664e52a94dd7371842cb07d7b901f4d5b06cef32cd34d8
+lib/core/localization/app_ku.arb                                                             5,404 arb        b9d36ea6bf1de72aeed39cdc4336bfa293e63fa05aa3d4c5848cb58929f80fc1
+lib/core/localization/locale_provider.dart                                                   1,366 dart       a68d42f31fe786c2a4e0a50097a6c36c57e9bd4ecebd2e70e71d0418a986b24f
+lib/core/memory/conversation_provider.dart                                                   1,272 dart       ad9c067d85eaac993db63c7f8337c8129783bea96920ece3b99756cac3cb91cd
+lib/core/memory/memory_database.dart                                                         2,028 dart       6ad0f67ea77e472c0179c7fdea3b3943e048e9ccda4d9a4fdfe43e9f9cbe12b3
+lib/core/memory/memory_repository_impl.dart                                                  1,700 dart       0f940b754e91a789f9e6720b9ae91fb2569d14b1ecd7b072219f8a4431c73eb4
+lib/core/memory/memory_service_impl.dart                                                     2,949 dart       b90831b64db4808478ca4fecd5942608cf69e23ecf4781f2ccd359f957febe8f
+lib/core/permissions/permission_provider.dart                                                1,535 dart       aec9f78933a8f8d9cbfdea0155049b00cfeda76904968285a0e6ecec3a0a32f7
+lib/core/permissions/permission_service.dart                                                 2,203 dart       fae9cc53e1567baff4b7bbabba202df7f9608d6abb7e373545743758aa6052fa
+lib/core/providers/phase3_connection_points.dart                                             3,351 dart       d8af69fe7585b36699981f7b69bb55d4e2838b6383425bfdeedef0b5b65f86ab
+lib/core/screen_capture/screen_capture_constants.dart                                          938 dart       4f94be94106ff5110fbdf95fe133e651aad258e7007ea334e8f77491ed965685
+lib/core/screen_capture/screen_capture_method_channel.dart                                   9,916 dart       5bab86b88d6869fad89a3b0f4c5cba32ca0cf1393243d8a230375d626b6b3f5b
+lib/core/screen_capture/screen_capture_provider.dart                                         4,827 dart       2df8e1eb0ced417e22404a5554c708eab902e920c173810bd80068ae80679cbc
+lib/core/screen_capture/screen_capture_result.dart                                           3,732 dart       4058c160b3bd809fa9e4b9d36bee76e27b6ad51472e4d684646fc0b48b6dcd3f
+lib/core/screen_capture/screen_capture_service.dart                                          2,658 dart       b52057a8b09b69b98cab5686280cd85094ffe2cce902862481648a5b69b2f204
+lib/core/screen_capture/screen_capture_state.dart                                            3,021 dart       188957fe5f9793225c62f060f2ee2533f13b753d4c6737978624654a7872f0b3
+lib/core/screen_capture/screen_capture_stub_channel.dart                                     2,046 dart       5f9b5af5cf7ee5d11967ec052e6e57d8fc00d9b7a87436f8241791d4a2fb46bd
+lib/core/screen_search/search_engine.dart                                                   14,319 dart       147a6363b8b1fa4f4ede462d481faf9526106cb2eeff85ce85b29d51b08c61cc
+lib/core/screen_search/search_provider.dart                                                  2,389 dart       a73af29a75670dd22c70ec474155d008d7e7a00d6e4e75083d51f9ba9466770c
+lib/core/screen_search/search_result.dart                                                    5,678 dart       9495f0fc697d5b6bcc307ebf75465c758633b4d763ae64bd360cab9a6fcf3bb7
+lib/core/screen_search/search_service.dart                                                   1,724 dart       1abe212f742f17c65471fd1cdc37a5d258c4e76c83c39907c8cbc864357a8159
+lib/core/screen_search/search_state.dart                                                     3,458 dart       a75b779b34ad054e03f4bd7c248725a75031b996daf16f7b464463d2670c62bb
+lib/core/screen_understanding/screen_understanding_engine.dart                              24,760 dart       aef3e5aea137af9c1b2160fda7f6e2a4d261d296be6960f1526a90bd40b28fd0
+lib/core/screen_understanding/screen_understanding_provider.dart                             3,490 dart       35935789c75fae2248613c93ff3fa3b7bc1d5b7cefad3239d56f9baee1b24040
+lib/core/screen_understanding/screen_understanding_result.dart                              10,109 dart       522cb57c415bba3bf068cbc611ede92dfc844e75505c29cbac90dd38051e73bb
+lib/core/screen_understanding/screen_understanding_service.dart                              2,027 dart       a13703329250325b7cb22a77cdd01a9626cdbb4a8a917efe3921bf61edbbc560
+lib/core/screen_understanding/screen_understanding_state.dart                                4,652 dart       9a2ae912403148fe9192308e01dc61d9e46c93a505df58bbc7545fd332359f9b
+lib/core/security/confirmation_guard.dart                                                    9,190 dart       c443c0c4227016d238534bfa4f184641c12c1464b96ec5da6c367357ea1d22b1
+lib/core/security/permission_state.dart                                                      3,137 dart       1e8a5e7d5300c27533bfc3ea2900a78020401955c3e4153c8180eec9940d77a8
+lib/core/security/security_messages.dart                                                     7,419 dart       4115db54c1578e5a91d86b063f8a04bdb3bf15141f2de7ff9d736b465d4df8e9
+lib/core/security/security_policy.dart                                                      10,687 dart       df66d98b79a3e1b1ebda9a93388a06adfba74cf2cbc0764f6c07d73a5818397f
+lib/core/security/security_providers.dart                                                    1,743 dart       0717275b71524a19f845204e561e0f1e28a08c7ba4570fe0d0950f61ef0082fa
+lib/core/security/tool_security_gate.dart                                                   20,694 dart       8764c527fe028e29055ed01f490a52ea3bcb0780e547ca12620b91809b3bc4b5
+lib/core/theme/app_colors.dart                                                               1,184 dart       78cc71c3a227f911934e4c7838e079a77996d17d8dbe9eeb3365af125a5dad78
+lib/core/theme/app_colors_adaptive.dart                                                      4,338 dart       9774a00720575c4acdfb8db252202511e965f91370c15b39a10d9b7002f5176f
+lib/core/theme/app_spacing.dart                                                              1,351 dart       7cba232e219f25cd794312afcb76b09aaf8ebf990a3e501abb5858e4bffe3063
+lib/core/theme/app_text_styles.dart                                                          3,569 dart       9c64f0b30f4c3aa2edb6c64672aa03ffb4f22d63100df788f5242318ea5ae91f
+lib/core/theme/app_theme.dart                                                               14,879 dart       6d84c29fab741e677a2d81dc82aeee58669754c30bbdcb516be000f0cf420416
+lib/core/theme/theme_provider.dart                                                           2,233 dart       c0bf8a19fbdf6e24cd8845667855686b4a045c568c6d3d84ca116d54300dc30b
+lib/core/tools/alarms/create_alarm_tool.dart                                                 3,505 dart       53bcf69b471ec0514cda1126e19c97a87d2a22cdf0a398056ecba204c5283f01
+lib/core/tools/alarms/delete_alarm_tool.dart                                                 1,003 dart       c4c7f02a3394cec1752b2c3ce48647dc4aab9177d1f579ef0f2848541c60ddbe
+lib/core/tools/alarms/list_alarms_tool.dart                                                  1,198 dart       f7a15c263c4a91ab9ea55dae09bca090b6fd41a5fe59fcf44690bb86bc31f30e
+lib/core/tools/alarms/set_alarm_tool.dart                                                    3,053 dart       456053ebbaf537fda81605f1e446e029dbdbe13145f8c4cfbec701ce6fb01089
+lib/core/tools/alarms/update_alarm_tool.dart                                                 3,501 dart       a0fec1d4c27b13892a0ce8490674e297435dcbc3cbfda56e7fb36c8aa74dde92
+lib/core/tools/device/app_launch_tool.dart                                                   6,536 dart       646ade806acdbf12dbd6ba73330de3666a13379b4c88b4dc3bdd5175b9a054b4
+lib/core/tools/device/battery_tool.dart                                                      1,971 dart       e93be25efca668b4ff050f5bdbafc190105f323cea75c1b7b8b3e262f884ec6f
+lib/core/tools/device/device_info_tool.dart                                                  1,866 dart       53da7a2c1634d46611419bb8a8d2d2dd5a46aadf79b3089c80e16be4844e3590
+lib/core/tools/device/device_tools.dart                                                        317 dart       1351ca3a2b2e64827b088666c7bba8b6c26cc71104b3c907ee85d946ab4e03d7
+lib/core/tools/device/network_tool.dart                                                      2,430 dart       f9da093fcf0a8981dbf146ec3173e1f464726a47c621afe62876954a0ec137fa
+lib/core/tools/device/system_settings_tool.dart                                              7,129 dart       58fe77b6519914c33ed21e2ef85e9206b153043d852ea7f2ee87f40704497b74
+lib/core/tools/device/url_launch_tool.dart                                                  10,952 dart       816385cf4b6b21ae4484bae6d8ce337a3a015f4c23858c44ee3f1a0209d484a4
+lib/core/tools/tool.dart                                                                     1,092 dart       c36478c3d1ab7894084ec2f2d812baa11f39a09e25135f404be3e4d74672cb5e
+lib/core/tools/tool_arguments.dart                                                           3,428 dart       3ad2fcac81ed9dc47a763f090b48fe1c719e1980e2cec50d6a4ca295ef1b31e7
+lib/core/tools/tool_definition.dart                                                          3,259 dart       9985306e3705cc46b8080329e2babc2bd72d8b41c4b5464d380bd8eff1a9e092
+lib/core/tools/tool_error.dart                                                               1,273 dart       bd2d5c0c9e60af4eaddebc342989a834f094989cf34af43ce8478229becbdca9
+lib/core/tools/tool_permission.dart                                                          1,337 dart       4155ddc8afb408af26aa71e5d2599c95cc8e58adda4d9ab1845be6751eba123a
+lib/core/tools/tool_registry.dart                                                            4,481 dart       7f70fe1e23dd799f6aeaac5fbe1ddee7e0db35e9c863377a44eab1d0193d2d7d
+lib/core/tools/tool_result.dart                                                              1,218 dart       95a2ba9e1f925222d227d6d3d4aab0c6e228d5d1c330966d361b9c50724894e9
+lib/core/tools/vision/analyze_vision_tool.dart                                               2,530 dart       56ab3c531af063fd1d42c9dce79d12b6a60c34ea1c93833c7383f4131437428b
+lib/core/tools/vision/find_object_tool.dart                                                  2,589 dart       04e1a08bd2d3960ba6dbb1139b7204238332aef5023d70c36d1f9d54e4c23ece
+lib/core/tools/vision/locate_target_tool.dart                                                3,438 dart       fddee0310274a09749df2aa76da374ad21fd34ef38b28458ffbcb4848d9a1470
+lib/core/tools/vision/open_camera_tool.dart                                                  1,634 dart       3c98cc0fc7ca69f7cad11879a68eb78272fd0995ae7d1045ebe7355ea32c173d
+lib/core/tools/vision/read_text_tool.dart                                                    2,456 dart       3f42d4a491f52443da57c2a381e02dfba42193d7596c7659c7c841ef946c4397
+lib/core/tools/vision/vision_tools.dart                                                        163 dart       2f291fe672a24b82cdae91e28a4e25778e95f2f1ec7971afd190650dbb5102da
+lib/core/utils/extensions.dart                                                                 858 dart       d8363725d679f497942b84694c937df2d481882e91454b4e3fe765740f2601e5
+lib/core/utils/input_validator.dart                                                            963 dart       40d01e7d3e6b57fade08fafbbb65ad10f7ec5e7b6d8c173eb7f1a2048d8bf53c
+lib/core/utils/logger.dart                                                                   1,537 dart       194570929e776ee75ee3eae6fcd8685b5ccb85e41af388732610ae5bcef0da87
+lib/core/utils/responsive.dart                                                               2,101 dart       c129d97cc30a4a20e75c48c422d5b735d80ac447f7eaa32c1f5523c27e18e620
+lib/core/utils/uuid_util.dart                                                                  920 dart       3e1631fb82d9e026a1d79d877cf3af209807295adfe48fc9f32df93609089901
+lib/core/voice/speech_recognition_impl.dart                                                  1,713 dart       f788064f223e1038d4945466712bb186d6b9717a931e3c21695c67359e42b8bf
+lib/core/voice/text_to_speech_impl.dart                                                      1,332 dart       4c6f2defcbd41a568371bd04148f4be24d6f9b611f7d0b98f6d1e672d23ba496
+lib/core/voice/voice_service_impl.dart                                                       2,905 dart       b332e4c35771c45e86a2899017766b3eb700ec07851a84d1fd22715688370b0d
+lib/core/voice/voice_service_provider.dart                                                     796 dart       95a51f773b4333eb8b74f098a7d8d4365e2f78fff110a7300f17c42c3cf841ba
+lib/core/voice_screen/voice_screen_constants.dart                                            2,172 dart       aaa4a21e1198c72ffb92417604a95733107801f1347004ece945b6282a2055d3
+lib/core/voice_screen/voice_screen_engine.dart                                              19,800 dart       104cdd542cde741d4fe8dd6cce5b76f1c8354bc179d504fbcae6241ddd9c303f
+lib/core/voice_screen/voice_screen_failure.dart                                                288 dart       4c75185e8871620f5a315b0d96bf74edeeffa0348e34ecbe7e06f90231079097
+lib/core/voice_screen/voice_screen_service.dart                                              2,324 dart       438998910d13b3a7cea153a10e0e6a368b5db16384d785aa89d98ae74c9394d5
+lib/core/voice_screen/voice_screen_state.dart                                                5,329 dart       61f92e1348d117ad3e0002528859ef189b1c03eff7747512b9d37831d995226c
+lib/core/wakeword/wakeword_provider.dart                                                     1,352 dart       140745bd26d43225129a161e19ca04e7933fcffdb63832b60970830c3bb3b3e6
+lib/core/wakeword/wakeword_service.dart                                                      2,217 dart       fbd7a08feb9b7a81d571ab1b075772f0bbc777d90797814de2b2d374fad9d50c
+lib/data/datasources/local_storage_data_source.dart                                          3,276 dart       a964b06a6c0113870bb99b19b278da570469b10153d2455831e8a92418a60774
+lib/data/models/agent_config_model.dart                                                      3,260 dart       fc90e668aff7473cb1d4ceebf7e2c5b6deee6b3fd7b8d33d1602a9021e26117f
+lib/data/models/app_config_model.dart                                                        1,603 dart       a55db8ff4a79f4684162d78a7bdad4ee9f0d0a246028aefcb8f697fdd96fe3a7
+lib/data/repositories/agent_config_repository_impl.dart                                      1,792 dart       8f54eca86bc06933e293270f5daf07d8c462ec355a8a71ff988041c4cbb59f57
+lib/data/repositories/app_config_repository_impl.dart                                        1,307 dart       05cd6ec57280da7c5fd7c4e9df98d8e760dffd8ae77bd373f7a984609fffe2c6
+lib/domain/entities/agent_config.dart                                                        2,050 dart       f25d6ca5b2d17a15c161689bf3a983be9af3240806b5ee7b9087bbceb805fe78
+lib/domain/entities/alarm/wake_alarm.dart                                                    3,716 dart       1b677fad8bc69317237f8e7e74fe90b6021ac5d1ccbe72f683b876e222a49f21
+lib/domain/entities/alarm/wake_verification_config.dart                                      5,162 dart       4b9c0c0ff8dab3a773b07b3423db9d15ebd54fdcafd63d505cb2a1986b5ded7c
+lib/domain/entities/alarm/wake_verification_state.dart                                       1,956 dart       064db18909ce23330148af90813564b0f5009f65eea6f8f9b9861b8fde3342ff
+lib/domain/entities/app_config.dart                                                            886 dart       7e2b4105f15dc0f8211bb0cd793f5b564f7f3b4afc465b4a51e78c9149418259
+lib/domain/entities/vision/bounding_box.dart                                                 5,758 dart       0f9d00c3effda979bb7b532cace94f092064f147a744fd01ed4eac90f9780e83
+lib/domain/entities/vision/pose_landmark.dart                                                2,330 dart       4ad7d372a5210af372a1b85b22eef336af49f8482fe3b74862bbc9f676620f94
+lib/domain/entities/vision/vision_entities.dart                                                164 dart       cef3aded31819ed5772867103f37a2bd22ff4d6a0ead0ece02250db36ef47aec
+lib/domain/entities/vision/vision_result.dart                                                3,012 dart       b32c5f1ed0ad64bf91a56ad716e76ec58a9796fe935cc00ea7de612910c2e597
+lib/domain/entities/vision/vision_target.dart                                                2,650 dart       036fb89ef5bf7e2d065c771c0373095917551b6ef924697d5b0c8ad49f472618
+lib/domain/repositories/agent_config_repository.dart                                           605 dart       d29949fb722770a1f80495ae928e39d97f73890bf55efd53bfb2e123bbe0b593
+lib/domain/repositories/app_config_repository.dart                                             450 dart       15f72d3390980ce93ba7a73313a776478e74e587266d39ac5950de626a316966
+lib/domain/services/ai_service.dart                                                          1,857 dart       e1ec5801e0a93bec702b94a8d96ab1c16dfc4a5b566f5090bb387b73d4e54b9c
+lib/l10n/app_localizations.dart                                                             22,985 dart       b59960ac0cae0ed12527d4dc83de7d492406c4ad5c5af3b44d4d7f98abfec20a
+lib/l10n/app_localizations_en.dart                                                           6,964 dart       1660e53852e608733d8edece9b4bb9a8ffc302eaa1a98b01e95a5acfa9acd7cf
+lib/l10n/app_localizations_ku.dart                                                           8,280 dart       7f37ac3b255fdfd17bb0a478243567c7a1c3057d8b54d1e707492cba548a5a98
+lib/main.dart                                                                                4,569 dart       4130bcaf512c40ae22ea56d89308603c16d6f583c61db5f3c70458fc055643f2
+lib/presentation/providers/alarm_providers.dart                                              4,447 dart       73bfada699ef92dcfebf67ab29a9e5e36ec46449a12221e2baf3c83b85070df8
+lib/presentation/providers/app_providers.dart                                                8,860 dart       7f3699ff51dff6f065b18be3008631c929538cca47e3e5f222a196ce4fd70ee5
+lib/presentation/providers/vision_providers.dart                                             9,360 dart       494f38ea7e39e70192e0c5e131a5db07a781216af82a90df64acf50b19e19d3e
+lib/presentation/screens/alarm_list_screen.dart                                              1,766 dart       1596605de61a751e18e7d731077973f3b2518c13bd2787ab0512aae550cd1583
+lib/presentation/screens/dashboard_screen.dart                                              11,763 dart       4ea1a8199c1ef4f2619cad78dd551df728c6a5cf6b19feeffaa2b724109aa5b9
+lib/presentation/screens/foundation_screen.dart                                              3,079 dart       e7ef590c54d241e9771d0f9113eb7d9e24b74e293af587e1283c4563232c5459
+lib/presentation/screens/main_shell.dart                                                     2,071 dart       ec46c474a68c7131de7ee76a5e778db94c4b84ca539b70537c79591bdb83c672
+lib/presentation/screens/settings_screen.dart                                                6,710 dart       db80b43b98dc9e69aa940c8132cdee444e465100bd9e87bb48b454eb7680d0d5
+lib/presentation/screens/vision_screen.dart                                                 31,620 dart       35e5aeb3002fa5dc39f55ca3a79d9ceebd6e564ce77ac1e3253c7cf8debc5b92
+lib/presentation/screens/voice_screen.dart                                                   7,734 dart       4f852d32e6b64fb403ff07c76275685ddcd619940a3a16ee8c62a2f8b134fe2a
+lib/presentation/screens/wake_alarm_screen.dart                                             13,662 dart       9f68dcd2f06e99dcc70866c0e44b2baf823d20927c5b50dccb3ce34ca339bcbb
+lib/presentation/widgets/alarm_settings_section.dart                                         4,544 dart       dd1fdeb50212ea99ca2e074cb87d3f285f0fccc0009247ee70646277c6ebdf66
+lib/presentation/widgets/aura_app_bar.dart                                                     687 dart       bf225f7d86a82fa4757f6af65c58bc2a0dcaf04d87c6fb6e3bde4e90750e88c3
+lib/presentation/widgets/aura_button.dart                                                    5,731 dart       f50f70afcf27b4871ccb8f3133f8d188f54c803b790bdb23102428571cd4dc3e
+lib/presentation/widgets/aura_card.dart                                                      2,173 dart       28ca6dfd3dc1289fa83845c3678d7595bde852138b11e92dde430aeca61abc1d
+lib/presentation/widgets/aura_dialog.dart                                                    3,534 dart       4d397bb493a9b737068ac74d27e8327241ad9564fe3c418de71db94efd731acc
+lib/presentation/widgets/aura_navigation.dart                                                2,294 dart       4d713defb911c811df3db61959eacb796eae2dcfced78ce83126d31ec404f057
+lib/presentation/widgets/camera_preview_widget.dart                                          2,989 dart       48432f89a3ec8a6746cee6661a42395e1e12c696fca1bd05c66e5493f4f5acde
+lib/presentation/widgets/empty_state.dart                                                    3,957 dart       3d03f88d42c98a5348b98f2cc4444fc40c95a618940b003bc5e33843b5f181b0
+lib/presentation/widgets/glow_effect.dart                                                    2,488 dart       fb8885749a887a689b683634de790227c863eb765083841ba7873d50eb670627
+lib/presentation/widgets/loading_indicator.dart                                                541 dart       9be48d577f147b5c73e299e848b379292c5f445b0f827e5280820419b8344dd3
+lib/presentation/widgets/name_editor.dart                                                    2,072 dart       899f63fe139816d009804e3211d1ab73835ed105a0592c0dd70c3e3d039732fd
+lib/presentation/widgets/pulse_animation.dart                                                4,276 dart       cd6ec1f61c39c3ce0f8b483d7145825da5f412b59828d1549e43fb5cb586cdef
+lib/presentation/widgets/quick_action_card.dart                                              1,959 dart       17a386d22d07198635b7f4dab60bc7e6aa97d106c819a3deb62e80db7db88571
+lib/presentation/widgets/status_indicator.dart                                               2,824 dart       c21a4c8925982ca8adb9e8ac38c5fda6861b96ec6c6e0de6543a6891c3286abc
+lib/presentation/widgets/theme_selector.dart                                                 4,616 dart       8b53655428fe2aefe0c145d4b88067f043aba258875eacf10fc990c7e9092063
+lib/presentation/widgets/vision_overlay.dart                                                 8,073 dart       dddb82495863d454bf460d5e0fece24e4cbfa9dc13cf9221d4cbba303a860683
+lib/presentation/widgets/voice_button.dart                                                   2,852 dart       e141e49ead5e8dcf04d19cd4d8161b27057ce15ec75b7fc257f46a001fb26a68
+lib/presentation/widgets/voice_visualizer.dart                                               6,393 dart       a0bc383c9b9f65e76063eff93f5bd0c5cdf9a99abf099aec9b6ca4f6c1a19960
+lib/presentation/widgets/widgets.dart                                                          535 dart       ffdeb1d8d80e495ef7579af610c0c162f6a1eddfa6df0a553d4fa691804e09dd
+lib/services/ai/ai_provider.dart                                                               929 dart       5e97f6a44e5be1dae8238e6a3a5a774c2457af1eef27f6fd84d9d03cfe89f2d6
+lib/services/ai/ai_provider_manager.dart                                                     1,121 dart       e6912b363902cf03319103d56082ce31249418331c439df51ba8937c1841fd48
+lib/services/camera/camera_service.dart                                                        641 dart       d482c08f44683578debeb475162fb1374af1367d41433ecaea9328a46924859f
+lib/services/camera/vision_camera_service.dart                                               5,462 dart       224fc80b240c245f41be31fc81262e6a733e624c930720053be1254f0ec98c73
+lib/services/camera/wake_camera_service.dart                                                 6,744 dart       73703f339dd51ed77592f6d2daa99a319acb01f9ff4d5b626acb05cbe6a7a117
+lib/services/device/device_service.dart                                                        610 dart       efb54080aa0201298b341936959eb9046df374e72083fc00dd3bf2667c3c32cc
+lib/services/memory/memory_repository.dart                                                     892 dart       6f42b0a275c3a7a79c2e8416b0730b7c06a6678477a26835df59857397182cbc
+lib/services/memory/memory_service.dart                                                      1,675 dart       341e6c983df2f9bace734450db45f86c27b157c9265549cf13543d7054185ba9
+lib/services/notifications/alarm_notification_service.dart                                   3,962 dart       05deefd9483dd69ebe3337f691f072acce92b8d5c387df760da60050a019a4cc
+lib/services/notifications/notification_service.dart                                           637 dart       227dc6788dead6f0147ffe93e2ac1606672739f6930f0c635582dcb131cad415
+lib/services/security/security_service.dart                                                    720 dart       befa38ab698c88c281399fcbe9521c93e94f3d7a961ffc9cb6de394b753b9747
+lib/services/storage/storage_service.dart                                                    1,805 dart       d55a0a86317dfd99e36858bf6cc16a7a9718945ebaee9338b34abd1bf843ac10
+lib/services/vision/openai_vision_service.dart                                              11,808 dart       4c4b0f75d69ef98d9736bc8226537a38b94547810c5e11039642b70e6e3cb861
+lib/services/vision/vision_service.dart                                                      2,010 dart       8fbcfb09de9247d934079939a00df9d32955f05de10c9117c9920c9d3bc6239d
+lib/services/voice/speech_recognition_service.dart                                             732 dart       9564006301cab57ead9a65e6ccdac0da940a1afdaa7a61a468dc67c8986247de
+lib/services/voice/text_to_speech_service.dart                                                 546 dart       b061a0ebccd6c0bc0cae96f0d13a32e734987ba5ecc4a0f76abbbe9b59bcbacd
+lib/services/voice/voice_service.dart                                                        1,050 dart       80161ba2cc9b5011a9eb37515122c2cf305c434ff53da62533c274eed6bb1236
+local.properties                                                                                80 properties 64e0dbeb3357021fbbf905b9eaf9198883e6083342a86696eb0895ec1ea441d6
+pubspec.lock                                                                                36,922 lock       3a449e346ba50a4ef74af43a55973baa4fe88d4b25b1d2fc6912b404c7f7c69e
+pubspec.yaml                                                                                   975 yaml       b6f1264e5d6da5d9a64e26a3e4690ef579c7696dd7400db0b508ed619c2e2959
+test/core/device/device_channel_test.dart                                                    4,108 dart       cb8b134389fc6d61f61eddd9bcb3f9f1d6fab7904ea9b94033ecb96255e120a9
+test/core/errors/failures_test.dart                                                          2,231 dart       a218b876bfa108b91eabd7073eb82928664cf5623d6a584930e21153a7e8221e
+test/core/errors/network_error_test.dart                                                     4,061 dart       0c08f92843b8efefe49c49307ab51379d38023762bcc8125012cf367d7e42009
+test/core/errors/result_test.dart                                                            3,334 dart       ac1585f02ece5c0301dbef2fe55d61bdc9b8bbf0d1e6fc187f95593d36db4562
+test/core/floating_aura/provider_test.dart                                                  41,793 dart       bbc1f4d965a8683a6795dace4f74a30ab7a22261da3b45b82177747642f3fb39
+test/core/floating_aura/service_test.dart                                                    8,408 dart       c4c6a7e5024d1b841e952a5532829ce43f531885ad4f794b9ff2fb8da2969514
+test/core/floating_aura/state_test.dart                                                     14,015 dart       69de524f17327d99efb04e20c9f836e60add3927788bd40d59dc320bffe2a7b1
+test/core/localization/locale_provider_test.dart                                             1,300 dart       5d92a89a67f26fdbf6c929bc96c042c81b425dbc67fd4a5740006349e43b3291
+test/core/screen_capture/screen_capture_provider_test.dart                                   9,695 dart       9db0b2be47dd9b3babc8bc0719640c41ba0af37dc6a033e09d6edd69d75173e6
+test/core/screen_capture/screen_capture_result_test.dart                                     5,728 dart       19afefbca00fc99588cfd26685ae137c29a40d1c5f1050866c6a907da4a7e7b7
+test/core/screen_capture/screen_capture_service_test.dart                                   14,154 dart       f3ddedf35b726da6752bd0450809af694365ae464e518c9f75354bd41f50c1b9
+test/core/screen_capture/screen_capture_state_test.dart                                      6,780 dart       1a838a590d79aaf7cf98e379b7da72c3f5df3c0690959089839ee3adadec4dd1
+test/core/screen_search/engine_test.dart                                                    25,706 dart       57a8f35afddd7b5cf8498b88ed8563dcc04e6e78db0dee15fcbb47145bb66cf0
+test/core/screen_search/fake_search_service.dart                                             4,149 dart       fbefda9c0a2220ff21c71c4ccc6517d612347aafe96732853b7c9b5cc2282c56
+test/core/screen_search/provider_test.dart                                                   5,446 dart       1a26b12a131a0764a1a61137020cf2e6edae127e0c7e93db1c8cc75805945e52
+test/core/screen_search/search_result_test.dart                                             12,339 dart       bf94c54f7177b039aab2dc8d8ce8040bae2491f4f1e8babb1bba8ab3f0a5668b
+test/core/screen_search/search_state_test.dart                                               5,971 dart       9f016836f4c459df5d718346394830b22fb4f49f121ef6814e1bd435bd9fff51
+test/core/security/agent_executor_security_test.dart                                        19,257 dart       3bbc782e4a529d031086bb44f196980e90a832d521bfb30ba90faf378eddf9aa
+test/core/security/confirmation_guard_test.dart                                             23,488 dart       4e3662f84bee75d91de1d16d96f844a48f9ddf1189b00ee726dd75717b25c7f2
+test/core/security/permission_state_test.dart                                                8,443 dart       caa4b7985b1939865dbb6dca0076b18d52b9f7e43dcc3e97eec6de2b9a3af12c
+test/core/security/security_policy_test.dart                                                21,092 dart       1a7b43cd5b882e05edb91490f7ecb883c24be8bb9a09b70cf75a5806947df048
+test/core/security/security_providers_test.dart                                              8,042 dart       f9a216d25d7ace23b345d687e7bdd0dc4d6ccb751398d2c58d437ac8a755c4d5
+test/core/security/tool_security_gate_test.dart                                             38,761 dart       c20845d3a6af6df21f70093afdeea394fdc5e34f3abe89c03b2a07379ad84621
+test/core/theme/theme_test.dart                                                              3,747 dart       7b6104dc36e2822968c4b2156810c8794133404a707bdb0d339f8384c41e1698
+test/core/tools/device/app_launch_tool_test.dart                                            33,481 dart       643349526dfa9a8ed506245c9b1549d43b2aa8245da2d5aad7aa5834174a6cd4
+test/core/tools/device/battery_tool_test.dart                                               17,285 dart       1cde40789ca7b4dea84798a1f3a8ac5b44c58a61440b19cdafe4bd317fe1eca6
+test/core/tools/device/device_info_tool_test.dart                                           12,474 dart       be72de234396673088f6f683c2d588240eb200961f4e957b912275d3f7264a37
+test/core/tools/device/network_tool_test.dart                                               22,920 dart       8258acc8b902e696246b984f052a35d56efa0470659078949b9d0f16c20ad5b9
+test/core/tools/device/system_settings_tool_test.dart                                       31,354 dart       11cea39b487c51d575665c7b7e1d4bbf252c7d7ac27693109d0d3d12d7f80508
+test/core/tools/device/url_launch_tool_test.dart                                            35,492 dart       cf651f5c6a9a4e8ce8d2bfc6dc114b60eecdba18f9aed4bf866ff3e6b14f4afc
+test/core/utils/input_validator_test.dart                                                    3,063 dart       1139ed109b93fe023aa75f5e6954242d87f03184ade722475bc6c65220c2b2d7
+test/core/voice_screen/fake_floating_aura_service.dart                                       6,221 dart       901bf9b06fba2c29d180d44b5e89a573415e280e90e5a056ba2b3eb8417b6a99
+test/core/voice_screen/fake_permission_service.dart                                          3,261 dart       7580d507f3cb069bf5f5a1b9a1f689e5a27331b5f0a1ec305f499ac020a36396
+test/core/voice_screen/fake_screen_capture_service.dart                                      4,358 dart       30251d771134cdfd6b5571a83eaf9abb4d3abe7e65e25ae54517114037411810
+test/core/voice_screen/fake_screen_search_service.dart                                       4,359 dart       b9697c844f76b7506be84ff190dba57876513276c1605d2666d213a100327f2e
+test/core/voice_screen/fake_screen_understanding_service.dart                                5,814 dart       c31f6d9e6551a93343f9471929e87cbf8cddf1975705331c2050c980144ac974
+test/core/voice_screen/fake_security_policy.dart                                             2,347 dart       deb028c76d6e499092405eee7372fd759b7c976cd03cf8fa876d392ef16adedf
+test/core/voice_screen/fake_voice_service.dart                                               3,659 dart       00722af5a468caba8d20f1c13708096aee45b4ee06231a94de2112a39c6f12b5
+test/data/models/agent_config_model_test.dart                                                5,106 dart       0c324d294344f412c72d71a2dff72eb4e5952eb82b0c0c5def9dcc7cf94ce651
+test/data/models/app_config_model_test.dart                                                  3,128 dart       4534768ba4a983b02a3e1d9e200dc1f38617a8d8e32f8c3c38646c74c7cbbace
+test/domain/entities/agent_config_test.dart                                                  3,233 dart       65517ceaee49a785596af22cabf8680dbe05da89b517750de3994a790a114e9d
+test/domain/entities/app_config_test.dart                                                    1,982 dart       738f4d469dc12000805431b29dbd039548e6590f4909b2ffdac23ff592680920
+test/services/ai/ai_provider_manager_test.dart                                               4,198 dart       ede2fb80d0042a68361a3a9cb19fa1255a3fa603f29bed6a06f92b3662fb9a4e
+
+# SECTION 2: WORKSPACE ARTIFACTS
+# Reports: 8 | Archives: 7 | Standalone: 1 | Scripts: 2
+
+PATH                                                                 SIZE SHA-256                                                         
+--------------------------------------------------------------------------------------------------------------------------------------------
+archives/aura_assistant.tar.gz                                    596,100 f9e6c19d2007c351e25584f7ddcd35e085fbf7af8d5c1ae37ccb11fb3938192e
+archives/aura_assistant_CURRENT_BACKUP.zip                        238,464 41f7edce13071b192049809ebbefc592b7f020eff3aeeadc596de12ccea94b69
+archives/aura_assistant_PRE_PHASE1_BACKUP.zip                     905,754 be1e87f0430bcc7ba326ddf4ad37cd64ca9b78150384bc64fa2dd632fd793e4e
+archives/aura_assistant_backup.zip                                619,926 5611d5e3a76c8d35444c7943fbd6f4ed63fc7471632c5a2467ffb4d5d027cd5b
+archives/aura_assistant_export.zip                             18,517,792 92b869d0b4e29b00e26d926902fb8a19a7d173db1c69e22b9b6232ccaf6da6bd
+archives/aura_assistant_full_step1_to_12.zip                      385,331 5fb1ec7f125d6cd9d9db451cbeee5e130115ae7088ffec31c9011fbb74c65ba3
+archives/voice_screen_step12.zip                                   19,087 d39e0bb56ac0b36551c77432bc112463a180766e73eada1b4760ec9c523289c7
+reports/AUDIT_REPORT.md                                            15,889 ca3150a06677b1c3c8f10e336fbf98450a57b3592a52092490969637d0f551be
+reports/PHASE6_STEP4_NETWORK_INTEGRATION_REPORT.md                  7,181 d5d992e57944170407eeca8b7dcbf22ab97bc459d549cd749c150c77ee2b6772
+reports/PHASE6_STEP5_APP_LAUNCH_TOOL_REPORT.md                     13,551 b6274f6f1b51f0cc979cc22647f358ba453effdbd10b09a093633a4de5a830b4
+reports/PHASE6_STEP6_SYSTEM_SETTINGS_URL_LAUNCH_REPORT.md           9,847 a6625ace6580ca985d0ef0968bbbad18e9f75844da6f4b176eb316486b2ba60d
+reports/STEP10_VERIFICATION_REPORT.md                               4,617 f32a7e8f3a727489c90f0c36ba9f1cd61c70e7c1eb56e9749f32501fcf2aacd5
+reports/aura_assistant_phase3_full_audit.md                        23,098 b82fbd2b4eab57ce3034e33e634e858cb238419f1af485cb325bcd2b0c7ee0d6
+reports/phase2_report.md                                            7,742 966f1e7049ae7cea19e1034fb88289068bacad9e6cdd84a23cbcacc57bb53bb9
+reports/step11_floating_aura_overlay_verification_report.md         4,204 25a5e4b13695c926b9eab5856a4482aea564eb032e8c8ee9a3755c5ab1c61a70
+scripts/fix_warnings.py                                             3,928 83c24b77c42c425d028ae01b6efceb59aa29d6f81ec4b00b79071f2f01f571f6
+scripts/gen_l10n.py                                                 7,769 498e046ba62c63e94f3ecfd38d5785c109f8e4edc31d2b7ca73e4b3d5d661b80
+standalone_files/vision_screen.dart                                31,824 5436d9185bc2fc5010a16ab4ba2f905fc7990c35bd7ec8eefb6e4cfa4009b137
+
+# SECTION 3: COMPLETE DIRECTORY LISTING
+
+  .dart_tool
+  .dart_tool/flutter_build
+  .dart_tool/pub
+  .dart_tool/pub/bin
+  .dart_tool/pub/bin/test
+  .dart_tool/test
+  android
+  android/.gradle
+  android/.gradle/8.4
+  android/.gradle/8.4/checksums
+  android/.gradle/8.4/dependencies-accessors
+  android/.gradle/8.4/executionHistory
+  android/.gradle/8.4/fileChanges
+  android/.gradle/8.4/fileHashes
+  android/.gradle/8.4/vcsMetadata
+  android/.gradle/buildOutputCleanup
+  android/.gradle/vcs-1
+  android/.kotlin
+  android/.kotlin/errors
+  android/.kotlin/sessions
+  android/app
+  android/app/build
+  android/app/build/generated
+  android/app/build/generated/ap_generated_sources
+  android/app/build/generated/ap_generated_sources/debug
+  android/app/build/generated/ap_generated_sources/debug/out
+  android/app/build/generated/res
+  android/app/build/generated/res/pngs
+  android/app/build/generated/res/pngs/debug
+  android/app/build/generated/res/resValues
+  android/app/build/generated/res/resValues/debug
+  android/app/build/intermediates
+  android/app/build/intermediates/aar_metadata_check
+  android/app/build/intermediates/aar_metadata_check/debug
+  android/app/build/intermediates/annotation_processor_list
+  android/app/build/intermediates/annotation_processor_list/debug
+  android/app/build/intermediates/app_metadata
+  android/app/build/intermediates/app_metadata/debug
+  android/app/build/intermediates/assets
+  android/app/build/intermediates/assets/debug
+  android/app/build/intermediates/assets/debug/flutter_assets
+  android/app/build/intermediates/assets/debug/flutter_assets/fonts
+  android/app/build/intermediates/assets/debug/flutter_assets/shaders
+  android/app/build/intermediates/compatible_screen_manifest
+  android/app/build/intermediates/compatible_screen_manifest/debug
+  android/app/build/intermediates/compile_and_runtime_not_namespaced_r_class_jar
+  android/app/build/intermediates/compile_and_runtime_not_namespaced_r_class_jar/debug
+  android/app/build/intermediates/compressed_assets
+  android/app/build/intermediates/compressed_assets/debug
+  android/app/build/intermediates/compressed_assets/debug/out
+  android/app/build/intermediates/compressed_assets/debug/out/assets
+  android/app/build/intermediates/compressed_assets/debug/out/assets/flutter_assets
+  android/app/build/intermediates/compressed_assets/debug/out/assets/flutter_assets/fonts
+  android/app/build/intermediates/compressed_assets/debug/out/assets/flutter_assets/shaders
+  android/app/build/intermediates/data_binding_layout_info_type_merge
+  android/app/build/intermediates/data_binding_layout_info_type_merge/debug
+  android/app/build/intermediates/data_binding_layout_info_type_merge/debug/out
+  android/app/build/intermediates/data_binding_layout_info_type_package
+  android/app/build/intermediates/data_binding_layout_info_type_package/debug
+  android/app/build/intermediates/data_binding_layout_info_type_package/debug/out
+  android/app/build/intermediates/dex
+  android/app/build/intermediates/dex/debug
+  android/app/build/intermediates/dex/debug/mergeExtDexDebug
+  android/app/build/intermediates/dex/debug/mergeLibDexDebug
+  android/app/build/intermediates/dex/debug/mergeLibDexDebug/0
+  android/app/build/intermediates/dex/debug/mergeLibDexDebug/1
+  android/app/build/intermediates/dex/debug/mergeLibDexDebug/10
+  android/app/build/intermediates/dex/debug/mergeLibDexDebug/11
+  android/app/build/intermediates/dex/debug/mergeLibDexDebug/12
+  android/app/build/intermediates/dex/debug/mergeLibDexDebug/13
+  android/app/build/intermediates/dex/debug/mergeLibDexDebug/14
+  android/app/build/intermediates/dex/debug/mergeLibDexDebug/15
+  android/app/build/intermediates/dex/debug/mergeLibDexDebug/2
+  android/app/build/intermediates/dex/debug/mergeLibDexDebug/3
+  android/app/build/intermediates/dex/debug/mergeLibDexDebug/4
+  android/app/build/intermediates/dex/debug/mergeLibDexDebug/5
+  android/app/build/intermediates/dex/debug/mergeLibDexDebug/6
+  android/app/build/intermediates/dex/debug/mergeLibDexDebug/7
+  android/app/build/intermediates/dex/debug/mergeLibDexDebug/8
+  android/app/build/intermediates/dex/debug/mergeLibDexDebug/9
+  android/app/build/intermediates/duplicate_classes_check
+  android/app/build/intermediates/duplicate_classes_check/debug
+  android/app/build/intermediates/external_file_lib_dex_archives
+  android/app/build/intermediates/external_file_lib_dex_archives/debug
+  android/app/build/intermediates/flutter
+  android/app/build/intermediates/flutter/debug
+  android/app/build/intermediates/flutter/debug/flutter_assets
+  android/app/build/intermediates/flutter/debug/flutter_assets/fonts
+  android/app/build/intermediates/flutter/debug/flutter_assets/shaders
+  android/app/build/intermediates/incremental
+  android/app/build/intermediates/incremental/debug
+  android/app/build/intermediates/incremental/debug/mergeDebugResources
+  android/app/build/intermediates/incremental/debug/mergeDebugResources/merged.dir
+  android/app/build/intermediates/incremental/debug/mergeDebugResources/merged.dir/values
+  android/app/build/intermediates/incremental/debug/mergeDebugResources/stripped.dir
+  android/app/build/intermediates/incremental/debug/packageDebugResources
+  android/app/build/intermediates/incremental/debug/packageDebugResources/merged.dir
+  android/app/build/intermediates/incremental/debug/packageDebugResources/merged.dir/values
+  android/app/build/intermediates/incremental/debug/packageDebugResources/stripped.dir
+  android/app/build/intermediates/incremental/mergeDebugAssets
+  android/app/build/intermediates/incremental/mergeDebugJniLibFolders
+  android/app/build/intermediates/incremental/mergeDebugShaders
+  android/app/build/intermediates/javac
+  android/app/build/intermediates/javac/debug
+  android/app/build/intermediates/javac/debug/classes
+  android/app/build/intermediates/local_only_symbol_list
+  android/app/build/intermediates/local_only_symbol_list/debug
+  android/app/build/intermediates/manifest_merge_blame_file
+  android/app/build/intermediates/manifest_merge_blame_file/debug
+  android/app/build/intermediates/merged_jni_libs
+  android/app/build/intermediates/merged_jni_libs/debug
+  android/app/build/intermediates/merged_jni_libs/debug/out
+  android/app/build/intermediates/merged_manifest
+  android/app/build/intermediates/merged_manifest/debug
+  android/app/build/intermediates/merged_manifests
+  android/app/build/intermediates/merged_manifests/debug
+  android/app/build/intermediates/merged_native_libs
+  android/app/build/intermediates/merged_native_libs/debug
+  android/app/build/intermediates/merged_native_libs/debug/out
+  android/app/build/intermediates/merged_native_libs/debug/out/lib
+  android/app/build/intermediates/merged_native_libs/debug/out/lib/arm64-v8a
+  android/app/build/intermediates/merged_native_libs/debug/out/lib/armeabi-v7a
+  android/app/build/intermediates/merged_native_libs/debug/out/lib/x86
+  android/app/build/intermediates/merged_native_libs/debug/out/lib/x86_64
+  android/app/build/intermediates/merged_res
+  android/app/build/intermediates/merged_res/debug
+  android/app/build/intermediates/merged_res_blame_folder
+  android/app/build/intermediates/merged_res_blame_folder/debug
+  android/app/build/intermediates/merged_res_blame_folder/debug/out
+  android/app/build/intermediates/merged_res_blame_folder/debug/out/multi-v2
+  android/app/build/intermediates/merged_res_blame_folder/debug/out/single
+  android/app/build/intermediates/merged_shaders
+  android/app/build/intermediates/merged_shaders/debug
+  android/app/build/intermediates/merged_shaders/debug/out
+  android/app/build/intermediates/navigation_json
+  android/app/build/intermediates/navigation_json/debug
+  android/app/build/intermediates/packaged_manifests
+  android/app/build/intermediates/packaged_manifests/debug
+  android/app/build/intermediates/packaged_res
+  android/app/build/intermediates/packaged_res/debug
+  android/app/build/intermediates/packaged_res/debug/drawable
+  android/app/build/intermediates/packaged_res/debug/mipmap-hdpi-v4
+  android/app/build/intermediates/packaged_res/debug/mipmap-mdpi-v4
+  android/app/build/intermediates/packaged_res/debug/mipmap-xhdpi-v4
+  android/app/build/intermediates/packaged_res/debug/mipmap-xxhdpi-v4
+  android/app/build/intermediates/packaged_res/debug/mipmap-xxxhdpi-v4
+  android/app/build/intermediates/packaged_res/debug/values
+  android/app/build/intermediates/processed_res
+  android/app/build/intermediates/processed_res/debug
+  android/app/build/intermediates/processed_res/debug/out
+  android/app/build/intermediates/runtime_symbol_list
+  android/app/build/intermediates/runtime_symbol_list/debug
+  android/app/build/intermediates/signing_config_versions
+  android/app/build/intermediates/signing_config_versions/debug
+  android/app/build/intermediates/source_set_path_map
+  android/app/build/intermediates/source_set_path_map/debug
+  android/app/build/intermediates/stripped_native_libs
+  android/app/build/intermediates/stripped_native_libs/debug
+  android/app/build/intermediates/stripped_native_libs/debug/out
+  android/app/build/intermediates/stripped_native_libs/debug/out/lib
+  android/app/build/intermediates/stripped_native_libs/debug/out/lib/arm64-v8a
+  android/app/build/intermediates/stripped_native_libs/debug/out/lib/armeabi-v7a
+  android/app/build/intermediates/stripped_native_libs/debug/out/lib/x86
+  android/app/build/intermediates/stripped_native_libs/debug/out/lib/x86_64
+  android/app/build/intermediates/symbol_list_with_package_name
+  android/app/build/intermediates/symbol_list_with_package_name/debug
+  android/app/build/intermediates/validate_signing_config
+  android/app/build/intermediates/validate_signing_config/debug
+  android/app/build/kotlin
+  android/app/build/kotlin/compileDebugKotlin
+  android/app/build/kotlin/compileDebugKotlin/cacheable
+  android/app/build/kotlin/compileDebugKotlin/cacheable/caches-jvm
+  android/app/build/kotlin/compileDebugKotlin/cacheable/caches-jvm/inputs
+  android/app/build/kotlin/compileDebugKotlin/cacheable/caches-jvm/jvm
+  android/app/build/kotlin/compileDebugKotlin/cacheable/caches-jvm/jvm/kotlin
+  android/app/build/kotlin/compileDebugKotlin/cacheable/caches-jvm/lookups
+  android/app/build/kotlin/compileDebugKotlin/classpath-snapshot
+  android/app/build/kotlin/compileDebugKotlin/local-state
+  android/app/build/outputs
+  android/app/build/outputs/logs
+  android/app/build/tmp
+  android/app/build/tmp/compileDebugJavaWithJavac
+  android/app/build/tmp/kotlin-classes
+  android/app/build/tmp/kotlin-classes/debug
+  android/app/build/tmp/kotlin-classes/debug/META-INF
+  android/app/build/tmp/kotlin-classes/debug/com
+  android/app/build/tmp/kotlin-classes/debug/com/aura
+  android/app/build/tmp/kotlin-classes/debug/com/aura/aura_assistant
+  android/app/build/tmp/packJniLibsflutterBuildDebug
+  android/app/src
+  android/app/src/debug
+  android/app/src/debug/res
+  android/app/src/main
+  android/app/src/main/java
+  android/app/src/main/java/io
+  android/app/src/main/java/io/flutter
+  android/app/src/main/java/io/flutter/plugins
+  android/app/src/main/kotlin
+  android/app/src/main/kotlin/com
+  android/app/src/main/kotlin/com/aura
+  android/app/src/main/kotlin/com/aura/aura_assistant
+  android/app/src/main/res
+  android/app/src/main/res/drawable
+  android/app/src/main/res/mipmap-hdpi
+  android/app/src/main/res/mipmap-mdpi
+  android/app/src/main/res/mipmap-xhdpi
+  android/app/src/main/res/mipmap-xxhdpi
+  android/app/src/main/res/mipmap-xxxhdpi
+  android/app/src/main/res/values
+  android/app/src/profile
+  android/gradle
+  android/gradle/wrapper
+  android/local_maven
+  android/local_maven/androidx
+  android/local_maven/androidx/annotation
+  android/local_maven/androidx/annotation/annotation
+  android/local_maven/androidx/annotation/annotation/1.1.0
+  android/local_maven/androidx/arch
+  android/local_maven/androidx/arch/core
+  android/local_maven/androidx/arch/core/core-common
+  android/local_maven/androidx/arch/core/core-common/2.2.0
+  android/local_maven/androidx/lifecycle
+  android/local_maven/androidx/lifecycle/lifecycle-common
+  android/local_maven/androidx/lifecycle/lifecycle-common/2.6.2
+  android/local_maven/androidx/lifecycle/lifecycle-runtime
+  android/local_maven/androidx/lifecycle/lifecycle-runtime/2.6.2
+  build
+  build/native_assets
+  build/native_assets/linux
+  build/test_cache
+  build/test_cache/build
+  build/unit_test_assets
+  build/unit_test_assets/fonts
+  build/unit_test_assets/shaders
+  lib
+  lib/core
+  lib/core/agent
+  lib/core/ai
+  lib/core/alarm
+  lib/core/constants
+  lib/core/device
+  lib/core/errors
+  lib/core/floating_aura
+  lib/core/localization
+  lib/core/memory
+  lib/core/permissions
+  lib/core/providers
+  lib/core/screen_capture
+  lib/core/screen_search
+  lib/core/screen_understanding
+  lib/core/security
+  lib/core/theme
+  lib/core/tools
+  lib/core/tools/alarms
+  lib/core/tools/device
+  lib/core/tools/vision
+  lib/core/utils
+  lib/core/voice
+  lib/core/voice_screen
+  lib/core/wakeword
+  lib/data
+  lib/data/datasources
+  lib/data/models
+  lib/data/repositories
+  lib/domain
+  lib/domain/entities
+  lib/domain/entities/alarm
+  lib/domain/entities/vision
+  lib/domain/repositories
+  lib/domain/services
+  lib/l10n
+  lib/platform
+  lib/platform/android
+  lib/presentation
+  lib/presentation/providers
+  lib/presentation/screens
+  lib/presentation/widgets
+  lib/services
+  lib/services/ai
+  lib/services/camera
+  lib/services/device
+  lib/services/memory
+  lib/services/notifications
+  lib/services/security
+  lib/services/storage
+  lib/services/vision
+  lib/services/voice
+  test
+  test/core
+  test/core/device
+  test/core/errors
+  test/core/floating_aura
+  test/core/localization
+  test/core/screen_capture
+  test/core/screen_search
+  test/core/security
+  test/core/theme
+  test/core/tools
+  test/core/tools/device
+  test/core/utils
+  test/core/voice_screen
+  test/data
+  test/data/models
+  test/domain
+  test/domain/entities
+  test/presentation
+  test/presentation/screens
+  test/services
+  test/services/ai
+
+# EMPTY DIRECTORIES (must be preserved)
+  android/.gradle/8.4/vcsMetadata
+  android/.kotlin/sessions
+  android/app/build/generated/ap_generated_sources/debug/out
+  android/app/build/generated/res/pngs/debug
+  android/app/build/generated/res/resValues/debug
+  android/app/build/intermediates/aar_metadata_check/debug
+  android/app/build/intermediates/data_binding_layout_info_type_merge/debug/out
+  android/app/build/intermediates/data_binding_layout_info_type_package/debug/out
+  android/app/build/intermediates/dex/debug/mergeLibDexDebug/0
+  android/app/build/intermediates/dex/debug/mergeLibDexDebug/1
+  android/app/build/intermediates/dex/debug/mergeLibDexDebug/10
+  android/app/build/intermediates/dex/debug/mergeLibDexDebug/11
+  android/app/build/intermediates/dex/debug/mergeLibDexDebug/12
+  android/app/build/intermediates/dex/debug/mergeLibDexDebug/13
+  android/app/build/intermediates/dex/debug/mergeLibDexDebug/14
+  android/app/build/intermediates/dex/debug/mergeLibDexDebug/15
+  android/app/build/intermediates/dex/debug/mergeLibDexDebug/2
+  android/app/build/intermediates/dex/debug/mergeLibDexDebug/3
+  android/app/build/intermediates/dex/debug/mergeLibDexDebug/4
+  android/app/build/intermediates/dex/debug/mergeLibDexDebug/5
+  android/app/build/intermediates/dex/debug/mergeLibDexDebug/6
+  android/app/build/intermediates/dex/debug/mergeLibDexDebug/7
+  android/app/build/intermediates/dex/debug/mergeLibDexDebug/8
+  android/app/build/intermediates/dex/debug/mergeLibDexDebug/9
+  android/app/build/intermediates/duplicate_classes_check/debug
+  android/app/build/intermediates/external_file_lib_dex_archives/debug
+  android/app/build/intermediates/incremental/debug/mergeDebugResources/stripped.dir
+  android/app/build/intermediates/incremental/debug/packageDebugResources/stripped.dir
+  android/app/build/intermediates/javac/debug/classes
+  android/app/build/intermediates/merged_jni_libs/debug/out
+  android/app/build/intermediates/merged_shaders/debug/out
+  android/app/build/intermediates/symbol_list_with_package_name/debug
+  android/app/build/intermediates/validate_signing_config/debug
+  android/app/build/tmp/compileDebugJavaWithJavac
+  android/app/src/debug/res
+  lib/platform/android
+  test/presentation/screens
+
+# SECTION 4: SUMMARY
+
+Main project files: 487
+Main project dirs:  309
+Main project size:  682,742,085 bytes (0.64 GB)
+Artifact files:     18
+Artifact size:      21,412,104 bytes (20.42 MB)
+Total files:        505
+Total size:         704,154,189 bytes

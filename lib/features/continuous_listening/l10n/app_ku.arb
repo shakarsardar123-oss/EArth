@@ -1,0 +1,10 @@
+{
+  "@@locale": "ku",
+  "appTitle": "گوێگرتن",
+  "listening": "گوێگرتن ئەنجام دەدرێت...",
+  "paused": "وەستاوە",
+  "stopped": "وەستا",
+  "permissionDenied": "ڕێگەپێدان بۆ مایکرۆفۆن ڕەتکرایەوە",
+  "unavailable": "گوێگرتن بەردەست نییە",
+  "sessionError": "هەڵەی دانیشتن"
+}

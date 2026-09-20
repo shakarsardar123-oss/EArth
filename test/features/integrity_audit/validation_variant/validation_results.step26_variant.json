@@ -1,0 +1,845 @@
+{
+  "step": "step_26",
+  "summary": {
+    "total_source_files": 21,
+    "total_test_files": 14,
+    "total_test_count": 158,
+    "passed": 45,
+    "failed": 0,
+    "pass_rate": "100.0%",
+    "issue_count": 0,
+    "locale": "ku",
+    "drift_count": 12,
+    "fail_closed_rule": "unknown→denied, error→denied, unavailable→denied, canSkip→shouldAbort"
+  },
+  "source_dirs": {
+    "lib/features/integrity_audit/domain/models": {
+      "exists": true,
+      "has_files": true
+    },
+    "lib/features/integrity_audit/domain/services": {
+      "exists": true,
+      "has_files": true
+    },
+    "lib/features/integrity_audit/domain/repositories": {
+      "exists": true,
+      "has_files": true
+    },
+    "lib/features/integrity_audit/application": {
+      "exists": true,
+      "has_files": true
+    }
+  },
+  "source_files": {
+    "lib/features/integrity_audit/domain/models/integrity_verdict.dart": {
+      "exists": true,
+      "non_empty": true,
+      "pattern_check": {
+        "exists": true,
+        "found_patterns": [
+          "class IntegrityVerdict",
+          "enum IntegrityStatus",
+          "enum IntegritySeverity"
+        ],
+        "missing_patterns": []
+      },
+      "placeholders": [],
+      "secrets": [],
+      "locale_ku": {
+        "exists": true,
+        "has_ku_locale": false
+      }
+    },
+    "lib/features/integrity_audit/domain/models/compatibility_report.dart": {
+      "exists": true,
+      "non_empty": true,
+      "pattern_check": {
+        "exists": true,
+        "found_patterns": [
+          "class CompatibilityReport"
+        ],
+        "missing_patterns": []
+      },
+      "placeholders": [],
+      "secrets": [],
+      "locale_ku": {
+        "exists": true,
+        "has_ku_locale": false
+      }
+    },
+    "lib/features/integrity_audit/domain/models/audit_finding.dart": {
+      "exists": true,
+      "non_empty": true,
+      "pattern_check": {
+        "exists": true,
+        "found_patterns": [
+          "class AuditFinding",
+          "enum AuditCategory"
+        ],
+        "missing_patterns": []
+      },
+      "placeholders": [],
+      "secrets": [],
+      "locale_ku": {
+        "exists": true,
+        "has_ku_locale": false
+      }
+    },
+    "lib/features/integrity_audit/domain/models/fail_closed_invariant.dart": {
+      "exists": true,
+      "non_empty": true,
+      "pattern_check": {
+        "exists": true,
+        "found_patterns": [
+          "class FailClosedInvariant"
+        ],
+        "missing_patterns": []
+      },
+      "placeholders": [],
+      "secrets": [],
+      "locale_ku": {
+        "exists": true,
+        "has_ku_locale": false
+      }
+    },
+    "lib/features/integrity_audit/domain/models/localization_gap.dart": {
+      "exists": true,
+      "non_empty": true,
+      "pattern_check": {
+        "exists": true,
+        "found_patterns": [
+          "class LocalizationGap"
+        ],
+        "missing_patterns": []
+      },
+      "placeholders": [],
+      "secrets": [],
+      "locale_ku": {
+        "exists": true,
+        "has_ku_locale": false
+      }
+    },
+    "lib/features/integrity_audit/domain/models/models.dart": {
+      "exists": true,
+      "non_empty": true,
+      "pattern_check": {
+        "exists": true,
+        "found_patterns": [
+          "export"
+        ],
+        "missing_patterns": []
+      },
+      "placeholders": [],
+      "secrets": [],
+      "locale_ku": {
+        "exists": true,
+        "has_ku_locale": false
+      }
+    },
+    "lib/features/integrity_audit/domain/services/integrity_verification_service.dart": {
+      "exists": true,
+      "non_empty": true,
+      "pattern_check": {
+        "exists": true,
+        "found_patterns": [
+          "class IntegrityVerificationService",
+          "IntegrityVerdict"
+        ],
+        "missing_patterns": []
+      },
+      "placeholders": [],
+      "secrets": [],
+      "locale_ku": {
+        "exists": true,
+        "has_ku_locale": true
+      }
+    },
+    "lib/features/integrity_audit/domain/services/step_compatibility_service.dart": {
+      "exists": true,
+      "non_empty": true,
+      "pattern_check": {
+        "exists": true,
+        "found_patterns": [
+          "class StepCompatibilityService",
+          "CompatibilityReport",
+          "IntegrityVerdict"
+        ],
+        "missing_patterns": []
+      },
+      "placeholders": [],
+      "secrets": [],
+      "locale_ku": {
+        "exists": true,
+        "has_ku_locale": true
+      }
+    },
+    "lib/features/integrity_audit/domain/services/fail_closed_audit_service.dart": {
+      "exists": true,
+      "non_empty": true,
+      "pattern_check": {
+        "exists": true,
+        "found_patterns": [
+          "class FailClosedAuditService"
+        ],
+        "missing_patterns": []
+      },
+      "placeholders": [],
+      "secrets": [],
+      "locale_ku": {
+        "exists": true,
+        "has_ku_locale": true
+      }
+    },
+    "lib/features/integrity_audit/domain/services/localization_completeness_service.dart": {
+      "exists": true,
+      "non_empty": true,
+      "pattern_check": {
+        "exists": true,
+        "found_patterns": [
+          "class LocalizationCompletenessService"
+        ],
+        "missing_patterns": []
+      },
+      "placeholders": [],
+      "secrets": [],
+      "locale_ku": {
+        "exists": true,
+        "has_ku_locale": false
+      }
+    },
+    "lib/features/integrity_audit/domain/services/services.dart": {
+      "exists": true,
+      "non_empty": true,
+      "pattern_check": {
+        "exists": true,
+        "found_patterns": [
+          "export"
+        ],
+        "missing_patterns": []
+      },
+      "placeholders": [],
+      "secrets": [],
+      "locale_ku": {
+        "exists": true,
+        "has_ku_locale": false
+      }
+    },
+    "lib/features/integrity_audit/domain/repositories/step_22_introspection_repository.dart": {
+      "exists": true,
+      "non_empty": true,
+      "pattern_check": {
+        "exists": true,
+        "found_patterns": [
+          "class Step22IntrospectionResult",
+          "Step22MethodDescriptor",
+          "Step22ModelDescriptor"
+        ],
+        "missing_patterns": []
+      },
+      "placeholders": [],
+      "secrets": [],
+      "locale_ku": {
+        "exists": true,
+        "has_ku_locale": false
+      }
+    },
+    "lib/features/integrity_audit/domain/repositories/step_23_introspection_repository.dart": {
+      "exists": true,
+      "non_empty": true,
+      "pattern_check": {
+        "exists": true,
+        "found_patterns": [
+          "class Step23IntrospectionResult",
+          "Step23MethodDescriptor"
+        ],
+        "missing_patterns": []
+      },
+      "placeholders": [],
+      "secrets": [],
+      "locale_ku": {
+        "exists": true,
+        "has_ku_locale": false
+      }
+    },
+    "lib/features/integrity_audit/domain/repositories/step_24_introspection_repository.dart": {
+      "exists": true,
+      "non_empty": true,
+      "pattern_check": {
+        "exists": true,
+        "found_patterns": [
+          "class Step24IntrospectionResult",
+          "Step24TriggerDescriptor",
+          "Step24MethodDescriptor"
+        ],
+        "missing_patterns": []
+      },
+      "placeholders": [],
+      "secrets": [],
+      "locale_ku": {
+        "exists": true,
+        "has_ku_locale": false
+      }
+    },
+    "lib/features/integrity_audit/domain/repositories/step_25_introspection_repository.dart": {
+      "exists": true,
+      "non_empty": true,
+      "pattern_check": {
+        "exists": true,
+        "found_patterns": [
+          "class Step25IntrospectionResult",
+          "Step25MethodDescriptor",
+          "Step25ModelDescriptor"
+        ],
+        "missing_patterns": []
+      },
+      "placeholders": [],
+      "secrets": [],
+      "locale_ku": {
+        "exists": true,
+        "has_ku_locale": false
+      }
+    },
+    "lib/features/integrity_audit/domain/repositories/repositories.dart": {
+      "exists": true,
+      "non_empty": true,
+      "pattern_check": {
+        "exists": true,
+        "found_patterns": [
+          "export"
+        ],
+        "missing_patterns": []
+      },
+      "placeholders": [],
+      "secrets": [],
+      "locale_ku": {
+        "exists": true,
+        "has_ku_locale": false
+      }
+    },
+    "lib/features/integrity_audit/application/integrity_audit_orchestrator.dart": {
+      "exists": true,
+      "non_empty": true,
+      "pattern_check": {
+        "exists": true,
+        "found_patterns": [
+          "class IntegrityAuditOrchestrator"
+        ],
+        "missing_patterns": []
+      },
+      "placeholders": [],
+      "secrets": [],
+      "locale_ku": {
+        "exists": true,
+        "has_ku_locale": true
+      }
+    },
+    "lib/features/integrity_audit/application/cross_adapter_checker.dart": {
+      "exists": true,
+      "non_empty": true,
+      "pattern_check": {
+        "exists": true,
+        "found_patterns": [
+          "class CrossAdapterChecker"
+        ],
+        "missing_patterns": []
+      },
+      "placeholders": [],
+      "secrets": [],
+      "locale_ku": {
+        "exists": true,
+        "has_ku_locale": true
+      }
+    },
+    "lib/features/integrity_audit/application/fail_closed_regression_checker.dart": {
+      "exists": true,
+      "non_empty": true,
+      "pattern_check": {
+        "exists": true,
+        "found_patterns": [
+          "class FailClosedRegressionChecker"
+        ],
+        "missing_patterns": []
+      },
+      "placeholders": [],
+      "secrets": [],
+      "locale_ku": {
+        "exists": true,
+        "has_ku_locale": true
+      }
+    },
+    "lib/features/integrity_audit/application/application.dart": {
+      "exists": true,
+      "non_empty": true,
+      "pattern_check": {
+        "exists": true,
+        "found_patterns": [
+          "export"
+        ],
+        "missing_patterns": []
+      },
+      "placeholders": [],
+      "secrets": [],
+      "locale_ku": {
+        "exists": true,
+        "has_ku_locale": false
+      }
+    },
+    "lib/features/integrity_audit/integrity_audit.dart": {
+      "exists": true,
+      "non_empty": true,
+      "pattern_check": {
+        "exists": true,
+        "found_patterns": [
+          "export"
+        ],
+        "missing_patterns": []
+      },
+      "placeholders": [],
+      "secrets": [],
+      "locale_ku": {
+        "exists": true,
+        "has_ku_locale": true
+      }
+    }
+  },
+  "test_dirs": {
+    "domain": {
+      "exists": true,
+      "has_files": true
+    },
+    "cross_adapter": {
+      "exists": true,
+      "has_files": true
+    },
+    "fail_closed_regression": {
+      "exists": true,
+      "has_files": true
+    },
+    "localization_qa": {
+      "exists": true,
+      "has_files": true
+    },
+    "e2e_pipeline": {
+      "exists": true,
+      "has_files": true
+    },
+    "validation": {
+      "exists": true,
+      "has_files": true
+    }
+  },
+  "test_files": {
+    "domain/integrity_verdict_test.dart": {
+      "exists": true,
+      "test_count": 14,
+      "min_expected": 4,
+      "meets_threshold": true,
+      "imports": {
+        "exists": true,
+        "has_flutter_test_import": true,
+        "has_aura_import": true,
+        "non_empty": true
+      },
+      "placeholders": [],
+      "secrets": [],
+      "locale_ku": {
+        "exists": true,
+        "has_ku_locale": true
+      }
+    },
+    "domain/compatibility_report_test.dart": {
+      "exists": true,
+      "test_count": 6,
+      "min_expected": 4,
+      "meets_threshold": true,
+      "imports": {
+        "exists": true,
+        "has_flutter_test_import": true,
+        "has_aura_import": true,
+        "non_empty": true
+      },
+      "placeholders": [],
+      "secrets": [],
+      "locale_ku": {
+        "exists": true,
+        "has_ku_locale": true
+      }
+    },
+    "domain/audit_finding_test.dart": {
+      "exists": true,
+      "test_count": 9,
+      "min_expected": 4,
+      "meets_threshold": true,
+      "imports": {
+        "exists": true,
+        "has_flutter_test_import": true,
+        "has_aura_import": true,
+        "non_empty": true
+      },
+      "placeholders": [],
+      "secrets": [],
+      "locale_ku": {
+        "exists": true,
+        "has_ku_locale": true
+      }
+    },
+    "domain/fail_closed_invariant_test.dart": {
+      "exists": true,
+      "test_count": 8,
+      "min_expected": 4,
+      "meets_threshold": true,
+      "imports": {
+        "exists": true,
+        "has_flutter_test_import": true,
+        "has_aura_import": true,
+        "non_empty": true
+      },
+      "placeholders": [],
+      "secrets": [],
+      "locale_ku": {
+        "exists": true,
+        "has_ku_locale": true
+      }
+    },
+    "domain/localization_gap_test.dart": {
+      "exists": true,
+      "test_count": 8,
+      "min_expected": 3,
+      "meets_threshold": true,
+      "imports": {
+        "exists": true,
+        "has_flutter_test_import": true,
+        "has_aura_import": true,
+        "non_empty": true
+      },
+      "placeholders": [],
+      "secrets": [],
+      "locale_ku": {
+        "exists": true,
+        "has_ku_locale": true
+      }
+    },
+    "cross_adapter/step23_vs_step25_repo_consistency_test.dart": {
+      "exists": true,
+      "test_count": 15,
+      "min_expected": 12,
+      "meets_threshold": true,
+      "imports": {
+        "exists": true,
+        "has_flutter_test_import": true,
+        "has_aura_import": true,
+        "non_empty": true
+      },
+      "placeholders": [],
+      "secrets": [],
+      "locale_ku": {
+        "exists": true,
+        "has_ku_locale": true
+      }
+    },
+    "cross_adapter/step22_vs_step25_execution_test.dart": {
+      "exists": true,
+      "test_count": 8,
+      "min_expected": 5,
+      "meets_threshold": true,
+      "imports": {
+        "exists": true,
+        "has_flutter_test_import": true,
+        "has_aura_import": true,
+        "non_empty": true
+      },
+      "placeholders": [],
+      "secrets": [],
+      "locale_ku": {
+        "exists": true,
+        "has_ku_locale": true
+      }
+    },
+    "cross_adapter/step24_vs_step25_trigger_test.dart": {
+      "exists": true,
+      "test_count": 8,
+      "min_expected": 5,
+      "meets_threshold": true,
+      "imports": {
+        "exists": true,
+        "has_flutter_test_import": true,
+        "has_aura_import": true,
+        "non_empty": true
+      },
+      "placeholders": [],
+      "secrets": [],
+      "locale_ku": {
+        "exists": true,
+        "has_ku_locale": true
+      }
+    },
+    "fail_closed_regression/step22_fail_closed_test.dart": {
+      "exists": true,
+      "test_count": 11,
+      "min_expected": 6,
+      "meets_threshold": true,
+      "imports": {
+        "exists": true,
+        "has_flutter_test_import": true,
+        "has_aura_import": true,
+        "non_empty": true
+      },
+      "placeholders": [],
+      "secrets": [],
+      "locale_ku": {
+        "exists": true,
+        "has_ku_locale": true
+      }
+    },
+    "fail_closed_regression/step23_fail_closed_test.dart": {
+      "exists": true,
+      "test_count": 15,
+      "min_expected": 8,
+      "meets_threshold": true,
+      "imports": {
+        "exists": true,
+        "has_flutter_test_import": true,
+        "has_aura_import": true,
+        "non_empty": true
+      },
+      "placeholders": [],
+      "secrets": [],
+      "locale_ku": {
+        "exists": true,
+        "has_ku_locale": true
+      }
+    },
+    "fail_closed_regression/step24_fail_closed_test.dart": {
+      "exists": true,
+      "test_count": 11,
+      "min_expected": 6,
+      "meets_threshold": true,
+      "imports": {
+        "exists": true,
+        "has_flutter_test_import": true,
+        "has_aura_import": true,
+        "non_empty": true
+      },
+      "placeholders": [],
+      "secrets": [],
+      "locale_ku": {
+        "exists": true,
+        "has_ku_locale": true
+      }
+    },
+    "fail_closed_regression/step25_fail_closed_test.dart": {
+      "exists": true,
+      "test_count": 14,
+      "min_expected": 8,
+      "meets_threshold": true,
+      "imports": {
+        "exists": true,
+        "has_flutter_test_import": true,
+        "has_aura_import": true,
+        "non_empty": true
+      },
+      "placeholders": [],
+      "secrets": [],
+      "locale_ku": {
+        "exists": true,
+        "has_ku_locale": true
+      }
+    },
+    "localization_qa/l10n_completeness_test.dart": {
+      "exists": true,
+      "test_count": 14,
+      "min_expected": 8,
+      "meets_threshold": true,
+      "imports": {
+        "exists": true,
+        "has_flutter_test_import": true,
+        "has_aura_import": true,
+        "non_empty": true
+      },
+      "placeholders": [],
+      "secrets": [],
+      "locale_ku": {
+        "exists": true,
+        "has_ku_locale": true
+      }
+    },
+    "e2e_pipeline/integrity_audit_pipeline_test.dart": {
+      "exists": true,
+      "test_count": 17,
+      "min_expected": 10,
+      "meets_threshold": true,
+      "imports": {
+        "exists": true,
+        "has_flutter_test_import": true,
+        "has_aura_import": true,
+        "non_empty": true
+      },
+      "placeholders": [],
+      "secrets": [],
+      "locale_ku": {
+        "exists": true,
+        "has_ku_locale": true
+      }
+    }
+  },
+  "drift_coverage": {
+    "step22_vs_step25_execution_test.dart": {
+      "exists": true,
+      "found_drifts": [
+        "Drift #7",
+        "Drift #8",
+        "Drift #9"
+      ],
+      "missing_drifts": [
+        "Drift #1",
+        "Drift #2",
+        "Drift #3",
+        "Drift #4",
+        "Drift #5",
+        "Drift #6",
+        "Drift #10",
+        "Drift #11",
+        "Drift #12"
+      ]
+    },
+    "step23_vs_step25_repo_consistency_test.dart": {
+      "exists": true,
+      "found_drifts": [
+        "Drift #1",
+        "Drift #2",
+        "Drift #3",
+        "Drift #4",
+        "Drift #5",
+        "Drift #6",
+        "Drift #7",
+        "Drift #8",
+        "Drift #9",
+        "Drift #10",
+        "Drift #11",
+        "Drift #12"
+      ],
+      "missing_drifts": []
+    },
+    "step24_vs_step25_trigger_test.dart": {
+      "exists": true,
+      "found_drifts": [],
+      "missing_drifts": [
+        "Drift #1",
+        "Drift #2",
+        "Drift #3",
+        "Drift #4",
+        "Drift #5",
+        "Drift #6",
+        "Drift #7",
+        "Drift #8",
+        "Drift #9",
+        "Drift #10",
+        "Drift #11",
+        "Drift #12"
+      ]
+    }
+  },
+  "fail_closed_coverage": {
+    "step22_fail_closed_test.dart": {
+      "exists": true,
+      "found": [
+        "unknown",
+        "denied",
+        "unavailable",
+        "shouldAbort"
+      ],
+      "missing": []
+    },
+    "step23_fail_closed_test.dart": {
+      "exists": true,
+      "found": [
+        "unknown",
+        "denied",
+        "unavailable",
+        "shouldAbort"
+      ],
+      "missing": []
+    },
+    "step24_fail_closed_test.dart": {
+      "exists": true,
+      "found": [
+        "unknown",
+        "denied",
+        "unavailable",
+        "shouldAbort"
+      ],
+      "missing": []
+    },
+    "step25_fail_closed_test.dart": {
+      "exists": true,
+      "found": [
+        "unknown",
+        "denied",
+        "unavailable",
+        "shouldAbort"
+      ],
+      "missing": []
+    }
+  },
+  "locale_check": {
+    "domain/integrity_verdict_test.dart": {
+      "exists": true,
+      "has_ku_locale": true
+    },
+    "domain/compatibility_report_test.dart": {
+      "exists": true,
+      "has_ku_locale": true
+    },
+    "domain/audit_finding_test.dart": {
+      "exists": true,
+      "has_ku_locale": true
+    },
+    "domain/fail_closed_invariant_test.dart": {
+      "exists": true,
+      "has_ku_locale": true
+    },
+    "domain/localization_gap_test.dart": {
+      "exists": true,
+      "has_ku_locale": true
+    },
+    "cross_adapter/step23_vs_step25_repo_consistency_test.dart": {
+      "exists": true,
+      "has_ku_locale": true
+    },
+    "cross_adapter/step22_vs_step25_execution_test.dart": {
+      "exists": true,
+      "has_ku_locale": true
+    },
+    "cross_adapter/step24_vs_step25_trigger_test.dart": {
+      "exists": true,
+      "has_ku_locale": true
+    },
+    "fail_closed_regression/step22_fail_closed_test.dart": {
+      "exists": true,
+      "has_ku_locale": true
+    },
+    "fail_closed_regression/step23_fail_closed_test.dart": {
+      "exists": true,
+      "has_ku_locale": true
+    },
+    "fail_closed_regression/step24_fail_closed_test.dart": {
+      "exists": true,
+      "has_ku_locale": true
+    },
+    "fail_closed_regression/step25_fail_closed_test.dart": {
+      "exists": true,
+      "has_ku_locale": true
+    },
+    "localization_qa/l10n_completeness_test.dart": {
+      "exists": true,
+      "has_ku_locale": true
+    },
+    "e2e_pipeline/integrity_audit_pipeline_test.dart": {
+      "exists": true,
+      "has_ku_locale": true
+    }
+  },
+  "security_check": {},
+  "issues": [],
+  "stats": {}
+}

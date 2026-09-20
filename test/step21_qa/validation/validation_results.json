@@ -1,0 +1,430 @@
+{
+  "summary": {
+    "total_test_files": 27,
+    "total_test_count": 262,
+    "passed": 43,
+    "failed": 0,
+    "pass_rate": "100.0%",
+    "issue_count": 0
+  },
+  "directories": {
+    "domain": {
+      "exists": true,
+      "has_files": true
+    },
+    "application": {
+      "exists": true,
+      "has_files": true
+    },
+    "infrastructure": {
+      "exists": true,
+      "has_files": true
+    },
+    "adapters": {
+      "exists": true,
+      "has_files": true
+    },
+    "l10n": {
+      "exists": true,
+      "has_files": true
+    },
+    "security_regression": {
+      "exists": true,
+      "has_files": true
+    },
+    "localization_qa": {
+      "exists": true,
+      "has_files": true
+    },
+    "provider_qa": {
+      "exists": true,
+      "has_files": true
+    },
+    "controller_qa": {
+      "exists": true,
+      "has_files": true
+    },
+    "e2e_pipeline": {
+      "exists": true,
+      "has_files": true
+    },
+    "validation": {
+      "exists": true,
+      "has_files": true
+    }
+  },
+  "test_files": {
+    "domain/semantic_memory_entry_test.dart": {
+      "exists": true,
+      "test_count": 10,
+      "min_expected": 3,
+      "meets_threshold": true,
+      "imports": {
+        "exists": true,
+        "has_flutter_test_import": true,
+        "has_aura_import": true,
+        "non_empty": true
+      },
+      "placeholders": []
+    },
+    "domain/memory_query_test.dart": {
+      "exists": true,
+      "test_count": 5,
+      "min_expected": 3,
+      "meets_threshold": true,
+      "imports": {
+        "exists": true,
+        "has_flutter_test_import": true,
+        "has_aura_import": true,
+        "non_empty": true
+      },
+      "placeholders": []
+    },
+    "domain/memory_search_result_test.dart": {
+      "exists": true,
+      "test_count": 4,
+      "min_expected": 3,
+      "meets_threshold": true,
+      "imports": {
+        "exists": true,
+        "has_flutter_test_import": true,
+        "has_aura_import": true,
+        "non_empty": true
+      },
+      "placeholders": []
+    },
+    "domain/memory_failure_test.dart": {
+      "exists": true,
+      "test_count": 9,
+      "min_expected": 3,
+      "meets_threshold": true,
+      "imports": {
+        "exists": true,
+        "has_flutter_test_import": true,
+        "has_aura_import": true,
+        "non_empty": true
+      },
+      "placeholders": []
+    },
+    "domain/policy_check_result_test.dart": {
+      "exists": true,
+      "test_count": 6,
+      "min_expected": 3,
+      "meets_threshold": true,
+      "imports": {
+        "exists": true,
+        "has_flutter_test_import": true,
+        "has_aura_import": true,
+        "non_empty": true
+      },
+      "placeholders": []
+    },
+    "domain/semantic_memory_repository_test.dart": {
+      "exists": true,
+      "test_count": 5,
+      "min_expected": 3,
+      "meets_threshold": true,
+      "imports": {
+        "exists": true,
+        "has_flutter_test_import": true,
+        "has_aura_import": true,
+        "non_empty": true
+      },
+      "placeholders": []
+    },
+    "application/semantic_memory_service_test.dart": {
+      "exists": true,
+      "test_count": 5,
+      "min_expected": 4,
+      "meets_threshold": true,
+      "imports": {
+        "exists": true,
+        "has_flutter_test_import": true,
+        "has_aura_import": true,
+        "non_empty": true
+      },
+      "placeholders": []
+    },
+    "application/memory_context_provider_test.dart": {
+      "exists": true,
+      "test_count": 4,
+      "min_expected": 4,
+      "meets_threshold": true,
+      "imports": {
+        "exists": true,
+        "has_flutter_test_import": true,
+        "has_aura_import": true,
+        "non_empty": true
+      },
+      "placeholders": []
+    },
+    "infrastructure/semantic_memory_adapter_impl_test.dart": {
+      "exists": true,
+      "test_count": 7,
+      "min_expected": 4,
+      "meets_threshold": true,
+      "imports": {
+        "exists": true,
+        "has_flutter_test_import": true,
+        "has_aura_import": true,
+        "non_empty": true
+      },
+      "placeholders": []
+    },
+    "infrastructure/semantic_memory_in_memory_repository_test.dart": {
+      "exists": true,
+      "test_count": 11,
+      "min_expected": 4,
+      "meets_threshold": true,
+      "imports": {
+        "exists": true,
+        "has_flutter_test_import": true,
+        "has_aura_import": true,
+        "non_empty": true
+      },
+      "placeholders": []
+    },
+    "infrastructure/security_policy_bridge_test.dart": {
+      "exists": true,
+      "test_count": 6,
+      "min_expected": 3,
+      "meets_threshold": true,
+      "imports": {
+        "exists": true,
+        "has_flutter_test_import": true,
+        "has_aura_import": true,
+        "non_empty": true
+      },
+      "placeholders": []
+    },
+    "adapters/memory_action_adapter_test.dart": {
+      "exists": true,
+      "test_count": 5,
+      "min_expected": 3,
+      "meets_threshold": true,
+      "imports": {
+        "exists": true,
+        "has_flutter_test_import": true,
+        "has_aura_import": true,
+        "non_empty": true
+      },
+      "placeholders": []
+    },
+    "adapters/memory_persistence_adapter_test.dart": {
+      "exists": true,
+      "test_count": 6,
+      "min_expected": 3,
+      "meets_threshold": true,
+      "imports": {
+        "exists": true,
+        "has_flutter_test_import": true,
+        "has_aura_import": true,
+        "non_empty": true
+      },
+      "placeholders": []
+    },
+    "adapters/memory_retrieval_adapter_test.dart": {
+      "exists": true,
+      "test_count": 6,
+      "min_expected": 3,
+      "meets_threshold": true,
+      "imports": {
+        "exists": true,
+        "has_flutter_test_import": true,
+        "has_aura_import": true,
+        "non_empty": true
+      },
+      "placeholders": []
+    },
+    "adapters/memory_security_adapter_test.dart": {
+      "exists": true,
+      "test_count": 7,
+      "min_expected": 3,
+      "meets_threshold": true,
+      "imports": {
+        "exists": true,
+        "has_flutter_test_import": true,
+        "has_aura_import": true,
+        "non_empty": true
+      },
+      "placeholders": []
+    },
+    "l10n/memory_strings_test.dart": {
+      "exists": true,
+      "test_count": 10,
+      "min_expected": 3,
+      "meets_threshold": true,
+      "imports": {
+        "exists": true,
+        "has_flutter_test_import": true,
+        "has_aura_import": true,
+        "non_empty": true
+      },
+      "placeholders": []
+    },
+    "security_regression/redaction_rule_test.dart": {
+      "exists": true,
+      "test_count": 9,
+      "min_expected": 5,
+      "meets_threshold": true,
+      "imports": {
+        "exists": true,
+        "has_flutter_test_import": true,
+        "has_aura_import": true,
+        "non_empty": true
+      },
+      "placeholders": []
+    },
+    "security_regression/security_audit_entry_test.dart": {
+      "exists": true,
+      "test_count": 6,
+      "min_expected": 5,
+      "meets_threshold": true,
+      "imports": {
+        "exists": true,
+        "has_flutter_test_import": true,
+        "has_aura_import": true,
+        "non_empty": true
+      },
+      "placeholders": []
+    },
+    "security_regression/security_config_test.dart": {
+      "exists": true,
+      "test_count": 8,
+      "min_expected": 5,
+      "meets_threshold": true,
+      "imports": {
+        "exists": true,
+        "has_flutter_test_import": true,
+        "has_aura_import": true,
+        "non_empty": true
+      },
+      "placeholders": []
+    },
+    "security_regression/security_failure_test.dart": {
+      "exists": true,
+      "test_count": 7,
+      "min_expected": 5,
+      "meets_threshold": true,
+      "imports": {
+        "exists": true,
+        "has_flutter_test_import": true,
+        "has_aura_import": true,
+        "non_empty": true
+      },
+      "placeholders": []
+    },
+    "security_regression/tool_registry_test.dart": {
+      "exists": true,
+      "test_count": 29,
+      "min_expected": 5,
+      "meets_threshold": true,
+      "imports": {
+        "exists": true,
+        "has_flutter_test_import": true,
+        "has_aura_import": true,
+        "non_empty": true
+      },
+      "placeholders": []
+    },
+    "security_regression/fail_closed_invariants_test.dart": {
+      "exists": true,
+      "test_count": 36,
+      "min_expected": 20,
+      "meets_threshold": true,
+      "imports": {
+        "exists": true,
+        "has_flutter_test_import": true,
+        "has_aura_import": true,
+        "non_empty": true
+      },
+      "placeholders": []
+    },
+    "localization_qa/l10n_completeness_test.dart": {
+      "exists": true,
+      "test_count": 12,
+      "min_expected": 5,
+      "meets_threshold": true,
+      "imports": {
+        "exists": true,
+        "has_flutter_test_import": true,
+        "has_aura_import": true,
+        "non_empty": true
+      },
+      "placeholders": []
+    },
+    "provider_qa/semantic_memory_provider_test.dart": {
+      "exists": true,
+      "test_count": 7,
+      "min_expected": 5,
+      "meets_threshold": true,
+      "imports": {
+        "exists": true,
+        "has_flutter_test_import": true,
+        "has_aura_import": true,
+        "non_empty": true
+      },
+      "placeholders": []
+    },
+    "controller_qa/memory_controller_state_test.dart": {
+      "exists": true,
+      "test_count": 12,
+      "min_expected": 5,
+      "meets_threshold": true,
+      "imports": {
+        "exists": true,
+        "has_flutter_test_import": true,
+        "has_aura_import": false,
+        "non_empty": true
+      },
+      "placeholders": []
+    },
+    "e2e_pipeline/memory_pipeline_e2e_test.dart": {
+      "exists": true,
+      "test_count": 18,
+      "min_expected": 5,
+      "meets_threshold": true,
+      "imports": {
+        "exists": true,
+        "has_flutter_test_import": true,
+        "has_aura_import": false,
+        "non_empty": true
+      },
+      "placeholders": []
+    },
+    "e2e_pipeline/tool_execution_e2e_test.dart": {
+      "exists": true,
+      "test_count": 12,
+      "min_expected": 5,
+      "meets_threshold": true,
+      "imports": {
+        "exists": true,
+        "has_flutter_test_import": true,
+        "has_aura_import": false,
+        "non_empty": true
+      },
+      "placeholders": []
+    }
+  },
+  "source_dirs": {
+    "step_16_source": {
+      "exists": true
+    },
+    "step_17_source": {
+      "exists": true
+    },
+    "step_18_source": {
+      "exists": true
+    },
+    "step_19_source": {
+      "exists": true
+    },
+    "step_20_source": {
+      "exists": true
+    }
+  },
+  "issues": [],
+  "stats": {
+    "validation_script_exists": true
+  }
+}

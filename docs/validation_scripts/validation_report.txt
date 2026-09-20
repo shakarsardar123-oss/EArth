@@ -1,0 +1,637 @@
+========================================================================
+STEP 22 STRUCTURAL VALIDATION REPORT
+========================================================================
+
+PASSED:   624
+FAILED:   0
+WARNINGS: 0
+
+── PASSED ───────────────────────────────────────────
+  ✓ Source exists: executors/communication_tool.dart
+  ✓ Source exists: presentation/presentation.dart
+  ✓ Source exists: adapters/step19_security_bridge.dart
+  ✓ Source exists: adapters/step20_discovery_adapter.dart
+  ✓ Source exists: executors/navigation_tool.dart
+  ✓ Source exists: domain/models/tool_input.dart
+  ✓ Source exists: application/application.dart
+  ✓ Source exists: application/offline_capability.dart
+  ✓ Source exists: infrastructure/tool_providers.dart
+  ✓ Source exists: application/tool_composition.dart
+  ✓ Source exists: executors/assistant_tool.dart
+  ✓ Source exists: executors/device_tool.dart
+  ✓ Source exists: application/voice_first_execution.dart
+  ✓ Source exists: infrastructure/tool_executor_registry.dart
+  ✓ Source exists: executors/media_tool.dart
+  ✓ Source exists: tool_execution.dart
+  ✓ Source exists: domain/models/exceptions.dart
+  ✓ Source exists: executors/unknown_tool_handler.dart
+  ✓ Source exists: adapters/step20_gate_adapter.dart
+  ✓ Source exists: infrastructure/audit_logger.dart
+  ✓ Source exists: adapters/step20_confirmation_adapter.dart
+  ✓ Source exists: executors/vision_tool.dart
+  ✓ Source exists: executors/system_tool.dart
+  ✓ Source exists: domain/models/tool_output.dart
+  ✓ Source exists: executors/screen_tool.dart
+  ✓ Source exists: domain/services/tool_interface.dart
+  ✓ Source exists: adapters/adapters.dart
+  ✓ Source exists: infrastructure/infrastructure.dart
+  ✓ Source exists: domain/models/tool_execution_context.dart
+  ✓ Source exists: executors/memory_tool.dart
+  ✓ Source exists: domain/models/models.dart
+  ✓ Source exists: executors/executors.dart
+  ✓ Source exists: domain/services/recovery_tool.dart
+  ✓ Source exists: infrastructure/tool_input_validator.dart
+  ✓ Source exists: domain/models/tool_execution_metadata.dart
+  ✓ Source exists: infrastructure/tool_output_normalizer.dart
+  ✓ Source exists: application/tool_selection.dart
+  ✓ Source exists: application/background_execution.dart
+  ✓ Source exists: domain/services/services.dart
+  ✓ Source exists: adapters/step18_retry_bridge.dart
+  ✓ Source exists: executors/voice_tool.dart
+  ✓ Source exists: infrastructure/cancellation_token.dart
+  ✓ Test exists: tool_composition_test.dart
+  ✓ Test exists: audit_logger_test.dart
+  ✓ Test exists: tool_output_test.dart
+  ✓ Test exists: tool_output_normalizer_test.dart
+  ✓ Test exists: cancellation_token_test.dart
+  ✓ Test exists: step20_discovery_adapter_test.dart
+  ✓ Test exists: voice_first_execution_test.dart
+  ✓ Test exists: tool_executor_registry_test.dart
+  ✓ Test exists: step20_confirmation_adapter_test.dart
+  ✓ Test exists: tool_execution_context_test.dart
+  ✓ Test exists: tool_input_test.dart
+  ✓ Test exists: tool_input_validator_test.dart
+  ✓ Test exists: step20_gate_adapter_test.dart
+  ✓ Test exists: tool_execution_metadata_test.dart
+  ✓ Test exists: tool_selection_test.dart
+  ✓ Test exists: offline_capability_test.dart
+  ✓ Test exists: background_execution_test.dart
+  ✓ Barrel domain/models/models.dart exports exceptions.dart
+  ✓ Barrel domain/models/models.dart exports tool_execution_context.dart
+  ✓ Barrel domain/models/models.dart exports tool_input.dart
+  ✓ Barrel domain/models/models.dart exports tool_output.dart
+  ✓ Barrel domain/models/models.dart exports tool_execution_metadata.dart
+  ✓ Barrel domain/services/services.dart exports tool_interface.dart
+  ✓ Barrel domain/services/services.dart exports recovery_tool.dart
+  ✓ Barrel infrastructure/infrastructure.dart exports cancellation_token.dart
+  ✓ Barrel infrastructure/infrastructure.dart exports tool_input_validator.dart
+  ✓ Barrel infrastructure/infrastructure.dart exports tool_output_normalizer.dart
+  ✓ Barrel infrastructure/infrastructure.dart exports audit_logger.dart
+  ✓ Barrel infrastructure/infrastructure.dart exports tool_executor_registry.dart
+  ✓ Barrel infrastructure/infrastructure.dart exports tool_providers.dart
+  ✓ Barrel executors/executors.dart exports device_tool.dart
+  ✓ Barrel executors/executors.dart exports screen_tool.dart
+  ✓ Barrel executors/executors.dart exports voice_tool.dart
+  ✓ Barrel executors/executors.dart exports memory_tool.dart
+  ✓ Barrel executors/executors.dart exports vision_tool.dart
+  ✓ Barrel executors/executors.dart exports media_tool.dart
+  ✓ Barrel executors/executors.dart exports assistant_tool.dart
+  ✓ Barrel executors/executors.dart exports communication_tool.dart
+  ✓ Barrel executors/executors.dart exports navigation_tool.dart
+  ✓ Barrel executors/executors.dart exports system_tool.dart
+  ✓ Barrel executors/executors.dart exports unknown_tool_handler.dart
+  ✓ Barrel application/application.dart exports tool_selection.dart
+  ✓ Barrel application/application.dart exports tool_composition.dart
+  ✓ Barrel application/application.dart exports background_execution.dart
+  ✓ Barrel application/application.dart exports voice_first_execution.dart
+  ✓ Barrel application/application.dart exports offline_capability.dart
+  ✓ Barrel adapters/adapters.dart exports step20_confirmation_adapter.dart
+  ✓ Barrel adapters/adapters.dart exports step20_discovery_adapter.dart
+  ✓ Barrel adapters/adapters.dart exports step20_gate_adapter.dart
+  ✓ Barrel adapters/adapters.dart exports step18_retry_bridge.dart
+  ✓ Barrel adapters/adapters.dart exports step19_security_bridge.dart
+  ✓ Barrel tool_execution.dart exports models.dart
+  ✓ Barrel tool_execution.dart exports services.dart
+  ✓ Barrel tool_execution.dart exports infrastructure.dart
+  ✓ Barrel tool_execution.dart exports executors.dart
+  ✓ Barrel tool_execution.dart exports application.dart
+  ✓ Barrel tool_execution.dart exports adapters.dart
+  ✓ Barrel tool_execution.dart exports presentation.dart
+  ✓ Clean in executors/communication_tool.dart: no 'Use get() not getTool()'
+  ✓ Clean in executors/communication_tool.dart: no 'Use allTools not getAllTools'
+  ✓ Clean in executors/communication_tool.dart: no 'Use byCategory() not getByCategory()'
+  ✓ Clean in executors/communication_tool.dart: no 'riskLevel is String, not ToolRiskLevel enum'
+  ✓ Clean in executors/communication_tool.dart: no 'Use containsSensitiveData not hasSensitiveData'
+  ✓ Clean in executors/communication_tool.dart: no 'ToolOutput.failure uses errorMessage, not message'
+  ✓ Clean in executors/communication_tool.dart: no 'ToolOutput.denied uses reason, not errorMessage'
+  ✓ Clean in executors/communication_tool.dart: no 'No critical severity — use error/warning/info only'
+  ✓ Clean in executors/communication_tool.dart: no 'Use retryAttempt not recoveryAttempt'
+  ✓ Clean in executors/communication_tool.dart: no 'Use retryAttempt not currentRetry'
+  ✓ Clean in executors/communication_tool.dart: no 'Use denyAll not autoDeny'
+  ✓ Clean in executors/communication_tool.dart: no 'memoryContext is String? not Map'
+  ✓ Clean in executors/communication_tool.dart: no 'AuditEntry has no phase param — uses action/description/timestamp'
+  ✓ Clean in adapters/step19_security_bridge.dart: no 'Use get() not getTool()'
+  ✓ Clean in adapters/step19_security_bridge.dart: no 'Use allTools not getAllTools'
+  ✓ Clean in adapters/step19_security_bridge.dart: no 'Use byCategory() not getByCategory()'
+  ✓ Clean in adapters/step19_security_bridge.dart: no 'riskLevel is String, not ToolRiskLevel enum'
+  ✓ Clean in adapters/step19_security_bridge.dart: no 'Use containsSensitiveData not hasSensitiveData'
+  ✓ Clean in adapters/step19_security_bridge.dart: no 'ToolOutput.failure uses errorMessage, not message'
+  ✓ Clean in adapters/step19_security_bridge.dart: no 'ToolOutput.denied uses reason, not errorMessage'
+  ✓ Clean in adapters/step19_security_bridge.dart: no 'No critical severity — use error/warning/info only'
+  ✓ Clean in adapters/step19_security_bridge.dart: no 'Use retryAttempt not recoveryAttempt'
+  ✓ Clean in adapters/step19_security_bridge.dart: no 'Use retryAttempt not currentRetry'
+  ✓ Clean in adapters/step19_security_bridge.dart: no 'Use denyAll not autoDeny'
+  ✓ Clean in adapters/step19_security_bridge.dart: no 'memoryContext is String? not Map'
+  ✓ Clean in adapters/step19_security_bridge.dart: no 'AuditEntry has no phase param — uses action/description/timestamp'
+  ✓ Clean in adapters/step20_discovery_adapter.dart: no 'Use get() not getTool()'
+  ✓ Clean in adapters/step20_discovery_adapter.dart: no 'Use allTools not getAllTools'
+  ✓ Clean in adapters/step20_discovery_adapter.dart: no 'Use byCategory() not getByCategory()'
+  ✓ Clean in adapters/step20_discovery_adapter.dart: no 'riskLevel is String, not ToolRiskLevel enum'
+  ✓ Clean in adapters/step20_discovery_adapter.dart: no 'Use containsSensitiveData not hasSensitiveData'
+  ✓ Clean in adapters/step20_discovery_adapter.dart: no 'ToolOutput.failure uses errorMessage, not message'
+  ✓ Clean in adapters/step20_discovery_adapter.dart: no 'ToolOutput.denied uses reason, not errorMessage'
+  ✓ Clean in adapters/step20_discovery_adapter.dart: no 'No critical severity — use error/warning/info only'
+  ✓ Clean in adapters/step20_discovery_adapter.dart: no 'Use retryAttempt not recoveryAttempt'
+  ✓ Clean in adapters/step20_discovery_adapter.dart: no 'Use retryAttempt not currentRetry'
+  ✓ Clean in adapters/step20_discovery_adapter.dart: no 'Use denyAll not autoDeny'
+  ✓ Clean in adapters/step20_discovery_adapter.dart: no 'memoryContext is String? not Map'
+  ✓ Clean in adapters/step20_discovery_adapter.dart: no 'AuditEntry has no phase param — uses action/description/timestamp'
+  ✓ Clean in executors/navigation_tool.dart: no 'Use get() not getTool()'
+  ✓ Clean in executors/navigation_tool.dart: no 'Use allTools not getAllTools'
+  ✓ Clean in executors/navigation_tool.dart: no 'Use byCategory() not getByCategory()'
+  ✓ Clean in executors/navigation_tool.dart: no 'riskLevel is String, not ToolRiskLevel enum'
+  ✓ Clean in executors/navigation_tool.dart: no 'Use containsSensitiveData not hasSensitiveData'
+  ✓ Clean in executors/navigation_tool.dart: no 'ToolOutput.failure uses errorMessage, not message'
+  ✓ Clean in executors/navigation_tool.dart: no 'ToolOutput.denied uses reason, not errorMessage'
+  ✓ Clean in executors/navigation_tool.dart: no 'No critical severity — use error/warning/info only'
+  ✓ Clean in executors/navigation_tool.dart: no 'Use retryAttempt not recoveryAttempt'
+  ✓ Clean in executors/navigation_tool.dart: no 'Use retryAttempt not currentRetry'
+  ✓ Clean in executors/navigation_tool.dart: no 'Use denyAll not autoDeny'
+  ✓ Clean in executors/navigation_tool.dart: no 'memoryContext is String? not Map'
+  ✓ Clean in executors/navigation_tool.dart: no 'AuditEntry has no phase param — uses action/description/timestamp'
+  ✓ Clean in domain/models/tool_input.dart: no 'Use get() not getTool()'
+  ✓ Clean in domain/models/tool_input.dart: no 'Use allTools not getAllTools'
+  ✓ Clean in domain/models/tool_input.dart: no 'Use byCategory() not getByCategory()'
+  ✓ Clean in domain/models/tool_input.dart: no 'riskLevel is String, not ToolRiskLevel enum'
+  ✓ Clean in domain/models/tool_input.dart: no 'Use containsSensitiveData not hasSensitiveData'
+  ✓ Clean in domain/models/tool_input.dart: no 'ToolOutput.failure uses errorMessage, not message'
+  ✓ Clean in domain/models/tool_input.dart: no 'ToolOutput.denied uses reason, not errorMessage'
+  ✓ Clean in domain/models/tool_input.dart: no 'No critical severity — use error/warning/info only'
+  ✓ Clean in domain/models/tool_input.dart: no 'Use retryAttempt not recoveryAttempt'
+  ✓ Clean in domain/models/tool_input.dart: no 'Use retryAttempt not currentRetry'
+  ✓ Clean in domain/models/tool_input.dart: no 'Use denyAll not autoDeny'
+  ✓ Clean in domain/models/tool_input.dart: no 'memoryContext is String? not Map'
+  ✓ Clean in domain/models/tool_input.dart: no 'AuditEntry has no phase param — uses action/description/timestamp'
+  ✓ Clean in application/offline_capability.dart: no 'Use get() not getTool()'
+  ✓ Clean in application/offline_capability.dart: no 'Use allTools not getAllTools'
+  ✓ Clean in application/offline_capability.dart: no 'Use byCategory() not getByCategory()'
+  ✓ Clean in application/offline_capability.dart: no 'riskLevel is String, not ToolRiskLevel enum'
+  ✓ Clean in application/offline_capability.dart: no 'Use containsSensitiveData not hasSensitiveData'
+  ✓ Clean in application/offline_capability.dart: no 'ToolOutput.failure uses errorMessage, not message'
+  ✓ Clean in application/offline_capability.dart: no 'ToolOutput.denied uses reason, not errorMessage'
+  ✓ Clean in application/offline_capability.dart: no 'No critical severity — use error/warning/info only'
+  ✓ Clean in application/offline_capability.dart: no 'Use retryAttempt not recoveryAttempt'
+  ✓ Clean in application/offline_capability.dart: no 'Use retryAttempt not currentRetry'
+  ✓ Clean in application/offline_capability.dart: no 'Use denyAll not autoDeny'
+  ✓ Clean in application/offline_capability.dart: no 'memoryContext is String? not Map'
+  ✓ Clean in application/offline_capability.dart: no 'AuditEntry has no phase param — uses action/description/timestamp'
+  ✓ Clean in infrastructure/tool_providers.dart: no 'Use get() not getTool()'
+  ✓ Clean in infrastructure/tool_providers.dart: no 'Use allTools not getAllTools'
+  ✓ Clean in infrastructure/tool_providers.dart: no 'Use byCategory() not getByCategory()'
+  ✓ Clean in infrastructure/tool_providers.dart: no 'riskLevel is String, not ToolRiskLevel enum'
+  ✓ Clean in infrastructure/tool_providers.dart: no 'Use containsSensitiveData not hasSensitiveData'
+  ✓ Clean in infrastructure/tool_providers.dart: no 'ToolOutput.failure uses errorMessage, not message'
+  ✓ Clean in infrastructure/tool_providers.dart: no 'ToolOutput.denied uses reason, not errorMessage'
+  ✓ Clean in infrastructure/tool_providers.dart: no 'No critical severity — use error/warning/info only'
+  ✓ Clean in infrastructure/tool_providers.dart: no 'Use retryAttempt not recoveryAttempt'
+  ✓ Clean in infrastructure/tool_providers.dart: no 'Use retryAttempt not currentRetry'
+  ✓ Clean in infrastructure/tool_providers.dart: no 'Use denyAll not autoDeny'
+  ✓ Clean in infrastructure/tool_providers.dart: no 'memoryContext is String? not Map'
+  ✓ Clean in infrastructure/tool_providers.dart: no 'AuditEntry has no phase param — uses action/description/timestamp'
+  ✓ Clean in application/tool_composition.dart: no 'Use get() not getTool()'
+  ✓ Clean in application/tool_composition.dart: no 'Use allTools not getAllTools'
+  ✓ Clean in application/tool_composition.dart: no 'Use byCategory() not getByCategory()'
+  ✓ Clean in application/tool_composition.dart: no 'riskLevel is String, not ToolRiskLevel enum'
+  ✓ Clean in application/tool_composition.dart: no 'Use containsSensitiveData not hasSensitiveData'
+  ✓ Clean in application/tool_composition.dart: no 'ToolOutput.failure uses errorMessage, not message'
+  ✓ Clean in application/tool_composition.dart: no 'ToolOutput.denied uses reason, not errorMessage'
+  ✓ Clean in application/tool_composition.dart: no 'No critical severity — use error/warning/info only'
+  ✓ Clean in application/tool_composition.dart: no 'Use retryAttempt not recoveryAttempt'
+  ✓ Clean in application/tool_composition.dart: no 'Use retryAttempt not currentRetry'
+  ✓ Clean in application/tool_composition.dart: no 'Use denyAll not autoDeny'
+  ✓ Clean in application/tool_composition.dart: no 'memoryContext is String? not Map'
+  ✓ Clean in application/tool_composition.dart: no 'AuditEntry has no phase param — uses action/description/timestamp'
+  ✓ Clean in executors/assistant_tool.dart: no 'Use get() not getTool()'
+  ✓ Clean in executors/assistant_tool.dart: no 'Use allTools not getAllTools'
+  ✓ Clean in executors/assistant_tool.dart: no 'Use byCategory() not getByCategory()'
+  ✓ Clean in executors/assistant_tool.dart: no 'riskLevel is String, not ToolRiskLevel enum'
+  ✓ Clean in executors/assistant_tool.dart: no 'Use containsSensitiveData not hasSensitiveData'
+  ✓ Clean in executors/assistant_tool.dart: no 'ToolOutput.failure uses errorMessage, not message'
+  ✓ Clean in executors/assistant_tool.dart: no 'ToolOutput.denied uses reason, not errorMessage'
+  ✓ Clean in executors/assistant_tool.dart: no 'No critical severity — use error/warning/info only'
+  ✓ Clean in executors/assistant_tool.dart: no 'Use retryAttempt not recoveryAttempt'
+  ✓ Clean in executors/assistant_tool.dart: no 'Use retryAttempt not currentRetry'
+  ✓ Clean in executors/assistant_tool.dart: no 'Use denyAll not autoDeny'
+  ✓ Clean in executors/assistant_tool.dart: no 'memoryContext is String? not Map'
+  ✓ Clean in executors/assistant_tool.dart: no 'AuditEntry has no phase param — uses action/description/timestamp'
+  ✓ Clean in executors/device_tool.dart: no 'Use get() not getTool()'
+  ✓ Clean in executors/device_tool.dart: no 'Use allTools not getAllTools'
+  ✓ Clean in executors/device_tool.dart: no 'Use byCategory() not getByCategory()'
+  ✓ Clean in executors/device_tool.dart: no 'riskLevel is String, not ToolRiskLevel enum'
+  ✓ Clean in executors/device_tool.dart: no 'Use containsSensitiveData not hasSensitiveData'
+  ✓ Clean in executors/device_tool.dart: no 'ToolOutput.failure uses errorMessage, not message'
+  ✓ Clean in executors/device_tool.dart: no 'ToolOutput.denied uses reason, not errorMessage'
+  ✓ Clean in executors/device_tool.dart: no 'No critical severity — use error/warning/info only'
+  ✓ Clean in executors/device_tool.dart: no 'Use retryAttempt not recoveryAttempt'
+  ✓ Clean in executors/device_tool.dart: no 'Use retryAttempt not currentRetry'
+  ✓ Clean in executors/device_tool.dart: no 'Use denyAll not autoDeny'
+  ✓ Clean in executors/device_tool.dart: no 'memoryContext is String? not Map'
+  ✓ Clean in executors/device_tool.dart: no 'AuditEntry has no phase param — uses action/description/timestamp'
+  ✓ Clean in application/voice_first_execution.dart: no 'Use get() not getTool()'
+  ✓ Clean in application/voice_first_execution.dart: no 'Use allTools not getAllTools'
+  ✓ Clean in application/voice_first_execution.dart: no 'Use byCategory() not getByCategory()'
+  ✓ Clean in application/voice_first_execution.dart: no 'riskLevel is String, not ToolRiskLevel enum'
+  ✓ Clean in application/voice_first_execution.dart: no 'Use containsSensitiveData not hasSensitiveData'
+  ✓ Clean in application/voice_first_execution.dart: no 'ToolOutput.failure uses errorMessage, not message'
+  ✓ Clean in application/voice_first_execution.dart: no 'ToolOutput.denied uses reason, not errorMessage'
+  ✓ Clean in application/voice_first_execution.dart: no 'No critical severity — use error/warning/info only'
+  ✓ Clean in application/voice_first_execution.dart: no 'Use retryAttempt not recoveryAttempt'
+  ✓ Clean in application/voice_first_execution.dart: no 'Use retryAttempt not currentRetry'
+  ✓ Clean in application/voice_first_execution.dart: no 'Use denyAll not autoDeny'
+  ✓ Clean in application/voice_first_execution.dart: no 'memoryContext is String? not Map'
+  ✓ Clean in application/voice_first_execution.dart: no 'AuditEntry has no phase param — uses action/description/timestamp'
+  ✓ Clean in infrastructure/tool_executor_registry.dart: no 'Use get() not getTool()'
+  ✓ Clean in infrastructure/tool_executor_registry.dart: no 'Use allTools not getAllTools'
+  ✓ Clean in infrastructure/tool_executor_registry.dart: no 'Use byCategory() not getByCategory()'
+  ✓ Clean in infrastructure/tool_executor_registry.dart: no 'riskLevel is String, not ToolRiskLevel enum'
+  ✓ Clean in infrastructure/tool_executor_registry.dart: no 'Use containsSensitiveData not hasSensitiveData'
+  ✓ Clean in infrastructure/tool_executor_registry.dart: no 'ToolOutput.failure uses errorMessage, not message'
+  ✓ Clean in infrastructure/tool_executor_registry.dart: no 'ToolOutput.denied uses reason, not errorMessage'
+  ✓ Clean in infrastructure/tool_executor_registry.dart: no 'No critical severity — use error/warning/info only'
+  ✓ Clean in infrastructure/tool_executor_registry.dart: no 'Use retryAttempt not recoveryAttempt'
+  ✓ Clean in infrastructure/tool_executor_registry.dart: no 'Use retryAttempt not currentRetry'
+  ✓ Clean in infrastructure/tool_executor_registry.dart: no 'Use denyAll not autoDeny'
+  ✓ Clean in infrastructure/tool_executor_registry.dart: no 'memoryContext is String? not Map'
+  ✓ Clean in infrastructure/tool_executor_registry.dart: no 'AuditEntry has no phase param — uses action/description/timestamp'
+  ✓ Clean in executors/media_tool.dart: no 'Use get() not getTool()'
+  ✓ Clean in executors/media_tool.dart: no 'Use allTools not getAllTools'
+  ✓ Clean in executors/media_tool.dart: no 'Use byCategory() not getByCategory()'
+  ✓ Clean in executors/media_tool.dart: no 'riskLevel is String, not ToolRiskLevel enum'
+  ✓ Clean in executors/media_tool.dart: no 'Use containsSensitiveData not hasSensitiveData'
+  ✓ Clean in executors/media_tool.dart: no 'ToolOutput.failure uses errorMessage, not message'
+  ✓ Clean in executors/media_tool.dart: no 'ToolOutput.denied uses reason, not errorMessage'
+  ✓ Clean in executors/media_tool.dart: no 'No critical severity — use error/warning/info only'
+  ✓ Clean in executors/media_tool.dart: no 'Use retryAttempt not recoveryAttempt'
+  ✓ Clean in executors/media_tool.dart: no 'Use retryAttempt not currentRetry'
+  ✓ Clean in executors/media_tool.dart: no 'Use denyAll not autoDeny'
+  ✓ Clean in executors/media_tool.dart: no 'memoryContext is String? not Map'
+  ✓ Clean in executors/media_tool.dart: no 'AuditEntry has no phase param — uses action/description/timestamp'
+  ✓ Clean in domain/models/exceptions.dart: no 'Use get() not getTool()'
+  ✓ Clean in domain/models/exceptions.dart: no 'Use allTools not getAllTools'
+  ✓ Clean in domain/models/exceptions.dart: no 'Use byCategory() not getByCategory()'
+  ✓ Clean in domain/models/exceptions.dart: no 'riskLevel is String, not ToolRiskLevel enum'
+  ✓ Clean in domain/models/exceptions.dart: no 'Use containsSensitiveData not hasSensitiveData'
+  ✓ Clean in domain/models/exceptions.dart: no 'ToolOutput.failure uses errorMessage, not message'
+  ✓ Clean in domain/models/exceptions.dart: no 'ToolOutput.denied uses reason, not errorMessage'
+  ✓ Clean in domain/models/exceptions.dart: no 'No critical severity — use error/warning/info only'
+  ✓ Clean in domain/models/exceptions.dart: no 'Use retryAttempt not recoveryAttempt'
+  ✓ Clean in domain/models/exceptions.dart: no 'Use retryAttempt not currentRetry'
+  ✓ Clean in domain/models/exceptions.dart: no 'Use denyAll not autoDeny'
+  ✓ Clean in domain/models/exceptions.dart: no 'memoryContext is String? not Map'
+  ✓ Clean in domain/models/exceptions.dart: no 'AuditEntry has no phase param — uses action/description/timestamp'
+  ✓ Clean in executors/unknown_tool_handler.dart: no 'Use get() not getTool()'
+  ✓ Clean in executors/unknown_tool_handler.dart: no 'Use allTools not getAllTools'
+  ✓ Clean in executors/unknown_tool_handler.dart: no 'Use byCategory() not getByCategory()'
+  ✓ Clean in executors/unknown_tool_handler.dart: no 'riskLevel is String, not ToolRiskLevel enum'
+  ✓ Clean in executors/unknown_tool_handler.dart: no 'Use containsSensitiveData not hasSensitiveData'
+  ✓ Clean in executors/unknown_tool_handler.dart: no 'ToolOutput.failure uses errorMessage, not message'
+  ✓ Clean in executors/unknown_tool_handler.dart: no 'ToolOutput.denied uses reason, not errorMessage'
+  ✓ Clean in executors/unknown_tool_handler.dart: no 'No critical severity — use error/warning/info only'
+  ✓ Clean in executors/unknown_tool_handler.dart: no 'Use retryAttempt not recoveryAttempt'
+  ✓ Clean in executors/unknown_tool_handler.dart: no 'Use retryAttempt not currentRetry'
+  ✓ Clean in executors/unknown_tool_handler.dart: no 'Use denyAll not autoDeny'
+  ✓ Clean in executors/unknown_tool_handler.dart: no 'memoryContext is String? not Map'
+  ✓ Clean in executors/unknown_tool_handler.dart: no 'AuditEntry has no phase param — uses action/description/timestamp'
+  ✓ Clean in adapters/step20_gate_adapter.dart: no 'Use get() not getTool()'
+  ✓ Clean in adapters/step20_gate_adapter.dart: no 'Use allTools not getAllTools'
+  ✓ Clean in adapters/step20_gate_adapter.dart: no 'Use byCategory() not getByCategory()'
+  ✓ Clean in adapters/step20_gate_adapter.dart: no 'riskLevel is String, not ToolRiskLevel enum'
+  ✓ Clean in adapters/step20_gate_adapter.dart: no 'Use containsSensitiveData not hasSensitiveData'
+  ✓ Clean in adapters/step20_gate_adapter.dart: no 'ToolOutput.failure uses errorMessage, not message'
+  ✓ Clean in adapters/step20_gate_adapter.dart: no 'ToolOutput.denied uses reason, not errorMessage'
+  ✓ Clean in adapters/step20_gate_adapter.dart: no 'No critical severity — use error/warning/info only'
+  ✓ Clean in adapters/step20_gate_adapter.dart: no 'Use retryAttempt not recoveryAttempt'
+  ✓ Clean in adapters/step20_gate_adapter.dart: no 'Use retryAttempt not currentRetry'
+  ✓ Clean in adapters/step20_gate_adapter.dart: no 'Use denyAll not autoDeny'
+  ✓ Clean in adapters/step20_gate_adapter.dart: no 'memoryContext is String? not Map'
+  ✓ Clean in adapters/step20_gate_adapter.dart: no 'AuditEntry has no phase param — uses action/description/timestamp'
+  ✓ Clean in infrastructure/audit_logger.dart: no 'Use get() not getTool()'
+  ✓ Clean in infrastructure/audit_logger.dart: no 'Use allTools not getAllTools'
+  ✓ Clean in infrastructure/audit_logger.dart: no 'Use byCategory() not getByCategory()'
+  ✓ Clean in infrastructure/audit_logger.dart: no 'riskLevel is String, not ToolRiskLevel enum'
+  ✓ Clean in infrastructure/audit_logger.dart: no 'Use containsSensitiveData not hasSensitiveData'
+  ✓ Clean in infrastructure/audit_logger.dart: no 'ToolOutput.failure uses errorMessage, not message'
+  ✓ Clean in infrastructure/audit_logger.dart: no 'ToolOutput.denied uses reason, not errorMessage'
+  ✓ Clean in infrastructure/audit_logger.dart: no 'No critical severity — use error/warning/info only'
+  ✓ Clean in infrastructure/audit_logger.dart: no 'Use retryAttempt not recoveryAttempt'
+  ✓ Clean in infrastructure/audit_logger.dart: no 'Use retryAttempt not currentRetry'
+  ✓ Clean in infrastructure/audit_logger.dart: no 'Use denyAll not autoDeny'
+  ✓ Clean in infrastructure/audit_logger.dart: no 'memoryContext is String? not Map'
+  ✓ Clean in infrastructure/audit_logger.dart: no 'AuditEntry has no phase param — uses action/description/timestamp'
+  ✓ Clean in adapters/step20_confirmation_adapter.dart: no 'Use get() not getTool()'
+  ✓ Clean in adapters/step20_confirmation_adapter.dart: no 'Use allTools not getAllTools'
+  ✓ Clean in adapters/step20_confirmation_adapter.dart: no 'Use byCategory() not getByCategory()'
+  ✓ Clean in adapters/step20_confirmation_adapter.dart: no 'riskLevel is String, not ToolRiskLevel enum'
+  ✓ Clean in adapters/step20_confirmation_adapter.dart: no 'Use containsSensitiveData not hasSensitiveData'
+  ✓ Clean in adapters/step20_confirmation_adapter.dart: no 'ToolOutput.failure uses errorMessage, not message'
+  ✓ Clean in adapters/step20_confirmation_adapter.dart: no 'ToolOutput.denied uses reason, not errorMessage'
+  ✓ Clean in adapters/step20_confirmation_adapter.dart: no 'No critical severity — use error/warning/info only'
+  ✓ Clean in adapters/step20_confirmation_adapter.dart: no 'Use retryAttempt not recoveryAttempt'
+  ✓ Clean in adapters/step20_confirmation_adapter.dart: no 'Use retryAttempt not currentRetry'
+  ✓ Clean in adapters/step20_confirmation_adapter.dart: no 'Use denyAll not autoDeny'
+  ✓ Clean in adapters/step20_confirmation_adapter.dart: no 'memoryContext is String? not Map'
+  ✓ Clean in adapters/step20_confirmation_adapter.dart: no 'AuditEntry has no phase param — uses action/description/timestamp'
+  ✓ Clean in executors/vision_tool.dart: no 'Use get() not getTool()'
+  ✓ Clean in executors/vision_tool.dart: no 'Use allTools not getAllTools'
+  ✓ Clean in executors/vision_tool.dart: no 'Use byCategory() not getByCategory()'
+  ✓ Clean in executors/vision_tool.dart: no 'riskLevel is String, not ToolRiskLevel enum'
+  ✓ Clean in executors/vision_tool.dart: no 'Use containsSensitiveData not hasSensitiveData'
+  ✓ Clean in executors/vision_tool.dart: no 'ToolOutput.failure uses errorMessage, not message'
+  ✓ Clean in executors/vision_tool.dart: no 'ToolOutput.denied uses reason, not errorMessage'
+  ✓ Clean in executors/vision_tool.dart: no 'No critical severity — use error/warning/info only'
+  ✓ Clean in executors/vision_tool.dart: no 'Use retryAttempt not recoveryAttempt'
+  ✓ Clean in executors/vision_tool.dart: no 'Use retryAttempt not currentRetry'
+  ✓ Clean in executors/vision_tool.dart: no 'Use denyAll not autoDeny'
+  ✓ Clean in executors/vision_tool.dart: no 'memoryContext is String? not Map'
+  ✓ Clean in executors/vision_tool.dart: no 'AuditEntry has no phase param — uses action/description/timestamp'
+  ✓ Clean in executors/system_tool.dart: no 'Use get() not getTool()'
+  ✓ Clean in executors/system_tool.dart: no 'Use allTools not getAllTools'
+  ✓ Clean in executors/system_tool.dart: no 'Use byCategory() not getByCategory()'
+  ✓ Clean in executors/system_tool.dart: no 'riskLevel is String, not ToolRiskLevel enum'
+  ✓ Clean in executors/system_tool.dart: no 'Use containsSensitiveData not hasSensitiveData'
+  ✓ Clean in executors/system_tool.dart: no 'ToolOutput.failure uses errorMessage, not message'
+  ✓ Clean in executors/system_tool.dart: no 'ToolOutput.denied uses reason, not errorMessage'
+  ✓ Clean in executors/system_tool.dart: no 'No critical severity — use error/warning/info only'
+  ✓ Clean in executors/system_tool.dart: no 'Use retryAttempt not recoveryAttempt'
+  ✓ Clean in executors/system_tool.dart: no 'Use retryAttempt not currentRetry'
+  ✓ Clean in executors/system_tool.dart: no 'Use denyAll not autoDeny'
+  ✓ Clean in executors/system_tool.dart: no 'memoryContext is String? not Map'
+  ✓ Clean in executors/system_tool.dart: no 'AuditEntry has no phase param — uses action/description/timestamp'
+  ✓ Clean in domain/models/tool_output.dart: no 'Use get() not getTool()'
+  ✓ Clean in domain/models/tool_output.dart: no 'Use allTools not getAllTools'
+  ✓ Clean in domain/models/tool_output.dart: no 'Use byCategory() not getByCategory()'
+  ✓ Clean in domain/models/tool_output.dart: no 'riskLevel is String, not ToolRiskLevel enum'
+  ✓ Clean in domain/models/tool_output.dart: no 'Use containsSensitiveData not hasSensitiveData'
+  ✓ Clean in domain/models/tool_output.dart: no 'ToolOutput.failure uses errorMessage, not message'
+  ✓ Clean in domain/models/tool_output.dart: no 'ToolOutput.denied uses reason, not errorMessage'
+  ✓ Clean in domain/models/tool_output.dart: no 'No critical severity — use error/warning/info only'
+  ✓ Clean in domain/models/tool_output.dart: no 'Use retryAttempt not recoveryAttempt'
+  ✓ Clean in domain/models/tool_output.dart: no 'Use retryAttempt not currentRetry'
+  ✓ Clean in domain/models/tool_output.dart: no 'Use denyAll not autoDeny'
+  ✓ Clean in domain/models/tool_output.dart: no 'memoryContext is String? not Map'
+  ✓ Clean in domain/models/tool_output.dart: no 'AuditEntry has no phase param — uses action/description/timestamp'
+  ✓ Clean in executors/screen_tool.dart: no 'Use get() not getTool()'
+  ✓ Clean in executors/screen_tool.dart: no 'Use allTools not getAllTools'
+  ✓ Clean in executors/screen_tool.dart: no 'Use byCategory() not getByCategory()'
+  ✓ Clean in executors/screen_tool.dart: no 'riskLevel is String, not ToolRiskLevel enum'
+  ✓ Clean in executors/screen_tool.dart: no 'Use containsSensitiveData not hasSensitiveData'
+  ✓ Clean in executors/screen_tool.dart: no 'ToolOutput.failure uses errorMessage, not message'
+  ✓ Clean in executors/screen_tool.dart: no 'ToolOutput.denied uses reason, not errorMessage'
+  ✓ Clean in executors/screen_tool.dart: no 'No critical severity — use error/warning/info only'
+  ✓ Clean in executors/screen_tool.dart: no 'Use retryAttempt not recoveryAttempt'
+  ✓ Clean in executors/screen_tool.dart: no 'Use retryAttempt not currentRetry'
+  ✓ Clean in executors/screen_tool.dart: no 'Use denyAll not autoDeny'
+  ✓ Clean in executors/screen_tool.dart: no 'memoryContext is String? not Map'
+  ✓ Clean in executors/screen_tool.dart: no 'AuditEntry has no phase param — uses action/description/timestamp'
+  ✓ Clean in domain/services/tool_interface.dart: no 'Use get() not getTool()'
+  ✓ Clean in domain/services/tool_interface.dart: no 'Use allTools not getAllTools'
+  ✓ Clean in domain/services/tool_interface.dart: no 'Use byCategory() not getByCategory()'
+  ✓ Clean in domain/services/tool_interface.dart: no 'riskLevel is String, not ToolRiskLevel enum'
+  ✓ Clean in domain/services/tool_interface.dart: no 'Use containsSensitiveData not hasSensitiveData'
+  ✓ Clean in domain/services/tool_interface.dart: no 'ToolOutput.failure uses errorMessage, not message'
+  ✓ Clean in domain/services/tool_interface.dart: no 'ToolOutput.denied uses reason, not errorMessage'
+  ✓ Clean in domain/services/tool_interface.dart: no 'No critical severity — use error/warning/info only'
+  ✓ Clean in domain/services/tool_interface.dart: no 'Use retryAttempt not recoveryAttempt'
+  ✓ Clean in domain/services/tool_interface.dart: no 'Use retryAttempt not currentRetry'
+  ✓ Clean in domain/services/tool_interface.dart: no 'Use denyAll not autoDeny'
+  ✓ Clean in domain/services/tool_interface.dart: no 'memoryContext is String? not Map'
+  ✓ Clean in domain/services/tool_interface.dart: no 'AuditEntry has no phase param — uses action/description/timestamp'
+  ✓ Clean in domain/models/tool_execution_context.dart: no 'Use get() not getTool()'
+  ✓ Clean in domain/models/tool_execution_context.dart: no 'Use allTools not getAllTools'
+  ✓ Clean in domain/models/tool_execution_context.dart: no 'Use byCategory() not getByCategory()'
+  ✓ Clean in domain/models/tool_execution_context.dart: no 'riskLevel is String, not ToolRiskLevel enum'
+  ✓ Clean in domain/models/tool_execution_context.dart: no 'Use containsSensitiveData not hasSensitiveData'
+  ✓ Clean in domain/models/tool_execution_context.dart: no 'ToolOutput.failure uses errorMessage, not message'
+  ✓ Clean in domain/models/tool_execution_context.dart: no 'ToolOutput.denied uses reason, not errorMessage'
+  ✓ Clean in domain/models/tool_execution_context.dart: no 'No critical severity — use error/warning/info only'
+  ✓ Clean in domain/models/tool_execution_context.dart: no 'Use retryAttempt not recoveryAttempt'
+  ✓ Clean in domain/models/tool_execution_context.dart: no 'Use retryAttempt not currentRetry'
+  ✓ Clean in domain/models/tool_execution_context.dart: no 'Use denyAll not autoDeny'
+  ✓ Clean in domain/models/tool_execution_context.dart: no 'memoryContext is String? not Map'
+  ✓ Clean in domain/models/tool_execution_context.dart: no 'AuditEntry has no phase param — uses action/description/timestamp'
+  ✓ Clean in executors/memory_tool.dart: no 'Use get() not getTool()'
+  ✓ Clean in executors/memory_tool.dart: no 'Use allTools not getAllTools'
+  ✓ Clean in executors/memory_tool.dart: no 'Use byCategory() not getByCategory()'
+  ✓ Clean in executors/memory_tool.dart: no 'riskLevel is String, not ToolRiskLevel enum'
+  ✓ Clean in executors/memory_tool.dart: no 'Use containsSensitiveData not hasSensitiveData'
+  ✓ Clean in executors/memory_tool.dart: no 'ToolOutput.failure uses errorMessage, not message'
+  ✓ Clean in executors/memory_tool.dart: no 'ToolOutput.denied uses reason, not errorMessage'
+  ✓ Clean in executors/memory_tool.dart: no 'No critical severity — use error/warning/info only'
+  ✓ Clean in executors/memory_tool.dart: no 'Use retryAttempt not recoveryAttempt'
+  ✓ Clean in executors/memory_tool.dart: no 'Use retryAttempt not currentRetry'
+  ✓ Clean in executors/memory_tool.dart: no 'Use denyAll not autoDeny'
+  ✓ Clean in executors/memory_tool.dart: no 'memoryContext is String? not Map'
+  ✓ Clean in executors/memory_tool.dart: no 'AuditEntry has no phase param — uses action/description/timestamp'
+  ✓ Clean in domain/services/recovery_tool.dart: no 'Use get() not getTool()'
+  ✓ Clean in domain/services/recovery_tool.dart: no 'Use allTools not getAllTools'
+  ✓ Clean in domain/services/recovery_tool.dart: no 'Use byCategory() not getByCategory()'
+  ✓ Clean in domain/services/recovery_tool.dart: no 'riskLevel is String, not ToolRiskLevel enum'
+  ✓ Clean in domain/services/recovery_tool.dart: no 'Use containsSensitiveData not hasSensitiveData'
+  ✓ Clean in domain/services/recovery_tool.dart: no 'ToolOutput.failure uses errorMessage, not message'
+  ✓ Clean in domain/services/recovery_tool.dart: no 'ToolOutput.denied uses reason, not errorMessage'
+  ✓ Clean in domain/services/recovery_tool.dart: no 'No critical severity — use error/warning/info only'
+  ✓ Clean in domain/services/recovery_tool.dart: no 'Use retryAttempt not recoveryAttempt'
+  ✓ Clean in domain/services/recovery_tool.dart: no 'Use retryAttempt not currentRetry'
+  ✓ Clean in domain/services/recovery_tool.dart: no 'Use denyAll not autoDeny'
+  ✓ Clean in domain/services/recovery_tool.dart: no 'memoryContext is String? not Map'
+  ✓ Clean in domain/services/recovery_tool.dart: no 'AuditEntry has no phase param — uses action/description/timestamp'
+  ✓ Clean in infrastructure/tool_input_validator.dart: no 'Use get() not getTool()'
+  ✓ Clean in infrastructure/tool_input_validator.dart: no 'Use allTools not getAllTools'
+  ✓ Clean in infrastructure/tool_input_validator.dart: no 'Use byCategory() not getByCategory()'
+  ✓ Clean in infrastructure/tool_input_validator.dart: no 'riskLevel is String, not ToolRiskLevel enum'
+  ✓ Clean in infrastructure/tool_input_validator.dart: no 'Use containsSensitiveData not hasSensitiveData'
+  ✓ Clean in infrastructure/tool_input_validator.dart: no 'ToolOutput.failure uses errorMessage, not message'
+  ✓ Clean in infrastructure/tool_input_validator.dart: no 'ToolOutput.denied uses reason, not errorMessage'
+  ✓ Clean in infrastructure/tool_input_validator.dart: no 'No critical severity — use error/warning/info only'
+  ✓ Clean in infrastructure/tool_input_validator.dart: no 'Use retryAttempt not recoveryAttempt'
+  ✓ Clean in infrastructure/tool_input_validator.dart: no 'Use retryAttempt not currentRetry'
+  ✓ Clean in infrastructure/tool_input_validator.dart: no 'Use denyAll not autoDeny'
+  ✓ Clean in infrastructure/tool_input_validator.dart: no 'memoryContext is String? not Map'
+  ✓ Clean in infrastructure/tool_input_validator.dart: no 'AuditEntry has no phase param — uses action/description/timestamp'
+  ✓ Clean in domain/models/tool_execution_metadata.dart: no 'Use get() not getTool()'
+  ✓ Clean in domain/models/tool_execution_metadata.dart: no 'Use allTools not getAllTools'
+  ✓ Clean in domain/models/tool_execution_metadata.dart: no 'Use byCategory() not getByCategory()'
+  ✓ Clean in domain/models/tool_execution_metadata.dart: no 'riskLevel is String, not ToolRiskLevel enum'
+  ✓ Clean in domain/models/tool_execution_metadata.dart: no 'Use containsSensitiveData not hasSensitiveData'
+  ✓ Clean in domain/models/tool_execution_metadata.dart: no 'ToolOutput.failure uses errorMessage, not message'
+  ✓ Clean in domain/models/tool_execution_metadata.dart: no 'ToolOutput.denied uses reason, not errorMessage'
+  ✓ Clean in domain/models/tool_execution_metadata.dart: no 'No critical severity — use error/warning/info only'
+  ✓ Clean in domain/models/tool_execution_metadata.dart: no 'Use retryAttempt not recoveryAttempt'
+  ✓ Clean in domain/models/tool_execution_metadata.dart: no 'Use retryAttempt not currentRetry'
+  ✓ Clean in domain/models/tool_execution_metadata.dart: no 'Use denyAll not autoDeny'
+  ✓ Clean in domain/models/tool_execution_metadata.dart: no 'memoryContext is String? not Map'
+  ✓ Clean in domain/models/tool_execution_metadata.dart: no 'AuditEntry has no phase param — uses action/description/timestamp'
+  ✓ Clean in infrastructure/tool_output_normalizer.dart: no 'Use get() not getTool()'
+  ✓ Clean in infrastructure/tool_output_normalizer.dart: no 'Use allTools not getAllTools'
+  ✓ Clean in infrastructure/tool_output_normalizer.dart: no 'Use byCategory() not getByCategory()'
+  ✓ Clean in infrastructure/tool_output_normalizer.dart: no 'riskLevel is String, not ToolRiskLevel enum'
+  ✓ Clean in infrastructure/tool_output_normalizer.dart: no 'Use containsSensitiveData not hasSensitiveData'
+  ✓ Clean in infrastructure/tool_output_normalizer.dart: no 'ToolOutput.failure uses errorMessage, not message'
+  ✓ Clean in infrastructure/tool_output_normalizer.dart: no 'ToolOutput.denied uses reason, not errorMessage'
+  ✓ Clean in infrastructure/tool_output_normalizer.dart: no 'No critical severity — use error/warning/info only'
+  ✓ Clean in infrastructure/tool_output_normalizer.dart: no 'Use retryAttempt not recoveryAttempt'
+  ✓ Clean in infrastructure/tool_output_normalizer.dart: no 'Use retryAttempt not currentRetry'
+  ✓ Clean in infrastructure/tool_output_normalizer.dart: no 'Use denyAll not autoDeny'
+  ✓ Clean in infrastructure/tool_output_normalizer.dart: no 'memoryContext is String? not Map'
+  ✓ Clean in infrastructure/tool_output_normalizer.dart: no 'AuditEntry has no phase param — uses action/description/timestamp'
+  ✓ Clean in application/tool_selection.dart: no 'Use get() not getTool()'
+  ✓ Clean in application/tool_selection.dart: no 'Use allTools not getAllTools'
+  ✓ Clean in application/tool_selection.dart: no 'Use byCategory() not getByCategory()'
+  ✓ Clean in application/tool_selection.dart: no 'riskLevel is String, not ToolRiskLevel enum'
+  ✓ Clean in application/tool_selection.dart: no 'Use containsSensitiveData not hasSensitiveData'
+  ✓ Clean in application/tool_selection.dart: no 'ToolOutput.failure uses errorMessage, not message'
+  ✓ Clean in application/tool_selection.dart: no 'ToolOutput.denied uses reason, not errorMessage'
+  ✓ Clean in application/tool_selection.dart: no 'No critical severity — use error/warning/info only'
+  ✓ Clean in application/tool_selection.dart: no 'Use retryAttempt not recoveryAttempt'
+  ✓ Clean in application/tool_selection.dart: no 'Use retryAttempt not currentRetry'
+  ✓ Clean in application/tool_selection.dart: no 'Use denyAll not autoDeny'
+  ✓ Clean in application/tool_selection.dart: no 'memoryContext is String? not Map'
+  ✓ Clean in application/tool_selection.dart: no 'AuditEntry has no phase param — uses action/description/timestamp'
+  ✓ Clean in application/background_execution.dart: no 'Use get() not getTool()'
+  ✓ Clean in application/background_execution.dart: no 'Use allTools not getAllTools'
+  ✓ Clean in application/background_execution.dart: no 'Use byCategory() not getByCategory()'
+  ✓ Clean in application/background_execution.dart: no 'riskLevel is String, not ToolRiskLevel enum'
+  ✓ Clean in application/background_execution.dart: no 'Use containsSensitiveData not hasSensitiveData'
+  ✓ Clean in application/background_execution.dart: no 'ToolOutput.failure uses errorMessage, not message'
+  ✓ Clean in application/background_execution.dart: no 'ToolOutput.denied uses reason, not errorMessage'
+  ✓ Clean in application/background_execution.dart: no 'No critical severity — use error/warning/info only'
+  ✓ Clean in application/background_execution.dart: no 'Use retryAttempt not recoveryAttempt'
+  ✓ Clean in application/background_execution.dart: no 'Use retryAttempt not currentRetry'
+  ✓ Clean in application/background_execution.dart: no 'Use denyAll not autoDeny'
+  ✓ Clean in application/background_execution.dart: no 'memoryContext is String? not Map'
+  ✓ Clean in application/background_execution.dart: no 'AuditEntry has no phase param — uses action/description/timestamp'
+  ✓ Clean in adapters/step18_retry_bridge.dart: no 'Use get() not getTool()'
+  ✓ Clean in adapters/step18_retry_bridge.dart: no 'Use allTools not getAllTools'
+  ✓ Clean in adapters/step18_retry_bridge.dart: no 'Use byCategory() not getByCategory()'
+  ✓ Clean in adapters/step18_retry_bridge.dart: no 'riskLevel is String, not ToolRiskLevel enum'
+  ✓ Clean in adapters/step18_retry_bridge.dart: no 'Use containsSensitiveData not hasSensitiveData'
+  ✓ Clean in adapters/step18_retry_bridge.dart: no 'ToolOutput.failure uses errorMessage, not message'
+  ✓ Clean in adapters/step18_retry_bridge.dart: no 'ToolOutput.denied uses reason, not errorMessage'
+  ✓ Clean in adapters/step18_retry_bridge.dart: no 'No critical severity — use error/warning/info only'
+  ✓ Clean in adapters/step18_retry_bridge.dart: no 'Use retryAttempt not recoveryAttempt'
+  ✓ Clean in adapters/step18_retry_bridge.dart: no 'Use retryAttempt not currentRetry'
+  ✓ Clean in adapters/step18_retry_bridge.dart: no 'Use denyAll not autoDeny'
+  ✓ Clean in adapters/step18_retry_bridge.dart: no 'memoryContext is String? not Map'
+  ✓ Clean in adapters/step18_retry_bridge.dart: no 'AuditEntry has no phase param — uses action/description/timestamp'
+  ✓ Clean in executors/voice_tool.dart: no 'Use get() not getTool()'
+  ✓ Clean in executors/voice_tool.dart: no 'Use allTools not getAllTools'
+  ✓ Clean in executors/voice_tool.dart: no 'Use byCategory() not getByCategory()'
+  ✓ Clean in executors/voice_tool.dart: no 'riskLevel is String, not ToolRiskLevel enum'
+  ✓ Clean in executors/voice_tool.dart: no 'Use containsSensitiveData not hasSensitiveData'
+  ✓ Clean in executors/voice_tool.dart: no 'ToolOutput.failure uses errorMessage, not message'
+  ✓ Clean in executors/voice_tool.dart: no 'ToolOutput.denied uses reason, not errorMessage'
+  ✓ Clean in executors/voice_tool.dart: no 'No critical severity — use error/warning/info only'
+  ✓ Clean in executors/voice_tool.dart: no 'Use retryAttempt not recoveryAttempt'
+  ✓ Clean in executors/voice_tool.dart: no 'Use retryAttempt not currentRetry'
+  ✓ Clean in executors/voice_tool.dart: no 'Use denyAll not autoDeny'
+  ✓ Clean in executors/voice_tool.dart: no 'memoryContext is String? not Map'
+  ✓ Clean in executors/voice_tool.dart: no 'AuditEntry has no phase param — uses action/description/timestamp'
+  ✓ Clean in infrastructure/cancellation_token.dart: no 'Use get() not getTool()'
+  ✓ Clean in infrastructure/cancellation_token.dart: no 'Use allTools not getAllTools'
+  ✓ Clean in infrastructure/cancellation_token.dart: no 'Use byCategory() not getByCategory()'
+  ✓ Clean in infrastructure/cancellation_token.dart: no 'riskLevel is String, not ToolRiskLevel enum'
+  ✓ Clean in infrastructure/cancellation_token.dart: no 'Use containsSensitiveData not hasSensitiveData'
+  ✓ Clean in infrastructure/cancellation_token.dart: no 'ToolOutput.failure uses errorMessage, not message'
+  ✓ Clean in infrastructure/cancellation_token.dart: no 'ToolOutput.denied uses reason, not errorMessage'
+  ✓ Clean in infrastructure/cancellation_token.dart: no 'No critical severity — use error/warning/info only'
+  ✓ Clean in infrastructure/cancellation_token.dart: no 'Use retryAttempt not recoveryAttempt'
+  ✓ Clean in infrastructure/cancellation_token.dart: no 'Use retryAttempt not currentRetry'
+  ✓ Clean in infrastructure/cancellation_token.dart: no 'Use denyAll not autoDeny'
+  ✓ Clean in infrastructure/cancellation_token.dart: no 'memoryContext is String? not Map'
+  ✓ Clean in infrastructure/cancellation_token.dart: no 'AuditEntry has no phase param — uses action/description/timestamp'
+  ✓ Required in domain/models/tool_execution_context.dart: Default locale must be 'ku' (Kurdini Sorani RTL)
+  ✓ Required in domain/models/tool_execution_context.dart: cancel() takes NO arguments
+  ✓ Required in domain/models/tool_execution_context.dart: incrementRetry method must exist
+  ✓ Required in domain/models/tool_execution_context.dart: retryAttempt property must exist
+  ✓ Required in domain/models/tool_execution_context.dart: withSecurityClearance method must exist
+  ✓ Required in domain/models/tool_execution_context.dart: throwIfCancelled method must exist
+  ✓ Required in domain/models/tool_execution_context.dart: confirmationDenied property must exist
+  ✓ Required in domain/models/tool_output.dart: failClosed factory must exist
+  ✓ Required in domain/models/tool_output.dart: failure uses errorMessage not message
+  ✓ Required in domain/models/tool_output.dart: denied uses reason param
+  ✓ Required in domain/models/tool_output.dart: cancelled uses message param
+  ✓ Required in domain/models/tool_output.dart: containsSensitiveData property
+  ✓ Required in domain/models/tool_output.dart: suggestions list property
+  ✓ Required in domain/models/tool_output.dart: SensitiveDataCategory enum
+  ✓ Required in domain/models/tool_input.dart: ToolInput.valid factory
+  ✓ Required in domain/models/tool_input.dart: ToolInput.invalid factory
+  ✓ Required in domain/models/tool_input.dart: error severity
+  ✓ Required in domain/models/tool_input.dart: warning severity
+  ✓ Required in domain/models/tool_input.dart: info severity enum value
+  ✓ Required in domain/models/tool_execution_metadata.dart: requested phase
+  ✓ Required in domain/models/tool_execution_metadata.dart: failClosed phase enum value
+  ✓ Required in domain/models/tool_execution_metadata.dart: denied phase enum value
+  ✓ Required in domain/models/tool_execution_metadata.dart: timedOut phase enum value
+  ✓ Required in infrastructure/cancellation_token.dart: cancel() takes NO arguments
+  ✓ Required in infrastructure/tool_executor_registry.dart: get() method
+  ✓ Required in infrastructure/tool_executor_registry.dart: allTools property
+  ✓ Required in infrastructure/tool_executor_registry.dart: byCategory() method
+  ✓ Required in domain/services/tool_interface.dart: riskLevel property (String)
+  ✓ Required in domain/services/tool_interface.dart: cancel() returns bool
+  ✓ FAIL-CLOSED pattern in executors/device_tool.dart
+  ✓ FAIL-CLOSED pattern in executors/screen_tool.dart
+  ✓ FAIL-CLOSED pattern in executors/voice_tool.dart
+  ✓ FAIL-CLOSED pattern in executors/memory_tool.dart
+  ✓ FAIL-CLOSED pattern in executors/vision_tool.dart
+  ✓ FAIL-CLOSED pattern in executors/media_tool.dart
+  ✓ FAIL-CLOSED pattern in executors/assistant_tool.dart
+  ✓ FAIL-CLOSED pattern in executors/communication_tool.dart
+  ✓ FAIL-CLOSED pattern in executors/navigation_tool.dart
+  ✓ FAIL-CLOSED pattern in executors/system_tool.dart
+  ✓ FAIL-CLOSED pattern in executors/unknown_tool_handler.dart
+  ✓ Default locale is 'ku' (Kurdini Sorani RTL)
+  ✓ All 12 ToolExecutionPhase values present
+  ✓ All 8 ToolOutputStatus values present
+  ✓ No raw \n literals in adapters/step20_confirmation_adapter.dart
+  ✓ No raw \n literals in adapters/step20_discovery_adapter.dart
+  ✓ No raw \n literals in adapters/step20_gate_adapter.dart
+  ✓ Test file has test assertions: tool_composition_test.dart
+  ✓ Test has structural validation disclaimer: tool_composition_test.dart
+  ✓ Test file has test assertions: audit_logger_test.dart
+  ✓ Test has structural validation disclaimer: audit_logger_test.dart
+  ✓ Test file has test assertions: tool_output_test.dart
+  ✓ Test has structural validation disclaimer: tool_output_test.dart
+  ✓ Test file has test assertions: tool_output_normalizer_test.dart
+  ✓ Test has structural validation disclaimer: tool_output_normalizer_test.dart
+  ✓ Test file has test assertions: cancellation_token_test.dart
+  ✓ Test has structural validation disclaimer: cancellation_token_test.dart
+  ✓ Test file has test assertions: step20_discovery_adapter_test.dart
+  ✓ Test has structural validation disclaimer: step20_discovery_adapter_test.dart
+  ✓ Test file has test assertions: voice_first_execution_test.dart
+  ✓ Test has structural validation disclaimer: voice_first_execution_test.dart
+  ✓ Test file has test assertions: tool_executor_registry_test.dart
+  ✓ Test has structural validation disclaimer: tool_executor_registry_test.dart
+  ✓ Test file has test assertions: step20_confirmation_adapter_test.dart
+  ✓ Test has structural validation disclaimer: step20_confirmation_adapter_test.dart
+  ✓ Test file has test assertions: tool_execution_context_test.dart
+  ✓ Test has structural validation disclaimer: tool_execution_context_test.dart
+  ✓ Test file has test assertions: tool_input_test.dart
+  ✓ Test has structural validation disclaimer: tool_input_test.dart
+  ✓ Test file has test assertions: tool_input_validator_test.dart
+  ✓ Test has structural validation disclaimer: tool_input_validator_test.dart
+  ✓ Test file has test assertions: step20_gate_adapter_test.dart
+  ✓ Test has structural validation disclaimer: step20_gate_adapter_test.dart
+  ✓ Test file has test assertions: tool_execution_metadata_test.dart
+  ✓ Test has structural validation disclaimer: tool_execution_metadata_test.dart
+  ✓ Test file has test assertions: tool_selection_test.dart
+  ✓ Test has structural validation disclaimer: tool_selection_test.dart
+  ✓ Test file has test assertions: offline_capability_test.dart
+  ✓ Test has structural validation disclaimer: offline_capability_test.dart
+  ✓ Test file has test assertions: background_execution_test.dart
+  ✓ Test has structural validation disclaimer: background_execution_test.dart
+  ✓ Total source files: 42/42
+  ✓ Total test files: 17/17
+
+========================================================================
+RESULT: ALL CHECKS PASSED — STRUCTURAL VALIDATION CLEAN
+========================================================================

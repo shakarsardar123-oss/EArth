@@ -1,0 +1,308 @@
+/// l10n_s_additions.dart
+/// AURA Assistant – Step 18: Agent Replanning, Recovery & Retry
+///
+/// Localization additions for the agent recovery feature.
+/// Follows existing pattern: S (abstract base), SEn (English), SKu (Kurdish Sorani).
+/// All keys prefixed with recovery_
+///
+/// Kurdish-first, full RTL support.
+library;
+
+/// Abstract base class with static const strings for all recovery keys.
+/// These are the default (English) values.
+abstract class S {
+  // ─── Phase Labels ─────────────────────────────────────────────────
+
+  static const String recoveryPhaseIdle = 'Idle';
+  static const String recoveryPhaseDetecting = 'Detecting failure…';
+  static const String recoveryPhaseClassifying =
+      'Classifying failure type…';
+  static const String recoveryPhaseAnalyzing =
+      'Analyzing failure context…';
+  static const String recoveryPhaseStrategizing =
+      'Determining recovery strategy…';
+  static const String recoveryPhasePlanning =
+      'Creating recovery plan…';
+  static const String recoveryPhaseExecuting = 'Executing recovery…';
+  static const String recoveryPhaseVerifying =
+      'Verifying recovery result…';
+  static const String recoveryPhaseCompleted =
+      'Recovery completed';
+  static const String recoveryPhaseFailed =
+      'Recovery failed';
+  static const String recoveryPhaseCancelled =
+      'Recovery cancelled';
+
+  // ─── Failure Type Labels ────────────────────────────────────────────
+
+  static const String recoveryFailureTool = 'Tool failure';
+  static const String recoveryFailurePermission = 'Permission denied';
+  static const String recoveryFailureTimeout = 'Operation timed out';
+  static const String recoveryFailureCancellation = 'Cancelled';
+  static const String recoveryFailureInvalidParameters =
+      'Invalid parameters';
+  static const String recoveryFailureTargetNotFound =
+      'Target not found';
+  static const String recoveryFailureScreenStateChanged =
+      'Screen state changed';
+  static const String recoveryFailureVerification =
+      'Verification failed';
+  static const String recoveryFailureNetwork = 'Network error';
+  static const String recoveryFailureUnsupportedAction =
+      'Unsupported action';
+  static const String recoveryFailureUnknown = 'Unknown error';
+
+  // ─── Strategy Labels ───────────────────────────────────────────────
+
+  static const String recoveryStrategyRetry = 'Retrying…';
+  static const String recoveryStrategyRetryWithDelay =
+      'Retrying with delay…';
+  static const String recoveryStrategyRefreshAndRetry =
+      'Refreshing screen and retrying…';
+  static const String recoveryStrategyReplanStep = 'Replanning step…';
+  static const String recoveryStrategyReplanFromCurrent =
+      'Replanning from current step…';
+  static const String recoveryStrategyReplanFull =
+      'Creating new plan…';
+  static const String recoveryStrategySkipStep = 'Skipping step…';
+  static const String recoveryStrategyEscalate = 'Escalating…';
+  static const String recoveryStrategyAbort = 'Aborting';
+  static const String recoveryStrategyWaitForUser =
+      'Waiting for user input…';
+
+  // ─── UI Messages ───────────────────────────────────────────────────
+
+  static const String recoveryRetriesExhausted =
+      'All retry attempts exhausted';
+  static const String recoveryRetryAttempt =
+      'Retry attempt {current} of {max}';
+  static const String recoveryCancelled = 'Recovery cancelled by user';
+  static const String recoverySuccess = 'Recovery succeeded';
+  static const String recoveryBackoffWaiting =
+      'Waiting {seconds}s before retry…';
+
+  // ─── Accessibility / Semantics ─────────────────────────────────────
+
+  static const String recoveryProgressLabel =
+      'Recovery progress';
+  static const String recoveryStatusLabel =
+      'Recovery status';
+  static const String recoveryCancelButton =
+      'Cancel recovery';
+}
+
+/// English localization overrides.
+class SEn extends S {
+  // English values are identical to the base S class defaults.
+  // Override structure preserved for consistency with existing pattern.
+  @override
+  String get recoveryPhaseIdle => S.recoveryPhaseIdle;
+  @override
+  String get recoveryPhaseDetecting => S.recoveryPhaseDetecting;
+  @override
+  String get recoveryPhaseClassifying => S.recoveryPhaseClassifying;
+  @override
+  String get recoveryPhaseAnalyzing => S.recoveryPhaseAnalyzing;
+  @override
+  String get recoveryPhaseStrategizing => S.recoveryPhaseStrategizing;
+  @override
+  String get recoveryPhasePlanning => S.recoveryPhasePlanning;
+  @override
+  String get recoveryPhaseExecuting => S.recoveryPhaseExecuting;
+  @override
+  String get recoveryPhaseVerifying => S.recoveryPhaseVerifying;
+  @override
+  String get recoveryPhaseCompleted => S.recoveryPhaseCompleted;
+  @override
+  String get recoveryPhaseFailed => S.recoveryPhaseFailed;
+  @override
+  String get recoveryPhaseCancelled => S.recoveryPhaseCancelled;
+
+  @override
+  String get recoveryFailureTool => S.recoveryFailureTool;
+  @override
+  String get recoveryFailurePermission => S.recoveryFailurePermission;
+  @override
+  String get recoveryFailureTimeout => S.recoveryFailureTimeout;
+  @override
+  String get recoveryFailureCancellation => S.recoveryFailureCancellation;
+  @override
+  String get recoveryFailureInvalidParameters =>
+      S.recoveryFailureInvalidParameters;
+  @override
+  String get recoveryFailureTargetNotFound =>
+      S.recoveryFailureTargetNotFound;
+  @override
+  String get recoveryFailureScreenStateChanged =>
+      S.recoveryFailureScreenStateChanged;
+  @override
+  String get recoveryFailureVerification =>
+      S.recoveryFailureVerification;
+  @override
+  String get recoveryFailureNetwork => S.recoveryFailureNetwork;
+  @override
+  String get recoveryFailureUnsupportedAction =>
+      S.recoveryFailureUnsupportedAction;
+  @override
+  String get recoveryFailureUnknown => S.recoveryFailureUnknown;
+
+  @override
+  String get recoveryStrategyRetry => S.recoveryStrategyRetry;
+  @override
+  String get recoveryStrategyRetryWithDelay =>
+      S.recoveryStrategyRetryWithDelay;
+  @override
+  String get recoveryStrategyRefreshAndRetry =>
+      S.recoveryStrategyRefreshAndRetry;
+  @override
+  String get recoveryStrategyReplanStep => S.recoveryStrategyReplanStep;
+  @override
+  String get recoveryStrategyReplanFromCurrent =>
+      S.recoveryStrategyReplanFromCurrent;
+  @override
+  String get recoveryStrategyReplanFull => S.recoveryStrategyReplanFull;
+  @override
+  String get recoveryStrategySkipStep => S.recoveryStrategySkipStep;
+  @override
+  String get recoveryStrategyEscalate => S.recoveryStrategyEscalate;
+  @override
+  String get recoveryStrategyAbort => S.recoveryStrategyAbort;
+  @override
+  String get recoveryStrategyWaitForUser =>
+      S.recoveryStrategyWaitForUser;
+
+  @override
+  String get recoveryRetriesExhausted => S.recoveryRetriesExhausted;
+  @override
+  String get recoveryRetryAttempt => S.recoveryRetryAttempt;
+  @override
+  String get recoveryCancelled => S.recoveryCancelled;
+  @override
+  String get recoverySuccess => S.recoverySuccess;
+  @override
+  String get recoveryBackoffWaiting => S.recoveryBackoffWaiting;
+
+  @override
+  String get recoveryProgressLabel => S.recoveryProgressLabel;
+  @override
+  String get recoveryStatusLabel => S.recoveryStatusLabel;
+  @override
+  String get recoveryCancelButton => S.recoveryCancelButton;
+}
+
+/// Kurdish Sorani (Central Kurdish) localization overrides.
+/// Full RTL support. Kurdish-first.
+class SKu extends S {
+  // ─── Phase Labels (کوردی) ────────────────────────────────────────
+
+  @override
+  String get recoveryPhaseIdle => 'بێکار';
+  @override
+  String get recoveryPhaseDetecting => 'دۆزینەوەی هەڵە…';
+  @override
+  String get recoveryPhaseClassifying => 'پۆلێنکردنی جۆری هەڵە…';
+  @override
+  String get recoveryPhaseAnalyzing => 'شیکردنەوەی هەڵە…';
+  @override
+  String get recoveryPhaseStrategizing => 'دیاریکردنی ستراتیژی گەڕانەوە…';
+  @override
+  String get recoveryPhasePlanning => 'دروستکردنی پلانی گەڕانەوە…';
+  @override
+  String get recoveryPhaseExecuting => 'جێبەجێکردنی گەڕانەوە…';
+  @override
+  String get recoveryPhaseVerifying => 'پشتڕاستکردنەوەی ئەنجام…';
+  @override
+  String get recoveryPhaseCompleted => 'گەڕانەوە تەواو بوو';
+  @override
+  String get recoveryPhaseFailed => 'گەڕانەوە سەرکەوتوو نەبوو';
+  @override
+  String get recoveryPhaseCancelled => 'گەڕانەوە هەڵوەشایەوە';
+
+  // ─── Failure Type Labels ─────────────────────────────────────────
+
+  @override
+  String get recoveryFailureTool => 'هەڵەی ئامراز';
+  @override
+  String get recoveryFailurePermission => 'ڕێگەپێدان ڕەتکرایەوە';
+  @override
+  String get recoveryFailureTimeout => 'کات تەواو بوو';
+  @override
+  String get recoveryFailureCancellation => 'هەڵوەشایەوە';
+  @override
+  String get recoveryFailureInvalidParameters =>
+      'پارامێتەرەکان نادروستن';
+  @override
+  String get recoveryFailureTargetNotFound =>
+      'ئامانج نەدۆزرایەوە';
+  @override
+  String get recoveryFailureScreenStateChanged =>
+      'بارودۆخی شاشە گۆڕاوە';
+  @override
+  String get recoveryFailureVerification =>
+      'پشتڕاستکردنەوە سەرکەوتوو نەبوو';
+  @override
+  String get recoveryFailureNetwork => 'هەڵەی تۆڕ';
+  @override
+  String get recoveryFailureUnsupportedAction =>
+      'کردارەکە پشتگیری ناکرێت';
+  @override
+  String get recoveryFailureUnknown => 'هەڵەی نەناسراو';
+
+  // ─── Strategy Labels ─────────────────────────────────────────────
+
+  @override
+  String get recoveryStrategyRetry => 'دووبارەکردنەوە…';
+  @override
+  String get recoveryStrategyRetryWithDelay =>
+      'دووبارەکردنەوە بە دواخراو…';
+  @override
+  String get recoveryStrategyRefreshAndRetry =>
+      'نوێکردنەوەی شاشە و دووبارەکردنەوە…';
+  @override
+  String get recoveryStrategyReplanStep =>
+      'پلان دانانەوەی هەنگاو…';
+  @override
+  String get recoveryStrategyReplanFromCurrent =>
+      'پلان دانانەوە لە هەنگاوی ئێستاوە…';
+  @override
+  String get recoveryStrategyReplanFull =>
+      'دروستکردنی پلانی نوێ…';
+  @override
+  String get recoveryStrategySkipStep => 'بەلا دانانی هەنگاو…';
+  @override
+  String get recoveryStrategyEscalate => 'بەرزکردنەوە…';
+  @override
+  String get recoveryStrategyAbort => 'پچڕاندن';
+  @override
+  String get recoveryStrategyWaitForUser =>
+      'چاوەڕوانی بەکارهێنەر…';
+
+  // ─── UI Messages ─────────────────────────────────────────────────
+
+  @override
+  String get recoveryRetriesExhausted =>
+      'هەموو هەوڵەکانی دووبارەکردنەوە تەواو بوون';
+  @override
+  String get recoveryRetryAttempt =>
+      'هەوڵی دووبارەکردنەوە {current} لە {max}';
+  @override
+  String get recoveryCancelled =>
+      'گەڕانەوە لەلایەن بەکارهێنەرەوە هەڵوەشایەوە';
+  @override
+  String get recoverySuccess => 'گەڕانەوە سەرکەوتوو بوو';
+  @override
+  String get recoveryBackoffWaiting =>
+      'چاوەڕوانی {seconds} چرکە پێش دووبارەکردنەوە…';
+
+  // ─── Accessibility / Semantics ─────────────────────────────────
+
+  @override
+  String get recoveryProgressLabel =>
+      'پێشکەوتنی گەڕانەوە';
+  @override
+  String get recoveryStatusLabel =>
+      'بارودۆخی گەڕانەوە';
+  @override
+  String get recoveryCancelButton =>
+      'هەڵوەشاندنەوەی گەڕانەوە';
+}

@@ -1,0 +1,9 @@
+{
+  "@@locale": "ku",
+  "appTitle": "ئامانجی شاشە",
+  "scanning": "شاشە دەپشکنرێت...",
+  "noTargets": "هیچ ئامانجێک نەدۆزرایەوە",
+  "actionDenied": "کردار ڕەتکرایەوە",
+  "targetUnverified": "ئامانجەکە پشتگیری نەکراوە",
+  "permissionDenied": "ڕێگەپێدان ڕەتکرایەوە"
+}

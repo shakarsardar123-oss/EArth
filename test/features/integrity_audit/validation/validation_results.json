@@ -1,0 +1,382 @@
+{
+  "summary": {
+    "total_test_files": 14,
+    "total_test_count": 207,
+    "total_source_files": 21,
+    "passed": 50,
+    "failed": 0,
+    "pass_rate": "100.0%",
+    "issue_count": 0,
+    "drift_bugs_documented": 12,
+    "locale": "ku (Kurdish Sorani RTL-first)",
+    "fail_closed_invariants": 4
+  },
+  "directories": {
+    "domain": {
+      "exists": true,
+      "has_files": true
+    },
+    "cross_adapter": {
+      "exists": true,
+      "has_files": true
+    },
+    "fail_closed_regression": {
+      "exists": true,
+      "has_files": true
+    },
+    "localization_qa": {
+      "exists": true,
+      "has_files": true
+    },
+    "e2e_pipeline": {
+      "exists": true,
+      "has_files": true
+    },
+    "validation": {
+      "exists": true,
+      "has_files": true
+    }
+  },
+  "test_files": {
+    "domain/integrity_verdict_test.dart": {
+      "exists": true,
+      "test_count": 14,
+      "group_count": 4,
+      "min_expected": 3,
+      "meets_threshold": true,
+      "imports": {
+        "exists": true,
+        "has_flutter_test_import": true,
+        "non_empty": true
+      },
+      "placeholders": [],
+      "secrets_found": 0,
+      "has_locale_ku": true
+    },
+    "domain/compatibility_report_test.dart": {
+      "exists": true,
+      "test_count": 6,
+      "group_count": 1,
+      "min_expected": 3,
+      "meets_threshold": true,
+      "imports": {
+        "exists": true,
+        "has_flutter_test_import": true,
+        "non_empty": true
+      },
+      "placeholders": [],
+      "secrets_found": 0,
+      "has_locale_ku": true
+    },
+    "domain/audit_finding_test.dart": {
+      "exists": true,
+      "test_count": 9,
+      "group_count": 3,
+      "min_expected": 3,
+      "meets_threshold": true,
+      "imports": {
+        "exists": true,
+        "has_flutter_test_import": true,
+        "non_empty": true
+      },
+      "placeholders": [],
+      "secrets_found": 0,
+      "has_locale_ku": true
+    },
+    "domain/fail_closed_invariant_test.dart": {
+      "exists": true,
+      "test_count": 10,
+      "group_count": 3,
+      "min_expected": 3,
+      "meets_threshold": true,
+      "imports": {
+        "exists": true,
+        "has_flutter_test_import": true,
+        "non_empty": true
+      },
+      "placeholders": [],
+      "secrets_found": 0,
+      "has_locale_ku": true
+    },
+    "domain/localization_gap_test.dart": {
+      "exists": true,
+      "test_count": 11,
+      "group_count": 2,
+      "min_expected": 3,
+      "meets_threshold": true,
+      "imports": {
+        "exists": true,
+        "has_flutter_test_import": true,
+        "non_empty": true
+      },
+      "placeholders": [],
+      "secrets_found": 0,
+      "has_locale_ku": true
+    },
+    "cross_adapter/step23_vs_step25_repo_consistency_test.dart": {
+      "exists": true,
+      "test_count": 17,
+      "group_count": 1,
+      "min_expected": 10,
+      "meets_threshold": true,
+      "imports": {
+        "exists": true,
+        "has_flutter_test_import": true,
+        "non_empty": true
+      },
+      "placeholders": [],
+      "secrets_found": 0,
+      "has_locale_ku": true
+    },
+    "cross_adapter/step22_vs_step25_execution_test.dart": {
+      "exists": true,
+      "test_count": 11,
+      "group_count": 1,
+      "min_expected": 5,
+      "meets_threshold": true,
+      "imports": {
+        "exists": true,
+        "has_flutter_test_import": true,
+        "non_empty": true
+      },
+      "placeholders": [],
+      "secrets_found": 0,
+      "has_locale_ku": true
+    },
+    "cross_adapter/step24_vs_step25_trigger_test.dart": {
+      "exists": true,
+      "test_count": 13,
+      "group_count": 1,
+      "min_expected": 5,
+      "meets_threshold": true,
+      "imports": {
+        "exists": true,
+        "has_flutter_test_import": true,
+        "non_empty": true
+      },
+      "placeholders": [],
+      "secrets_found": 0,
+      "has_locale_ku": true
+    },
+    "fail_closed_regression/step22_fail_closed_test.dart": {
+      "exists": true,
+      "test_count": 15,
+      "group_count": 1,
+      "min_expected": 5,
+      "meets_threshold": true,
+      "imports": {
+        "exists": true,
+        "has_flutter_test_import": true,
+        "non_empty": true
+      },
+      "placeholders": [],
+      "secrets_found": 0,
+      "has_locale_ku": true
+    },
+    "fail_closed_regression/step23_fail_closed_test.dart": {
+      "exists": true,
+      "test_count": 18,
+      "group_count": 1,
+      "min_expected": 5,
+      "meets_threshold": true,
+      "imports": {
+        "exists": true,
+        "has_flutter_test_import": true,
+        "non_empty": true
+      },
+      "placeholders": [],
+      "secrets_found": 0,
+      "has_locale_ku": true
+    },
+    "fail_closed_regression/step24_fail_closed_test.dart": {
+      "exists": true,
+      "test_count": 18,
+      "group_count": 1,
+      "min_expected": 5,
+      "meets_threshold": true,
+      "imports": {
+        "exists": true,
+        "has_flutter_test_import": true,
+        "non_empty": true
+      },
+      "placeholders": [],
+      "secrets_found": 0,
+      "has_locale_ku": true
+    },
+    "fail_closed_regression/step25_fail_closed_test.dart": {
+      "exists": true,
+      "test_count": 21,
+      "group_count": 1,
+      "min_expected": 5,
+      "meets_threshold": true,
+      "imports": {
+        "exists": true,
+        "has_flutter_test_import": true,
+        "non_empty": true
+      },
+      "placeholders": [],
+      "secrets_found": 0,
+      "has_locale_ku": true
+    },
+    "localization_qa/l10n_completeness_test.dart": {
+      "exists": true,
+      "test_count": 20,
+      "group_count": 1,
+      "min_expected": 5,
+      "meets_threshold": true,
+      "imports": {
+        "exists": true,
+        "has_flutter_test_import": true,
+        "non_empty": true
+      },
+      "placeholders": [],
+      "secrets_found": 0,
+      "has_locale_ku": true
+    },
+    "e2e_pipeline/integrity_audit_pipeline_test.dart": {
+      "exists": true,
+      "test_count": 24,
+      "group_count": 1,
+      "min_expected": 8,
+      "meets_threshold": true,
+      "imports": {
+        "exists": true,
+        "has_flutter_test_import": true,
+        "non_empty": true
+      },
+      "placeholders": [],
+      "secrets_found": 0,
+      "has_locale_ku": true
+    }
+  },
+  "source_files": {
+    "lib/features/integrity_audit/domain/models/integrity_verdict.dart": {
+      "exists": true,
+      "non_empty": true
+    },
+    "lib/features/integrity_audit/domain/models/compatibility_report.dart": {
+      "exists": true,
+      "non_empty": true
+    },
+    "lib/features/integrity_audit/domain/models/audit_finding.dart": {
+      "exists": true,
+      "non_empty": true
+    },
+    "lib/features/integrity_audit/domain/models/fail_closed_invariant.dart": {
+      "exists": true,
+      "non_empty": true
+    },
+    "lib/features/integrity_audit/domain/models/localization_gap.dart": {
+      "exists": true,
+      "non_empty": true
+    },
+    "lib/features/integrity_audit/domain/models/models.dart": {
+      "exists": true,
+      "non_empty": true
+    },
+    "lib/features/integrity_audit/domain/services/integrity_verification_service.dart": {
+      "exists": true,
+      "non_empty": true
+    },
+    "lib/features/integrity_audit/domain/services/step_compatibility_service.dart": {
+      "exists": true,
+      "non_empty": true
+    },
+    "lib/features/integrity_audit/domain/services/fail_closed_audit_service.dart": {
+      "exists": true,
+      "non_empty": true
+    },
+    "lib/features/integrity_audit/domain/services/localization_completeness_service.dart": {
+      "exists": true,
+      "non_empty": true
+    },
+    "lib/features/integrity_audit/domain/services/services.dart": {
+      "exists": true,
+      "non_empty": true
+    },
+    "lib/features/integrity_audit/domain/repositories/step_22_introspection_repository.dart": {
+      "exists": true,
+      "non_empty": true
+    },
+    "lib/features/integrity_audit/domain/repositories/step_23_introspection_repository.dart": {
+      "exists": true,
+      "non_empty": true
+    },
+    "lib/features/integrity_audit/domain/repositories/step_24_introspection_repository.dart": {
+      "exists": true,
+      "non_empty": true
+    },
+    "lib/features/integrity_audit/domain/repositories/step_25_introspection_repository.dart": {
+      "exists": true,
+      "non_empty": true
+    },
+    "lib/features/integrity_audit/domain/repositories/repositories.dart": {
+      "exists": true,
+      "non_empty": true
+    },
+    "lib/features/integrity_audit/application/integrity_audit_orchestrator.dart": {
+      "exists": true,
+      "non_empty": true
+    },
+    "lib/features/integrity_audit/application/cross_adapter_checker.dart": {
+      "exists": true,
+      "non_empty": true
+    },
+    "lib/features/integrity_audit/application/fail_closed_regression_checker.dart": {
+      "exists": true,
+      "non_empty": true
+    },
+    "lib/features/integrity_audit/application/application.dart": {
+      "exists": true,
+      "non_empty": true
+    },
+    "lib/features/integrity_audit/integrity_audit.dart": {
+      "exists": true,
+      "non_empty": true
+    }
+  },
+  "drift_coverage": {
+    "exists": true,
+    "drifts_found": 12,
+    "drifts_missing": [],
+    "coverage_pct": "100%"
+  },
+  "fail_closed_coverage": {
+    "step_22": {
+      "exists": true,
+      "invariants_found": 4,
+      "invariants_total": 4
+    },
+    "step_23": {
+      "exists": true,
+      "invariants_found": 4,
+      "invariants_total": 4
+    },
+    "step_24": {
+      "exists": true,
+      "invariants_found": 4,
+      "invariants_total": 4
+    },
+    "step_25": {
+      "exists": true,
+      "invariants_found": 4,
+      "invariants_total": 4
+    }
+  },
+  "security_scan": {},
+  "integrity_checks": {
+    "conversation_provider_not_modified": {
+      "conversation_provider_files_in_step26": 0,
+      "not_modified": true
+    },
+    "prior_steps_not_modified": {
+      "checked": true,
+      "prior_step_dirs_found": 0,
+      "not_modified": true
+    }
+  },
+  "issues": [],
+  "stats": {
+    "validation_script_exists": true
+  }
+}

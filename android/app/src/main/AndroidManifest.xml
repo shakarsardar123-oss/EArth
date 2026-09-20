@@ -1,0 +1,235 @@
+<manifest xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools">
+
+    <!-- ══ AURA Permission Declarations ════════════════════════════ -->
+    <!-- Each permission below is required by a specific AURA feature. -->
+    <!-- See AURA_PERMISSION_FINAL_VERIFICATION.md for full mapping. -->
+
+    <!-- ── Network (normal – auto-granted, never shown in Settings) ── -->
+    <!-- Used by: AI API calls, connectivity checks, URL tools -->
+    <uses-permission android:name="android.permission.INTERNET" />
+    <uses-permission android:name="android.permission.ACCESS_NETWORK_STATE" />
+
+    <!-- ── Microphone (runtime – shown as "Microphone" in Settings) ── -->
+    <!-- Used by: Voice recognition, wake-word, speech_to_text -->
+    <uses-permission android:name="android.permission.RECORD_AUDIO" />
+    <!-- Final Voice Phase: required by android.media.audiofx.Visualizer
+         (real AURA output RMS) and by the voice-communication capture path
+         used for echo-safe mic + AcousticEchoCanceler. -->
+    <uses-permission android:name="android.permission.MODIFY_AUDIO_SETTINGS" />
+
+    <!-- ── Camera (runtime – shown as "Camera" in Settings) ── -->
+    <!-- Used by: Vision tools (read_text, analyze_vision, find_object, etc.) -->
+    <uses-permission android:name="android.permission.CAMERA" />
+
+    <!-- ── Notifications (runtime – shown as "Notifications" on Android 13+) ── -->
+    <!-- Used by: Alarm reminders, local notifications -->
+    <uses-permission android:name="android.permission.POST_NOTIFICATIONS" />
+
+    <!-- ── Foreground Service (normal – auto-granted, never shown) ── -->
+    <!-- Used by: Continuous listening, wake-word detection -->
+    <uses-permission android:name="android.permission.FOREGROUND_SERVICE" />
+    <!-- Android 14+ type declaration for mic-type FG service -->
+    <uses-permission android:name="android.permission.FOREGROUND_SERVICE_MICROPHONE" />
+
+    <!-- ── Boot (normal – auto-granted, never shown in Settings) ── -->
+    <!-- Used by: Alarm rescheduling after reboot (AlarmBootReceiver) -->
+    <uses-permission android:name="android.permission.RECEIVE_BOOT_COMPLETED" />
+
+    <!-- ── Wake Lock (normal – auto-granted, never shown in Settings) ── -->
+    <!-- Used by: android_alarm_manager_plus wakeup alarms -->
+    <uses-permission android:name="android.permission.WAKE_LOCK" />
+
+    <!-- ── Exact Alarm (special – shown in "Alarms & reminders" on Android 12+) ── -->
+    <!-- SCHEDULE_EXACT_ALARM: user-grantable on Android 12+ via Settings → Alarms & reminders -->
+    <!-- Used by: android_alarm_manager_plus exact alarm scheduling -->
+    <uses-permission android:name="android.permission.SCHEDULE_EXACT_ALARM" />
+    <!-- NOTE: USE_EXACT_ALARM removed. It is only for alarm-clock apps and would
+         conflict with SCHEDULE_EXACT_ALARM. Google Play may reject non-alarm apps
+         that declare USE_EXACT_ALARM without justification. -->
+
+    <!-- ── System Alert Window (special – shown as "Display over other apps") ── -->
+    <!-- Used by: Floating AURA overlay (floating_aura platform channel) -->
+    <uses-permission android:name="android.permission.SYSTEM_ALERT_WINDOW" />
+
+    <!-- ── Full-Screen Intent (special – shown as "Full-screen notifications" on Android 14+) ── -->
+    <!-- REQUIRED: AlarmNotificationService uses fullScreenIntent:true to show
+         alarm over lock screen. Android 14+ requires this permission declaration.
+         Without it, full-screen notifications silently fail on Android 14+. -->
+    <uses-permission android:name="android.permission.USE_FULL_SCREEN_INTENT" />
+
+    <!-- ── Battery Optimization Bypass (special – shown in "Battery → Unrestricted") ── -->
+    <!-- Used by: Foreground service keep-alive, reliable alarm delivery.
+         AURA's permission rationale sheet (Kurdish Sorani) already includes
+         explanation text for ignoreBatteryOptimizations. The features layer
+         maps foreground_service → batteryOptimization. Without this declaration,
+         ACTION_REQUEST_IGNORE_BATTERY_OPTIMIZATIONS intent will crash. -->
+    <uses-permission android:name="android.permission.REQUEST_IGNORE_BATTERY_OPTIMIZATIONS" />
+
+    <!-- ── Vibrate (normal – auto-granted, never shown in Settings) ── -->
+    <!-- Used by: Alarm haptic feedback, vibration tool -->
+    <uses-permission android:name="android.permission.VIBRATE" />
+
+    <!-- ── REMOVED: FLASHLIGHT ── -->
+    <!-- FLASHLIGHT is a legacy permission that does nothing on Android 6+.
+         Camera flash is controlled via the CAMERA permission + hardware API. -->
+
+    <!-- ── REMOVED: USE_EXACT_ALARM ── -->
+    <!-- See note above. Only for alarm-clock category apps on Google Play. -->
+
+    <!-- ── Files & Media (runtime – shown as "Files and media" on Android 12, -->
+    <!--   "Photos and videos" / "Music and audio" on Android 13+) ── -->
+    <!-- Used by: VisionTool (gallery action), CameraService.pickImageFromGallery(), -->
+    <!--   MediaTool (media_library action), file_storage_adapter -->
+    <!-- Modern Android approach: -->
+    <!--   API 33+: READ_MEDIA_IMAGES, READ_MEDIA_VIDEO, READ_MEDIA_AUDIO (granular) -->
+    <!--   API ≤32: READ_EXTERNAL_STORAGE (broad, legacy) -->
+    <uses-permission android:name="android.permission.READ_MEDIA_IMAGES" />
+    <uses-permission android:name="android.permission.READ_MEDIA_VIDEO" />
+    <uses-permission android:name="android.permission.READ_MEDIA_AUDIO" />
+    <uses-permission android:name="android.permission.READ_EXTERNAL_STORAGE"
+        android:maxSdkVersion="32" />
+
+    <!-- ── Location (runtime – shown as "Location" in Settings) ── -->
+    <!-- Used by: NavigationTool (navigation.location), MemoryType.location, -->
+    <!--   system_settings_tool (location action), SensitiveDataCategoryBridge.location -->
+    <uses-permission android:name="android.permission.ACCESS_FINE_LOCATION" />
+    <uses-permission android:name="android.permission.ACCESS_COARSE_LOCATION" />
+
+    <!-- ── Phase 6: Bluetooth control ── -->
+    <!-- Legacy BT perms (normal) used for state read + toggle on API ≤ 30. -->
+    <uses-permission android:name="android.permission.BLUETOOTH"
+        android:maxSdkVersion="30" />
+    <uses-permission android:name="android.permission.BLUETOOTH_ADMIN"
+        android:maxSdkVersion="30" />
+    <!-- API 31+ runtime BT permission (needed to read adapter state). -->
+    <uses-permission android:name="android.permission.BLUETOOTH_CONNECT" />
+
+    <!-- ── Phase 6: Wi-Fi control ── -->
+    <!-- State read + (API ≤ 28) direct toggle. On API 29+ we open the panel. -->
+    <uses-permission android:name="android.permission.ACCESS_WIFI_STATE" />
+    <uses-permission android:name="android.permission.CHANGE_WIFI_STATE" />
+
+    <!-- ── Phase 6: Resource optimization actuation ── -->
+    <!-- Lets AURA ask the OS to trim OTHER apps' background processes. The
+         code checks this at runtime and degrades gracefully if absent. -->
+    <uses-permission android:name="android.permission.KILL_BACKGROUND_PROCESSES" />
+    <!-- Needed to enumerate installed apps for background trimming on API 30+. -->
+    <uses-permission android:name="android.permission.QUERY_ALL_PACKAGES"
+        tools:ignore="QueryAllPackagesPermission" />
+
+    <!-- ══ NOT ADDED: Contacts / Phone ══ -->
+    <!-- AURA's core tools do not access contacts or make phone calls.
+         ToolPermission.contacts and ToolPermission.phone exist in the
+         security policy but no tool requires them. Adding without usage
+         = permission bloat. -->
+
+    <!-- ══ NOT ADDED: AccessibilityService ══ -->
+    <!-- DevicePermission.accessibility exists in features/ but there is no
+         Manifest <service> declaration, no res/xml/accessibility_service_config.xml,
+         and no Kotlin handler. The native side now provides check/request
+         via Settings.ACTION_ACCESSIBILITY_SETTINGS. Full AccessibilityService
+         implementation would require a separate Kotlin Service class,
+         which is future work. -->
+
+    <!-- ══ NOT ADDED: FOREGROUND_SERVICE_CAMERA, FOREGROUND_SERVICE_LOCATION, ══ -->
+    <!-- FOREGROUND_SERVICE_CONNECTED_DEVICE ── -->
+    <!-- AURA does not currently start foreground services with camera, location,
+         or connected-device types. If added in the future, these type-specific
+         permissions are required on Android 14+. -->
+
+    <!-- ── Feature declarations for Store compliance ── -->
+    <!-- Camera is optional (vision features) -->
+    <uses-feature android:name="android.hardware.camera" android:required="false" />
+    <!-- Microphone is optional (voice features) -->
+    <uses-feature android:name="android.hardware.microphone" android:required="false" />
+
+    <application
+        android:label="AURA"
+        android:name="${applicationName}"
+        android:icon="@mipmap/ic_launcher">
+
+        <activity
+            android:name=".MainActivity"
+            android:exported="true"
+            android:launchMode="singleTop"
+            android:theme="@style/LaunchTheme"
+            android:configChanges="orientation|keyboardHidden|keyboard|screenSize|smallestScreenSize|locale|layoutDirection|fontScale|screenLayout|density|uiMode"
+            android:hardwareAccelerated="true"
+            android:windowSoftInputMode="adjustResize">
+            <meta-data
+              android:name="io.flutter.embedding.android.NormalTheme"
+              android:resource="@style/NormalTheme"
+              />
+            <!-- ── P3 FIX: Assistant intent filters ── -->
+            <!-- ACTION_ASSIST: long-press home button / assistant gesture → AURA -->
+            <intent-filter>
+                <action android:name="android.intent.action.ASSIST"/>
+                <category android:name="android.intent.category.DEFAULT"/>
+            </intent-filter>
+            <!-- ACTION_PROCESS_TEXT: long-press selected text → AURA in context menu -->
+            <intent-filter>
+                <action android:name="android.intent.action.PROCESS_TEXT"/>
+                <category android:name="android.intent.category.DEFAULT"/>
+                <data android:mimeType="text/plain"/>
+            </intent-filter>
+            <!-- Original launcher intent -->
+            <intent-filter>
+                <action android:name="android.intent.action.MAIN"/>
+                <category android:name="android.intent.category.LAUNCHER"/>
+            </intent-filter>
+        </activity>
+
+    <!-- ── Phase 6: Accessibility service for screen gestures ── -->
+    <!-- Guarded by BIND_ACCESSIBILITY_SERVICE; performs dispatchGesture on
+         API 24+. User must enable it in system Accessibility settings. -->
+    <service
+        android:name=".AuraAccessibilityService"
+        android:exported="false"
+        android:label="@string/app_name"
+        android:permission="android.permission.BIND_ACCESSIBILITY_SERVICE">
+        <intent-filter>
+            <action android:name="android.accessibilityservice.AccessibilityService" />
+        </intent-filter>
+        <meta-data
+            android:name="android.accessibilityservice"
+            android:resource="@xml/aura_accessibility_service_config" />
+    </service>
+
+        <!-- Boot receiver for alarm rescheduling -->
+        <receiver
+            android:name=".AlarmBootReceiver"
+            android:exported="false"
+            android:enabled="true">
+            <intent-filter>
+                <action android:name="android.intent.action.BOOT_COMPLETED" />
+                <action android:name="android.intent.action.MY_PACKAGE_REPLACED" />
+                <action android:name="android.intent.action.QUICKBOOT_POWERON" />
+            </intent-filter>
+        </receiver>
+
+        <!-- ── Assistant candidacy ──────────────────────────────────────
+             AURA qualifies as a "Default digital assistant app" candidate
+             because MainActivity declares an <intent-filter> for
+             android.intent.action.ASSIST (with category DEFAULT) above.
+             That intent-filter is the ACTUAL mechanism the system uses to
+             populate the assistant picker and to launch AURA on the assist
+             gesture. No special <meta-data> flag is required for this.
+
+             REMOVED: the previous
+               <meta-data android:name="com.android.systemui.assist" .../>
+             was a no-op (no such platform contract exists) and its comment
+             falsely claimed it was "required for RoleManager.ROLE_ASSISTANT".
+             It has been removed to avoid a misleading fake signal.
+
+             NOTE: a full in-app voice-session UI (invoked by the assist
+             gesture) would additionally require a VoiceInteractionService +
+             session/recognition services and res/xml config. That is a larger
+             future enhancement and is NOT needed for AURA to be selectable as
+             the default digital assistant. -->
+
+        <meta-data
+            android:name="flutterEmbedding"
+            android:value="2" />
+    </application>
+</manifest>

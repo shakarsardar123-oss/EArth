@@ -1,0 +1,10 @@
+{
+  "@@locale": "ku",
+  "appTitle": "وەرگێڕان",
+  "translating": "وەرگێڕان ئەنجام دەدرێت...",
+  "sourceLanguage": "زمانی سەرچاوە",
+  "targetLanguage": "زمانی ئامانج",
+  "translationDenied": "وەرگێڕان ڕەتکرایەوە",
+  "engineUnavailable": "بزوێنەر بەردەست نییە",
+  "languageNotSupported": "زمان پشتگیری نەکراوە"
+}

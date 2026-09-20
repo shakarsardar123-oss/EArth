@@ -1,0 +1,26 @@
+include: package:flutter_lints/flutter.yaml
+
+analyzer:
+  exclude:
+    # Preserved non-compiling source variants kept for provenance only.
+    # They are NOT part of the application; excluding them from analysis
+    # keeps the files on disk while stopping them from breaking analysis.
+    - docs/**
+    - build/**
+    - android/**
+    - ios/**
+    - web/**
+    - windows/**
+    - macos/**
+    - linux/**
+
+linter:
+  rules:
+    prefer_const_constructors: true
+    prefer_const_declarations: true
+    avoid_print: true
+    avoid_dynamic_calls: true
+    always_declare_return_types: true
+    annotate_overrides: true
+    prefer_single_quotes: true
+    require_trailing_commas: true

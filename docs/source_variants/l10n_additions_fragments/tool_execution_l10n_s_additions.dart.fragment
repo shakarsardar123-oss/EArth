@@ -1,0 +1,594 @@
+/// AURA Assistant – Step 22: Localization additions
+///
+/// These are the keys to ADD to the existing s.dart, s_en.dart, and s_ku.dart
+/// files. They are presented here as additions to be merged into the
+/// existing localization classes.
+///
+/// Key prefix: tool_
+/// Kurdish-first, full RTL.
+///
+/// Total keys: 85
+library;
+
+// ═══════════════════════════════════════════════════════════════════
+// ─── s.dart additions (abstract base class) ─────────────────────────
+// ═══════════════════════════════════════════════════════════════════
+//
+// Add these static const String fields to the S class:
+
+  // ─── Page ────────────────────────────────────────────────────────
+  static const String tool_pageTitle = 'tool_pageTitle';
+  static const String tool_emptyMessage = 'tool_emptyMessage';
+  static const String tool_searchHint = 'tool_searchHint';
+  static const String tool_noResults = 'tool_noResults';
+
+  // ─── Actions ─────────────────────────────────────────────────────
+  static const String tool_execute = 'tool_execute';
+  static const String tool_cancel = 'tool_cancel';
+  static const String tool_retry = 'tool_retry';
+  static const String tool_confirm = 'tool_confirm';
+  static const String tool_deny = 'tool_deny';
+  static const String tool_discover = 'tool_discover';
+  static const String tool_select = 'tool_select';
+  static const String tool_compose = 'tool_compose';
+  static const String tool_runInBackground = 'tool_runInBackground';
+  static const String tool_viewResult = 'tool_viewResult';
+
+  // ─── Status ──────────────────────────────────────────────────────
+  static const String tool_statusSuccess = 'tool_statusSuccess';
+  static const String tool_statusFailure = 'tool_statusFailure';
+  static const String tool_statusCancelled = 'tool_statusCancelled';
+  static const String tool_statusTimedOut = 'tool_statusTimedOut';
+  static const String tool_statusDenied = 'tool_statusDenied';
+  static const String tool_statusPartial = 'tool_statusPartial';
+  static const String tool_statusFailClosed = 'tool_statusFailClosed';
+  static const String tool_statusExecuting = 'tool_statusExecuting';
+  static const String tool_statusQueued = 'tool_statusQueued';
+  static const String tool_statusBackground = 'tool_statusBackground';
+  static const String tool_statusOffline = 'tool_statusOffline';
+
+  // ─── Gates ───────────────────────────────────────────────────────
+  static const String tool_gateValidation = 'tool_gateValidation';
+  static const String tool_gateSecurity = 'tool_gateSecurity';
+  static const String tool_gateConfirmation = 'tool_gateConfirmation';
+  static const String tool_gateReadiness = 'tool_gateReadiness';
+  static const String tool_gatePermissions = 'tool_gatePermissions';
+  static const String tool_gatePassed = 'tool_gatePassed';
+  static const String tool_gateFailed = 'tool_gateFailed';
+  static const String tool_gateFailClosed = 'tool_gateFailClosed';
+
+  // ─── Categories (12) ─────────────────────────────────────────────
+  static const String tool_categoryDevice = 'tool_categoryDevice';
+  static const String tool_categoryScreen = 'tool_categoryScreen';
+  static const String tool_categoryVoice = 'tool_categoryVoice';
+  static const String tool_categoryMemory = 'tool_categoryMemory';
+  static const String tool_categoryVision = 'tool_categoryVision';
+  static const String tool_categoryMedia = 'tool_categoryMedia';
+  static const String tool_categoryAssistant = 'tool_categoryAssistant';
+  static const String tool_categoryCommunication = 'tool_categoryCommunication';
+  static const String tool_categoryNavigation = 'tool_categoryNavigation';
+  static const String tool_categorySystem = 'tool_categorySystem';
+  static const String tool_categoryRecovery = 'tool_categoryRecovery';
+  static const String tool_categoryUnknown = 'tool_categoryUnknown';
+
+  // ─── Risk levels ─────────────────────────────────────────────────
+  static const String tool_riskLow = 'tool_riskLow';
+  static const String tool_riskMedium = 'tool_riskMedium';
+  static const String tool_riskHigh = 'tool_riskHigh';
+  static const String tool_riskCritical = 'tool_riskCritical';
+
+  // ─── Confirmation ────────────────────────────────────────────────
+  static const String tool_confirmTitle = 'tool_confirmTitle';
+  static const String tool_confirmMessage = 'tool_confirmMessage';
+  static const String tool_confirmElevated = 'tool_confirmElevated';
+  static const String tool_confirmVoice = 'tool_confirmVoice';
+  static const String tool_confirmDenied = 'tool_confirmDenied';
+
+  // ─── Voice ──────────────────────────────────────────────────────
+  static const String tool_voiceListening = 'tool_voiceListening';
+  static const String tool_voiceExecuting = 'tool_voiceExecuting';
+  static const String tool_voiceComplete = 'tool_voiceComplete';
+  static const String tool_voiceFailed = 'tool_voiceFailed';
+  static const String tool_voiceUnsafe = 'tool_voiceUnsafe';
+  static const String tool_voiceConfirmPrompt = 'tool_voiceConfirmPrompt';
+  static const String tool_voiceConfirmGranted = 'tool_voiceConfirmGranted';
+  static const String tool_voiceConfirmDenied = 'tool_voiceConfirmDenied';
+
+  // ─── Offline ─────────────────────────────────────────────────────
+  static const String tool_offlineUnavailable = 'tool_offlineUnavailable';
+  static const String tool_offlineQueued = 'tool_offlineQueued';
+  static const String tool_offlineSyncing = 'tool_offlineSyncing';
+  static const String tool_offlineSynced = 'tool_offlineSynced';
+  static const String tool_offlineSyncFailed = 'tool_offlineSyncFailed';
+
+  // ─── Background ──────────────────────────────────────────────────
+  static const String tool_backgroundStarted = 'tool_backgroundStarted';
+  static const String tool_backgroundProgress = 'tool_backgroundProgress';
+  static const String tool_backgroundComplete = 'tool_backgroundComplete';
+  static const String tool_backgroundFailed = 'tool_backgroundFailed';
+  static const String tool_backgroundOverlay = 'tool_backgroundOverlay';
+
+  // ─── Errors ──────────────────────────────────────────────────────
+  static const String tool_errorPrefix = 'tool_errorPrefix';
+  static const String tool_errorNotFound = 'tool_errorNotFound';
+  static const String tool_errorValidation = 'tool_errorValidation';
+  static const String tool_errorSecurity = 'tool_errorSecurity';
+  static const String tool_errorPermission = 'tool_errorPermission';
+  static const String tool_errorTimeout = 'tool_errorTimeout';
+  static const String tool_errorCancelled = 'tool_errorCancelled';
+  static const String tool_errorRetryExhausted = 'tool_errorRetryExhausted';
+  static const String tool_errorComposition = 'tool_errorComposition';
+
+  // ─── Selection ──────────────────────────────────────────────────
+  static const String tool_selectionBestMatch = 'tool_selectionBestMatch';
+  static const String tool_selectionNoMatch = 'tool_selectionNoMatch';
+  static const String tool_selectionMultiple = 'tool_selectionMultiple';
+
+  // ─── Composition ─────────────────────────────────────────────────
+  static const String tool_composeChain = 'tool_composeChain';
+  static const String tool_composeParallel = 'tool_composeParallel';
+  static const String tool_composeChainBroken = 'tool_composeChainBroken';
+  static const String tool_composeStepFailed = 'tool_composeStepFailed';
+  static const String tool_composeAllComplete = 'tool_composeAllComplete';
+
+  // ─── Audit ──────────────────────────────────────────────────────
+  static const String tool_auditLog = 'tool_auditLog';
+  static const String tool_auditCritical = 'tool_auditCritical';
+  static const String tool_auditExported = 'tool_auditExported';
+
+  // ─── Security ────────────────────────────────────────────────────
+  static const String tool_securityBlocked = 'tool_securityBlocked';
+  static const String tool_securityFailClosed = 'tool_securityFailClosed';
+  static const String tool_securitySensitiveData = 'tool_securitySensitiveData';
+
+// ═══════════════════════════════════════════════════════════════════
+// ─── s_en.dart additions (English overrides) ────────────────────────
+// ═══════════════════════════════════════════════════════════════════
+//
+// Add these getters to the SEn class:
+
+  // ─── Page
+  @override
+  String get tool_pageTitle => 'Tool Execution';
+  @override
+  String get tool_emptyMessage => 'No tools available.';
+  @override
+  String get tool_searchHint => 'Search tools...';
+  @override
+  String get tool_noResults => 'No tools match your search.';
+
+  // ─── Actions
+  @override
+  String get tool_execute => 'Execute';
+  @override
+  String get tool_cancel => 'Cancel';
+  @override
+  String get tool_retry => 'Retry';
+  @override
+  String get tool_confirm => 'Confirm';
+  @override
+  String get tool_deny => 'Deny';
+  @override
+  String get tool_discover => 'Discover Tools';
+  @override
+  String get tool_select => 'Select Tool';
+  @override
+  String get tool_compose => 'Compose Tools';
+  @override
+  String get tool_runInBackground => 'Run in Background';
+  @override
+  String get tool_viewResult => 'View Result';
+
+  // ─── Status
+  @override
+  String get tool_statusSuccess => 'Success';
+  @override
+  String get tool_statusFailure => 'Failed';
+  @override
+  String get tool_statusCancelled => 'Cancelled';
+  @override
+  String get tool_statusTimedOut => 'Timed Out';
+  @override
+  String get tool_statusDenied => 'Denied';
+  @override
+  String get tool_statusPartial => 'Partial';
+  @override
+  String get tool_statusFailClosed => 'Fail-Closed';
+  @override
+  String get tool_statusExecuting => 'Executing...';
+  @override
+  String get tool_statusQueued => 'Queued';
+  @override
+  String get tool_statusBackground => 'Running in Background';
+  @override
+  String get tool_statusOffline => 'Offline';
+
+  // ─── Gates
+  @override
+  String get tool_gateValidation => 'Validation Gate';
+  @override
+  String get tool_gateSecurity => 'Security Gate';
+  @override
+  String get tool_gateConfirmation => 'Confirmation Gate';
+  @override
+  String get tool_gateReadiness => 'Readiness Gate';
+  @override
+  String get tool_gatePermissions => 'Permissions Gate';
+  @override
+  String get tool_gatePassed => 'Gate Passed';
+  @override
+  String get tool_gateFailed => 'Gate Failed';
+  @override
+  String get tool_gateFailClosed => 'Gate Fail-Closed';
+
+  // ─── Categories
+  @override
+  String get tool_categoryDevice => 'Device';
+  @override
+  String get tool_categoryScreen => 'Screen';
+  @override
+  String get tool_categoryVoice => 'Voice';
+  @override
+  String get tool_categoryMemory => 'Memory';
+  @override
+  String get tool_categoryVision => 'Vision';
+  @override
+  String get tool_categoryMedia => 'Media';
+  @override
+  String get tool_categoryAssistant => 'Assistant';
+  @override
+  String get tool_categoryCommunication => 'Communication';
+  @override
+  String get tool_categoryNavigation => 'Navigation';
+  @override
+  String get tool_categorySystem => 'System';
+  @override
+  String get tool_categoryRecovery => 'Recovery';
+  @override
+  String get tool_categoryUnknown => 'Unknown';
+
+  // ─── Risk levels
+  @override
+  String get tool_riskLow => 'Low Risk';
+  @override
+  String get tool_riskMedium => 'Medium Risk';
+  @override
+  String get tool_riskHigh => 'High Risk';
+  @override
+  String get tool_riskCritical => 'Critical Risk';
+
+  // ─── Confirmation
+  @override
+  String get tool_confirmTitle => 'Confirm Tool Execution';
+  @override
+  String get tool_confirmMessage => 'This tool requires your confirmation to proceed.';
+  @override
+  String get tool_confirmElevated => 'Elevated confirmation required for this high-risk tool.';
+  @override
+  String get tool_confirmVoice => 'Voice confirmation detected. Proceeding.';
+  @override
+  String get tool_confirmDenied => 'Confirmation denied. Execution blocked.';
+
+  // ─── Voice
+  @override
+  String get tool_voiceListening => 'Listening for voice command...';
+  @override
+  String get tool_voiceExecuting => 'Executing voice command...';
+  @override
+  String get tool_voiceComplete => 'Voice command completed.';
+  @override
+  String get tool_voiceFailed => 'Voice command failed.';
+  @override
+  String get tool_voiceUnsafe => 'This tool is not safe for voice execution.';
+  @override
+  String get tool_voiceConfirmPrompt => 'Please confirm the voice command.';
+  @override
+  String get tool_voiceConfirmGranted => 'Voice command confirmed.';
+  @override
+  String get tool_voiceConfirmDenied => 'Voice command denied.';
+
+  // ─── Offline
+  @override
+  String get tool_offlineUnavailable => 'Tool unavailable offline.';
+  @override
+  String get tool_offlineQueued => 'Request queued for when you are back online.';
+  @override
+  String get tool_offlineSyncing => 'Syncing queued requests...';
+  @override
+  String get tool_offlineSynced => 'All queued requests synced.';
+  @override
+  String get tool_offlineSyncFailed => 'Failed to sync some queued requests.';
+
+  // ─── Background
+  @override
+  String get tool_backgroundStarted => 'Task started in background.';
+  @override
+  String get tool_backgroundProgress => 'Background task in progress...';
+  @override
+  String get tool_backgroundComplete => 'Background task completed.';
+  @override
+  String get tool_backgroundFailed => 'Background task failed.';
+  @override
+  String get tool_backgroundOverlay => 'New result available.';
+
+  // ─── Errors
+  @override
+  String get tool_errorPrefix => 'Error';
+  @override
+  String get tool_errorNotFound => 'Tool not found.';
+  @override
+  String get tool_errorValidation => 'Input validation failed.';
+  @override
+  String get tool_errorSecurity => 'Security check failed.';
+  @override
+  String get tool_errorPermission => 'Permission denied.';
+  @override
+  String get tool_errorTimeout => 'Execution timed out.';
+  @override
+  String get tool_errorCancelled => 'Execution cancelled.';
+  @override
+  String get tool_errorRetryExhausted => 'All retry attempts exhausted.';
+  @override
+  String get tool_errorComposition => 'Tool composition failed.';
+
+  // ─── Selection
+  @override
+  String get tool_selectionBestMatch => 'Best match selected.';
+  @override
+  String get tool_selectionNoMatch => 'No suitable tool found.';
+  @override
+  String get tool_selectionMultiple => 'Multiple tools match. Please select.';
+
+  // ─── Composition
+  @override
+  String get tool_composeChain => 'Tool chain';
+  @override
+  String get tool_composeParallel => 'Parallel execution';
+  @override
+  String get tool_composeChainBroken => 'Tool chain broken: output-input mismatch.';
+  @override
+  String get tool_composeStepFailed => 'Step failed in tool chain.';
+  @override
+  String get tool_composeAllComplete => 'All parallel tasks completed.';
+
+  // ─── Audit
+  @override
+  String get tool_auditLog => 'Audit Log';
+  @override
+  String get tool_auditCritical => 'Critical audit events detected.';
+  @override
+  String get tool_auditExported => 'Audit log exported.';
+
+  // ─── Security
+  @override
+  String get tool_securityBlocked => 'Execution blocked by security policy.';
+  @override
+  String get tool_securityFailClosed => 'Security fail-closed: execution denied.';
+  @override
+  String get tool_securitySensitiveData => 'Sensitive data detected and redacted.';
+
+// ═══════════════════════════════════════════════════════════════════
+// ─── s_ku.dart additions (Kurdish Sorani overrides) ──────────────────
+// ═══════════════════════════════════════════════════════════════════
+//
+// Add these getters to the SKu class:
+
+  // ─── Page
+  @override
+  String get tool_pageTitle => 'جێبەجێکردنی ئامراز';
+  @override
+  String get tool_emptyMessage => 'هیچ ئامرازێک بەردەست نییە.';
+  @override
+  String get tool_searchHint => 'گەڕان لە ئامرازەکان...';
+  @override
+  String get tool_noResults => 'هیچ ئامرازێک لەگەڵ گەڕانەکەت نەدۆزرایەوە.';
+
+  // ─── Actions
+  @override
+  String get tool_execute => 'جێبەجێکردن';
+  @override
+  String get tool_cancel => 'پاشگەزبوونەوە';
+  @override
+  String get tool_retry => 'دووبارەکردنەوە';
+  @override
+  String get tool_confirm => 'پشتڕاستکردنەوە';
+  @override
+  String get tool_deny => 'ڕەتکردنەوە';
+  @override
+  String get tool_discover => 'دۆزینەوەی ئامراز';
+  @override
+  String get tool_select => 'هەڵبژاردنی ئامراز';
+  @override
+  String get tool_compose => 'پێکهێنانی ئامراز';
+  @override
+  String get tool_runInBackground => 'جێبەجێکردن لە پشتەوە';
+  @override
+  String get tool_viewResult => 'بینینی ئەنجام';
+
+  // ─── Status
+  @override
+  String get tool_statusSuccess => 'سەرکەوتوو';
+  @override
+  String get tool_statusFailure => 'سەرنەکەوت';
+  @override
+  String get tool_statusCancelled => 'پاشگەزکرایەوە';
+  @override
+  String get tool_statusTimedOut => 'کاتی تەواوبوو';
+  @override
+  String get tool_statusDenied => 'ڕەتکرایەوە';
+  @override
+  String get tool_statusPartial => 'بەشی';
+  @override
+  String get tool_statusFailClosed => 'داخراو-سەرنەکەوت';
+  @override
+  String get tool_statusExecuting => 'جێبەجێدەکرێت...';
+  @override
+  String get tool_statusQueued => 'لە ڕیزدا';
+  @override
+  String get tool_statusBackground => 'جێبەجێدەکرێت لە پشتەوە';
+  @override
+  String get tool_statusOffline => 'دەرهێڵ';
+
+  // ─── Gates
+  @override
+  String get tool_gateValidation => 'دەروازەی پشتڕاستکردن';
+  @override
+  String get tool_gateSecurity => 'دەروازەی ئاسایش';
+  @override
+  String get tool_gateConfirmation => 'دەروازەی پشتڕاستکردنەوە';
+  @override
+  String get tool_gateReadiness => 'دەروازەی ئامادەبوون';
+  @override
+  String get tool_gatePermissions => 'دەروازەی مۆڵەت';
+  @override
+  String get tool_gatePassed => 'دەروازە تێپەڕێنرا';
+  @override
+  String get tool_gateFailed => 'دەروازە سەرنەکەوت';
+  @override
+  String get tool_gateFailClosed => 'دەروازە داخراو-سەرنەکەوت';
+
+  // ─── Categories
+  @override
+  String get tool_categoryDevice => 'ئامێر';
+  @override
+  String get tool_categoryScreen => 'شاشە';
+  @override
+  String get tool_categoryVoice => 'دەنگ';
+  @override
+  String get tool_categoryMemory => 'بیرگە';
+  @override
+  String get tool_categoryVision => 'بینین';
+  @override
+  String get tool_categoryMedia => 'میدیا';
+  @override
+  String get tool_categoryAssistant => 'یاریدەدەر';
+  @override
+  String get tool_categoryCommunication => 'پەیوەندی';
+  @override
+  String get tool_categoryNavigation => 'ڕێنیشاندان';
+  @override
+  String get tool_categorySystem => 'سیستەم';
+  @override
+  String get tool_categoryRecovery => 'گەڕاندنەوە';
+  @override
+  String get tool_categoryUnknown => 'نەناسراو';
+
+  // ─── Risk levels
+  @override
+  String get tool_riskLow => 'مەترسی کەم';
+  @override
+  String get tool_riskMedium => 'مەترسی مامناوەند';
+  @override
+  String get tool_riskHigh => 'مەترسی بەرز';
+  @override
+  String get tool_riskCritical => 'مەترسی زۆر بەرز';
+
+  // ─── Confirmation
+  @override
+  String get tool_confirmTitle => 'پشتڕاستکردنەوەی جێبەجێکردنی ئامراز';
+  @override
+  String get tool_confirmMessage => 'ئەم ئامرازە پشتڕاستکردنەوەت دەوێت بۆ بەردەوامبوون.';
+  @override
+  String get tool_confirmElevated => 'پشتڕاستکردنەوەی بەرزکراوە پێویستە بۆ ئەم ئامرازە مەترسی بەرز.';
+  @override
+  String get tool_confirmVoice => 'پشتڕاستکردنەوەی دەنگی دۆزرایەوە. بەردەوام دەبێت.';
+  @override
+  String get tool_confirmDenied => 'پشتڕاستکردنەوە ڕەتکرایەوە. جێبەجێکردن ڕاوەستا.';
+
+  // ─── Voice
+  @override
+  String get tool_voiceListening => 'گوێ لە فەرمانی دەنگی دەگرێت...';
+  @override
+  String get tool_voiceExecuting => 'جێبەجێکردنی فەرمانی دەنگی...';
+  @override
+  String get tool_voiceComplete => 'فەرمانی دەنگی تەواوبوو.';
+  @override
+  String get tool_voiceFailed => 'فەرمانی دەنگی سەرنەکەوت.';
+  @override
+  String get tool_voiceUnsafe => 'ئەم ئامرازە بۆ جێبەجێکردنی دەنگی سەلامت نییە.';
+  @override
+  String get tool_voiceConfirmPrompt => 'تکایە فەرمانی دەنگی پشتڕاست بکەرەوە.';
+  @override
+  String get tool_voiceConfirmGranted => 'فەرمانی دەنگی پشتڕاستکرایەوە.';
+  @override
+  String get tool_voiceConfirmDenied => 'فەرمانی دەنگی ڕەتکرایەوە.';
+
+  // ─── Offline
+  @override
+  String get tool_offlineUnavailable => 'ئامراز لە دەرهێڵ بەردەست نییە.';
+  @override
+  String get tool_offlineQueued => 'داواکاری ڕیزکرا بۆ کاتی سەرهێڵبوون.';
+  @override
+  String get tool_offlineSyncing => 'هاوکاتکردنی داواکاری ڕیزکراوەکان...';
+  @override
+  String get tool_offlineSynced => 'هەموو داواکارییە ڕیزکراوەکان هاوکاتکران.';
+  @override
+  String get tool_offlineSyncFailed => 'هاوکاتکردنی هەندێک داواکاری سەرنەکەوت.';
+
+  // ─── Background
+  @override
+  String get tool_backgroundStarted => 'ئەرک لە پشتەوە دەستپێکرا.';
+  @override
+  String get tool_backgroundProgress => 'ئەرکی پشتەوە لە ئەنجامدایە...';
+  @override
+  String get tool_backgroundComplete => 'ئەرکی پشتەوە تەواوبوو.';
+  @override
+  String get tool_backgroundFailed => 'ئەرکی پشتەوە سەرنەکەوت.';
+  @override
+  String get tool_backgroundOverlay => 'ئەنجامی نوێ بەردەستە.';
+
+  // ─── Errors
+  @override
+  String get tool_errorPrefix => 'هەڵە';
+  @override
+  String get tool_errorNotFound => 'ئامراز نەدۆزرایەوە.';
+  @override
+  String get tool_errorValidation => 'پشتڕاستکردنی تێکردن سەرنەکەوت.';
+  @override
+  String get tool_errorSecurity => 'پشکنینی ئاسایش سەرنەکەوت.';
+  @override
+  String get tool_errorPermission => 'مۆڵەت ڕەتکرایەوە.';
+  @override
+  String get tool_errorTimeout => 'کاتی جێبەجێکردن تەواوبوو.';
+  @override
+  String get tool_errorCancelled => 'جێبەجێکردن پاشگەزکرایەوە.';
+  @override
+  String get tool_errorRetryExhausted => 'هەموو هەوڵەکانی دووبارەکردنەوە تەواوبوون.';
+  @override
+  String get tool_errorComposition => 'پێکهێنانی ئامراز سەرنەکەوت.';
+
+  // ─── Selection
+  @override
+  String get tool_selectionBestMatch => 'باشترین هاوساوە هەڵبژێنرا.';
+  @override
+  String get tool_selectionNoMatch => 'هیچ ئامرازێکی گونجاو نەدۆزرایەوە.';
+  @override
+  String get tool_selectionMultiple => 'چەندین ئامراز هاوساوە. تکایە هەڵبژێرە.';
+
+  // ─── Composition
+  @override
+  String get tool_composeChain => 'زنجیرەی ئامراز';
+  @override
+  String get tool_composeParallel => 'جێبەجێکردنی هاوبەش';
+  @override
+  String get tool_composeChainBroken => 'زنجیرەی ئامراز پچرا: دەرەنجام-تێکردن ناهاوساو.';
+  @override
+  String get tool_composeStepFailed => 'هەنگاو لە زنجیرەی ئامرازدا سەرنەکەوت.';
+  @override
+  String get tool_composeAllComplete => 'هەموو ئەرکە هاوبەشەکان تەواوبوون.';
+
+  // ─── Audit
+  @override
+  String get tool_auditLog => 'تۆماری پشکنین';
+  @override
+  String get tool_auditCritical => 'ڕووداوە پڕمەترسییەکانی پشکنین دۆزرایەوە.';
+  @override
+  String get tool_auditExported => 'تۆماری پشکنین هەناردەکرا.';
+
+  // ─── Security
+  @override
+  String get tool_securityBlocked => 'جێبەجێکردن بە سیاسەتی ئاسایش ڕاوەستا.';
+  @override
+  String get tool_securityFailClosed => 'ئاسایش داخراو-سەرنەکەوت: جێبەجێکردن ڕەتکرایەوە.';
+  @override
+  String get tool_securitySensitiveData => 'داتای هەستیار دۆزرایەوە و سڕایەوە.';

@@ -1,0 +1,47 @@
+name: aura_assistant
+description: "Aura Assistant Project"
+publish_to: 'none'
+version: 1.0.0+1
+
+environment:
+  sdk: '>=3.2.0 <4.0.0'
+
+dependencies:
+  flutter:
+    sdk: flutter
+  flutter_localizations:
+    sdk: flutter
+
+  flutter_tts: ^4.0.2
+  flutter_local_notifications: ^17.1.2
+  flutter_riverpod: ^2.5.1
+  flutter_secure_storage: ^10.3.3
+  shared_preferences: ^2.2.3
+  intl: ^0.20.3
+  http: ^1.2.1
+  camera: ^0.10.6
+  speech_to_text: ^7.4.0
+  permission_handler: ^11.3.1
+  geolocator: ^13.0.0
+  sqflite: ^2.3.3
+  audioplayers: ^6.0.0
+  connectivity_plus: ^6.0.3
+  device_info_plus: ^10.1.0
+  vibration: ^3.1.0
+  android_alarm_manager_plus: ^4.0.3
+  google_mlkit_face_detection: ^0.11.0
+  image_picker: ^1.0.4
+  file_picker: ^10.0.0
+
+dev_dependencies:
+  flutter_test:
+    sdk: flutter
+  flutter_lints: ^3.0.0
+
+flutter:
+  generate: true
+  uses-material-design: true
+  assets:
+    - assets/textures/earth/earth_surface.jpg
+    - assets/textures/earth/earth_clouds.jpg
+    - assets/textures/earth/earth_night.jpg

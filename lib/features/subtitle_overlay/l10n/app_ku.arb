@@ -1,0 +1,9 @@
+{
+  "@@locale": "ku",
+  "appTitle": "ژێرنووس",
+  "showing": "ژێرنووس نیشان دەدرێت",
+  "hidden": "ژێرنووس شاراوەیە",
+  "permissionDenied": "ڕێگەپێدان بۆ overlay ڕەتکرایەوە",
+  "overlayUnavailable": "overlay بەردەست نییە",
+  "cleared": "هەموو ژێرنووسەکان پاککرانەوە"
+}
