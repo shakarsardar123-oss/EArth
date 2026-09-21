@@ -148,7 +148,7 @@ class AutoModelService {
         systemPrompt: 'You are a connectivity probe.',
         modelId: model,
         temperature: 0.0,
-        maxTokens: 8,
+        maxTokens: 1024,
         isDefault: false,
         isActive: false,
       );
@@ -157,7 +157,7 @@ class AutoModelService {
           prompt: 'Reply with exactly: OK',
           agentConfig: config,
           temperature: 0.0,
-          maxTokens: 8,
+          maxTokens: 1024,
         ),
       );
       if (response.text.trim().isEmpty) {
