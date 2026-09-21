@@ -102,9 +102,20 @@ class GeminiProvider implements AIProvider, ModelDiscovery {
   /// versioned path exactly once.
   static String _rootBase(String? stored) {
     final resolved = resolveBaseUrl(stored);
-    return resolved
-        .replaceAll(RegExp(r'/v1beta/?$', caseSensitive: false), '')
-        .replaceAll(RegExp(r'/+$'), '');
+    // Discard ANY path/query/fragment the stored value may carry — a user
+    // may paste a full endpoint like ".../v1beta/models" by mistake, or an
+    // old/corrupted save may leave extra segments — and rebuild from
+    // scheme+host[+port] only. This guarantees buildGenerateContentUri /
+    // buildListModelsUri can never produce a doubled path such as
+    // ".../v1beta/models/v1beta/models".
+    try {
+      final uri = Uri.parse(resolved);
+      if (uri.scheme.isEmpty || uri.host.isEmpty) return resolved;
+      final portSuffix = uri.hasPort && uri.port != 0 ? ':${uri.port}' : '';
+      return '${uri.scheme}://${uri.host}$portSuffix';
+    } catch (_) {
+      return resolved;
+    }
   }
 
   /// Normalizes a model id for path use (strips any leading `models/`).
