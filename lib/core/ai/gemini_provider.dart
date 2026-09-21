@@ -185,6 +185,12 @@ class GeminiProvider implements AIProvider, ModelDiscovery {
     );
   }
 
+  /// Clears any custom Gemini base URL, reverting future requests to
+  /// [kGeminiDefaultBaseUrl].
+  Future<void> clearBaseUrl() async {
+    await secureStorage.delete(key: 'aura_gemini_base_url');
+  }
+
   /// Converts AIMessage list to Gemini contents format.
   List<Map<String, dynamic>> _buildContents(
     AIRequest request,

@@ -108,6 +108,16 @@ class AIConnectionStorage {
     await secureStorage.write(key: storageKey, value: url.trim());
   }
 
+  /// Deletes any stored base URL for the given connection type, reverting
+  /// future [getBaseUrl] reads back to the built-in default.
+  Future<void> clearBaseUrl([ConnectionType? type]) async {
+    final connectionType = type ?? getConnectionType();
+    final storageKey = connectionType == ConnectionType.gemini
+        ? kGeminiBaseUrlStorageKey
+        : kOpenAIBaseUrlStorageKey;
+    await secureStorage.delete(key: storageKey);
+  }
+
   // ─── Model ────────────────────────────────────────────────
 
   /// Reads the stored model name from SharedPreferences.

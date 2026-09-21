@@ -7,6 +7,7 @@
 library;
 
 import 'connection_type.dart';
+import 'gemini_provider.dart' show kGeminiDefaultBaseUrl;
 
 /// A provider preset (template) for the provider picker UI.
 class ProviderPreset {
@@ -76,7 +77,7 @@ class ProviderRegistry {
       displayName: 'Google gemini',
       type: ConnectionType.gemini,
       defaultModel: 'gemini-3.6-flash',
-      defaultBaseUrl: '',
+      defaultBaseUrl: kGeminiDefaultBaseUrl,
       iconEmoji: '✨',
       description:
           'Google gemini – fast, multilingual, supports vision & tools. Recommended for AURA.',

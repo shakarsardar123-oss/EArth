@@ -15,7 +15,8 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import '../../core/theme/app_colors.dart';
 import '../../core/ai/connection_type.dart';
 import '../../core/ai/provider_registry.dart';
-import '../../core/ai/gemini_provider.dart' show kDefaultGeminiChatModel;
+import '../../core/ai/gemini_provider.dart'
+    show kDefaultGeminiChatModel, GeminiProvider, kGeminiDefaultBaseUrl;
 import '../../core/ai/auto_model_service.dart'
     show AutoModelService, AutoModelSelectionResult;
 import '../../core/ai/ai_error_presenter.dart' show AIErrorPresenter;
@@ -150,12 +151,16 @@ class _ApiKeySettingsSectionState extends ConsumerState<ApiKeySettingsSection> {
         await provider.setApiKey(apiKey);
       }
 
-      // Save base URL
+      // Save base URL. Validate FIRST via the provider (enforces HTTPS +
+      // a real host) and only mirror it into AIConnectionStorage once that
+      // succeeds, so an invalid URL can never reach secure storage. An
+      // empty field is treated as an explicit reset back to the built-in
+      // default rather than silently keeping whatever was saved before.
       final baseUrl = _baseUrlController.text.trim();
       if (baseUrl.isNotEmpty) {
         try {
-          await connectionStorage.setBaseUrl(baseUrl, _selectedProviderType);
           await provider.setBaseUrl(baseUrl);
+          await connectionStorage.setBaseUrl(baseUrl, _selectedProviderType);
         } catch (e) {
           if (mounted) {
             setState(() {
@@ -164,6 +169,11 @@ class _ApiKeySettingsSectionState extends ConsumerState<ApiKeySettingsSection> {
             });
           }
           return;
+        }
+      } else {
+        await connectionStorage.clearBaseUrl(_selectedProviderType);
+        if (provider is GeminiProvider) {
+          await provider.clearBaseUrl();
         }
       }
 
@@ -229,8 +239,8 @@ class _ApiKeySettingsSectionState extends ConsumerState<ApiKeySettingsSection> {
       }
       final baseUrl = _baseUrlController.text.trim();
       if (baseUrl.isNotEmpty) {
-        await connectionStorage.setBaseUrl(baseUrl, _selectedProviderType);
         await provider.setBaseUrl(baseUrl);
+        await connectionStorage.setBaseUrl(baseUrl, _selectedProviderType);
       }
       connectionStorage.setConnectionType(_selectedProviderType);
 
@@ -416,7 +426,7 @@ class _ApiKeySettingsSectionState extends ConsumerState<ApiKeySettingsSection> {
         GlassTextField(
           controller: _baseUrlController,
           hint: _selectedProviderType == ConnectionType.gemini
-              ? ''
+              ? kGeminiDefaultBaseUrl
               : 'https://api.openai.com/v1',
           onChanged: (_) => _clearSaveStatus(),
         ),
