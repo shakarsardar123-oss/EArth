@@ -62,12 +62,24 @@ enum AIErrorCategory {
 class AIErrorPresenter {
   AIErrorPresenter._();
 
+  /// TEMPORARY DIAGNOSTICS: last raw error detail (API key masked), shown
+  /// under the friendly message so the real cause is visible on screen.
+  static String? lastDebugDetail;
+
+  static String _mask(String s) => s
+      .replaceAll(RegExp(r'key=[A-Za-z0-9_-]+'), 'key=***')
+      .replaceAll(RegExp(r'AIza[A-Za-z0-9_-]+'), 'AIza***');
+
   /// Classifies any [error] into a single [AIErrorCategory].
   ///
   /// Accepts a structured [AIProviderException], a plain error token string
   /// previously produced by [tokenFor] (as carried on
   /// [AgentResult.errorMessage]), a [FormatException], or anything else.
   static AIErrorCategory categorize(Object? error) {
+    if (error != null && error is! AIErrorCategory) {
+      final isToken = error is String && error.startsWith(tokenPrefix);
+      if (!isToken) lastDebugDetail = _mask(debugDetail(error));
+    }
     if (error is AIErrorCategory) return error;
     if (error is AIProviderException) return _fromProviderException(error);
 
@@ -148,6 +160,13 @@ class AIErrorPresenter {
 
   /// Localized, user-facing message for a category.
   static String messageForCategory(AIErrorCategory category, S l10n) {
+    final base = _baseMessage(category, l10n);
+    final d = lastDebugDetail;
+    if (d == null) return base;
+    return '$base\n[${d.length > 300 ? d.substring(0, 300) : d}]';
+  }
+
+  static String _baseMessage(AIErrorCategory category, S l10n) {
     switch (category) {
       case AIErrorCategory.missingKey:
         return l10n.aiErrorMissingKey;
