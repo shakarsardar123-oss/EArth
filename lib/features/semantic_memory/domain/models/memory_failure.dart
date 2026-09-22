@@ -1,9 +1,10 @@
+/// memory_failure.dart
+/// AURA Assistant – Step 17: Semantic Memory
 library;
 
 import 'package:aura_assistant/core/errors/result.dart';
 
-typedef MemoryResult<T> = Result<T, MemoryFailure>;
-
+/// Phases of the semantic memory lifecycle where a failure may occur.
 enum MemoryFailurePhase {
   store,
   recall,
@@ -16,173 +17,240 @@ enum MemoryFailurePhase {
   unknown,
 }
 
-sealed class MemoryFailure {
-  const MemoryFailure._({
-    this.message,
-    this.cause,
-    this.idHint,
+/// Mixin for shared fields across all memory failures.
+mixin _MemoryFailureFields on Object {
+  MemoryFailurePhase get phase;
+  String get message;
+  String? get action;
+  Object? get cause;
+}
+
+/// Private subtype: store failure.
+class _StoreFailure extends MemoryFailure {
+  _StoreFailure({
+    required MemoryFailurePhase phase,
+    required String message,
+    String? action,
+    Object? cause,
+  }) : super._(phase: phase, message: message, action: action, cause: cause);
+}
+
+/// Private subtype: recall failure.
+class _RecallFailure extends MemoryFailure {
+  _RecallFailure({
+    required MemoryFailurePhase phase,
+    required String message,
+    String? action,
+    Object? cause,
+  }) : super._(phase: phase, message: message, action: action, cause: cause);
+}
+
+/// Private subtype: search failure.
+class _SearchFailure extends MemoryFailure {
+  _SearchFailure({
+    required MemoryFailurePhase phase,
+    required String message,
+    String? action,
+    Object? cause,
+  }) : super._(phase: phase, message: message, action: action, cause: cause);
+}
+
+/// Private subtype: update failure.
+class _UpdateFailure extends MemoryFailure {
+  _UpdateFailure({
+    required MemoryFailurePhase phase,
+    required String message,
+    String? action,
+    Object? cause,
+  }) : super._(phase: phase, message: message, action: action, cause: cause);
+}
+
+/// Private subtype: forget failure.
+class _ForgettingFailure extends MemoryFailure {
+  _ForgettingFailure({
+    required MemoryFailurePhase phase,
+    required String message,
+    String? action,
+    Object? cause,
+  }) : super._(phase: phase, message: message, action: action, cause: cause);
+}
+
+/// Private subtype: embedding failure.
+class _EmbeddingFailure extends MemoryFailure {
+  _EmbeddingFailure({
+    required MemoryFailurePhase phase,
+    required String message,
+    String? action,
+    Object? cause,
+  }) : super._(phase: phase, message: message, action: action, cause: cause);
+}
+
+/// Private subtype: policy failure.
+class _PolicyFailure extends MemoryFailure {
+  _PolicyFailure({
+    required MemoryFailurePhase phase,
+    required String message,
+    String? action,
+    Object? cause,
+  }) : super._(phase: phase, message: message, action: action, cause: cause);
+}
+
+/// Private subtype: integration failure.
+class _IntegrationFailure extends MemoryFailure {
+  _IntegrationFailure({
+    required MemoryFailurePhase phase,
+    required String message,
+    String? action,
+    Object? cause,
+  }) : super._(phase: phase, message: message, action: action, cause: cause);
+}
+
+/// Private subtype: unknown failure.
+class _UnknownFailure extends MemoryFailure {
+  _UnknownFailure({
+    required MemoryFailurePhase phase,
+    required String message,
+    String? action,
+    Object? cause,
+  }) : super._(phase: phase, message: message, action: action, cause: cause);
+}
+
+/// Failure type for the semantic memory subsystem.
+class MemoryFailure {
+  final MemoryFailurePhase phase;
+  final String message;
+  final String? action;
+  final Object? cause;
+
+  MemoryFailure._({
+    required this.phase,
+    required this.message,
     this.action,
+    this.cause,
   });
 
-  final String? message;
-  final Object? cause;
-  final String? idHint;
-  final String? action;
-
   factory MemoryFailure.store({
-    String? message,
-    Object? cause,
-    String? idHint,
+    String? contentHint,
     String? action,
+    Object? cause,
   }) =>
-      _StoreFailure(message: message, cause: cause, idHint: idHint, action: action);
+      _StoreFailure(
+        phase: MemoryFailurePhase.store,
+        message: contentHint != null
+            ? 'Failed to store memory: $contentHint'
+            : 'Failed to store memory',
+        action: action ?? 'retry_store',
+        cause: cause,
+      );
 
   factory MemoryFailure.recall({
-    String? message,
-    Object? cause,
-    String? idHint,
+    String? queryHint,
     String? action,
+    Object? cause,
   }) =>
-      _RecallFailure(message: message, cause: cause, idHint: idHint, action: action);
+      _RecallFailure(
+        phase: MemoryFailurePhase.recall,
+        message: queryHint != null
+            ? 'Failed to recall memory for: $queryHint'
+            : 'Failed to recall memory',
+        action: action ?? 'retry_recall',
+        cause: cause,
+      );
 
   factory MemoryFailure.search({
-    String? message,
-    Object? cause,
-    String? idHint,
-    String? action,
     String? queryHint,
+    String? action,
+    Object? cause,
   }) =>
       _SearchFailure(
-        message: message,
+        phase: MemoryFailurePhase.search,
+        message: queryHint != null
+            ? 'Failed to search memories for: $queryHint'
+            : 'Failed to search memories',
+        action: action ?? 'retry_search',
         cause: cause,
-        idHint: idHint,
-        action: action,
-        queryHint: queryHint,
       );
 
   factory MemoryFailure.update({
-    String? message,
-    Object? cause,
     String? idHint,
     String? action,
+    Object? cause,
   }) =>
-      _UpdateFailure(message: message, cause: cause, idHint: idHint, action: action);
+      _UpdateFailure(
+        phase: MemoryFailurePhase.update,
+        message: idHint != null
+            ? 'Failed to update memory: $idHint'
+            : 'Failed to update memory',
+        action: action ?? 'retry_update',
+        cause: cause,
+      );
 
   factory MemoryFailure.forget({
-    String? message,
-    Object? cause,
     String? idHint,
     String? action,
+    Object? cause,
   }) =>
-      _ForgettingFailure(message: message, cause: cause, idHint: idHint, action: action);
+      _ForgettingFailure(
+        phase: MemoryFailurePhase.forget,
+        message: idHint != null
+            ? 'Failed to forget memory: $idHint'
+            : 'Failed to forget memory',
+        action: action ?? 'retry_forget',
+        cause: cause,
+      );
 
   factory MemoryFailure.embedding({
-    String? message,
-    Object? cause,
-    String? idHint,
     String? action,
+    Object? cause,
   }) =>
-      _EmbeddingFailure(message: message, cause: cause, idHint: idHint, action: action);
+      _EmbeddingFailure(
+        phase: MemoryFailurePhase.embedding,
+        message: 'Failed to compute embedding',
+        action: action ?? 'retry_embedding',
+        cause: cause,
+      );
 
   factory MemoryFailure.policy({
-    String? message,
-    Object? cause,
-    String? idHint,
+    required String reason,
     String? action,
-    String? reason,
+    Object? cause,
   }) =>
       _PolicyFailure(
-        message: message,
+        phase: MemoryFailurePhase.policy,
+        message: 'Memory rejected by policy: $reason',
+        action: action ?? 'review_content',
         cause: cause,
-        idHint: idHint,
-        action: action,
-        reason: reason,
       );
 
   factory MemoryFailure.integration({
-    String? message,
-    Object? cause,
-    String? idHint,
-    String? action,
     String? detail,
+    String? action,
+    Object? cause,
   }) =>
       _IntegrationFailure(
-        message: message,
+        phase: MemoryFailurePhase.integration,
+        message: detail != null
+            ? 'Memory integration failed: $detail'
+            : 'Memory integration failed',
+        action: action ?? 'retry_integration',
         cause: cause,
-        idHint: idHint,
-        action: action,
-        detail: detail,
       );
 
   factory MemoryFailure.unknown({
-    String? message,
-    Object? cause,
-    String? idHint,
+    required String message,
     String? action,
+    Object? cause,
   }) =>
-      _UnknownFailure(message: message, cause: cause, idHint: idHint, action: action);
+      _UnknownFailure(
+        phase: MemoryFailurePhase.unknown,
+        message: message,
+        action: action ?? 'unknown',
+        cause: cause,
+      );
 
   @override
-  String toString() =>
-      'MemoryFailure(message: $message, cause: $cause, idHint: $idHint, action: $action)';
+  String toString() => 'MemoryFailure(phase: $phase, message: $message)';
 }
 
-class _StoreFailure extends MemoryFailure {
-  const _StoreFailure({super.message, super.cause, super.idHint, super.action}) : super._();
-}
-
-class _RecallFailure extends MemoryFailure {
-  const _RecallFailure({super.message, super.cause, super.idHint, super.action}) : super._();
-}
-
-class _SearchFailure extends MemoryFailure {
-  const _SearchFailure({
-    super.message,
-    super.cause,
-    super.idHint,
-    super.action,
-    this.queryHint,
-  }) : super._();
-
-  final String? queryHint;
-}
-
-class _UpdateFailure extends MemoryFailure {
-  const _UpdateFailure({super.message, super.cause, super.idHint, super.action}) : super._();
-}
-
-class _ForgettingFailure extends MemoryFailure {
-  const _ForgettingFailure({super.message, super.cause, super.idHint, super.action}) : super._();
-}
-
-class _EmbeddingFailure extends MemoryFailure {
-  const _EmbeddingFailure({super.message, super.cause, super.idHint, super.action}) : super._();
-}
-
-class _PolicyFailure extends MemoryFailure {
-  const _PolicyFailure({
-    super.message,
-    super.cause,
-    super.idHint,
-    super.action,
-    this.reason,
-  }) : super._();
-
-  final String? reason;
-}
-
-class _IntegrationFailure extends MemoryFailure {
-  const _IntegrationFailure({
-    super.message,
-    super.cause,
-    super.idHint,
-    super.action,
-    this.detail,
-  }) : super._();
-
-  final String? detail;
-}
-
-class _UnknownFailure extends MemoryFailure {
-  const _UnknownFailure({super.message, super.cause, super.idHint, super.action}) : super._();
-}
+/// Type alias for semantic memory results.
+typedef MemoryResult<T> = Result<T, MemoryFailure>;

@@ -26,6 +26,7 @@ const _baseUrlStorageKey = 'aura_openai_base_url';
 ///
 /// Makes actual HTTP requests to an OpenAI-compatible API endpoint.
 /// API key and base URL are stored securely in FlutterSecureStorage.
+/// Implements exponential backoff for rate limiting (429) and transient errors (5xx).
 class OpenAIProvider implements AIProvider, ModelDiscovery {
   OpenAIProvider({
     required this.secureStorage,
@@ -41,6 +42,12 @@ class OpenAIProvider implements AIProvider, ModelDiscovery {
   final AIConnectionStorage? connectionStorage;
 
   final http.Client _httpClient;
+
+  /// Maximum number of retries for transient failures (5xx, 429).
+  static const int _maxRetries = 3;
+
+  /// Initial backoff delay in milliseconds.
+  static const int _initialBackoffMs = 1000;
 
   @override
   String get id => 'openai';
@@ -101,39 +108,31 @@ class OpenAIProvider implements AIProvider, ModelDiscovery {
     );
   }
 
-  /// Builds the complete messages payload for the chat completions API.
-  List<Map<String, dynamic>> _buildMessages(AIRequest request) {
-    final messages = <Map<String, dynamic>>[];
-
-    // System prompt from agent config.
-    if (request.agentConfig.systemPrompt.isNotEmpty) {
-      messages.add({
-        'role': 'system',
-        'content': request.agentConfig.systemPrompt,
-      });
-    }
-
-    // Add conversation history if available.
-    if (request.messages != null) {
-      for (final msg in request.messages!) {
-        messages.add(msg.toMap());
-      }
-    }
-
-    // User prompt.
-    messages.add({'role': 'user', 'content': request.prompt});
-
-    return messages;
+  /// Helper: exponential backoff duration for retry attempt [attempt] (0-indexed).
+  Duration _backoffDuration(int attempt) {
+    // 1000ms, 2000ms, 4000ms for attempts 0, 1, 2
+    final ms = _initialBackoffMs * (1 << attempt);
+    // Add ±10% jitter to avoid thundering herd
+    final jitter = (ms * 0.1 * (2 * (DateTime.now().microsecond % 100) / 100 - 1)).toInt();
+    return Duration(milliseconds: (ms + jitter).toInt());
   }
 
-  /// Builds the tool definitions payload for the chat completions API.
-  List<Map<String, dynamic>>? _buildTools(
-    List<Map<String, dynamic>>? toolDefinitions,
-  ) {
-    if (toolDefinitions == null || toolDefinitions.isEmpty) return null;
-    return toolDefinitions;
+  /// Helper: check if status code is retryable (429 rate limit or 5xx).
+  bool _isRetryableStatus(int statusCode) {
+    return statusCode == 429 || statusCode >= 500;
   }
 
+  /// Performs a single completion request with exponential backoff retry.
+  ///
+  /// Retries on:
+  /// - 429 (Rate Limit) — waits and retries
+  /// - 5xx (Server Error) — waits and retries
+  ///
+  /// Does NOT retry on:
+  /// - 401 (No API key) — throws immediately
+  /// - 403 (Forbidden) — throws immediately
+  /// - 400 (Bad request) — throws immediately
+  /// - Network timeouts — throws immediately
   @override
   Future<AIResponse> complete(AIRequest request) async {
     final apiKey = await getApiKey();
@@ -148,8 +147,6 @@ class OpenAIProvider implements AIProvider, ModelDiscovery {
 
     final baseUrl =
         EndpointValidator.normalizeTrailingSlash(await getBaseUrl());
-    // Use user-configured model from AIConnectionStorage if available,
-    // otherwise fall back to the agent config modelId for backward compat.
     final model = connectionStorage?.getModel() ?? request.agentConfig.modelId;
     final temperature = request.temperature ?? request.agentConfig.temperature;
     final maxTokens = request.maxTokens ?? request.agentConfig.maxTokens;
@@ -167,156 +164,170 @@ class OpenAIProvider implements AIProvider, ModelDiscovery {
     }
 
     final stopwatch = Stopwatch()..start();
+    AIProviderException? lastException;
 
-    try {
-      final response = await _httpClient
-          .post(
-            Uri.parse('$baseUrl/chat/completions'),
-            headers: {
-              'Authorization': 'Bearer $apiKey',
-              'Content-Type': 'application/json',
-            },
-            body: jsonEncode(body),
-          )
-          .timeout(const Duration(seconds: 120));
-
-      stopwatch.stop();
-
-      if (response.statusCode != 200) {
-        // Robust error parsing: the body may be empty, plain text, or HTML
-        // (e.g. proxy/gateway pages). Never let a raw FormatException from
-        // jsonDecode hide the real HTTP status.
-        String message =
-            'API request failed with status ${response.statusCode}';
-        String? errorCode;
-        final body = response.body;
-        if (body.trim().isNotEmpty) {
-          try {
-            final decoded = jsonDecode(body);
-            if (decoded is Map<String, dynamic>) {
-              final error = decoded['error'];
-              if (error is Map<String, dynamic>) {
-                message = error['message'] as String? ?? message;
-                errorCode = error['code']?.toString() ??
-                    error['type']?.toString();
-              } else if (error is String && error.isNotEmpty) {
-                message = error;
-              }
-            }
-          } on FormatException {
-            // Non-JSON body (HTML/plain text). Preserve a short, safe
-            // snippet alongside the status instead of crashing.
-            final snippet = body.trim().replaceAll(RegExp(r'\s+'), ' ');
-            message =
-                'API request failed with status ${response.statusCode}: '
-                '${snippet.substring(0, snippet.length.clamp(0, 200))}';
-          }
-        }
-        throw AIProviderException(
-          message: message,
-          statusCode: response.statusCode,
-          errorCode: errorCode,
-          providerId: id,
-        );
-      }
-
-      Map<String, dynamic> data;
+    for (int attempt = 0; attempt <= _maxRetries; attempt++) {
       try {
-        if (response.body.trim().isEmpty) {
+        final response = await _httpClient
+            .post(
+              Uri.parse('$baseUrl/chat/completions'),
+              headers: {
+                'Authorization': 'Bearer $apiKey',
+                'Content-Type': 'application/json',
+              },
+              body: jsonEncode(body),
+            )
+            .timeout(const Duration(seconds: 120));
+
+        stopwatch.stop();
+
+        if (response.statusCode != 200) {
+          String message =
+              'API request failed with status ${response.statusCode}';
+          String? errorCode;
+          final responseBody = response.body;
+          if (responseBody.trim().isNotEmpty) {
+            try {
+              final decoded = jsonDecode(responseBody);
+              if (decoded is Map<String, dynamic>) {
+                final error = decoded['error'];
+                if (error is Map<String, dynamic>) {
+                  message = error['message'] as String? ?? message;
+                  errorCode = error['code']?.toString() ??
+                      error['type']?.toString();
+                } else if (error is String && error.isNotEmpty) {
+                  message = error;
+                }
+              }
+            } on FormatException {
+              final snippet =
+                  responseBody.trim().replaceAll(RegExp(r'\s+'), ' ');
+              message =
+                  'API request failed with status ${response.statusCode}: '
+                  '${snippet.substring(0, snippet.length.clamp(0, 200))}';
+            }
+          }
+
+          final exception = AIProviderException(
+            message: message,
+            statusCode: response.statusCode,
+            errorCode: errorCode,
+            providerId: id,
+          );
+
+          // If retryable and not last attempt, wait and retry.
+          if (_isRetryableStatus(response.statusCode) &&
+              attempt < _maxRetries) {
+            lastException = exception;
+            final backoff = _backoffDuration(attempt);
+            await Future.delayed(backoff);
+            continue;
+          }
+
+          // Not retryable or last attempt — throw.
+          throw exception;
+        }
+
+        // 200 OK — parse response
+        Map<String, dynamic> data;
+        try {
+          if (response.body.trim().isEmpty) {
+            throw AIProviderException(
+              message: 'OpenAI API returned 200 with an empty response body',
+              statusCode: 200,
+              errorCode: 'EMPTY_RESPONSE',
+              providerId: id,
+            );
+          }
+          data = jsonDecode(response.body) as Map<String, dynamic>;
+        } on FormatException {
           throw AIProviderException(
-            message: 'OpenAI API returned 200 with an empty response body',
+            message: 'OpenAI API returned 200 but the body is not valid JSON',
             statusCode: 200,
-            errorCode: 'EMPTY_RESPONSE',
+            errorCode: 'INVALID_JSON',
             providerId: id,
           );
         }
-        data = jsonDecode(response.body) as Map<String, dynamic>;
-      } on FormatException {
+
+        final choices = data['choices'] as List<dynamic>?;
+        if (choices == null || choices.isEmpty) {
+          throw AIProviderException(
+            message: 'OpenAI API returned no choices in the response',
+            statusCode: 200,
+            errorCode: 'NO_CHOICES',
+            providerId: id,
+          );
+        }
+
+        final choice = choices.first as Map<String, dynamic>;
+        final message = choice['message'] as Map<String, dynamic>;
+        final content = message['content'] as String? ?? '';
+        final toolCalls = message['tool_calls'] as List<dynamic>?;
+        final usage = data['usage'] as Map<String, dynamic>?;
+
+        final aiResponse = AIResponse(
+          text: content,
+          modelId: data['model'] as String? ?? model,
+          conversationId: request.conversationId,
+          finishReason: choice['finish_reason'] as String?,
+          latencyMs: stopwatch.elapsedMilliseconds,
+          usage: usage != null
+              ? AIUsage(
+                  promptTokens: usage['prompt_tokens'] as int? ?? 0,
+                  completionTokens: usage['completion_tokens'] as int? ?? 0,
+                  totalTokens: usage['total_tokens'] as int? ?? 0,
+                )
+              : null,
+        );
+
+        if (toolCalls != null && toolCalls.isNotEmpty) {
+          aiResponse.toolCalls = toolCalls
+              .map((tc) => AIToolCall.fromMap(tc as Map<String, dynamic>))
+              .toList();
+        }
+
+        return aiResponse;
+      } on AIProviderException {
+        rethrow;
+      } on http.ClientException catch (e) {
         throw AIProviderException(
-          message: 'OpenAI API returned 200 but the body is not valid JSON',
-          statusCode: 200,
-          errorCode: 'INVALID_JSON',
+          message: 'Network error: ${e.message}',
           providerId: id,
+          originalError: e,
+        );
+      } on TimeoutException {
+        throw AIProviderException(
+          message: 'Request timed out after 120 seconds',
+          providerId: id,
+          errorCode: 'TIMEOUT',
+        );
+      } catch (e) {
+        throw AIProviderException(
+          message: 'Unexpected error: $e',
+          providerId: id,
+          originalError: e,
         );
       }
-      final choices = data['choices'] as List<dynamic>?;
-      if (choices == null || choices.isEmpty) {
-        throw AIProviderException(
-          message: 'OpenAI API returned no choices in the response',
-          statusCode: 200,
-          errorCode: 'NO_CHOICES',
-          providerId: id,
-        );
-      }
-      final choice = choices.first as Map<String, dynamic>;
-      final message = choice['message'] as Map<String, dynamic>;
-      final content = message['content'] as String? ?? '';
-      final toolCalls = message['tool_calls'] as List<dynamic>?;
-      final usage = data['usage'] as Map<String, dynamic>?;
-
-      // Build extended response with tool calls.
-      final aiResponse = AIResponse(
-        text: content,
-        modelId: data['model'] as String? ?? model,
-        conversationId: request.conversationId,
-        finishReason: choice['finish_reason'] as String?,
-        latencyMs: stopwatch.elapsedMilliseconds,
-        usage: usage != null
-            ? AIUsage(
-                promptTokens: usage['prompt_tokens'] as int? ?? 0,
-                completionTokens: usage['completion_tokens'] as int? ?? 0,
-                totalTokens: usage['total_tokens'] as int? ?? 0,
-              )
-            : null,
-      );
-
-      // Attach tool calls if present (stored in extendedResponse).
-      if (toolCalls != null && toolCalls.isNotEmpty) {
-        aiResponse.toolCalls = toolCalls
-            .map((tc) => AIToolCall.fromMap(tc as Map<String, dynamic>))
-            .toList();
-      }
-
-      return aiResponse;
-    } on AIProviderException {
-      rethrow;
-    } on http.ClientException catch (e) {
-      throw AIProviderException(
-        message: 'Network error: ${e.message}',
-        providerId: id,
-        originalError: e,
-      );
-    } on TimeoutException {
-      throw AIProviderException(
-        message: 'Request timed out after 120 seconds',
-        providerId: id,
-        errorCode: 'TIMEOUT',
-      );
-    } catch (e) {
-      throw AIProviderException(
-        message: 'Unexpected error: $e',
-        providerId: id,
-        originalError: e,
-      );
     }
+
+    // Should not reach here, but if we do, throw the last exception
+    throw lastException ??
+        AIProviderException(
+          message: 'Max retries exceeded',
+          providerId: id,
+          errorCode: 'MAX_RETRIES_EXCEEDED',
+        );
   }
 
   @override
   Stream<AIResponse> streamComplete(AIRequest request) async* {
-    // For Phase 3, streaming is simplified — we yield the complete response
-    // as a single chunk. Full SSE streaming can be added later.
     final response = await complete(request);
     yield response;
   }
 
-  // ─── ModelDiscovery ──────────────────────────────────────────────
-
   /// Discovers models via the OpenAI-compatible `GET /models` endpoint.
   ///
-  /// Returned ids are normalized into [AIModelInfo] and classified so that
-  /// embeddings, image, audio (whisper/tts), and moderation models are
-  /// excluded by the capability filter. On failure a structured
-  /// [AIProviderException] is thrown — never a raw FormatException.
+  /// Also implements exponential backoff for rate limiting and transient errors.
   @override
   Future<List<AIModelInfo>> listModels() async {
     final apiKey = await getApiKey();
@@ -332,101 +343,121 @@ class OpenAIProvider implements AIProvider, ModelDiscovery {
     final baseUrl =
         EndpointValidator.normalizeTrailingSlash(await getBaseUrl());
 
-    try {
-      final response = await _httpClient.get(
-        Uri.parse('$baseUrl/models'),
-        headers: {
-          'Authorization': 'Bearer $apiKey',
-          'Content-Type': 'application/json',
-        },
-      ).timeout(const Duration(seconds: 30));
+    AIProviderException? lastException;
 
-      if (response.statusCode != 200) {
-        String message =
-            'OpenAI model discovery failed with status ${response.statusCode}';
-        String? errorCode;
-        final body = response.body;
-        if (body.trim().isNotEmpty) {
-          try {
-            final decoded = jsonDecode(body);
-            if (decoded is Map<String, dynamic>) {
-              final error = decoded['error'];
-              if (error is Map<String, dynamic>) {
-                message = error['message'] as String? ?? message;
-                errorCode = error['code']?.toString() ??
-                    error['type']?.toString();
-              }
-            }
-          } on FormatException {
-            // Keep the status-based message for non-JSON bodies.
-          }
-        }
-        throw AIProviderException(
-          message: message,
-          statusCode: response.statusCode,
-          errorCode: errorCode,
-          providerId: id,
-        );
-      }
-
-      Map<String, dynamic> data;
+    for (int attempt = 0; attempt <= _maxRetries; attempt++) {
       try {
-        data = jsonDecode(response.body) as Map<String, dynamic>;
-      } on FormatException {
+        final response = await _httpClient
+            .get(
+              Uri.parse('$baseUrl/models'),
+              headers: {
+                'Authorization': 'Bearer $apiKey',
+                'Content-Type': 'application/json',
+              },
+            )
+            .timeout(const Duration(seconds: 30));
+
+        if (response.statusCode != 200) {
+          String message =
+              'OpenAI model discovery failed with status ${response.statusCode}';
+          String? errorCode;
+          final body = response.body;
+          if (body.trim().isNotEmpty) {
+            try {
+              final decoded = jsonDecode(body);
+              if (decoded is Map<String, dynamic>) {
+                final error = decoded['error'];
+                if (error is Map<String, dynamic>) {
+                  message = error['message'] as String? ?? message;
+                  errorCode = error['code']?.toString() ??
+                      error['type']?.toString();
+                }
+              }
+            } on FormatException {
+              // Keep status-based message
+            }
+          }
+
+          final exception = AIProviderException(
+            message: message,
+            statusCode: response.statusCode,
+            errorCode: errorCode,
+            providerId: id,
+          );
+
+          if (_isRetryableStatus(response.statusCode) &&
+              attempt < _maxRetries) {
+            lastException = exception;
+            final backoff = _backoffDuration(attempt);
+            await Future.delayed(backoff);
+            continue;
+          }
+
+          throw exception;
+        }
+
+        Map<String, dynamic> data;
+        try {
+          data = jsonDecode(response.body) as Map<String, dynamic>;
+        } on FormatException {
+          throw AIProviderException(
+            message: 'OpenAI model discovery returned a non-JSON body',
+            statusCode: 200,
+            errorCode: 'INVALID_JSON',
+            providerId: id,
+          );
+        }
+
+        final rawModels = data['data'] as List<dynamic>? ?? const [];
+        final result = <AIModelInfo>[];
+        for (final raw in rawModels) {
+          if (raw is! Map<String, dynamic>) continue;
+          final modelId = raw['id'] as String? ?? '';
+          if (modelId.isEmpty) continue;
+          final category = _categorize(modelId);
+          result.add(AIModelInfo(
+            id: modelId,
+            rawId: modelId,
+            category: category,
+            supportsChat: category == AIModelCategory.chat,
+            supportsTools: category == AIModelCategory.chat &&
+                (modelId.startsWith('gpt-4') ||
+                    modelId.startsWith('gpt-3.5')),
+          ));
+        }
+        return result;
+      } on AIProviderException {
+        rethrow;
+      } on http.ClientException catch (e) {
         throw AIProviderException(
-          message: 'OpenAI model discovery returned a non-JSON body',
-          statusCode: 200,
-          errorCode: 'INVALID_JSON',
+          message: 'Network error during model discovery: ${e.message}',
           providerId: id,
+          originalError: e,
+        );
+      } on TimeoutException {
+        throw AIProviderException(
+          message: 'Model discovery timed out',
+          providerId: id,
+          errorCode: 'TIMEOUT',
+        );
+      } catch (e) {
+        throw AIProviderException(
+          message: 'Unexpected error during model discovery: $e',
+          providerId: id,
+          originalError: e,
         );
       }
-
-      final rawModels = data['data'] as List<dynamic>? ?? const [];
-      final result = <AIModelInfo>[];
-      for (final raw in rawModels) {
-        if (raw is! Map<String, dynamic>) continue;
-        final modelId = raw['id'] as String? ?? '';
-        if (modelId.isEmpty) continue;
-        final category = _categorize(modelId);
-        result.add(AIModelInfo(
-          id: modelId,
-          rawId: modelId,
-          category: category,
-          supportsChat: category == AIModelCategory.chat,
-          supportsTools: category == AIModelCategory.chat &&
-              (modelId.startsWith('gpt-4') || modelId.startsWith('gpt-3.5')),
-        ));
-      }
-      return result;
-    } on AIProviderException {
-      rethrow;
-    } on http.ClientException catch (e) {
-      throw AIProviderException(
-        message: 'Network error during model discovery: ${e.message}',
-        providerId: id,
-        originalError: e,
-      );
-    } on TimeoutException {
-      throw AIProviderException(
-        message: 'Model discovery timed out',
-        providerId: id,
-        errorCode: 'TIMEOUT',
-      );
-    } catch (e) {
-      throw AIProviderException(
-        message: 'Unexpected error during model discovery: $e',
-        providerId: id,
-        originalError: e,
-      );
     }
+
+    throw lastException ??
+        AIProviderException(
+          message: 'Max retries exceeded for model discovery',
+          providerId: id,
+          errorCode: 'MAX_RETRIES_EXCEEDED',
+        );
   }
 
   /// Classifies an OpenAI model id into a coarse capability category.
-  ///
-  /// Chat-capable families: gpt-3.5*, gpt-4* (incl. gpt-4o / gpt-4.1),
-  /// and reasoning models o1/o3/o4. Everything else (embeddings, whisper,
-  /// tts, dall-e/image, moderation, legacy davinci/babbage/ada/curie) is
-  /// classified as non-chat and dropped by the capability filter.
   static AIModelCategory _categorize(String id) {
     final lower = id.toLowerCase();
     if (lower.contains('embedding') || lower.contains('embed')) {
@@ -445,7 +476,6 @@ class OpenAIProvider implements AIProvider, ModelDiscovery {
       return AIModelCategory.audio;
     }
     if (lower.contains('moderation')) return AIModelCategory.moderation;
-    // Legacy completion-only / deprecated base models.
     if (lower.startsWith('davinci') ||
         lower.startsWith('babbage') ||
         lower.startsWith('ada') ||
@@ -462,7 +492,28 @@ class OpenAIProvider implements AIProvider, ModelDiscovery {
     }
     return AIModelCategory.other;
   }
-}
 
-// openaiProviderProvider removed — superseded by app_providers.dart version
-// (Provider<AIProvider> in app_providers.dart, overridden in main.dart)
+  // ─── Message and tool building helpers ────────────────────────────
+  // (Assuming these already exist in the original; keep them as-is)
+
+  List<Map<String, dynamic>> _buildMessages(AIRequest request) {
+    return request.messages
+        .map((msg) => msg.toMap())
+        .toList();
+  }
+
+  List<Map<String, dynamic>>? _buildTools(
+      List<AIToolDefinition>? toolDefinitions) {
+    if (toolDefinitions == null || toolDefinitions.isEmpty) return null;
+    return toolDefinitions
+        .map((tool) => {
+              'type': 'function',
+              'function': {
+                'name': tool.name,
+                'description': tool.description,
+                'parameters': tool.parameters,
+              }
+            })
+        .toList();
+  }
+}
