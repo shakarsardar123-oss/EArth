@@ -16,7 +16,7 @@ import '../../domain/repositories/trigger_authorization_repository.dart';
 
 class SecurityBridgeAdapter implements TriggerAuthorizationRepository {
   /// Whether the Step 15 security subsystem is available.
-  bool _securityAvailable = false;
+  bool _securityAvailable = true;
 
   SecurityBridgeAdapter();
 
