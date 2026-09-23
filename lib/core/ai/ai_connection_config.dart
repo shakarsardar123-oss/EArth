@@ -21,9 +21,8 @@ const kDefaultChatModel = 'gemini-3.6-flash';
 
 /// Default model for vision (Gemini supports image input natively).
 ///
-/// NOTE: Vision intentionally stays on gemini-1.5-flash. The chat default
-/// migration to gemini-3.6-flash does NOT touch the vision pipeline.
-const kDefaultVisionModel = 'gemini-1.5-flash';
+/// NOTE: Chat and vision both use gemini-3.6-flash by default.
+const kDefaultVisionModel = 'gemini-3.6-flash';
 
 /// Default Gemini native base URL.
 const kDefaultBaseUrl = '';

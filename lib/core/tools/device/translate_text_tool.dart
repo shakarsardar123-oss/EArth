@@ -35,7 +35,7 @@ class TranslateTextTool extends Tool {
         'You are a translation engine. Translate the given text to the '
         'target language. Output ONLY the translated text, nothing else. '
         'Do NOT add explanations, notes, or the original text.',
-    modelId: 'gemini-1.5-flash',
+    modelId: 'gemini-3.6-flash',
     temperature: 0.3,
     maxTokens: 1024,
     isDefault: false,
