@@ -79,11 +79,15 @@ class MainActivity : FlutterActivity() {
         // echo-safe mic + AEC/VAD, acoustic wake-word scaffold). Registers its
         // own Method/Event channels on the same messenger.
         audioBridge = AuraAudioBridge(applicationContext, flutterEngine.dartExecutor.binaryMessenger)
+
+        // Floating overlay channel (own file — see FloatingAuraBridge.kt).
+        FloatingAuraBridge.attach(this, flutterEngine)
     }
 
     override fun onDestroy() {
         // Release native audio resources (Visualizer / AudioRecord / AEC).
         try { audioBridge?.dispose() } catch (_: Throwable) {}
+        FloatingAuraBridge.detach(this)
         audioBridge = null
         super.onDestroy()
     }

@@ -51,6 +51,7 @@
     <!-- ── System Alert Window (special – shown as "Display over other apps") ── -->
     <!-- Used by: Floating AURA overlay (floating_aura platform channel) -->
     <uses-permission android:name="android.permission.SYSTEM_ALERT_WINDOW" />
+    <uses-permission android:name="android.permission.FOREGROUND_SERVICE_SPECIAL_USE" />
 
     <!-- ── Full-Screen Intent (special – shown as "Full-screen notifications" on Android 14+) ── -->
     <!-- REQUIRED: AlarmNotificationService uses fullScreenIntent:true to show
@@ -195,6 +196,16 @@
             android:name="android.accessibilityservice"
             android:resource="@xml/aura_accessibility_service_config" />
     </service>
+
+        <!-- Floating AURA overlay: foreground service that owns the native WindowManager overlay view. -->
+        <service
+            android:name=".FloatingAuraOverlayService"
+            android:exported="false"
+            android:foregroundServiceType="specialUse">
+            <property
+                android:name="android.app.PROPERTY_SPECIAL_USE_FGS_SUBTYPE"
+                android:value="floating_assistant_overlay" />
+        </service>
 
         <!-- Boot receiver for alarm rescheduling -->
         <receiver
