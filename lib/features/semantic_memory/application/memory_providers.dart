@@ -19,7 +19,7 @@ import '../domain/services/memory_embedding_service.dart';
 import '../domain/services/memory_storage_service.dart';
 import '../infrastructure/local_memory_storage_service.dart';
 import '../infrastructure/memory_repository_impl.dart';
-import '../infrastructure/stub_memory_embedding_service.dart';
+import '../infrastructure/hashing_embedding_service.dart';
 import '../infrastructure/vector_search_service.dart';
 import 'agent_memory_integration.dart';
 import 'memory_manager.dart';
@@ -67,7 +67,7 @@ final memoryStorageServiceProvider = Provider<MemoryStorageService>(
 
 /// Embedding service provider (stub implementation).
 final memoryEmbeddingServiceProvider = Provider<MemoryEmbeddingService>(
-  (ref) => StubMemoryEmbeddingService(),
+  (ref) => HashingEmbeddingService(),
   name: MemoryProviderNames.embeddingService,
 );
 
