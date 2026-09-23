@@ -84,12 +84,73 @@ class _ChatScreenState extends ConsumerState<ChatScreen> {
   final _scrollController = ScrollController();
   final _focusNode = FocusNode();
 
+  String? _loadedConversationId;
+  bool _loadingConversation = false;
+
   @override
   void dispose() {
     _controller.dispose();
     _scrollController.dispose();
     _focusNode.dispose();
     super.dispose();
+  }
+
+  @override
+  void initState() {
+    super.initState();
+
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      final id = ref.read(currentConversationIdProvider);
+      if (id != null) {
+        _loadConversation(id);
+      }
+    });
+  }
+
+  Future<void> _loadConversation(String? conversationId) async {
+    if (!mounted) return;
+
+    if (conversationId == null) {
+      _loadedConversationId = null;
+      ref.read(chatMessagesProvider).clear();
+      return;
+    }
+
+    if (_loadedConversationId == conversationId || _loadingConversation) {
+      return;
+    }
+
+    _loadingConversation = true;
+
+    try {
+      final memoryService = ref.read(memoryServiceProvider);
+      final storedMessages =
+          await memoryService.getMessages(conversationId);
+
+      if (!mounted) return;
+
+      final messages = ref.read(chatMessagesProvider);
+      messages.clear();
+
+      for (final message in storedMessages) {
+        messages.addMessage(
+          _ChatMessage(
+            text: message.content,
+            isUser: message.role == 'user',
+            timestamp: message.createdAt ?? DateTime.now(),
+          ),
+        );
+      }
+
+      _loadedConversationId = conversationId;
+      _scrollToBottom();
+    } catch (e) {
+      debugPrint(
+        'Chat: failed to load conversation $conversationId: $e',
+      );
+    } finally {
+      _loadingConversation = false;
+    }
   }
 
   void _scrollToBottom() {
@@ -116,6 +177,23 @@ class _ChatScreenState extends ConsumerState<ChatScreen> {
     _scrollToBottom();
 
     try {
+      // Create a persistent conversation automatically for a new chat.
+      var convId = ref.read(currentConversationIdProvider);
+
+      if (convId == null) {
+        final memoryService = ref.read(memoryServiceProvider);
+
+        convId = await memoryService.createConversation(
+          title: text.length > 40 ? '${text.substring(0, 40)}…' : text,
+          agentId: 'default',
+        );
+
+        // Mark it as loaded so the provider listener does not clear
+        // the newly added local message while the conversation is loading.
+        _loadedConversationId = convId;
+        ref.read(currentConversationIdProvider.notifier).state = convId;
+      }
+
       final agentEngine = ref.read(agentEngineProvider);
       final agentConfig = ref.read(agentConfigProvider);
 
@@ -137,22 +215,27 @@ class _ChatScreenState extends ConsumerState<ChatScreen> {
       if (result.isSuccess && result.response != null) {
         messages.addMessage(_ChatMessage(text: result.response!, isUser: false));
 
-        // Persist to memory
+        // Persist both sides of the conversation to SQLite.
         try {
-          final convId = ref.read(currentConversationIdProvider);
-          if (convId != null) {
+          final activeConvId = ref.read(currentConversationIdProvider);
+
+          if (activeConvId != null) {
             final memoryService = ref.read(memoryServiceProvider);
+
             await memoryService.addMessage(
-              conversationId: convId,
+              conversationId: activeConvId,
               role: 'user',
               content: text,
             );
+
             await memoryService.addMessage(
-              conversationId: convId,
+              conversationId: activeConvId,
               role: 'assistant',
               content: result.response!,
             );
+
             ref.invalidate(conversationListFromDBProvider);
+            ref.invalidate(conversationHistoryProvider);
           }
         } catch (e) {
           debugPrint('Chat: failed to persist message: $e');
@@ -184,6 +267,7 @@ class _ChatScreenState extends ConsumerState<ChatScreen> {
     final l10n = S.of(context);
     final messages = ref.read(chatMessagesProvider);
     messages.clear();
+    _loadedConversationId = null;
     ref.read(currentConversationIdProvider.notifier).state = null;
 
     try {
@@ -299,6 +383,11 @@ class _ChatScreenState extends ConsumerState<ChatScreen> {
 
   @override
   Widget build(BuildContext context) {
+    ref.listen<String?>(
+      currentConversationIdProvider,
+      (_, next) => _loadConversation(next),
+    );
+
     final l10n = S.of(context);
     final theme = Theme.of(context);
     final cs = theme.colorScheme;

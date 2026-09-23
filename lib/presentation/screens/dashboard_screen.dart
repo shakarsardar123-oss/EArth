@@ -3,6 +3,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:aura_assistant/l10n/app_localizations.dart';
 
 import '../../core/providers/phase3_connection_points.dart';
+import 'chat_screen.dart' show currentConversationIdProvider;
 import '../../services/voice/voice_service.dart' show VoiceState;
 import '../../services/memory/memory_service.dart';
 import '../../core/theme/app_colors.dart';
@@ -478,8 +479,8 @@ class DashboardScreen extends ConsumerWidget {
                 ),
                 GestureDetector(
                   onTap: () {
-                    // Navigate to full conversation list
-                    ref.read(navigationIndexProvider.notifier).state = 0;
+                    // Open conversation history in the Chat tab
+                    ref.read(navigationIndexProvider.notifier).state = 1;
                   },
                   child: Text(
                     'هەمووی ببینە',
@@ -511,6 +512,10 @@ class DashboardScreen extends ConsumerWidget {
           else
             ...conversations.take(3).map((item) => GlassCard(
               margin: const EdgeInsets.only(bottom: 8),
+              onTap: () {
+                ref.read(currentConversationIdProvider.notifier).state = item.id;
+                ref.read(navigationIndexProvider.notifier).state = 1;
+              },
               padding: const EdgeInsets.all(12),
               child: Row(
                 children: [
