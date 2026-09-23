@@ -386,117 +386,287 @@ class ScreenUnderstandingEngine implements ScreenUnderstandingService {
   }
 
   /// Try to parse the structured screen-analysis JSON from the raw response.
-  Result<ScreenRepresentation, ScreenUnderstandingFailure>
-      _parseRawJsonResponse(
-    Map<String, dynamic> rawResponse,
-    CapturedFrame frame,
-    VisionResult visionResult,
-  ) {
-    // Navigate to the content string in the OpenAI response.
-    final choices = rawResponse['choices'] as List<dynamic>?;
-    if (choices == null || choices.isEmpty) {
-      return _buildFromVisionFields(rawResponse, frame);
-    }
+    Result<ScreenRepresentation, ScreenUnderstandingFailure>
+        _parseRawJsonResponse(
+      Map<String, dynamic> rawResponse,
+      CapturedFrame frame,
+      VisionResult visionResult,
+    ) {
+      try {
+        String? content;
 
-    final message = (choices.first as Map<String, dynamic>)['message']
-        as Map<String, dynamic>?;
-    final content = message?['content'] as String?;
-    if (content == null || content.isEmpty) {
-      return _buildFromVisionFields(rawResponse, frame);
-    }
-
-    // Strip markdown code fences.
-    var jsonStr = content.trim();
-    final fenceMatch =
-        RegExp(r'```(?:json)?\s*\n?([\s\S]*?)\n?```').firstMatch(jsonStr);
-    if (fenceMatch != null) {
-      jsonStr = fenceMatch.group(1)?.trim() ?? jsonStr;
-    }
-
-    final parsed = jsonDecode(jsonStr) as Map<String, dynamic>;
-
-    // Build text items.
-    final textItems = <ScreenTextItem>[];
-    final textList = parsed['text_items'] as List<dynamic>?;
-    if (textList != null) {
-      for (final t in textList) {
-        try {
-          final map = t as Map<String, dynamic>;
-          textItems.add(ScreenTextItem(
-            text: map['text'] as String? ?? '',
-            textType: _parseTextType(map['text_type'] as String?),
-            boundingBox: _parseBBox(map['bounding_box'] as Map<String, dynamic>?),
-            confidence: (map['confidence'] as num?)?.toDouble() ?? 0.8,
-            language: map['language'] as String?,
-          ));
-        } catch (_) {
-          // Skip malformed text items.
+        final choices = rawResponse['choices'];
+        if (choices is List && choices.isNotEmpty) {
+          final first = choices.first;
+          if (first is Map<String, dynamic>) {
+            final message = first['message'];
+            if (message is Map<String, dynamic>) {
+              final value = message['content'];
+              if (value is String && value.trim().isNotEmpty) {
+                content = value;
+              }
+            }
+          }
         }
+
+        if (content == null) {
+          final candidates = rawResponse['candidates'];
+          if (candidates is List && candidates.isNotEmpty) {
+            final first = candidates.first;
+            if (first is Map<String, dynamic>) {
+              final candidateContent = first['content'];
+              if (candidateContent is Map<String, dynamic>) {
+                final parts = candidateContent['parts'];
+                if (parts is List) {
+                  final buffer = StringBuffer();
+
+                  for (final part in parts) {
+                    if (part is Map<String, dynamic>) {
+                      final value = part['text'];
+                      if (value is String && value.isNotEmpty) {
+                        buffer.write(value);
+                      }
+                    }
+                  }
+
+                  final combined = buffer.toString().trim();
+                  if (combined.isNotEmpty) {
+                    content = combined;
+                  }
+                }
+              }
+            }
+          }
+        }
+
+        if (content == null || content!.trim().isEmpty) {
+          return _buildFromVisionFields(rawResponse, frame);
+        }
+
+        var jsonStr = content!.trim();
+
+        final fenceMatch = RegExp(
+          r'```(?:json)?\s*\n?([\s\S]*?)\n?```',
+        ).firstMatch(jsonStr);
+
+        if (fenceMatch != null) {
+          jsonStr = fenceMatch.group(1)?.trim() ?? jsonStr;
+        }
+
+        final decoded = jsonDecode(jsonStr);
+
+        if (decoded is! Map<String, dynamic>) {
+          return _buildFromVisionFields(rawResponse, frame);
+        }
+
+        final parsed = decoded;
+
+        final textItems = <ScreenTextItem>[];
+        final textList = parsed['text_items'];
+
+        if (textList is List) {
+          for (final item in textList) {
+            try {
+              if (item is! Map<String, dynamic>) continue;
+
+              textItems.add(
+                ScreenTextItem(
+                  text: item['text'] is String
+                      ? item['text'] as String
+                      : '',
+                  textType: _parseTextType(
+                    item['text_type'] is String
+                        ? item['text_type'] as String
+                        : null,
+                  ),
+                  boundingBox: _parseBBox(
+                    item['bounding_box'] is Map<String, dynamic>
+                        ? item['bounding_box'] as Map<String, dynamic>
+                        : null,
+                  ),
+                  confidence: _safeConfidence(
+                    item['confidence'],
+                    0.8,
+                  ),
+                  language: item['language'] is String
+                      ? item['language'] as String
+                      : null,
+                ),
+              );
+            } catch (_) {}
+          }
+        }
+
+        final uiElements = <UIElement>[];
+        final uiList = parsed['ui_elements'];
+
+        if (uiList is List) {
+          for (final item in uiList) {
+            try {
+              if (item is! Map<String, dynamic>) continue;
+
+              uiElements.add(
+                UIElement(
+                  type: _parseUIElementType(
+                    item['type'] is String
+                        ? item['type'] as String
+                        : null,
+                  ),
+                  label: item['label'] is String
+                      ? item['label'] as String
+                      : null,
+                  boundingBox: _parseBBox(
+                    item['bounding_box'] is Map<String, dynamic>
+                        ? item['bounding_box'] as Map<String, dynamic>
+                        : null,
+                  ),
+                  confidence: _safeConfidence(
+                    item['confidence'],
+                    0.8,
+                  ),
+                  isEnabled: item['is_enabled'] is bool
+                      ? item['is_enabled'] as bool
+                      : true,
+                  isSelected: item['is_selected'] is bool
+                      ? item['is_selected'] as bool
+                      : false,
+                ),
+              );
+            } catch (_) {}
+          }
+        }
+
+        final regions = <ScreenRegion>[];
+        final regionList = parsed['regions'];
+
+        if (regionList is List) {
+          for (final item in regionList) {
+            try {
+              if (item is! Map<String, dynamic>) continue;
+
+              regions.add(
+                ScreenRegion(
+                  type: _parseRegionType(
+                    item['type'] is String
+                        ? item['type'] as String
+                        : null,
+                  ),
+                  boundingBox: _parseBBox(
+                    item['bounding_box'] is Map<String, dynamic>
+                        ? item['bounding_box'] as Map<String, dynamic>
+                        : null,
+                  ),
+                  confidence: _safeConfidence(
+                    item['confidence'],
+                    0.8,
+                  ),
+                ),
+              );
+            } catch (_) {}
+          }
+        }
+
+        final metaMap = parsed['metadata'] is Map<String, dynamic>
+            ? parsed['metadata'] as Map<String, dynamic>
+            : null;
+
+        final metadata = ScreenMetadata(
+          timestamp: frame.timestamp,
+          width: frame.width,
+          height: frame.height,
+          rotation: frame.rotation,
+          appName: metaMap?['app_name'] is String
+              ? metaMap?['app_name'] as String
+              : null,
+          appPackage: metaMap?['app_package'] is String
+              ? metaMap?['app_package'] as String
+              : null,
+          overallConfidence: _safeConfidence(
+            metaMap?['overall_confidence'],
+            0.8,
+          ),
+          modelUsed: visionResult.modelUsed,
+          processingTimeMs: visionResult.processingTimeMs,
+        );
+
+        return Result.success(
+          ScreenRepresentation(
+            metadata: metadata,
+            textItems: textItems,
+            uiElements: uiElements,
+            regions: regions,
+          ),
+        );
+      } catch (_) {
+        return _buildFromVisionFields(rawResponse, frame);
       }
     }
 
-    // Build UI elements.
-    final uiElements = <UIElement>[];
-    final uiList = parsed['ui_elements'] as List<dynamic>?;
-    if (uiList != null) {
-      for (final u in uiList) {
-        try {
-          final map = u as Map<String, dynamic>;
-          uiElements.add(UIElement(
-            type: _parseUIElementType(map['type'] as String?),
-            label: map['label'] as String?,
-            boundingBox: _parseBBox(map['bounding_box'] as Map<String, dynamic>?),
-            confidence: (map['confidence'] as num?)?.toDouble() ?? 0.8,
-            isEnabled: map['is_enabled'] as bool? ?? true,
-            isSelected: map['is_selected'] as bool? ?? false,
-          ));
-        } catch (_) {
-          // Skip malformed UI elements.
-        }
+    double _safeConfidence(dynamic value, double fallback) {
+      if (value is! num) return fallback;
+
+      final result = value.toDouble();
+
+      if (!result.isFinite || result < 0.0 || result > 1.0) {
+        return fallback;
       }
+
+      return result;
     }
 
-    // Build regions.
-    final regions = <ScreenRegion>[];
-    final regionList = parsed['regions'] as List<dynamic>?;
-    if (regionList != null) {
-      for (final r in regionList) {
-        try {
-          final map = r as Map<String, dynamic>;
-          regions.add(ScreenRegion(
-            type: _parseRegionType(map['type'] as String?),
-            boundingBox: _parseBBox(map['bounding_box'] as Map<String, dynamic>?),
-            confidence: (map['confidence'] as num?)?.toDouble() ?? 0.8,
-          ));
-        } catch (_) {
-          // Skip malformed regions.
-        }
-      }
+    double? _finiteDouble(dynamic value) {
+      if (value is! num) return null;
+
+      final result = value.toDouble();
+
+      return result.isFinite ? result : null;
     }
 
-    // Build metadata.
-    final metaMap = parsed['metadata'] as Map<String, dynamic>?;
-    final metadata = ScreenMetadata(
-      timestamp: frame.timestamp,
-      width: frame.width,
-      height: frame.height,
-      rotation: frame.rotation,
-      appName: metaMap?['app_name'] as String?,
-      appPackage: metaMap?['app_package'] as String?,
-      overallConfidence: (metaMap?['overall_confidence'] as num?)?.toDouble() ?? 0.8,
-      modelUsed: visionResult.modelUsed,
-      processingTimeMs: visionResult.processingTimeMs,
-    );
+    TextBoundingBox _parseBBox(Map<String, dynamic>? map) {
+      if (map == null) {
+        return const TextBoundingBox(
+          x: 0,
+          y: 0,
+          width: 1,
+          height: 1,
+        );
+      }
 
-    final representation = ScreenRepresentation(
-      metadata: metadata,
-      textItems: textItems,
-      uiElements: uiElements,
-      regions: regions,
-    );
+      final x = _finiteDouble(map['x']);
+      final y = _finiteDouble(map['y']);
+      final width = _finiteDouble(map['width']);
+      final height = _finiteDouble(map['height']);
 
-    return Result.success(representation);
-  }
+      if (x == null ||
+          y == null ||
+          width == null ||
+          height == null ||
+          x < 0 ||
+          y < 0 ||
+          width <= 0 ||
+          height <= 0 ||
+          x > 1 ||
+          y > 1 ||
+          width > 1 ||
+          height > 1 ||
+          x + width > 1 ||
+          y + height > 1) {
+        return const TextBoundingBox(
+          x: 0,
+          y: 0,
+          width: 1,
+          height: 1,
+        );
+      }
+
+      return TextBoundingBox(
+        x: x,
+        y: y,
+        width: width,
+        height: height,
+      );
+    }
+
 
   /// Fallback: build a ScreenRepresentation from VisionResult's own fields
   /// when the structured JSON is not available.
@@ -656,18 +826,6 @@ class ScreenUnderstandingEngine implements ScreenUnderstandingService {
     return parts.first + parts.skip(1).map((p) => p[0].toUpperCase() + p.substring(1)).join();
   }
 
-  /// Parse a bounding box map into [TextBoundingBox].
-  TextBoundingBox _parseBBox(Map<String, dynamic>? map) {
-    if (map == null) {
-      return const TextBoundingBox(x: 0, y: 0, width: 1, height: 1);
-    }
-    return TextBoundingBox(
-      x: (map['x'] as num?)?.toDouble() ?? 0.0,
-      y: (map['y'] as num?)?.toDouble() ?? 0.0,
-      width: (map['width'] as num?)?.toDouble() ?? 1.0,
-      height: (map['height'] as num?)?.toDouble() ?? 1.0,
-    );
-  }
 
   /// Compute a simple hash of the frame bytes for deduplication.
   int _computeFrameHash(CapturedFrame frame) {
