@@ -1,78 +1,169 @@
 /// Step 23 — Agent Engine Adapter
 ///
-/// Thin adapter bridging Step 23 AgentEngineRepository to existing Step 16 AgentEngine.
-/// Does NOT duplicate AgentEngine functionality — only translates interfaces.
-/// If the actual AgentEngine API differs, this adapter normalizes it.
+/// Bridges the Step 23 AgentEngineRepository contract to the canonical
+/// Step 16 AgentEngine.
 ///
-/// ── CLASSIFICATION: CLASS C (BLOCKED — API SHAPE MISMATCH) ──────────────
-/// The canonical Step 16 [AgentEngine] does NOT expose discrete
-/// `understand()` / `plan()` methods. Both are PRIVATE (`_understand`,
-/// `_planner.plan`) and are fused inside the single public entry point
-/// `AgentEngine.run({userInput, context})`, which drives the entire
-/// understand→plan→execute→verify lifecycle in one call and returns an
-/// `AgentResult` (not an `AgentIntent` / `AgentPlan`).
-///
-/// The orchestration `AgentEngineRepository` contract, by contrast, needs
-/// the understand and plan phases as SEPARATE, side-effect-free steps so
-/// the orchestrator can interleave its own memory / security / permission
-/// phases between them. There is currently no public seam on AgentEngine
-/// to obtain a standalone intent or plan without also executing the plan.
-///
-/// BLOCKED: wiring the real engine requires either (a) exposing
-/// `understand()` and `plan()` as public methods on AgentEngine, or
-/// (b) refactoring AgentPlanner into an independently-invokable service.
-/// Until then this adapter returns structurally-valid placeholder
-/// AgentIntent / AgentPlan objects (FAIL-CLOSED to null on any error),
-/// which keeps the orchestration graph complete and swappable.
-/// This adapter creates NO second planning engine.
-/// ───────────────────────────────────────────────────────────────────────
+/// IMPORTANT:
+/// - Uses the existing AgentEngine instance.
+/// - Does NOT call AgentEngine.run().
+/// - Does NOT create a second planning engine.
+/// - Exposes only the understand/plan seams needed by Step 23.
+/// - Converts between the lightweight Step 23 DTOs and canonical core models.
 
-import '../../domain/repositories/agent_engine_repository.dart';
+import '../../../../core/agent/agent_context.dart';
+import '../../../../core/agent/agent_engine.dart';
+import '../../../../core/agent/agent_intent.dart' as core;
+import '../../../../core/agent/agent_plan.dart' as core;
+import '../../../../domain/entities/agent_config.dart';
 
-class AgentEngineAdapter implements AgentEngineRepository {
+import '../../domain/repositories/agent_engine_repository.dart'
+    as orchestration;
+
+class AgentEngineAdapter implements orchestration.AgentEngineRepository {
+  final AgentEngine _agentEngine;
+
+  AgentEngineAdapter({
+    required AgentEngine agentEngine,
+  }) : _agentEngine = agentEngine;
+
   @override
-  Future<AgentIntent?> understand(String userRequest, String locale) async {
-    // Adapter: call Step 16 AgentEngine.understand() and normalize result.
-    // In production, this calls the real AgentEngine.
-    // For structural validation: returns null on any failure (FAIL-CLOSED).
+  Future<orchestration.AgentIntent?> understand(
+    String userRequest,
+    String locale,
+  ) async {
     try {
-      // BLOCKED: AgentEngine exposes no public understand() seam (only the
-      // private _understand inside run()). Returning a structural intent.
-      // TODO: Wire to actual Step 16 AgentEngine.understand()
-      // AgentIntent is constructed from the Step 16 result
-      return AgentIntent(
-        intentId: 'intent_${DateTime.now().millisecondsSinceEpoch}',
+      final context = AgentContext(
+        agentConfig: AgentConfig.defaultConfig,
+        conversationHistory: [
+          {
+            'role': 'user',
+            'content': userRequest,
+          },
+        ],
+        maxSteps: 10,
+        timeoutSeconds: 120,
+        currentGoal: userRequest,
+      );
+
+      final intent = await _agentEngine.understandForOrchestration(
+        userInput: userRequest,
+        context: context,
+      );
+
+      return orchestration.AgentIntent(
+        intentId: 'intent_${DateTime.now().microsecondsSinceEpoch}',
         rawText: userRequest,
-        normalizedText: userRequest,
+        normalizedText: intent.goal,
         locale: locale,
+        isToolAction: intent.actionType.requiresTools,
+        isScreenAction: _isScreenAction(intent),
+        isDirectResponse:
+            intent.actionType == core.IntentActionType.conversation,
       );
     } catch (_) {
-      return null; // FAIL-CLOSED
+      return null;
     }
   }
 
   @override
-  Future<AgentPlan?> plan(AgentIntent intent, String? memoryContext) async {
+  Future<orchestration.AgentPlan?> plan(
+    orchestration.AgentIntent intent,
+    String? memoryContext,
+  ) async {
     try {
-      // BLOCKED: AgentEngine exposes no public plan() seam (planning is
-      // fused into run() via the private AgentPlanner). Structural plan only.
-      // TODO: Wire to actual Step 16 AgentEngine.plan()
-      return AgentPlan(
-        planId: 'plan_${DateTime.now().millisecondsSinceEpoch}',
+      final coreIntent = core.AgentIntent(
+        goal: intent.normalizedText.isNotEmpty
+            ? intent.normalizedText
+            : intent.rawText,
+        actionType: _toCoreActionType(intent),
+        originalUtterance: intent.rawText,
+        confidence: intent.isDirectResponse ? 1.0 : 0.8,
+      );
+
+      final context = AgentContext(
+        agentConfig: AgentConfig.defaultConfig,
+        conversationHistory: [
+          {
+            'role': 'user',
+            'content': intent.rawText,
+          },
+        ],
+        maxSteps: 10,
+        timeoutSeconds: 120,
+        currentGoal: coreIntent.goal,
+        intent: coreIntent,
+        relevantMemory: memoryContext == null || memoryContext.isEmpty
+            ? const []
+            : [memoryContext],
+      );
+
+      final plan = await _agentEngine.planForOrchestration(
+        userInput: intent.rawText,
+        context: context,
+      );
+
+      return orchestration.AgentPlan(
+        planId: plan.planId,
         intentId: intent.intentId,
-        needsMemory: memoryContext == null,
-        needsTool: intent.isToolAction,
+        needsMemory: memoryContext != null && memoryContext.isNotEmpty,
+        needsTool: intent.isToolAction && !plan.isEmpty,
         needsScreenAction: intent.isScreenAction,
         isDirectResponse: intent.isDirectResponse,
+        suggestedResponse: plan.reasoning,
       );
     } catch (_) {
-      return null; // FAIL-CLOSED
+      return null;
     }
   }
 
   @override
-  bool requiresTool(AgentPlan plan) => plan.needsTool;
+  bool requiresTool(orchestration.AgentPlan plan) {
+    return plan.needsTool;
+  }
 
   @override
-  bool requiresScreenAction(AgentPlan plan) => plan.needsScreenAction;
+  bool requiresScreenAction(orchestration.AgentPlan plan) {
+    return plan.needsScreenAction;
+  }
+
+  core.IntentActionType _toCoreActionType(
+    orchestration.AgentIntent intent,
+  ) {
+    if (intent.isDirectResponse) {
+      return core.IntentActionType.conversation;
+    }
+
+    if (intent.isScreenAction) {
+      return core.IntentActionType.control;
+    }
+
+    if (intent.isToolAction) {
+      return core.IntentActionType.action;
+    }
+
+    return core.IntentActionType.conversation;
+  }
+
+  bool _isScreenAction(core.AgentIntent intent) {
+    final text = [
+      intent.goal,
+      intent.expectedOutcome ?? '',
+      ...intent.toolRequirements,
+    ].join(' ').toLowerCase();
+
+    const screenKeywords = <String>[
+      'screen',
+      'tap',
+      'click',
+      'swipe',
+      'gesture',
+      'شاشە',
+      'کلیک',
+      'کرتە',
+      'سکرین',
+      'دەستکاری',
+    ];
+
+    return screenKeywords.any(text.contains);
+  }
 }

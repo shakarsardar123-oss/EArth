@@ -27,10 +27,6 @@ class TriggerPlatformService {
     _setupMethodCallHandler();
   }
 
-  /// Method call handler for Android → Flutter calls.
-  /// Processes incoming trigger events from the platform side.
-  late MethodChannel _methodChannel;
-
   void _setupMethodCallHandler() {
     _channel.setMethodCallHandler((call) async {
       switch (call.method) {
@@ -146,6 +142,62 @@ class TriggerPlatformService {
   }
 
   /// Check if the Flutter engine is available on the platform side.
+  /// Recovers Android ACTION_ASSIST requests that arrived before
+  /// the Flutter MethodChannel handler was ready.
+  ///
+  /// Native Android stores these requests in a small in-memory queue.
+  /// Retrieval is destructive: successfully retrieved requests are removed
+  /// from the native queue so they cannot execute twice.
+  Future<void> recoverPendingTriggers() async {
+    try {
+      final raw = await _channel.invokeMethod<List<dynamic>>(
+        'getPendingTriggers',
+      );
+
+      if (raw == null || raw.isEmpty) return;
+
+      for (final item in raw) {
+        if (item is! Map) continue;
+
+        final args = Map<String, dynamic>.from(item);
+
+        final requestId =
+            args[TriggerMethodChannelConstants.argRequestId] as String? ??
+                _generateRequestId();
+
+        final textPayload =
+            args[TriggerMethodChannelConstants.argTextPayload] as String?;
+
+        final isVoiceInput =
+            args[TriggerMethodChannelConstants.argIsVoiceInput] as bool? ??
+                false;
+
+        final locale =
+            args[TriggerMethodChannelConstants.argLocale] as String? ?? 'ku';
+
+        final metadataRaw =
+            args[TriggerMethodChannelConstants.argMetadata] as Map? ?? {};
+
+        _pendingRequests[requestId] = TriggerRequest(
+          requestId: requestId,
+          triggerType: TriggerType.assistantLongPress,
+          source: 'platform',
+          timestamp: DateTime.now(),
+          textPayload: textPayload,
+          isVoiceInput: isVoiceInput,
+          metadata: Map<String, dynamic>.from(metadataRaw),
+          locale: locale,
+        );
+      }
+    } on PlatformException {
+      // Fail closed: no synthetic trigger is created.
+    } on MissingPluginException {
+      // Flutter/native channel may not exist on unsupported platforms.
+    } catch (_) {
+      // Fail closed.
+    }
+  }
+
   Future<bool> checkEngineAvailability() async {
     try {
       final result = await _channel.invokeMethod<bool>(
@@ -194,6 +246,15 @@ class TriggerPlatformService {
   /// Generate a unique request ID.
   String _generateRequestId() {
     return 'trg_${DateTime.now().millisecondsSinceEpoch}';
+  }
+
+  /// Dispose the platform channel handler.
+  ///
+  /// Detaches the Android → Flutter callback and clears pending requests.
+  void dispose() {
+    _channel.setMethodCallHandler(null);
+    _pendingRequests.clear();
+    _engineAvailable = false;
   }
 
   /// Whether the engine was last known to be available.

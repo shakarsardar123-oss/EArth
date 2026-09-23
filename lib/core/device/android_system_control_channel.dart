@@ -24,6 +24,7 @@ abstract class SystemControlMethods {
   static const String optimizeResources = 'optimizeResources';
   static const String isAccessibilityServiceEnabled =
       'isAccessibilityServiceEnabled';
+  static const String getScreenSize = 'getScreenSize';
   static const String dispatchGesture = 'dispatchGesture';
   static const String openSettingsPanel = 'openSettingsPanel';
 }
@@ -59,6 +60,10 @@ class AndroidSystemControlChannel implements SystemControlChannel {
   @override
   Future<DeviceChannelResult> isAccessibilityServiceEnabled() =>
       _invoke(SystemControlMethods.isAccessibilityServiceEnabled);
+
+  @override
+  Future<DeviceChannelResult> getScreenSize() =>
+      _invoke(SystemControlMethods.getScreenSize);
 
   @override
   Future<DeviceChannelResult> dispatchGesture({

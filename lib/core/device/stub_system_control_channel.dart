@@ -47,6 +47,13 @@ class StubSystemControlChannel implements SystemControlChannel {
       _unsupported('isAccessibilityServiceEnabled');
 
   @override
+  Future<DeviceChannelResult> getScreenSize() async =>
+      const DeviceChannelResult.failure(
+        'Screen size is not supported on this platform',
+        errorCode: 'platformUnsupported',
+      );
+
+  @override
   Future<DeviceChannelResult> dispatchGesture({
     required String gesture,
     required double x,

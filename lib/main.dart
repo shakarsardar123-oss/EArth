@@ -106,10 +106,14 @@ class _AuraAppState extends ConsumerState<AuraApp>
     super.initState();
     WidgetsBinding.instance.addObserver(this);
     _globalRef = ref;
+
+    // Start the Step 24 platform-trigger runtime consumer.
+    ref.read(triggerRuntimeServiceProvider).start();
   }
 
   @override
   void dispose() {
+    ref.read(triggerRuntimeServiceProvider).stop();
     WidgetsBinding.instance.removeObserver(this);
     _globalRef = null;
     super.dispose();

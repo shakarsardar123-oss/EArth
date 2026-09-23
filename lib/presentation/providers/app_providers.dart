@@ -117,6 +117,15 @@ import '../../features/orchestration/application/orchestrator/agent_orchestrator
     show AgentOrchestrator;
 import '../../features/orchestration/application/usecases/orchestration_use_case.dart'
     show OrchestrationUseCase;
+import '../../features/trigger_integration/application/controller/trigger_controller.dart';
+import '../../features/trigger_integration/application/providers/trigger_providers.dart';
+import '../../features/trigger_integration/domain/repositories/trigger_authorization_repository.dart'
+    as trigger_auth;
+import '../../features/trigger_integration/infrastructure/adapters/security_bridge_adapter.dart';
+import '../../features/trigger_integration/infrastructure/adapters/trigger_orchestration_adapter.dart';
+import '../../features/trigger_integration/infrastructure/platform/trigger_platform_service.dart';
+import '../../features/trigger_integration/infrastructure/platform/trigger_runtime_service.dart';
+
 
 // ─── Phase 1+2 Providers ────────────────────────────────────────────
 
@@ -511,11 +520,15 @@ final orchestrationLocalizationProvider =
 
 // ── Repository-interface providers (concrete adapters hidden behind them) ──
 
-/// AgentEngineRepository — Class C (understand/plan currently return
-/// structural placeholders; see AURA_PHASE2 report). Wired so the graph
-/// is complete and can be swapped for the real Step 16 engine later.
+/// AgentEngineRepository — wired to the canonical Step 16 AgentEngine.
+/// The adapter exposes the existing understand/plan seams without
+/// executing AgentEngine.run() or creating a second engine.
 final orchestrationAgentEngineRepositoryProvider =
-    Provider<AgentEngineRepository>((ref) => orch.AgentEngineAdapter());
+    Provider<AgentEngineRepository>(
+  (ref) => orch.AgentEngineAdapter(
+    agentEngine: ref.watch(agentEngineProvider),
+  ),
+);
 
 /// MemoryRepository — reuses the Phase 1 [memoryContextProvider].
 final orchestrationMemoryRepositoryProvider =
@@ -600,4 +613,80 @@ final orchestrationUseCaseProvider = Provider<OrchestrationUseCase>((ref) {
   return factory.createUseCase(
     orchestrator: ref.watch(agentOrchestratorProvider),
   );
+});
+
+// ═════════════════════════════════════════════════════════════════════
+// Trigger Integration (Step 24) — runtime wiring
+// ═════════════════════════════════════════════════════════════════════
+//
+// Runtime chain:
+//
+// TriggerPlatformService
+//        ↓
+// TriggerRuntimeService
+//        ↓
+// TriggerController
+//        ↓
+// TriggerRouter
+//        ↓
+// TriggerOrchestrationAdapter
+//        ↓
+// OrchestrationUseCase
+//        ↓
+// AgentOrchestrator
+//        ↓
+// canonical AgentEngine
+//
+// The platform service remains transport-only. The runtime service is
+// responsible for consuming pending Android → Flutter trigger requests.
+
+/// Step 24 Trigger authorization repository.
+///
+/// SecurityBridgeAdapter is currently the fail-closed authorization
+/// boundary for Trigger Integration. Its internal security integration
+/// will be upgraded separately to use the canonical security services.
+final triggerAuthorizationRepositoryProvider =
+    Provider<trigger_auth.TriggerAuthorizationRepository>((ref) {
+  return SecurityBridgeAdapter();
+});
+
+/// Real Step 24 orchestration bridge.
+final triggerOrchestrationAdapterProvider =
+    Provider<TriggerOrchestrationAdapter>((ref) {
+  return TriggerOrchestrationAdapter(
+    orchestrationUseCase: ref.watch(orchestrationUseCaseProvider),
+  );
+});
+
+/// Real Step 24 TriggerController composed from the authorization and
+/// orchestration layers.
+final triggerControllerProvider = Provider<TriggerController>((ref) {
+  return TriggerProviders.createController(
+    authorizationRepository:
+        ref.watch(triggerAuthorizationRepositoryProvider),
+    orchestrationAdapter:
+        ref.watch(triggerOrchestrationAdapterProvider),
+    defaultLocale: 'ku',
+  );
+});
+
+/// Dedicated Android ↔ Flutter trigger transport.
+final triggerPlatformServiceProvider =
+    Provider<TriggerPlatformService>((ref) {
+  final service = TriggerPlatformService();
+  ref.onDispose(service.dispose);
+  return service;
+});
+
+/// Runtime consumer that drains platform pending requests and sends
+/// them through the real TriggerController.
+final triggerRuntimeServiceProvider =
+    Provider<TriggerRuntimeService>((ref) {
+  final service = TriggerRuntimeService(
+    platform: ref.watch(triggerPlatformServiceProvider),
+    controller: ref.watch(triggerControllerProvider),
+  );
+
+  ref.onDispose(service.dispose);
+  return service;
 });

@@ -96,6 +96,12 @@ abstract class SystemControlChannel {
   /// Success keys: `enabled` (bool).
   Future<DeviceChannelResult> isAccessibilityServiceEnabled();
 
+  /// Returns the physical display dimensions used for accessibility
+  /// gesture coordinates.
+  ///
+  /// Success keys: `width` (int), `height` (int).
+  Future<DeviceChannelResult> getScreenSize();
+
   /// Dispatches a screen gesture through the AccessibilityService.
   ///
   /// [gesture] is one of `tap`, `long_press`, `swipe`. Coordinates are in

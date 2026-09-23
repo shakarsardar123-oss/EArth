@@ -38,6 +38,16 @@ import io.flutter.plugin.common.MethodCall
  * P3 FIX: ASSIST intent filter data is captured and forwarded to Flutter.
  */
 class MainActivity : FlutterActivity() {
+    private companion object {
+        const val TRIGGER_CHANNEL = "com.aura.assistant/trigger_integration"
+        const val TRIGGER_ASSISTANT_LONG_PRESS = "assistantLongPressTrigger"
+        const val TRIGGER_GET_PENDING = "getPendingTriggers"
+    }
+
+    // Native queue prevents ACTION_ASSIST from being lost during cold start,
+    // before the Flutter-side MethodChannel handler is ready.
+    private val pendingAssistTriggers = mutableListOf<Map<String, Any?>>()
+
 
     // ─── Channel names (must match Flutter side exactly) ──────────
     private val centralPermChannel   = "com.aura.assistant/central_permissions"
@@ -55,7 +65,32 @@ class MainActivity : FlutterActivity() {
     override fun configureFlutterEngine(@NonNull flutterEngine: FlutterEngine) {
         super.configureFlutterEngine(flutterEngine)
 
+        // ACTION_ASSIST is queued natively first.
+        // Flutter retrieves it after its MethodChannel handler is ready.
+
         // Central permissions channel
+        MethodChannel(
+            flutterEngine.dartExecutor.binaryMessenger,
+            TRIGGER_CHANNEL
+        ).setMethodCallHandler { call, result ->
+            when (call.method) {
+                "updateTileState" -> result.success(null)
+                "isEngineAvailable" -> result.success(true)
+                "triggerProcessingComplete" -> result.success(true)
+
+                TRIGGER_GET_PENDING -> {
+                    val pending = synchronized(pendingAssistTriggers) {
+                        val copy = pendingAssistTriggers.toList()
+                        pendingAssistTriggers.clear()
+                        copy
+                    }
+                    result.success(pending)
+                }
+
+                else -> result.notImplemented()
+            }
+        }
+
         MethodChannel(flutterEngine.dartExecutor.binaryMessenger, centralPermChannel)
             .setMethodCallHandler(::handleCentralPermissions)
 
@@ -83,6 +118,43 @@ class MainActivity : FlutterActivity() {
         // Floating overlay channel (own file — see FloatingAuraBridge.kt).
         FloatingAuraBridge.attach(this, flutterEngine)
     }
+
+    override fun onNewIntent(intent: Intent?) {
+        super.onNewIntent(intent)
+
+        if (intent == null) return
+
+        setIntent(intent)
+        forwardAssistIntentToTrigger(intent)
+    }
+
+    private fun forwardAssistIntentToTrigger(intent: Intent) {
+        if (intent.action != Intent.ACTION_ASSIST) return
+
+        val requestId = "android_assist_${System.currentTimeMillis()}"
+
+        val args: Map<String, Any?> = mapOf(
+            "requestId" to requestId,
+            "textPayload" to null,
+            "isVoiceInput" to false,
+            "locale" to "ku",
+            "metadata" to mapOf(
+                "source" to "android_action_assist",
+                "callingPackage" to intent.getStringExtra(Intent.EXTRA_ASSIST_PACKAGE),
+                "assistUri" to (
+                    intent.getParcelableExtra<Uri>("android.intent.extra.ASSIST_URI")?.toString()
+                        ?: intent.getStringExtra("android.intent.extra.ASSIST_URI")
+                )
+            )
+        )
+
+        // Always queue first. This makes cold-start and already-running
+        // launches use the same reliable delivery path.
+        synchronized(pendingAssistTriggers) {
+            pendingAssistTriggers.add(args)
+        }
+    }
+
 
     override fun onDestroy() {
         // Release native audio resources (Visualizer / AudioRecord / AEC).
@@ -343,10 +415,23 @@ class MainActivity : FlutterActivity() {
             "optimizeResources" -> handleOptimizeResources(result)
             "isAccessibilityServiceEnabled" ->
                 result.success(mapOf("enabled" to isAuraAccessibilityBound()))
+            "getScreenSize" -> handleGetScreenSize(result)
             "dispatchGesture" -> handleDispatchGesture(call, result)
             "openSettingsPanel" -> handleOpenSettingsPanel(call, result)
             else -> result.notImplemented()
         }
+    }
+
+    // ── Screen size ─────────────────────────────────────────────────
+
+    private fun handleGetScreenSize(result: MethodChannel.Result) {
+        val metrics = resources.displayMetrics
+        result.success(
+            mapOf(
+                "width" to metrics.widthPixels,
+                "height" to metrics.heightPixels
+            )
+        )
     }
 
     // ── Bluetooth ───────────────────────────────────────────────────

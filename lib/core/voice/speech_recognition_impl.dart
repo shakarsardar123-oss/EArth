@@ -37,7 +37,7 @@ class SpeechRecognitionServiceImpl {
     required void Function(String text) onResult,
     void Function(String text)? onPartial,
     void Function(double level)? onSoundLevel,
-    String? locale = 'ku',
+    String? locale = 'ckb_IQ',
   }) async {
     if (!_initialized) {
       await initialize();

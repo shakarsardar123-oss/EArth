@@ -200,6 +200,22 @@ class AgentEngine implements AgentProcessor {
         }
       }
 
+      // ── Fast path for clearly conversational messages ──
+      // Avoid an extra Gemini intent-classification request for obvious
+      // greetings and simple conversational phrases.
+      if (_isClearlyConversational(userInput)) {
+        _setState(AgentState.responding);
+        final directResponse = await _sendToAIDirectly(userInput, context);
+        stopwatch.stop();
+        _fireMemoryCapture(userInput, context);
+        return AgentResult.success(
+          response: directResponse,
+          stepsCompleted: 0,
+          toolsUsed: [],
+          executionTimeMs: stopwatch.elapsedMilliseconds,
+        );
+      }
+
       // ── Phase 1: Understand ──
       _setState(AgentState.understanding);
       final intent = await _understand(userInput, context);
@@ -505,6 +521,28 @@ class AgentEngine implements AgentProcessor {
     if (onMemoryCapture == null) return;
     // Fire-and-forget: no await, errors swallowed.
     onMemoryCapture!(userInput, context).catchError((_) {});
+  }
+
+  // ── Step 23 orchestration seams ──
+  // Expose the existing understand/planning logic without executing
+  // the full AgentEngine.run() lifecycle. Step 23 owns the gates and
+  // execution phases, so it must not call run() through the adapter.
+
+  Future<AgentIntent> understandForOrchestration({
+    required String userInput,
+    required AgentContext context,
+  }) {
+    return _understand(userInput, context);
+  }
+
+  Future<AgentPlan> planForOrchestration({
+    required String userInput,
+    required AgentContext context,
+  }) {
+    return _planner.plan(
+      userInput: userInput,
+      context: context,
+    );
   }
 
   // ── Understand Phase ──
@@ -926,6 +964,41 @@ class AgentEngine implements AgentProcessor {
         executionTimeMs: stopwatch.elapsedMilliseconds,
       );
     }
+  }
+
+  bool _isClearlyConversational(String input) {
+    final text = input.trim().toLowerCase();
+
+    if (text.isEmpty) return false;
+
+    const safePhrases = <String>[
+      'سڵاو',
+      'چۆنی',
+      'چۆنیت',
+      'باشیت',
+      'کێیت',
+      'تۆ کێیت',
+      'ناوت چییە',
+      'ناوت چیە',
+      'چی دەکەیت',
+      'چی دەکەی',
+      'سوپاس',
+      'دەستخۆش',
+      'ڕۆژ باش',
+      'شەو باش',
+      'hello',
+      'hi',
+      'thanks',
+      'thank you',
+    ];
+
+    for (final phrase in safePhrases) {
+      if (text == phrase || text.startsWith('$phrase ')) {
+        return true;
+      }
+    }
+
+    return false;
   }
 
   // ── Direct AI Response ──
