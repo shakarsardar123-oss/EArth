@@ -8,3 +8,4 @@ backups/
 *_pre_impl_*/
 *.before_*
 audit/
+android_pre_texo_package_backup/
