@@ -14,7 +14,7 @@ import 'package:permission_handler/permission_handler.dart' as ph;
 
 import '../errors/failures.dart';
 import '../errors/result.dart';
-import '../floating_aura/floating_texo_overlay_position.dart';
+import '../floating_aura/floating_aura_overlay_position.dart';
 import '../floating_aura/floating_aura_service.dart';
 import '../permissions/permission_service.dart';
 import '../screen_capture/screen_capture_service.dart';

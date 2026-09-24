@@ -1,0 +1,58 @@
+buildscript {
+    ext.kotlin_version = '2.3.21'
+    repositories {
+        google()
+        mavenCentral()
+    }
+    dependencies {
+        classpath 'com.android.tools.build:gradle:9.0.1'
+        classpath "org.jetbrains.kotlin:kotlin-gradle-plugin:$kotlin_version"
+    }
+}
+
+allprojects {
+    repositories {
+        google()
+        mavenCentral()
+    }
+}
+
+rootProject.buildDir = '../build'
+subprojects {
+    project.buildDir = "${rootProject.buildDir}/${project.name}"
+}
+subprojects {
+    project.evaluationDependsOn(':app')
+}
+
+tasks.register("clean", Delete) {
+    delete rootProject.buildDir
+}
+
+subprojects {
+    configurations.all {
+        resolutionStrategy {
+            force "org.jetbrains.kotlin:kotlin-stdlib:$kotlin_version"
+            force "org.jetbrains.kotlin:kotlin-stdlib-common:$kotlin_version"
+            force "org.jetbrains.kotlin:kotlin-stdlib-jdk7:$kotlin_version"
+            force "org.jetbrains.kotlin:kotlin-stdlib-jdk8:$kotlin_version"
+        }
+    }
+}
+
+// === یەکخستنی وەشانی Kotlin بۆ هەموو subprojectـەکان (چارەسەری AtomicsKt) ===
+allprojects {
+    buildscript {
+        configurations.classpath {
+            resolutionStrategy {
+                force "org.jetbrains.kotlin:kotlin-gradle-plugin:2.2.20"
+            }
+        }
+    }
+    configurations.all {
+        resolutionStrategy {
+            force "org.jetbrains.kotlin:kotlin-stdlib:2.2.20"
+            force "org.jetbrains.kotlin:kotlin-stdlib-common:2.2.20"
+        }
+    }
+}

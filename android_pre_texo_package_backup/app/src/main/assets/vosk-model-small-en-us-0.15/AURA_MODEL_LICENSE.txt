@@ -1,0 +1,31 @@
+AURA — Bundled Wake-Word / KWS Acoustic Model
+===============================================
+
+Model:    vosk-model-small-en-us-0.15
+Source:   https://alphacephei.com/vosk/models
+Provider: Alpha Cephei Inc.
+License:  Apache License 2.0  (redistributable)
+
+Why this model is bundled
+-------------------------
+AURA's PRIMARY wake word ("Hey AURA") uses genuine on-device ACOUSTIC
+keyword-spotting. The Vosk small English model is a Kaldi-based acoustic
+model that runs fully offline. AURA loads it with a *grammar-constrained*
+recognizer whose vocabulary is limited to the wake phrase plus an
+out-of-vocabulary token:
+
+    ["hey aura", "[unk]"]
+
+Because decoding is constrained to that tiny grammar, the recognizer behaves
+as an acoustic keyword spotter (mic PCM -> acoustic inference -> phrase
+confidence), NOT a free-form speech-to-text transcript search. Word-level
+confidences returned by the model gate every detection.
+
+Apache 2.0 permits redistribution of this model inside the app APK, provided
+this notice and the Apache 2.0 license text are retained. A full copy of the
+Apache 2.0 license is available at:
+
+    https://www.apache.org/licenses/LICENSE-2.0
+
+No model weights were modified. This directory is the model exactly as
+published by Alpha Cephei Inc.

@@ -30,7 +30,7 @@ import '../permissions/permission_provider.dart';
 import '../security/security_providers.dart';
 import 'floating_aura_service.dart';
 import 'floating_aura_state.dart';
-import 'floating_texo_overlay_position.dart';
+import 'floating_aura_overlay_position.dart';
 import 'floating_aura_method_channel.dart';
 import 'floating_aura_stub_channel.dart';
 

@@ -8,7 +8,7 @@ library;
 
 import 'package:meta/meta.dart' show immutable;
 
-import 'floating_texo_overlay_position.dart';
+import 'floating_aura_overlay_position.dart';
 
 /// Lifecycle states of the floating overlay.
 enum FloatingAuraOverlayStatus {

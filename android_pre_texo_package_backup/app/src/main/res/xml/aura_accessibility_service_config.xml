@@ -1,0 +1,20 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!--
+  AURA AccessibilityService configuration — Phase 6.
+
+  Scoped to the MINIMUM needed for gesture dispatch:
+    * canPerformGestures="true"  → enables dispatchGesture().
+    * No feedback flags requesting content observation.
+    * accessibilityEventTypes is empty (typeAllMask not requested) so the
+      service does not passively receive UI content events.
+
+  The description string explains, in Kurdish Sorani + English, why AURA
+  needs this service (to perform screen gestures on the user's behalf).
+-->
+<accessibility-service xmlns:android="http://schemas.android.com/apk/res/android"
+    android:accessibilityFeedbackType="feedbackGeneric"
+    android:canPerformGestures="true"
+    android:canRetrieveWindowContent="true"
+    android:accessibilityFlags="flagDefault"
+    android:notificationTimeout="100"
+    android:description="@string/aura_accessibility_description" />
