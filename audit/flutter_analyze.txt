@@ -1,0 +1,4 @@
+No command flutter found, did you mean:
+ Command cluster in package graphviz
+ Command mutter in package mutter from the x11-repo repository
+ Command cluttex in package texlive-bin

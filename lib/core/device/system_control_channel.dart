@@ -121,6 +121,22 @@ abstract class SystemControlChannel {
     int durationMs = 150,
   });
 
+  /// Verifies a detected screen target against Android's Accessibility tree.
+  ///
+  /// Success keys:
+  /// `matched` (bool), optional `confidence` (double), optional `bounds`,
+  /// `nodeType`, `clickable`, and `enabled`.
+  ///
+  /// FAIL-CLOSED: a missing/ambiguous target must return `matched: false`.
+  Future<DeviceChannelResult> verifyScreenTarget({
+    String? label,
+    String? type,
+    required double x,
+    required double y,
+    required double width,
+    required double height,
+  });
+
   // ── Settings panels ──────────────────────────────────────────────
 
   /// Opens a system settings panel (`internet`, `wifi`, `bluetooth`,

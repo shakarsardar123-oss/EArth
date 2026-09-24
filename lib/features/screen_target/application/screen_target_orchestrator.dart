@@ -38,10 +38,74 @@ class ScreenTargetOrchestrator {
     required String screenId,
     bool verifyTargets = true,
   }) async {
-    if (!_visionRepository.isAvailable) return DetectionVerdict.denied;
-    if (!_visionRepository.hasPermission) return DetectionVerdict.denied;
-    if (!_detectionService.isAvailable) return DetectionVerdict.denied;
-    if (!_detectionService.hasPermission) return DetectionVerdict.denied;
+    if (screenId.trim().isEmpty) {
+      return DetectionVerdict.unknown;
+    }
+
+    if (!_visionRepository.isAvailable) {
+      return DetectionVerdict.deniedUnavailable;
+    }
+
+    if (!_visionRepository.hasPermission) {
+      return DetectionVerdict.deniedPermission;
+    }
+
+    if (!_detectionService.isAvailable) {
+      return DetectionVerdict.deniedUnavailable;
+    }
+
+    if (!_detectionService.hasPermission) {
+      return DetectionVerdict.deniedPermission;
+    }
+
+    final captureResult = await _visionRepository.captureScreen(screenId);
+
+    switch (captureResult) {
+      case VisionResult.success:
+        break;
+      case VisionResult.deniedPermission:
+        return DetectionVerdict.deniedPermission;
+      case VisionResult.unavailable:
+        return DetectionVerdict.deniedUnavailable;
+      case VisionResult.denied:
+      case VisionResult.error:
+      case VisionResult.unknown:
+        return DetectionVerdict.denied;
+    }
+
+    var detectionResult =
+        await _visionRepository.analyzeScreen(screenId);
+
+    if (!detectionResult.isUsable) {
+      _detectionService.updateResult(detectionResult);
+      return DetectionVerdict.deniedUnavailable;
+    }
+
+    if (verifyTargets) {
+      final verifiedTargets = <ScreenTarget>[];
+
+      // Sequential verification is intentional:
+      // it avoids flooding the Accessibility tree/channel and keeps
+      // verification deterministic and fail-closed.
+      for (final target in detectionResult.targets) {
+        final verifiedTarget =
+            await _visionRepository.verifyTarget(target);
+        verifiedTargets.add(verifiedTarget);
+      }
+
+      detectionResult = DetectionResult(
+        resultId: detectionResult.resultId,
+        screenId: detectionResult.screenId,
+        status: detectionResult.status,
+        targets: List<ScreenTarget>.unmodifiable(verifiedTargets),
+        scanDurationMs: detectionResult.scanDurationMs,
+        scannedAt: detectionResult.scannedAt,
+        locale: detectionResult.locale,
+      );
+    }
+
+    _detectionService.updateResult(detectionResult);
+
     return _detectionService.scanScreen(
       screenId: screenId,
       verifyTargets: verifyTargets,
@@ -75,11 +139,94 @@ class ScreenTargetOrchestrator {
   /// Execute a correction action.
   /// FAIL-CLOSED: safety check fails → deny.
   Future<CorrectionAction> executeAction(CorrectionAction action) async {
+    // FAIL-CLOSED: safety must pass before any native actuation.
     final safetyVerdict = _correctionService.checkSafety(action);
     if (safetyVerdict.isDenied) {
-      return CorrectionAction.denied;
+      return CorrectionAction.denied(
+        actionId: action.actionId,
+        target: action.target,
+        reason: safetyVerdict.name,
+      );
     }
-    return _correctionService.executeAction(action);
+
+    // FAIL-CLOSED: only verified/actionable targets may reach the
+    // native screen-action repository.
+    if (!_correctionService.isTargetVerified(action.target) ||
+        !action.targetVerified ||
+        !action.target.isActionable) {
+      return CorrectionAction.denied(
+        actionId: action.actionId,
+        target: action.target,
+        reason: 'target_not_verified',
+      );
+    }
+
+    final ScreenActionResult result;
+
+    switch (action.actionType) {
+      case CorrectionActionType.tap:
+        result = await _actionRepository.tap(action.target);
+        break;
+
+      case CorrectionActionType.longPress:
+        result = await _actionRepository.longPress(action.target);
+        break;
+
+      case CorrectionActionType.swipe:
+        result = await _actionRepository.swipe(
+          target: action.target,
+          direction: action.swipeDirection,
+        );
+        break;
+
+      case CorrectionActionType.typeText:
+        result = await _actionRepository.typeText(
+          target: action.target,
+          text: action.textInput,
+        );
+        break;
+
+      case CorrectionActionType.scroll:
+        result = await _actionRepository.scroll(
+          target: action.target,
+          direction: action.swipeDirection,
+        );
+        break;
+
+      case CorrectionActionType.toggle:
+      case CorrectionActionType.select:
+      case CorrectionActionType.none:
+      case CorrectionActionType.denied:
+      case CorrectionActionType.unknown:
+        return CorrectionAction.denied(
+          actionId: action.actionId,
+          target: action.target,
+          reason: 'unsupported_action_type',
+        );
+    }
+
+    final mappedResult = switch (result) {
+      ScreenActionResult.success => CorrectionResult.success,
+      ScreenActionResult.denied => CorrectionResult.denied,
+      ScreenActionResult.deniedSafety => CorrectionResult.deniedSafety,
+      ScreenActionResult.deniedUnverified => CorrectionResult.deniedUnverified,
+      ScreenActionResult.deniedPermission => CorrectionResult.denied,
+      ScreenActionResult.unavailable => CorrectionResult.failed,
+      ScreenActionResult.error => CorrectionResult.failed,
+      ScreenActionResult.unknown => CorrectionResult.unknown,
+    };
+
+    return CorrectionAction(
+      actionId: action.actionId,
+      target: action.target,
+      actionType: action.actionType,
+      textInput: action.textInput,
+      swipeDirection: action.swipeDirection,
+      targetVerified: action.targetVerified,
+      result: mappedResult,
+      executedAt: DateTime.now(),
+      locale: action.locale,
+    );
   }
 
   /// Find a target by label.

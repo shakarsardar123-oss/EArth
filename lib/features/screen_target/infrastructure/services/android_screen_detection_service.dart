@@ -134,6 +134,7 @@ class AndroidScreenDetectionService implements ScreenDetectionService {
   /// Internal ingestion point for a real screen-understanding result.
   ///
   /// Invalid/full-screen fallback targets are filtered before storage.
+  @override
   void updateResult(DetectionResult result) {
     final filteredTargets = result.targets
         .where(

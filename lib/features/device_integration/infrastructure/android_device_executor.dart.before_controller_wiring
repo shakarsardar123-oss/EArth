@@ -1,0 +1,114 @@
+/// android_device_executor.dart
+///
+/// FAIL-CLOSED policy (P1-RECOVERY R2-C):
+/// - openApp delegates to DeviceChannel.launchApp (real MethodChannel).
+/// - Gestures (tap/longPress/swipe/textInput) return execution failure
+///   because Android has no dispatchGesture in DeviceChannel.
+/// - back/home return execution failure (no channel yet).
+/// - Non-Android: every action returns execution failure.
+///
+/// 3 tests FAIL BY DESIGN (gesture success on Android expected but honest
+/// failure returned). Do NOT fake success. Do NOT edit tests.
+library;
+
+import '../../../core/device/android_device_channel.dart';
+import '../../../core/device/device_channel.dart';
+import '../../../core/errors/result.dart';
+import '../domain/entities/device_action.dart';
+import '../domain/models/device_integration_failure.dart';
+
+class AndroidDeviceExecutor {
+  final DeviceChannel _deviceChannel;
+  final bool isAndroid;
+
+  AndroidDeviceExecutor({this.isAndroid = true, DeviceChannel? deviceChannel})
+      : _deviceChannel = deviceChannel ?? AndroidDeviceChannel();
+
+  bool get isPlatformSupported => isAndroid;
+
+  Future<Result<void, DeviceIntegrationFailure>> execute(
+    DeviceAction action, {
+    int? frameWidth,
+    int? frameHeight,
+  }) async {
+    if (!isAndroid) {
+      return Result.failure(
+        DeviceIntegrationFailure.execution(
+          'Platform not supported: action ${action.type.name} cannot execute on non-Android.',
+          action: action,
+        ),
+      );
+    }
+
+    switch (action.type) {
+      case DeviceActionType.openApp:
+        return _executeOpenApp(action);
+      case DeviceActionType.tap:
+      case DeviceActionType.longPress:
+      case DeviceActionType.swipe:
+      case DeviceActionType.textInput:
+        return Result.failure(
+          DeviceIntegrationFailure.execution(
+            'Gesture action ${action.type.name} not supported: '
+            'Android DeviceChannel has no dispatchGesture capability.',
+            action: action,
+          ),
+        );
+      case DeviceActionType.back:
+      case DeviceActionType.home:
+        return Result.failure(
+          DeviceIntegrationFailure.execution(
+            'System key action ${action.type.name} not supported: '
+            'no platform channel for back/home press.',
+            action: action,
+          ),
+        );
+    }
+  }
+
+  Future<void> cancel() async {}
+
+  Future<Result<void, DeviceIntegrationFailure>> _executeOpenApp(
+    DeviceAction action,
+  ) async {
+    final packageName = action.packageName;
+    if (packageName == null || packageName.isEmpty) {
+      return Result.failure(
+        DeviceIntegrationFailure.execution(
+          'openApp requires a non-empty packageName.',
+          action: action,
+        ),
+      );
+    }
+    final result = await _deviceChannel.launchApp(packageName);
+    if (result.isSuccess) return const Result.success(null);
+    return Result.failure(
+      DeviceIntegrationFailure.execution(
+        result.errorMessage ?? 'launchApp failed for $packageName',
+        action: action,
+      ),
+    );
+  }
+}
+
+class _StubDeviceChannel implements DeviceChannel {
+  const _StubDeviceChannel();
+  @override
+  Future<DeviceChannelResult> getDeviceInfo() async =>
+      const DeviceChannelResult.failure('Stub', errorCode: 'platformUnsupported');
+  @override
+  Future<DeviceChannelResult> getBatteryInfo() async =>
+      const DeviceChannelResult.failure('Stub', errorCode: 'platformUnsupported');
+  @override
+  Future<DeviceChannelResult> getNetworkInfo() async =>
+      const DeviceChannelResult.failure('Stub', errorCode: 'platformUnsupported');
+  @override
+  Future<DeviceChannelResult> launchApp(String packageId) async =>
+      const DeviceChannelResult.failure('Stub', errorCode: 'platformUnsupported');
+  @override
+  Future<DeviceChannelResult> openSystemSettings(String s) async =>
+      const DeviceChannelResult.failure('Stub', errorCode: 'platformUnsupported');
+  @override
+  Future<DeviceChannelResult> launchUrl(String url) async =>
+      const DeviceChannelResult.failure('Stub', errorCode: 'platformUnsupported');
+}

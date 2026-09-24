@@ -9,4 +9,3 @@
 
 export 'tool_registry_service.dart';
 export 'tool_confirmation_service.dart';
-export '../../application/tool_execution_gate.dart';

@@ -26,6 +26,7 @@ abstract class SystemControlMethods {
       'isAccessibilityServiceEnabled';
   static const String getScreenSize = 'getScreenSize';
   static const String dispatchGesture = 'dispatchGesture';
+  static const String verifyScreenTarget = 'verifyScreenTarget';
   static const String openSettingsPanel = 'openSettingsPanel';
 }
 
@@ -81,6 +82,24 @@ class AndroidSystemControlChannel implements SystemControlChannel {
         if (x2 != null) 'x2': x2,
         if (y2 != null) 'y2': y2,
         'durationMs': durationMs,
+      });
+
+  @override
+  Future<DeviceChannelResult> verifyScreenTarget({
+    String? label,
+    String? type,
+    required double x,
+    required double y,
+    required double width,
+    required double height,
+  }) =>
+      _invoke(SystemControlMethods.verifyScreenTarget, {
+        if (label != null && label.trim().isNotEmpty) 'label': label,
+        if (type != null && type.trim().isNotEmpty) 'type': type,
+        'x': x,
+        'y': y,
+        'width': width,
+        'height': height,
       });
 
   @override

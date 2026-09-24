@@ -65,6 +65,20 @@ class StubSystemControlChannel implements SystemControlChannel {
       _unsupported('dispatchGesture');
 
   @override
+  Future<DeviceChannelResult> verifyScreenTarget({
+    String? label,
+    String? type,
+    required double x,
+    required double y,
+    required double width,
+    required double height,
+  }) async =>
+      DeviceChannelResult.failure(
+        'Accessibility target verification is unavailable on this platform',
+        errorCode: 'platformUnsupported',
+      );
+
+  @override
   Future<DeviceChannelResult> openSettingsPanel(String panel) async =>
       _unsupported('openSettingsPanel');
 }

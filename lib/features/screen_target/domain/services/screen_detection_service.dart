@@ -37,6 +37,10 @@ abstract class ScreenDetectionService {
     bool verifyTargets = true,
   });
 
+  /// Ingest a fresh detection result from the screen-understanding pipeline.
+  /// FAIL-CLOSED: implementation filters invalid/unverified targets before storage.
+  void updateResult(DetectionResult result);
+
   /// Get the latest detection result for a screen.
   /// FAIL-CLOSED: unknown → empty result.
   Future<DetectionResult> getLatestResult(String screenId);

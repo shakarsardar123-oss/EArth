@@ -417,6 +417,7 @@ class MainActivity : FlutterActivity() {
                 result.success(mapOf("enabled" to isAuraAccessibilityBound()))
             "getScreenSize" -> handleGetScreenSize(result)
             "dispatchGesture" -> handleDispatchGesture(call, result)
+            "verifyScreenTarget" -> handleVerifyScreenTarget(call, result)
             "openSettingsPanel" -> handleOpenSettingsPanel(call, result)
             else -> result.notImplemented()
         }
@@ -660,6 +661,82 @@ class MainActivity : FlutterActivity() {
         }
         if (!accepted && replied.compareAndSet(false, true)) {
             result.success(mapOf("dispatched" to false, "completed" to false))
+        }
+    }
+
+    // ── Screen target verification ──────────────────────────────────
+
+    private fun handleVerifyScreenTarget(
+        call: MethodCall,
+        result: MethodChannel.Result,
+    ) {
+        if (Build.VERSION.SDK_INT < 21) {
+            result.error(
+                "platformUnsupported",
+                "Accessibility tree verification requires API 21+",
+                null,
+            )
+            return
+        }
+
+        val service = AuraAccessibilityService.instance
+
+        if (service == null || !isAccessibilityEnabled()) {
+            result.success(
+                mapOf(
+                    "matched" to false,
+                    "reason" to "accessibilityDisabled",
+                ),
+            )
+            return
+        }
+
+        val x = call.argument<Number>("x")?.toDouble()
+        val y = call.argument<Number>("y")?.toDouble()
+        val width = call.argument<Number>("width")?.toDouble()
+        val height = call.argument<Number>("height")?.toDouble()
+
+        if (x == null || y == null || width == null || height == null) {
+            result.error(
+                "INVALID_ARGS",
+                "Missing normalized target bounds",
+                null,
+            )
+            return
+        }
+
+        if (!x.isFinite() || !y.isFinite() ||
+            !width.isFinite() || !height.isFinite()
+        ) {
+            result.error(
+                "INVALID_ARGS",
+                "Target bounds must be finite",
+                null,
+            )
+            return
+        }
+
+        val label = call.argument<String>("label")
+        val type = call.argument<String>("type")
+
+        try {
+            result.success(
+                service.verifyTarget(
+                    label = label,
+                    type = type,
+                    x = x,
+                    y = y,
+                    width = width,
+                    height = height,
+                ),
+            )
+        } catch (_: Exception) {
+            result.success(
+                mapOf(
+                    "matched" to false,
+                    "reason" to "verification_error",
+                ),
+            )
         }
     }
 

@@ -118,6 +118,7 @@ import '../../features/orchestration/application/orchestrator/agent_orchestrator
 import '../../features/orchestration/application/usecases/orchestration_use_case.dart'
     show OrchestrationUseCase;
 import '../../features/trigger_integration/application/controller/trigger_controller.dart';
+import '../../features/device_integration/application/providers.dart' as device_integration;
 import '../../features/trigger_integration/application/providers/trigger_providers.dart';
 import '../../features/trigger_integration/domain/repositories/trigger_authorization_repository.dart'
     as trigger_auth;
@@ -680,6 +681,9 @@ final triggerPlatformServiceProvider =
 
 /// Runtime consumer that drains platform pending requests and sends
 /// them through the real TriggerController.
+final deviceIntegrationControllerProvider =
+    device_integration.deviceIntegrationControllerProvider;
+
 final triggerRuntimeServiceProvider =
     Provider<TriggerRuntimeService>((ref) {
   final service = TriggerRuntimeService(
