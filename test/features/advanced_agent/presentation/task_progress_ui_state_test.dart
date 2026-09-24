@@ -5,9 +5,9 @@
 library;
 
 import 'package:flutter_test/flutter_test.dart';
-import 'package:aura_assistant/features/advanced_agent/presentation/task_progress_ui_state.dart';
-import 'package:aura_assistant/features/advanced_agent/domain/models/advanced_task_plan.dart';
-import 'package:aura_assistant/features/advanced_agent/domain/models/pause_resume_state.dart';
+import 'package:texo/features/advanced_agent/presentation/task_progress_ui_state.dart';
+import 'package:texo/features/advanced_agent/domain/models/advanced_task_plan.dart';
+import 'package:texo/features/advanced_agent/domain/models/pause_resume_state.dart';
 
 void main() {
   group('TaskProgressUIState', () {

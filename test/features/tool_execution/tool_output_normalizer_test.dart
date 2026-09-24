@@ -3,8 +3,8 @@
 // Structural validation only.
 
 import 'package:flutter_test/flutter_test.dart';
-import 'package:aura_assistant/features/tool_execution/infrastructure/tool_output_normalizer.dart';
-import 'package:aura_assistant/features/tool_execution/domain/models/tool_output.dart';
+import 'package:texo/features/tool_execution/infrastructure/tool_output_normalizer.dart';
+import 'package:texo/features/tool_execution/domain/models/tool_output.dart';
 
 void main() {
   group('ToolOutputNormalizer', () {

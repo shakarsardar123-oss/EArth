@@ -5,10 +5,10 @@
 /// AgentContext usage, interface compliance.
 
 import 'package:flutter_test/flutter_test.dart';
-import 'package:aura_assistant/core/live_mode/agent_processor.dart';
-import 'package:aura_assistant/core/agent/agent_result.dart';
-import 'package:aura_assistant/core/agent/agent_context.dart';
-import 'package:aura_assistant/domain/entities/agent_config.dart';
+import 'package:texo/core/live_mode/agent_processor.dart';
+import 'package:texo/core/agent/agent_result.dart';
+import 'package:texo/core/agent/agent_context.dart';
+import 'package:texo/domain/entities/agent_config.dart';
 
 void main() {
   group('AgentProcessor interface', () {

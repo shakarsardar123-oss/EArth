@@ -6,8 +6,8 @@
 
 import 'dart:core';
 
-import 'package:aura_assistant/features/trigger_integration/domain/entities/trigger_request.dart';
-import 'package:aura_assistant/features/trigger_integration/domain/value_objects/trigger_type.dart';
+import 'package:texo/features/trigger_integration/domain/entities/trigger_request.dart';
+import 'package:texo/features/trigger_integration/domain/value_objects/trigger_type.dart';
 
 void main() {
   group('TriggerRequest', () {

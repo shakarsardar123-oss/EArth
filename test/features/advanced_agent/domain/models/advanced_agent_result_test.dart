@@ -6,8 +6,8 @@
 library;
 
 import 'package:flutter_test/flutter_test.dart';
-import 'package:aura_assistant/features/advanced_agent/domain/models/advanced_agent_result.dart';
-import 'package:aura_assistant/features/advanced_agent/domain/models/advanced_agent_failure.dart';
+import 'package:texo/features/advanced_agent/domain/models/advanced_agent_result.dart';
+import 'package:texo/features/advanced_agent/domain/models/advanced_agent_failure.dart';
 
 void main() {
   group('AdvancedAgentResultStatus', () {

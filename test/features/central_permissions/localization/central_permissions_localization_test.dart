@@ -5,9 +5,9 @@
 /// No Flutter SDK — structural/mock tests only.
 
 import 'package:flutter_test/flutter_test.dart';
-import 'package:aura_assistant/core/localization/s_strings.dart';
-import 'package:aura_assistant/core/localization/s_strings_en.dart';
-import 'package:aura_assistant/core/localization/s_strings_ku.dart';
+import 'package:texo/core/localization/s_strings.dart';
+import 'package:texo/core/localization/s_strings_en.dart';
+import 'package:texo/core/localization/s_strings_ku.dart';
 
 void main() {
   group('Central Permissions Localization', () {

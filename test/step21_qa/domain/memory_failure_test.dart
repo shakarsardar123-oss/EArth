@@ -5,7 +5,7 @@
 /// fail-closed behavior.
 
 import 'package:flutter_test/flutter_test.dart';
-import 'package:aura_assistant/features/semantic_memory/domain/models/memory_failure.dart';
+import 'package:texo/features/semantic_memory/domain/models/memory_failure.dart';
 
 void main() {
   group('MemoryFailure', () {

@@ -2,8 +2,8 @@
 /// and SearchTargetType — Step 10 screen-search subsystem.
 library;
 
-import 'package:aura_assistant/core/screen_search/search_result.dart';
-import 'package:aura_assistant/core/screen_understanding/screen_understanding_result.dart';
+import 'package:texo/core/screen_search/search_result.dart';
+import 'package:texo/core/screen_understanding/screen_understanding_result.dart';
 import 'package:flutter_test/flutter_test.dart';
 
 void main() {

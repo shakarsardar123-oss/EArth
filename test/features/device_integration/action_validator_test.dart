@@ -4,12 +4,12 @@
 library;
 
 import 'package:flutter_test/flutter_test.dart';
-import 'package:aura_assistant/features/device_integration/application/action_validator.dart';
-import 'package:aura_assistant/features/device_integration/domain/entities/device_action.dart';
-import 'package:aura_assistant/features/device_integration/domain/models/device_integration_failure.dart';
-import 'package:aura_assistant/features/device_integration/domain/models/permission_status.dart';
-import 'package:aura_assistant/features/device_integration/domain/models/security_verdict.dart';
-import 'package:aura_assistant/core/errors/result.dart';
+import 'package:texo/features/device_integration/application/action_validator.dart';
+import 'package:texo/features/device_integration/domain/entities/device_action.dart';
+import 'package:texo/features/device_integration/domain/models/device_integration_failure.dart';
+import 'package:texo/features/device_integration/domain/models/permission_status.dart';
+import 'package:texo/features/device_integration/domain/models/security_verdict.dart';
+import 'package:texo/core/errors/result.dart';
 
 /// Fake PermissionManager for testing.
 class FakePermissionManager implements PermissionManager {

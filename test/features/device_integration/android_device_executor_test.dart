@@ -3,10 +3,10 @@
 library;
 
 import 'package:flutter_test/flutter_test.dart';
-import 'package:aura_assistant/features/device_integration/infrastructure/android_device_executor.dart';
-import 'package:aura_assistant/features/device_integration/domain/entities/device_action.dart';
-import 'package:aura_assistant/features/device_integration/domain/models/device_integration_failure.dart';
-import 'package:aura_assistant/core/errors/result.dart';
+import 'package:texo/features/device_integration/infrastructure/android_device_executor.dart';
+import 'package:texo/features/device_integration/domain/entities/device_action.dart';
+import 'package:texo/features/device_integration/domain/models/device_integration_failure.dart';
+import 'package:texo/core/errors/result.dart';
 
 void main() {
   // ─── AndroidDeviceExecutor on Android ────────────────────────────

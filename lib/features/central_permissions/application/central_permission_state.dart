@@ -4,8 +4,8 @@
 // Immutable state following the project convention (copyWith + clear*).
 // ───────────────────────────────────────────────────────────────────
 
-import 'package:aura_assistant/features/device_integration/domain/models/permission_status.dart';
-import 'package:aura_assistant/features/central_permissions/domain/models/central_permission_failure.dart';
+import 'package:texo/features/device_integration/domain/models/permission_status.dart';
+import 'package:texo/features/central_permissions/domain/models/central_permission_failure.dart';
 
 class CentralPermissionState {
   final Map<DevicePermission, PermissionStatus> statuses;

@@ -13,20 +13,20 @@
 library;
 
 import 'package:flutter_test/flutter_test.dart';
-import 'package:aura_assistant/core/errors/result.dart';
-import 'package:aura_assistant/features/security/domain/models/security_audit_entry.dart';
-import 'package:aura_assistant/features/security/domain/models/security_config.dart';
-import 'package:aura_assistant/features/security/domain/models/security_state.dart';
-import 'package:aura_assistant/features/security/domain/services/secret_scanner_service.dart';
-import 'package:aura_assistant/features/security/domain/services/sensitive_data_redactor.dart';
-import 'package:aura_assistant/features/security/domain/services/secure_logging_service.dart';
-import 'package:aura_assistant/features/security/domain/services/security_audit_service.dart';
-import 'package:aura_assistant/features/security/domain/models/security_failure.dart';
-import 'package:aura_assistant/features/security/domain/models/security_verdict.dart';
-import 'package:aura_assistant/features/security/infrastructure/default_secret_scanner.dart';
-import 'package:aura_assistant/features/security/infrastructure/default_sensitive_data_redactor.dart';
-import 'package:aura_assistant/features/security/infrastructure/default_secure_logger.dart';
-import 'package:aura_assistant/features/security/infrastructure/default_security_audit.dart';
+import 'package:texo/core/errors/result.dart';
+import 'package:texo/features/security/domain/models/security_audit_entry.dart';
+import 'package:texo/features/security/domain/models/security_config.dart';
+import 'package:texo/features/security/domain/models/security_state.dart';
+import 'package:texo/features/security/domain/services/secret_scanner_service.dart';
+import 'package:texo/features/security/domain/services/sensitive_data_redactor.dart';
+import 'package:texo/features/security/domain/services/secure_logging_service.dart';
+import 'package:texo/features/security/domain/services/security_audit_service.dart';
+import 'package:texo/features/security/domain/models/security_failure.dart';
+import 'package:texo/features/security/domain/models/security_verdict.dart';
+import 'package:texo/features/security/infrastructure/default_secret_scanner.dart';
+import 'package:texo/features/security/infrastructure/default_sensitive_data_redactor.dart';
+import 'package:texo/features/security/infrastructure/default_secure_logger.dart';
+import 'package:texo/features/security/infrastructure/default_security_audit.dart';
 
 void main() {
   group('R4 – Provider Integration Tests', () {

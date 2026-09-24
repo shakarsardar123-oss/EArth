@@ -2,8 +2,8 @@
 library;
 
 import 'package:flutter_test/flutter_test.dart';
-import 'package:aura_assistant/features/security/infrastructure/default_secure_logger.dart';
-import 'package:aura_assistant/features/security/domain/services/secure_logging_service.dart';
+import 'package:texo/features/security/infrastructure/default_secure_logger.dart';
+import 'package:texo/features/security/domain/services/secure_logging_service.dart';
 
 void main() {
   group('DefaultSecureLogger', () {

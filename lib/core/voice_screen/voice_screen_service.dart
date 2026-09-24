@@ -6,9 +6,9 @@
 /// Voice → Capture → Understand → Search → CombineContext → VoiceResponse.
 library;
 
-import 'package:aura_assistant/core/errors/result.dart';
-import 'package:aura_assistant/core/voice_screen/voice_screen_failure.dart';
-import 'package:aura_assistant/core/voice_screen/voice_screen_state.dart';
+import 'package:texo/core/errors/result.dart';
+import 'package:texo/core/voice_screen/voice_screen_failure.dart';
+import 'package:texo/core/voice_screen/voice_screen_state.dart';
 
 /// Search query model used by the search service.
 /// Re-exported for convenience; defined in the search module.

@@ -6,8 +6,8 @@
 library;
 
 import 'package:flutter_test/flutter_test.dart';
-import 'package:aura_assistant/features/advanced_agent/domain/models/task_progress_state.dart';
-import 'package:aura_assistant/features/advanced_agent/domain/models/advanced_task_plan.dart';
+import 'package:texo/features/advanced_agent/domain/models/task_progress_state.dart';
+import 'package:texo/features/advanced_agent/domain/models/advanced_task_plan.dart';
 
 void main() {
   group('TaskProgressState', () {

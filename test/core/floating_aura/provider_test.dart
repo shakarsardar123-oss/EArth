@@ -1,21 +1,21 @@
 /// Tests for floating AURA overlay Riverpod providers — Step 11.
 library;
 
-import 'package:aura_assistant/core/errors/failures.dart';
-import 'package:aura_assistant/core/errors/result.dart';
-import 'package:aura_assistant/core/constants/app_constants.dart';
-import 'package:aura_assistant/core/floating_aura/floating_aura_service.dart';
-import 'package:aura_assistant/core/floating_aura/floating_aura_state.dart';
-import 'package:aura_assistant/core/floating_aura/floating_aura_overlay_position.dart';
-import 'package:aura_assistant/core/floating_aura/floating_aura_provider.dart';
-import 'package:aura_assistant/core/floating_aura/floating_aura_stub_channel.dart';
-import 'package:aura_assistant/core/security/security_policy.dart';
-import 'package:aura_assistant/core/security/security_providers.dart';
-import 'package:aura_assistant/core/tools/tool_permission.dart';
-import 'package:aura_assistant/core/permissions/permission_service.dart';
-import 'package:aura_assistant/core/permissions/permission_provider.dart';
-import 'package:aura_assistant/data/datasources/local_storage_data_source.dart';
-import 'package:aura_assistant/presentation/providers/app_providers.dart';
+import 'package:texo/core/errors/failures.dart';
+import 'package:texo/core/errors/result.dart';
+import 'package:texo/core/constants/app_constants.dart';
+import 'package:texo/core/floating_aura/floating_aura_service.dart';
+import 'package:texo/core/floating_aura/floating_aura_state.dart';
+import 'package:texo/core/floating_aura/floating_aura_overlay_position.dart';
+import 'package:texo/core/floating_aura/floating_aura_provider.dart';
+import 'package:texo/core/floating_aura/floating_aura_stub_channel.dart';
+import 'package:texo/core/security/security_policy.dart';
+import 'package:texo/core/security/security_providers.dart';
+import 'package:texo/core/tools/tool_permission.dart';
+import 'package:texo/core/permissions/permission_service.dart';
+import 'package:texo/core/permissions/permission_provider.dart';
+import 'package:texo/data/datasources/local_storage_data_source.dart';
+import 'package:texo/presentation/providers/app_providers.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:permission_handler/permission_handler.dart' as ph;

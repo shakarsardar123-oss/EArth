@@ -456,7 +456,7 @@ class _AuraWaveFormState extends State<AuraWaveForm>
   String _stateLabel(AuraWaveFormState state) {
     switch (state) {
       case AuraWaveFormState.idle:
-        return 'AURA';
+        return 'TEXO';
       case AuraWaveFormState.listening:
         return 'گوێ دەگرێت...';
       case AuraWaveFormState.processing:

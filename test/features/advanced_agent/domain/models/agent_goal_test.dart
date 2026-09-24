@@ -3,8 +3,8 @@
 library;
 
 import 'package:flutter_test/flutter_test.dart';
-import 'package:aura_assistant/features/advanced_agent/domain/models/agent_goal.dart';
-import 'package:aura_assistant/features/advanced_agent/domain/models/goal_status.dart';
+import 'package:texo/features/advanced_agent/domain/models/agent_goal.dart';
+import 'package:texo/features/advanced_agent/domain/models/goal_status.dart';
 
 void main() {
   group('AgentGoal', () {

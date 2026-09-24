@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
-import 'package:aura_assistant/core/localization/locale_provider.dart';
+import 'package:texo/core/localization/locale_provider.dart';
 
 void main() {
   group('AuraLocale', () {

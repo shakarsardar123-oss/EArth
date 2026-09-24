@@ -1,12 +1,12 @@
 /// Tests for screen-search Riverpod providers — Step 10.
 library;
 
-import 'package:aura_assistant/core/errors/failures.dart';
-import 'package:aura_assistant/core/screen_search/search_result.dart';
-import 'package:aura_assistant/core/screen_search/search_state.dart';
-import 'package:aura_assistant/core/screen_search/search_provider.dart';
-import 'package:aura_assistant/core/screen_search/search_service.dart';
-import 'package:aura_assistant/core/screen_understanding/screen_understanding_result.dart';
+import 'package:texo/core/errors/failures.dart';
+import 'package:texo/core/screen_search/search_result.dart';
+import 'package:texo/core/screen_search/search_state.dart';
+import 'package:texo/core/screen_search/search_provider.dart';
+import 'package:texo/core/screen_search/search_service.dart';
+import 'package:texo/core/screen_understanding/screen_understanding_result.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_test/flutter_test.dart';
 

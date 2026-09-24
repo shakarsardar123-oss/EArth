@@ -7,7 +7,7 @@
 /// FAIL CLOSED: on query error, returns empty results (no data leak).
 library;
 
-import 'package:aura_assistant/core/errors/result.dart' show Result, Success, FailureResult;
+import 'package:texo/core/errors/result.dart' show Result, Success, FailureResult;
 import '../domain/models/security_audit_entry.dart';
 import '../domain/models/security_config.dart';
 import '../domain/models/security_failure.dart';

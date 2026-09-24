@@ -6,7 +6,7 @@
 /// only has .allowed/.reason. Correct check: !check.allowed
 
 import 'package:flutter_test/flutter_test.dart';
-import 'package:aura_assistant/features/semantic_memory/adapters/semantic_memory_adapter.dart';
+import 'package:texo/features/semantic_memory/adapters/semantic_memory_adapter.dart';
 
 void main() {
   group('SemanticMemoryAdapterImpl', () {

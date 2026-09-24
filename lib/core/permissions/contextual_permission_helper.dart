@@ -121,7 +121,7 @@ class ContextualPermissionHelper {
 
   /// Platform channel for special permission operations.
   static const MethodChannel _channel =
-      MethodChannel('com.aura.device/permissions');
+      MethodChannel('com.texo.texo/permissions');
 
   ContextualPermissionHelper([PermissionService? service])
       : _service = service ?? PermissionService();

@@ -6,7 +6,7 @@
 library;
 
 import 'package:flutter_test/flutter_test.dart';
-// import 'package:aura_assistant/features/integrity_audit/domain/models/integrity_verdict.dart';
+// import 'package:texo/features/integrity_audit/domain/models/integrity_verdict.dart';
 
 void main() {
   group('IntegrityStatus', () {

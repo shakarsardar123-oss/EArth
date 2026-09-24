@@ -8,7 +8,7 @@
 library;
 
 import 'package:flutter/foundation.dart';
-import 'package:aura_assistant/features/tool_registry/domain/models/tool_failure.dart';
+import 'package:texo/features/tool_registry/domain/models/tool_failure.dart';
 import '../../../../core/errors/result.dart';
 
 /// Outcome of a single tool execution.

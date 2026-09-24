@@ -5,7 +5,7 @@
 /// a real Android platform.
 library;
 
-import 'package:aura_assistant/core/errors/result.dart';
+import 'package:texo/core/errors/result.dart';
 import '../domain/entities/assistant_status.dart';
 import '../domain/entities/assistant_invocation.dart';
 import '../domain/models/assistant_failure.dart';

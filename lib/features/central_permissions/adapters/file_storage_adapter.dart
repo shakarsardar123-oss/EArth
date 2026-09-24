@@ -4,7 +4,7 @@
 /// Adapter for the file_storage feature module.
 /// Required: storage
 
-import 'package:aura_assistant/features/device_integration/domain/models/permission_status.dart';
+import 'package:texo/features/device_integration/domain/models/permission_status.dart';
 import 'feature_permission_adapter.dart';
 
 class FileStorageAdapter extends FeaturePermissionAdapter {

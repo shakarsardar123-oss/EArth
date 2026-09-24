@@ -3,11 +3,11 @@ library;
 
 import 'dart:async';
 
-import 'package:aura_assistant/core/floating_aura/floating_aura_service.dart';
-import 'package:aura_assistant/core/floating_aura/floating_aura_state.dart';
-import 'package:aura_assistant/core/floating_aura/floating_aura_overlay_position.dart';
-import 'package:aura_assistant/core/errors/result.dart';
-import 'package:aura_assistant/core/errors/failures.dart';
+import 'package:texo/core/floating_aura/floating_aura_service.dart';
+import 'package:texo/core/floating_aura/floating_aura_state.dart';
+import 'package:texo/core/floating_aura/floating_aura_overlay_position.dart';
+import 'package:texo/core/errors/result.dart';
+import 'package:texo/core/errors/failures.dart';
 
 /// Configuration for [FakeFloatingAuraService].
 class FakeOverlayConfig {

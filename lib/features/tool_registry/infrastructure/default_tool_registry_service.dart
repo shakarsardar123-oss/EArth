@@ -7,9 +7,9 @@
 /// Supports offline mode with graceful degradation.
 library;
 
-import 'package:aura_assistant/core/errors/result.dart';
-import 'package:aura_assistant/features/tool_registry/domain/models/models.dart';
-import 'package:aura_assistant/features/tool_registry/domain/services/services.dart';
+import 'package:texo/core/errors/result.dart';
+import 'package:texo/features/tool_registry/domain/models/models.dart';
+import 'package:texo/features/tool_registry/domain/services/services.dart';
 
 /// Concrete implementation of [ToolRegistryService].
 ///

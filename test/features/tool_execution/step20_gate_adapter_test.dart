@@ -3,12 +3,12 @@
 // Structural validation only.
 
 import 'package:flutter_test/flutter_test.dart';
-import 'package:aura_assistant/features/tool_execution/infrastructure/adapters/step20_gate_adapter.dart';
-import 'package:aura_assistant/features/tool_execution/domain/models/tool_output.dart';
-import 'package:aura_assistant/features/tool_execution/domain/models/tool_execution_context.dart';
-import 'package:aura_assistant/features/tool_execution/infrastructure/executors/tool_executor_registry.dart';
-import 'package:aura_assistant/features/tool_execution/domain/services/tool_interface.dart';
-import 'package:aura_assistant/features/tool_execution/domain/models/tool_input.dart';
+import 'package:texo/features/tool_execution/infrastructure/adapters/step20_gate_adapter.dart';
+import 'package:texo/features/tool_execution/domain/models/tool_output.dart';
+import 'package:texo/features/tool_execution/domain/models/tool_execution_context.dart';
+import 'package:texo/features/tool_execution/infrastructure/executors/tool_executor_registry.dart';
+import 'package:texo/features/tool_execution/domain/services/tool_interface.dart';
+import 'package:texo/features/tool_execution/domain/models/tool_input.dart';
 
 void main() {
   group('Step20GateAdapter', () {

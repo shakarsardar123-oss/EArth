@@ -2,7 +2,7 @@
 library;
 
 import 'package:flutter_test/flutter_test.dart';
-import 'package:aura_assistant/features/security/infrastructure/default_sensitive_data_redactor.dart';
+import 'package:texo/features/security/infrastructure/default_sensitive_data_redactor.dart';
 
 void main() {
   group('DefaultSensitiveDataRedactor', () {

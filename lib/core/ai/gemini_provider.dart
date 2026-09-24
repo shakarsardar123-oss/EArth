@@ -235,7 +235,7 @@ class GeminiProvider implements AIProvider, ModelDiscovery {
   Map<String, dynamic>? _buildSystemInstruction(AIRequest request) {
     // Always ensure AURA identity is preserved
     const baseIdentity =
-        'من ئەورای تایبەتی تۆم. وەڵامی کوردی سۆرانی بدەرەوە.';
+        'من تێکسۆی تایبەتی تۆم. وەڵامی کوردی سۆرانی بدەرەوە.';
     final systemPrompt = request.agentConfig.systemPrompt;
     if (systemPrompt.isEmpty && baseIdentity.isEmpty) return null;
 

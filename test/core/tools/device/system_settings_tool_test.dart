@@ -1,17 +1,17 @@
 import 'package:flutter_test/flutter_test.dart';
-import 'package:aura_assistant/core/device/device_channel.dart';
-import 'package:aura_assistant/core/device/stub_device_channel.dart';
-import 'package:aura_assistant/core/tools/device/system_settings_tool.dart';
-import 'package:aura_assistant/core/tools/device/app_launch_tool.dart';
-import 'package:aura_assistant/core/tools/device/url_launch_tool.dart';
-import 'package:aura_assistant/core/tools/device/network_tool.dart';
-import 'package:aura_assistant/core/tools/device/battery_tool.dart';
-import 'package:aura_assistant/core/tools/device/device_info_tool.dart';
-import 'package:aura_assistant/core/tools/tool_arguments.dart';
-import 'package:aura_assistant/core/tools/tool_result.dart';
-import 'package:aura_assistant/core/tools/tool_registry.dart';
-import 'package:aura_assistant/core/tools/tool_permission.dart';
-import 'package:aura_assistant/core/agent/agent_confirmation_manager.dart';
+import 'package:texo/core/device/device_channel.dart';
+import 'package:texo/core/device/stub_device_channel.dart';
+import 'package:texo/core/tools/device/system_settings_tool.dart';
+import 'package:texo/core/tools/device/app_launch_tool.dart';
+import 'package:texo/core/tools/device/url_launch_tool.dart';
+import 'package:texo/core/tools/device/network_tool.dart';
+import 'package:texo/core/tools/device/battery_tool.dart';
+import 'package:texo/core/tools/device/device_info_tool.dart';
+import 'package:texo/core/tools/tool_arguments.dart';
+import 'package:texo/core/tools/tool_result.dart';
+import 'package:texo/core/tools/tool_registry.dart';
+import 'package:texo/core/tools/tool_permission.dart';
+import 'package:texo/core/agent/agent_confirmation_manager.dart';
 
 // ── Fake Channels ──────────────────────────────────────────────────
 

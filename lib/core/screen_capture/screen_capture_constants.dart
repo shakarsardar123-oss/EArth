@@ -8,11 +8,11 @@ library;
 
 /// MethodChannel for control operations.
 const String screenCaptureMethodChannelName =
-    'com.aura.aura_assistant/screen_capture';
+    'com.texo.texo/screen_capture';
 
 /// EventChannel for frame delivery.
 const String screenCaptureEventChannelName =
-    'com.aura.aura_assistant/screen_capture_frames';
+    'com.texo.texo/screen_capture_frames';
 
 /// Method names invoked on the platform side.
 abstract final class ScreenCaptureMethodNames {

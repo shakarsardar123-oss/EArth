@@ -7,12 +7,12 @@
 // NEVER silently grants, fakes, or bypasses permissions.
 // ───────────────────────────────────────────────────────────────────
 
-import 'package:aura_assistant/core/errors/result.dart';
-import 'package:aura_assistant/features/device_integration/domain/models/permission_status.dart';
-import 'package:aura_assistant/features/central_permissions/domain/central_permission_service.dart';
-import 'package:aura_assistant/features/central_permissions/domain/models/central_permission_failure.dart';
-import 'package:aura_assistant/features/central_permissions/domain/models/permission_explanation.dart';
-import 'package:aura_assistant/features/central_permissions/application/central_permission_state.dart';
+import 'package:texo/core/errors/result.dart';
+import 'package:texo/features/device_integration/domain/models/permission_status.dart';
+import 'package:texo/features/central_permissions/domain/central_permission_service.dart';
+import 'package:texo/features/central_permissions/domain/models/central_permission_failure.dart';
+import 'package:texo/features/central_permissions/domain/models/permission_explanation.dart';
+import 'package:texo/features/central_permissions/application/central_permission_state.dart';
 
 /// Callback signature for when the UI should display a rationale sheet.
 typedef ShowRationaleCallback = Future<bool> Function(

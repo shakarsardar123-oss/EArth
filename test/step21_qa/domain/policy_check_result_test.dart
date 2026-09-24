@@ -6,7 +6,7 @@
 /// It does NOT have an isSensitive field (source bug documented).
 
 import 'package:flutter_test/flutter_test.dart';
-import 'package:aura_assistant/features/semantic_memory/application/memory_policy.dart';
+import 'package:texo/features/semantic_memory/application/memory_policy.dart';
 
 void main() {
   group('PolicyCheckResult', () {

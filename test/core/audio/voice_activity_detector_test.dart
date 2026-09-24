@@ -1,5 +1,5 @@
 import 'package:flutter_test/flutter_test.dart';
-import 'package:aura_assistant/core/audio/voice_activity_detector.dart';
+import 'package:texo/core/audio/voice_activity_detector.dart';
 
 void main() {
   group('VoiceActivityDetector', () {

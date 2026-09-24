@@ -6,9 +6,9 @@
 /// and model interactions without platform-dependent code.
 
 import 'package:flutter_test/flutter_test.dart';
-import 'package:aura_assistant/features/continuous_listening/domain/repositories/audio_input_repository.dart';
-import 'package:aura_assistant/features/continuous_listening/domain/models/segmentation_config.dart';
-import 'package:aura_assistant/features/continuous_listening/domain/models/listening_session.dart';
+import 'package:texo/features/continuous_listening/domain/repositories/audio_input_repository.dart';
+import 'package:texo/features/continuous_listening/domain/models/segmentation_config.dart';
+import 'package:texo/features/continuous_listening/domain/models/listening_session.dart';
 
 void main() {
   group('AudioInputRepository contract', () {

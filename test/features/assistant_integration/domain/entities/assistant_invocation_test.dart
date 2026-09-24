@@ -4,8 +4,8 @@
 // copyWith, clear flags, and convenience getters.
 
 import 'package:flutter_test/flutter_test.dart';
-import 'package:aura_assistant/features/assistant_integration/domain/entities/assistant_invocation.dart';
-import 'package:aura_assistant/features/assistant_integration/domain/entities/assistant_status.dart';
+import 'package:texo/features/assistant_integration/domain/entities/assistant_invocation.dart';
+import 'package:texo/features/assistant_integration/domain/entities/assistant_status.dart';
 
 void main() {
   final _now = DateTime(2026, 1, 1);

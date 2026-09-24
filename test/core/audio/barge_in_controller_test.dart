@@ -1,9 +1,9 @@
 import 'dart:async';
 
 import 'package:flutter_test/flutter_test.dart';
-import 'package:aura_assistant/core/audio/barge_in_controller.dart';
-import 'package:aura_assistant/core/audio/echo_safe_mic_monitor.dart';
-import 'package:aura_assistant/core/audio/voice_activity_detector.dart';
+import 'package:texo/core/audio/barge_in_controller.dart';
+import 'package:texo/core/audio/echo_safe_mic_monitor.dart';
+import 'package:texo/core/audio/voice_activity_detector.dart';
 
 /// Fake mic monitor whose frames we drive by hand — tests the REAL integration
 /// boundary (monitor → VAD → controller → onBargeIn), not a mocked success.

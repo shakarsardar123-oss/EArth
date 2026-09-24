@@ -3,7 +3,7 @@
 // NO Flutter/Dart SDK — structural validation only.
 
 import 'package:flutter_test/flutter_test.dart';
-import 'package:aura_assistant/features/tool_execution/domain/models/tool_execution_context.dart';
+import 'package:texo/features/tool_execution/domain/models/tool_execution_context.dart';
 
 void main() {
   group('ToolExecutionContext', () {

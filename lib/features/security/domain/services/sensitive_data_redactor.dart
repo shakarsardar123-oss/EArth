@@ -6,7 +6,7 @@
 /// with placeholder) rather than risk leaking data.
 library;
 
-import 'package:aura_assistant/core/errors/result.dart';
+import 'package:texo/core/errors/result.dart';
 import '../models/redaction_rule.dart';
 import '../models/security_failure.dart';
 

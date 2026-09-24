@@ -1,6 +1,6 @@
 import 'package:flutter_test/flutter_test.dart';
-import 'package:aura_assistant/data/models/agent_config_model.dart';
-import 'package:aura_assistant/domain/entities/agent_config.dart';
+import 'package:texo/data/models/agent_config_model.dart';
+import 'package:texo/domain/entities/agent_config.dart';
 
 void main() {
   group('AgentConfigModel', () {

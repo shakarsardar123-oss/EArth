@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
     <!-- Kept as "AURA" — the app name never changes. -->
-    <string name="app_name">AURA</string>
+    <string name="app_name">TEXO</string>
     <!-- Phase 6: AccessibilityService rationale (Kurdish Sorani + English). -->
-    <string name="aura_accessibility_description">ئەورا پێویستی بەم خزمەتگوزاریە هەیە بۆ ئەنجامدانی جوڵەی شاشە (پەنجەدان، سوایپ) لە جیاتی تۆ. تەنیا کاتێک داوای پێ دەکەیت بەکاردێت. — AURA uses this service to perform screen gestures (taps, swipes) on your behalf. It only acts when you ask it to and does not read screen content.</string>
+    <string name="texo_accessibility_description">تێکسۆ پێویستی بەم خزمەتگوزاریە هەیە بۆ ئەنجامدانی جوڵەی شاشە (پەنجەدان، سوایپ) لە جیاتی تۆ. تەنیا کاتێک داوای پێ دەکەیت بەکاردێت. — TEXO uses this service to perform screen gestures (taps, swipes) on your behalf. It only acts when you ask it to and does not read screen content.</string>
 </resources>

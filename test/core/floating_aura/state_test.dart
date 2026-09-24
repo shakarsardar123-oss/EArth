@@ -1,8 +1,8 @@
 import 'package:flutter_test/flutter_test.dart';
 
-import 'package:aura_assistant/core/floating_aura/floating_aura_constants.dart';
-import 'package:aura_assistant/core/floating_aura/floating_aura_overlay_position.dart';
-import 'package:aura_assistant/core/floating_aura/floating_aura_state.dart';
+import 'package:texo/core/floating_aura/floating_aura_constants.dart';
+import 'package:texo/core/floating_aura/floating_aura_overlay_position.dart';
+import 'package:texo/core/floating_aura/floating_aura_state.dart';
 
 void main() {
   // ── FloatingAuraOverlayStatus ──────────────────────────────

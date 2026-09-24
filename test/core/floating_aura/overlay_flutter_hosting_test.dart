@@ -23,9 +23,9 @@ import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
-import 'package:aura_assistant/core/floating_aura/aura_overlay_host_widget.dart';
-import 'package:aura_assistant/core/floating_aura/floating_aura_constants.dart';
-import 'package:aura_assistant/core/theme/app_colors.dart';
+import 'package:texo/core/floating_aura/aura_overlay_host_widget.dart';
+import 'package:texo/core/floating_aura/floating_aura_constants.dart';
+import 'package:texo/core/theme/app_colors.dart';
 
 // ────────────────────────────────────────────────────────────────────
 // Helper: read the Dart source file for import audit

@@ -1,4 +1,4 @@
-package com.aura.aura_assistant
+package com.texo.texo
 
 import android.accessibilityservice.AccessibilityService
 import android.accessibilityservice.GestureDescription
@@ -20,11 +20,11 @@ import kotlin.math.min
  *
  * The service does not log or return the complete screen tree.
  */
-class AuraAccessibilityService : AccessibilityService() {
+class TexoAccessibilityService : AccessibilityService() {
 
     companion object {
         @Volatile
-        var instance: AuraAccessibilityService? = null
+        var instance: TexoAccessibilityService? = null
             private set
     }
 

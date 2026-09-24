@@ -5,7 +5,7 @@ library;
 import 'package:flutter_test/flutter_test.dart';
 
 // ─── Inline mirror of MemoryEntry for structural testing ────────────
-// In the real project: import 'package:aura_assistant/features/semantic_memory/domain/models/memory_entry.dart';
+// In the real project: import 'package:texo/features/semantic_memory/domain/models/memory_entry.dart';
 
 enum MemoryType { userPreference, personalFact, conversation, task, project, device, location, instruction, other }
 

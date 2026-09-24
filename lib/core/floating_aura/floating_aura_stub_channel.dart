@@ -11,7 +11,7 @@ library;
 import '../errors/result.dart';
 import '../errors/failures.dart';
 import 'floating_aura_state.dart';
-import 'floating_aura_overlay_position.dart';
+import 'floating_texo_overlay_position.dart';
 import 'floating_aura_service.dart';
 
 /// No-op stub that always reports [isSupported] == false and returns

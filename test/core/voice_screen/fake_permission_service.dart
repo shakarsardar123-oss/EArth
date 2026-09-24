@@ -2,9 +2,9 @@
 library;
 
 import 'package:permission_handler/permission_handler.dart' as ph;
-import 'package:aura_assistant/core/permissions/permission_service.dart';
-import 'package:aura_assistant/core/errors/result.dart';
-import 'package:aura_assistant/core/errors/failures.dart';
+import 'package:texo/core/permissions/permission_service.dart';
+import 'package:texo/core/errors/result.dart';
+import 'package:texo/core/errors/failures.dart';
 
 /// Configuration for [FakePermissionService].
 class FakePermissionConfig {

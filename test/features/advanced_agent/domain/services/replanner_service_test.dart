@@ -6,9 +6,9 @@
 library;
 
 import 'package:flutter_test/flutter_test.dart';
-import 'package:aura_assistant/features/advanced_agent/domain/services/replanner_service.dart';
-import 'package:aura_assistant/features/advanced_agent/domain/models/advanced_task_plan.dart';
-import 'package:aura_assistant/features/advanced_agent/domain/models/advanced_agent_failure.dart';
+import 'package:texo/features/advanced_agent/domain/services/replanner_service.dart';
+import 'package:texo/features/advanced_agent/domain/models/advanced_task_plan.dart';
+import 'package:texo/features/advanced_agent/domain/models/advanced_agent_failure.dart';
 
 void main() {
   group('ReplannerService', () {

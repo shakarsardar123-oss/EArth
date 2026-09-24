@@ -6,10 +6,10 @@
 // ───────────────────────────────────────────────────────────────────
 
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import 'package:aura_assistant/features/central_permissions/domain/central_permission_service.dart';
-import 'package:aura_assistant/features/central_permissions/application/central_permission_controller.dart';
-import 'package:aura_assistant/features/central_permissions/application/central_permission_state.dart';
-import 'package:aura_assistant/features/central_permissions/infrastructure/platform_permission_manager.dart';
+import 'package:texo/features/central_permissions/domain/central_permission_service.dart';
+import 'package:texo/features/central_permissions/application/central_permission_controller.dart';
+import 'package:texo/features/central_permissions/application/central_permission_state.dart';
+import 'package:texo/features/central_permissions/infrastructure/platform_permission_manager.dart';
 
 /// Provider name constants for the central_permissions feature module.
 abstract class CentralPermissionProviderNames {
@@ -34,7 +34,7 @@ abstract class CentralPermissionProviderNames {
   // ── MethodChannel ────────────────────────────────────────────────
 
   static const String methodChannel =
-      'com.aura.assistant/central_permissions';
+      'com.texo.texo/central_permissions';
 
   // Prevent instantiation.
   CentralPermissionProviderNames._();

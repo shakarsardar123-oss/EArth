@@ -1,6 +1,6 @@
 import 'package:flutter/widgets.dart' show TextDirection;
 import 'package:flutter_test/flutter_test.dart';
-import 'package:aura_assistant/core/localization/locale_provider.dart';
+import 'package:texo/core/localization/locale_provider.dart';
 
 /// Verifies the explicit locale → text-direction mapping that the whole RTL
 /// fix depends on. MaterialApp.builder wraps the navigator subtree in a

@@ -8,8 +8,8 @@ import 'dart:typed_data';
 
 import 'package:flutter_test/flutter_test.dart';
 
-import 'package:aura_assistant/features/globe/presentation/earth_textures.dart';
-import 'package:aura_assistant/features/globe/presentation/sphere_geometry.dart';
+import 'package:texo/features/globe/presentation/earth_textures.dart';
+import 'package:texo/features/globe/presentation/sphere_geometry.dart';
 
 void main() {
   TestWidgetsFlutterBinding.ensureInitialized();

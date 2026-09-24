@@ -1,5 +1,5 @@
 import 'package:flutter_test/flutter_test.dart';
-import 'package:aura_assistant/core/screen_capture/screen_capture_state.dart';
+import 'package:texo/core/screen_capture/screen_capture_state.dart';
 
 void main() {
   group('ScreenCaptureStatus', () {

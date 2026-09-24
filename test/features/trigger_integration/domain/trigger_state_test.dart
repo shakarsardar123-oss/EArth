@@ -4,7 +4,7 @@
 /// FAIL-CLOSED: unrecognized/error → denied or failed.
 /// No Flutter/Dart SDK — structural validation only, NEVER claim runtime test results.
 
-import 'package:aura_assistant/features/trigger_integration/domain/value_objects/trigger_state.dart';
+import 'package:texo/features/trigger_integration/domain/value_objects/trigger_state.dart';
 
 void main() {
   group('TriggerPhase', () {

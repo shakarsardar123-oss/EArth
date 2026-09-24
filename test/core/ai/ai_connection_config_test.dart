@@ -7,8 +7,8 @@ library;
 
 import 'package:flutter_test/flutter_test.dart';
 
-import 'package:aura_assistant/core/ai/ai_connection_config.dart';
-import 'package:aura_assistant/core/ai/connection_type.dart';
+import 'package:texo/core/ai/ai_connection_config.dart';
+import 'package:texo/core/ai/connection_type.dart';
 
 void main() {
   // ─── AIConnectionConfig.defaults() ──────────────────────────────────

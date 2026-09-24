@@ -9,7 +9,7 @@ library;
 
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import 'package:aura_assistant/l10n/app_localizations.dart';
+import 'package:texo/l10n/app_localizations.dart';
 
 import '../../core/agent/agent_confirmation_manager.dart' show ToolRiskLevel;
 import '../../core/security/confirmation_guard.dart';

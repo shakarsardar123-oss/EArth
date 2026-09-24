@@ -1258,7 +1258,7 @@ abstract class S {
   /// No description provided for @auraIdentity.
   ///
   /// In ku, this message translates to:
-  /// **'من ئەورای تایبەتی تۆم'**
+  /// **'من تێکسۆی تایبەتی تۆم'**
   String get auraIdentity;
 
   /// No description provided for @liveModeStartFailed.

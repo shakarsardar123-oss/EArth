@@ -155,7 +155,7 @@ class _AuraAppState extends ConsumerState<AuraApp>
 
     return MaterialApp(
       navigatorKey: navigatorKey,
-      title: 'AURA',
+      title: 'TEXO',
       debugShowCheckedModeBanner: false,
       theme: AppTheme.light(),
       darkTheme: AppTheme.dark(),

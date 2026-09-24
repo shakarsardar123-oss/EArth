@@ -5,7 +5,7 @@
 library;
 
 import 'package:flutter_test/flutter_test.dart';
-import 'package:aura_assistant/features/advanced_agent/domain/models/natural_language_correction.dart';
+import 'package:texo/features/advanced_agent/domain/models/natural_language_correction.dart';
 
 void main() {
   group('NaturalLanguageCorrection', () {

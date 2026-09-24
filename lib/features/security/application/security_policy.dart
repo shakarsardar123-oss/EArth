@@ -13,7 +13,7 @@
 /// FAIL CLOSED: all decisions default to DENY when ambiguous.
 library;
 
-import 'package:aura_assistant/core/errors/result.dart';
+import 'package:texo/core/errors/result.dart';
 import '../domain/models/security_config.dart';
 import '../domain/models/security_failure.dart';
 import '../domain/models/security_verdict.dart';

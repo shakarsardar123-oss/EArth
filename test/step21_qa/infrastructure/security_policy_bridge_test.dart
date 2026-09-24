@@ -4,7 +4,7 @@
 /// Validates bridge construction, policy checking, and fail-closed behavior.
 
 import 'package:flutter_test/flutter_test.dart';
-import 'package:aura_assistant/features/semantic_memory/application/memory_policy.dart';
+import 'package:texo/features/semantic_memory/application/memory_policy.dart';
 
 void main() {
   group('SecurityPolicyBridge', () {

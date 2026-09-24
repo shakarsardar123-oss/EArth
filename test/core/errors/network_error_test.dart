@@ -1,5 +1,5 @@
 import 'package:flutter_test/flutter_test.dart';
-import 'package:aura_assistant/core/errors/network_error.dart';
+import 'package:texo/core/errors/network_error.dart';
 
 void main() {
   group('NetworkErrorType', () {

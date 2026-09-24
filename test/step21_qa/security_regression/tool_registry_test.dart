@@ -18,11 +18,11 @@
 ///   Map<String, ToolDefinition> to ToolState
 
 import 'package:flutter_test/flutter_test.dart';
-import 'package:aura_assistant/features/tool_registry/domain/models/tool_definition.dart';
-import 'package:aura_assistant/features/tool_registry/domain/models/tool_allowlist_entry.dart';
-import 'package:aura_assistant/features/tool_registry/domain/models/tool_execution_result.dart';
-import 'package:aura_assistant/features/tool_registry/domain/models/tool_failure.dart';
-import 'package:aura_assistant/features/tool_registry/domain/models/tool_state.dart';
+import 'package:texo/features/tool_registry/domain/models/tool_definition.dart';
+import 'package:texo/features/tool_registry/domain/models/tool_allowlist_entry.dart';
+import 'package:texo/features/tool_registry/domain/models/tool_execution_result.dart';
+import 'package:texo/features/tool_registry/domain/models/tool_failure.dart';
+import 'package:texo/features/tool_registry/domain/models/tool_state.dart';
 
 void main() {
   group('ToolDefinition', () {

@@ -17,4 +17,4 @@
     android:canRetrieveWindowContent="true"
     android:accessibilityFlags="flagDefault"
     android:notificationTimeout="100"
-    android:description="@string/aura_accessibility_description" />
+    android:description="@string/texo_accessibility_description" />

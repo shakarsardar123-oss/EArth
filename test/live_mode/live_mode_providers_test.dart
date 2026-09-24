@@ -8,7 +8,7 @@
 /// These test the initial state and structure only.
 
 import 'package:flutter_test/flutter_test.dart';
-import 'package:aura_assistant/core/live_mode/live_mode_state.dart';
+import 'package:texo/core/live_mode/live_mode_state.dart';
 
 void main() {
   group('LiveModeProviders', () {

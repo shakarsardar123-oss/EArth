@@ -6,10 +6,10 @@
 library;
 
 import 'package:flutter_test/flutter_test.dart';
-import 'package:aura_assistant/features/agent_recovery/domain/models/recovery_state.dart';
-import 'package:aura_assistant/features/agent_recovery/domain/models/recovery_phase.dart';
-import 'package:aura_assistant/features/agent_recovery/domain/models/recovery_strategy.dart';
-import 'package:aura_assistant/features/agent_recovery/domain/models/retry_policy.dart';
+import 'package:texo/features/agent_recovery/domain/models/recovery_state.dart';
+import 'package:texo/features/agent_recovery/domain/models/recovery_phase.dart';
+import 'package:texo/features/agent_recovery/domain/models/recovery_strategy.dart';
+import 'package:texo/features/agent_recovery/domain/models/retry_policy.dart';
 
 void main() {
   group('RecoveryState', () {

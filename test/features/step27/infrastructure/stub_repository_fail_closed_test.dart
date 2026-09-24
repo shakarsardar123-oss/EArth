@@ -8,14 +8,14 @@ import 'package:flutter_test/flutter_test.dart';
 // test references undefined identifiers and cannot compile. Each stub must keep
 // returning unavailable/denied — this guards against a stub being silently
 // turned into fake success (Phase 4 rule 7).
-import 'package:aura_assistant/features/device_connectivity/infrastructure/stub_device_transport_repository.dart';
-import 'package:aura_assistant/features/real_time_translation/infrastructure/stub_translation_engine_repository.dart';
-import 'package:aura_assistant/features/continuous_listening/infrastructure/stub_audio_input_repository.dart';
-import 'package:aura_assistant/features/subtitle_overlay/infrastructure/stub_overlay_renderer_repository.dart';
-import 'package:aura_assistant/features/screen_target/infrastructure/stub_vision_repository.dart';
-import 'package:aura_assistant/features/screen_target/infrastructure/stub_screen_action_repository.dart';
-import 'package:aura_assistant/features/resource_optimization/infrastructure/stub_system_resource_repository.dart';
-import 'package:aura_assistant/features/api_reliability/infrastructure/stub_api_gateway_repository.dart';
+import 'package:texo/features/device_connectivity/infrastructure/stub_device_transport_repository.dart';
+import 'package:texo/features/real_time_translation/infrastructure/stub_translation_engine_repository.dart';
+import 'package:texo/features/continuous_listening/infrastructure/stub_audio_input_repository.dart';
+import 'package:texo/features/subtitle_overlay/infrastructure/stub_overlay_renderer_repository.dart';
+import 'package:texo/features/screen_target/infrastructure/stub_vision_repository.dart';
+import 'package:texo/features/screen_target/infrastructure/stub_screen_action_repository.dart';
+import 'package:texo/features/resource_optimization/infrastructure/stub_system_resource_repository.dart';
+import 'package:texo/features/api_reliability/infrastructure/stub_api_gateway_repository.dart';
 
 void main() {
   group('Stub Repository FAIL-CLOSED', () {

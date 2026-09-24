@@ -1,4 +1,4 @@
-package com.aura.aura_assistant
+package com.texo.texo
 
 import android.app.Notification
 import android.app.NotificationChannel
@@ -35,13 +35,13 @@ import android.widget.TextView
  * Bound + started hybrid:
  *  - Started (startForegroundService) so the overlay survives the host
  *    Activity being backgrounded/destroyed.
- *  - Bound by [FloatingAuraBridge] so position/toggle/visibility calls
+ *  - Bound by [FloatingTexoBridge] so position/toggle/visibility calls
  *    can be answered synchronously while the app process is alive.
  */
-class FloatingAuraOverlayService : Service() {
+class FloatingTexoOverlayService : Service() {
 
     inner class LocalBinder : Binder() {
-        fun service(): FloatingAuraOverlayService = this@FloatingAuraOverlayService
+        fun service(): FloatingTexoOverlayService = this@FloatingTexoOverlayService
     }
 
     private val binder = LocalBinder()
@@ -60,7 +60,7 @@ class FloatingAuraOverlayService : Service() {
         const val EXTRA_POS_X_DP = "posXDp"
         const val EXTRA_POS_Y_DP = "posYDp"
 
-        private const val NOTIFICATION_CHANNEL_ID = "aura_floating_overlay"
+        private const val NOTIFICATION_CHANNEL_ID = "texo_floating_overlay"
         private const val NOTIFICATION_ID = 4201
 
         private const val COLLAPSED_SIZE_DP = 56
@@ -91,7 +91,7 @@ class FloatingAuraOverlayService : Service() {
         super.onDestroy()
     }
 
-    // ─── Public API used by FloatingAuraBridge via LocalBinder ────────
+    // ─── Public API used by FloatingTexoBridge via LocalBinder ────────
 
     fun isOverlayShowing(): Boolean = isShowing
 
@@ -189,7 +189,7 @@ class FloatingAuraOverlayService : Service() {
         val container = FrameLayout(this)
 
         val label = TextView(this).apply {
-            text = "AURA"
+            text = "TEXO"
             setTextColor(Color.parseColor("#00E5FF")) // matches AppColors.cyan
             gravity = Gravity.CENTER
             setTextSize(TypedValue.COMPLEX_UNIT_SP, 14f)
@@ -291,10 +291,10 @@ class FloatingAuraOverlayService : Service() {
             if (manager.getNotificationChannel(NOTIFICATION_CHANNEL_ID) == null) {
                 val channel = NotificationChannel(
                     NOTIFICATION_CHANNEL_ID,
-                    "AURA Floating Assistant",
+                    "TEXO Floating Assistant",
                     NotificationManager.IMPORTANCE_MIN
                 ).apply {
-                    description = "Keeps the AURA floating button available on screen."
+                    description = "Keeps the TEXO floating button available on screen."
                     setShowBadge(false)
                 }
                 manager.createNotificationChannel(channel)
@@ -316,7 +316,7 @@ class FloatingAuraOverlayService : Service() {
         }
 
         return builder
-            .setContentTitle("AURA")
+            .setContentTitle("TEXO")
             .setContentText("Floating assistant is active")
             .setSmallIcon(applicationInfo.icon)
             .setOngoing(true)

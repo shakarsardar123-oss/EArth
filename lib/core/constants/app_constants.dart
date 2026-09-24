@@ -6,8 +6,8 @@ class AppConstants {
   AppConstants._();
 
   // Application identity
-  static const String appName = 'AURA';
-  static const String defaultAgentName = 'AURA';
+  static const String appName = 'TEXO';
+  static const String defaultAgentName = 'TEXO';
   static const String appVersion = '0.1.0';
   static const int appBuildNumber = 1;
 

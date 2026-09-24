@@ -49,7 +49,7 @@ class DeviceChannelResult {
 /// Contract for all platform-level device operations.
 ///
 /// Each method corresponds to a capability exposed through the native
-/// Android MethodChannel (`com.aura.aura_assistant/device`).  The
+/// Android MethodChannel (`com.texo.texo/device`).  The
 /// [StubDeviceChannel] returns [DeviceChannelResult.failure] with
 /// `platformUnsupported` for every method so that tools can degrade
 /// gracefully on non-Android platforms.

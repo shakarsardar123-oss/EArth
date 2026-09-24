@@ -6,9 +6,9 @@
 library;
 
 import 'package:flutter_test/flutter_test.dart';
-import 'package:aura_assistant/features/agent_recovery/infrastructure/default_recovery_failure_classifier.dart';
-import 'package:aura_assistant/features/agent_recovery/domain/models/recovery_failure.dart';
-import 'package:aura_assistant/features/agent_recovery/domain/models/recovery_failure_phase.dart';
+import 'package:texo/features/agent_recovery/infrastructure/default_recovery_failure_classifier.dart';
+import 'package:texo/features/agent_recovery/domain/models/recovery_failure.dart';
+import 'package:texo/features/agent_recovery/domain/models/recovery_failure_phase.dart';
 
 void main() {
   group('DefaultRecoveryFailureClassifier', () {

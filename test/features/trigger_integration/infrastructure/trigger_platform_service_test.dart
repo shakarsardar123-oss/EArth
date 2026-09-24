@@ -4,8 +4,8 @@
 /// FAIL-CLOSED: engine unavailability → deny trigger safely.
 /// No Flutter/Dart SDK — structural validation only, NEVER claim runtime test results.
 
-import 'package:aura_assistant/features/trigger_integration/infrastructure/platform/trigger_platform_service.dart';
-import 'package:aura_assistant/features/trigger_integration/infrastructure/platform/method_channel_constants.dart';
+import 'package:texo/features/trigger_integration/infrastructure/platform/trigger_platform_service.dart';
+import 'package:texo/features/trigger_integration/infrastructure/platform/method_channel_constants.dart';
 
 void main() {
   group('TriggerPlatformService', () {

@@ -1,5 +1,5 @@
 import 'package:flutter_test/flutter_test.dart';
-import 'package:aura_assistant/domain/entities/agent_config.dart';
+import 'package:texo/domain/entities/agent_config.dart';
 
 void main() {
   group('AgentConfig', () {

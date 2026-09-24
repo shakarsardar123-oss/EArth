@@ -4,12 +4,12 @@
 // state transitions using the StubAssistantService.
 
 import 'package:flutter_test/flutter_test.dart';
-import 'package:aura_assistant/core/errors/result.dart';
-import 'package:aura_assistant/features/assistant_integration/domain/entities/assistant_status.dart';
-import 'package:aura_assistant/features/assistant_integration/domain/entities/assistant_invocation.dart';
-import 'package:aura_assistant/features/assistant_integration/domain/models/assistant_failure.dart';
-import 'package:aura_assistant/features/assistant_integration/domain/models/assistant_state.dart';
-import 'package:aura_assistant/features/assistant_integration/infrastructure/stub_assistant_service.dart';
+import 'package:texo/core/errors/result.dart';
+import 'package:texo/features/assistant_integration/domain/entities/assistant_status.dart';
+import 'package:texo/features/assistant_integration/domain/entities/assistant_invocation.dart';
+import 'package:texo/features/assistant_integration/domain/models/assistant_failure.dart';
+import 'package:texo/features/assistant_integration/domain/models/assistant_state.dart';
+import 'package:texo/features/assistant_integration/infrastructure/stub_assistant_service.dart';
 
 // We cannot directly instantiate AgentEngine or VoiceScreenPipeline
 // in structural tests, so we test the controller indirectly via the

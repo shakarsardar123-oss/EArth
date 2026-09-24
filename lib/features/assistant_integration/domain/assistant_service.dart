@@ -10,7 +10,7 @@
 /// and delegates to a MethodChannel.
 library;
 
-import 'package:aura_assistant/core/errors/result.dart';
+import 'package:texo/core/errors/result.dart';
 import 'entities/assistant_status.dart';
 import 'entities/assistant_invocation.dart';
 import 'models/assistant_failure.dart';

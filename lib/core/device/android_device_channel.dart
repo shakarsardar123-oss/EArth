@@ -1,6 +1,6 @@
 /// Concrete [DeviceChannel] backed by an Android [MethodChannel].
 ///
-/// Channel name: `com.aura.aura_assistant/device`
+/// Channel name: `com.texo.texo/device`
 ///
 /// Every method call is forwarded to the Kotlin handler in
 /// `MainActivity.kt`. If the platform is not Android (e.g. iOS in
@@ -28,7 +28,7 @@ abstract class DeviceMethodNames {
 class AndroidDeviceChannel implements DeviceChannel {
   /// The single shared MethodChannel for all device actions.
   static const MethodChannel _channel =
-      MethodChannel('com.aura.aura_assistant/device');
+      MethodChannel('com.texo.texo/device');
 
   @override
   Future<DeviceChannelResult> getDeviceInfo() =>

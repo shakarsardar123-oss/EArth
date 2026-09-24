@@ -12,9 +12,9 @@
 
 import 'package:flutter/services.dart';
 import 'package:flutter_test/flutter_test.dart';
-import 'package:aura_assistant/core/errors/result.dart';
-import 'package:aura_assistant/features/assistant_integration/domain/entities/assistant_status.dart';
-import 'package:aura_assistant/features/assistant_integration/infrastructure/assistant_method_channel.dart';
+import 'package:texo/core/errors/result.dart';
+import 'package:texo/features/assistant_integration/domain/entities/assistant_status.dart';
+import 'package:texo/features/assistant_integration/infrastructure/assistant_method_channel.dart';
 
 void main() {
   TestWidgetsFlutterBinding.ensureInitialized();

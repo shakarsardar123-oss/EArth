@@ -5,7 +5,7 @@
 /// Maintains a secure, redacted audit trail of all security events.
 library;
 
-import 'package:aura_assistant/core/errors/result.dart';
+import 'package:texo/core/errors/result.dart';
 import '../models/security_audit_entry.dart';
 import '../models/security_state.dart' show SecurityEventSeverity;
 import '../models/security_failure.dart';

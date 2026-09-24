@@ -4,7 +4,7 @@
 // the factory typedef exist and are correct.
 
 import 'package:flutter_test/flutter_test.dart';
-import 'package:aura_assistant/features/assistant_integration/application/assistant_providers.dart';
+import 'package:texo/features/assistant_integration/application/assistant_providers.dart';
 
 void main() {
   group('AssistantProviders', () {

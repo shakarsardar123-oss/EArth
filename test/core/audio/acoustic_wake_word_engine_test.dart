@@ -2,8 +2,8 @@ import 'dart:async';
 
 import 'package:flutter/services.dart';
 import 'package:flutter_test/flutter_test.dart';
-import 'package:aura_assistant/core/audio/acoustic_wake_word_engine.dart';
-import 'package:aura_assistant/core/audio/wake_word_debouncer.dart';
+import 'package:texo/core/audio/acoustic_wake_word_engine.dart';
+import 'package:texo/core/audio/wake_word_debouncer.dart';
 
 /// Tests the REAL NativeAcousticWakeWordEngine wiring against a mocked native
 /// KWS channel: model loading, missing model, valid "Hey AURA" detection,

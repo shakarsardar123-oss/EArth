@@ -1,5 +1,5 @@
 import 'package:flutter_test/flutter_test.dart';
-import 'package:aura_assistant/core/utils/input_validator.dart';
+import 'package:texo/core/utils/input_validator.dart';
 
 void main() {
   group('InputValidator', () {

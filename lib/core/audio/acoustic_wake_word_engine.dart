@@ -86,9 +86,9 @@ class NativeAcousticWakeWordEngine implements AcousticWakeWordEngine {
     WakeWordDebouncer? debouncer,
     DateTime Function()? clock,
   })  : _events = eventChannel ??
-            const EventChannel('com.aura.aura_assistant/wake.events'),
+            const EventChannel('com.texo.texo/wake.events'),
         _control = controlChannel ??
-            const MethodChannel('com.aura.aura_assistant/wake'),
+            const MethodChannel('com.texo.texo/wake'),
         _debouncer = debouncer ?? WakeWordDebouncer(),
         _clock = clock ?? DateTime.now;
 

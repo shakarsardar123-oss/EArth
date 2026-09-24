@@ -4,7 +4,7 @@
 /// Validates retrieval interface and fail-closed behavior.
 
 import 'package:flutter_test/flutter_test.dart';
-import 'package:aura_assistant/features/semantic_memory/adapters/memory_retrieval_adapter.dart';
+import 'package:texo/features/semantic_memory/adapters/memory_retrieval_adapter.dart';
 
 void main() {
   group('MemoryRetrievalAdapter', () {

@@ -3,12 +3,12 @@
 /// Structural tests verifying barrel export files import without error.
 /// No Flutter/Dart SDK — structural validation only, NEVER claim runtime test results.
 
-import 'package:aura_assistant/features/trigger_integration/trigger_integration.dart';
-import 'package:aura_assistant/features/trigger_integration/domain/trigger_integration_domain.dart';
-import 'package:aura_assistant/features/trigger_integration/application/trigger_integration_application.dart';
-import 'package:aura_assistant/features/trigger_integration/infrastructure/trigger_integration_infrastructure.dart';
-import 'package:aura_assistant/features/trigger_integration/presentation/trigger_integration_presentation.dart';
-import 'package:aura_assistant/features/trigger_integration/localization/trigger_localization_keys.dart';
+import 'package:texo/features/trigger_integration/trigger_integration.dart';
+import 'package:texo/features/trigger_integration/domain/trigger_integration_domain.dart';
+import 'package:texo/features/trigger_integration/application/trigger_integration_application.dart';
+import 'package:texo/features/trigger_integration/infrastructure/trigger_integration_infrastructure.dart';
+import 'package:texo/features/trigger_integration/presentation/trigger_integration_presentation.dart';
+import 'package:texo/features/trigger_integration/localization/trigger_localization_keys.dart';
 
 void main() {
   group('Barrel Exports', () {

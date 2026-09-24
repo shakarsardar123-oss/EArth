@@ -4,7 +4,7 @@
 /// Validates the adapter interface and Default/Step implementations.
 
 import 'package:flutter_test/flutter_test.dart';
-import 'package:aura_assistant/features/semantic_memory/adapters/memory_action_adapter.dart';
+import 'package:texo/features/semantic_memory/adapters/memory_action_adapter.dart';
 
 void main() {
   group('MemoryActionAdapter', () {

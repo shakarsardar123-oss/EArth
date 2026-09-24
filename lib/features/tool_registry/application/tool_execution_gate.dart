@@ -16,17 +16,17 @@
 /// This is the core security boundary for tool execution.
 library;
 
-import 'package:aura_assistant/core/errors/result.dart';
-import 'package:aura_assistant/features/tool_registry/domain/models/models.dart';
-import 'package:aura_assistant/features/tool_registry/domain/services/tool_registry_service.dart';
-import 'package:aura_assistant/features/tool_registry/domain/services/tool_confirmation_service.dart';
+import 'package:texo/core/errors/result.dart';
+import 'package:texo/features/tool_registry/domain/models/models.dart';
+import 'package:texo/features/tool_registry/domain/services/tool_registry_service.dart';
+import 'package:texo/features/tool_registry/domain/services/tool_confirmation_service.dart';
 // TODO(CATEGORY B — Architecture Violation): Application layer should not import infrastructure adapters.
 // These should depend on domain interfaces with infrastructure providing concrete implementations.
 // See: tool_registry/infrastructure/adapters/{tool_security,tool_permission,tool_recovery,tool_memory}_adapter.dart
-import 'package:aura_assistant/features/tool_registry/application/contracts/tool_security_adapter.dart';
-import 'package:aura_assistant/features/tool_registry/application/contracts/tool_permission_adapter.dart';
-import 'package:aura_assistant/features/tool_registry/application/contracts/tool_recovery_adapter.dart';
-import 'package:aura_assistant/features/tool_registry/application/contracts/tool_memory_adapter.dart';
+import 'package:texo/features/tool_registry/application/contracts/tool_security_adapter.dart';
+import 'package:texo/features/tool_registry/application/contracts/tool_permission_adapter.dart';
+import 'package:texo/features/tool_registry/application/contracts/tool_recovery_adapter.dart';
+import 'package:texo/features/tool_registry/application/contracts/tool_memory_adapter.dart';
 
 /// Callback type for executing a tool's core logic.
 ///

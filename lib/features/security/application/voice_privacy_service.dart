@@ -7,7 +7,7 @@
 /// FAIL CLOSED: if privacy check fails, voice content is protected.
 library;
 
-import 'package:aura_assistant/core/errors/result.dart';
+import 'package:texo/core/errors/result.dart';
 import '../domain/models/security_config.dart';
 import '../domain/models/security_failure.dart';
 

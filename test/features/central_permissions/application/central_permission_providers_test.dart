@@ -4,7 +4,7 @@
 /// Tests for CentralPermissionProviders (application layer).
 
 import 'package:flutter_test/flutter_test.dart';
-import 'package:aura_assistant/features/central_permissions/application/central_permission_providers.dart';
+import 'package:texo/features/central_permissions/application/central_permission_providers.dart';
 
 void main() {
   group('CentralPermissionProviders', () {

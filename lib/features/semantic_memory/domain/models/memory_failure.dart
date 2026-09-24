@@ -2,7 +2,7 @@
 /// AURA Assistant – Step 17: Semantic Memory
 library;
 
-import 'package:aura_assistant/core/errors/result.dart';
+import 'package:texo/core/errors/result.dart';
 
 /// Phases of the semantic memory lifecycle where a failure may occur.
 enum MemoryFailurePhase {

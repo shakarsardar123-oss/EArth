@@ -7,7 +7,7 @@
 /// in an abstract class and providing creator functions.
 library;
 
-import 'package:aura_assistant/core/errors/result.dart';
+import 'package:texo/core/errors/result.dart';
 import '../../../core/agent/agent_engine.dart';
 import '../../../core/voice_screen/voice_screen_service.dart';
 import '../../../services/voice/voice_service.dart';

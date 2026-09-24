@@ -25,15 +25,15 @@ library;
 
 import 'dart:async';
 
-import 'package:aura_assistant/features/tool_registry/domain/models/tool_definition.dart';
-import 'package:aura_assistant/features/tool_registry/domain/models/tool_execution_result.dart';
-import 'package:aura_assistant/features/tool_registry/domain/models/tool_failure.dart';
-import 'package:aura_assistant/features/tool_registry/application/tool_execution_gate.dart';
+import 'package:texo/features/tool_registry/domain/models/tool_definition.dart';
+import 'package:texo/features/tool_registry/domain/models/tool_execution_result.dart';
+import 'package:texo/features/tool_registry/domain/models/tool_failure.dart';
+import 'package:texo/features/tool_registry/application/tool_execution_gate.dart';
 // TODO(CATEGORY B — Architecture Violation): Application layer should not import infrastructure implementations.
 // These should depend on domain interfaces with infrastructure providing concrete implementations.
 // See: tool_registry/infrastructure/default_tool_execution_gate.dart, default_tool_confirmation_service.dart
-import 'package:aura_assistant/features/tool_registry/infrastructure/default_tool_execution_gate.dart';
-import 'package:aura_assistant/features/tool_registry/infrastructure/default_tool_confirmation_service.dart';
+import 'package:texo/features/tool_registry/infrastructure/default_tool_execution_gate.dart';
+import 'package:texo/features/tool_registry/infrastructure/default_tool_confirmation_service.dart';
 
 import '../domain/models/tool_execution_context.dart';
 import '../domain/models/tool_input.dart';

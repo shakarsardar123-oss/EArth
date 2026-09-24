@@ -9,11 +9,11 @@ import 'package:http/src/base_request.dart';
 import 'package:http/src/byte_stream.dart';
 import 'package:flutter_secure_storage/flutter_secure_storage.dart';
 
-import 'package:aura_assistant/core/ai/openai_provider.dart';
-import 'package:aura_assistant/core/ai/provider_exception.dart';
-import 'package:aura_assistant/domain/services/ai_service.dart';
-import 'package:aura_assistant/core/ai/ai_message.dart';
-import 'package:aura_assistant/domain/entities/agent_config.dart';
+import 'package:texo/core/ai/openai_provider.dart';
+import 'package:texo/core/ai/provider_exception.dart';
+import 'package:texo/domain/services/ai_service.dart';
+import 'package:texo/core/ai/ai_message.dart';
+import 'package:texo/domain/entities/agent_config.dart';
 
 // ─── Fake FlutterSecureStorage ────────────────────────────────────────
 

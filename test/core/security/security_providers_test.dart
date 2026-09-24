@@ -1,16 +1,16 @@
 import 'package:flutter_test/flutter_test.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import 'package:aura_assistant/core/security/security_policy.dart';
-import 'package:aura_assistant/core/security/confirmation_guard.dart';
-import 'package:aura_assistant/core/security/tool_security_gate.dart';
-import 'package:aura_assistant/core/security/security_providers.dart';
-import 'package:aura_assistant/core/permissions/permission_provider.dart';
-import 'package:aura_assistant/core/permissions/permission_service.dart';
+import 'package:texo/core/security/security_policy.dart';
+import 'package:texo/core/security/confirmation_guard.dart';
+import 'package:texo/core/security/tool_security_gate.dart';
+import 'package:texo/core/security/security_providers.dart';
+import 'package:texo/core/permissions/permission_provider.dart';
+import 'package:texo/core/permissions/permission_service.dart';
 import 'package:permission_handler/permission_handler.dart' as ph;
-import 'package:aura_assistant/core/errors/result.dart';
-import 'package:aura_assistant/core/errors/failures.dart';
-import 'package:aura_assistant/core/agent/agent_confirmation_manager.dart';
-import 'package:aura_assistant/core/tools/tool_arguments.dart';
+import 'package:texo/core/errors/result.dart';
+import 'package:texo/core/errors/failures.dart';
+import 'package:texo/core/agent/agent_confirmation_manager.dart';
+import 'package:texo/core/tools/tool_arguments.dart';
 
 void main() {
   group('security_providers', () {

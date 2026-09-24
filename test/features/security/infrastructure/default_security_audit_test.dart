@@ -2,7 +2,7 @@
 library;
 
 import 'package:flutter_test/flutter_test.dart';
-import 'package:aura_assistant/features/security/infrastructure/default_security_audit.dart';
+import 'package:texo/features/security/infrastructure/default_security_audit.dart';
 
 void main() {
   group('DefaultSecurityAuditService', () {

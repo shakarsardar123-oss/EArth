@@ -5,8 +5,8 @@
 library;
 
 import 'package:flutter_test/flutter_test.dart';
-import 'package:aura_assistant/features/device_integration/domain/models/security_verdict.dart';
-import 'package:aura_assistant/features/device_integration/domain/entities/device_action.dart';
+import 'package:texo/features/device_integration/domain/models/security_verdict.dart';
+import 'package:texo/features/device_integration/domain/entities/device_action.dart';
 
 void main() {
   // ─── SecurityVerdict factories ───────────────────────────────────

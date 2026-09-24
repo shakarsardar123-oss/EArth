@@ -1,5 +1,5 @@
 import 'package:flutter_test/flutter_test.dart';
-import 'package:aura_assistant/core/wakeword/wakeword_service.dart';
+import 'package:texo/core/wakeword/wakeword_service.dart';
 
 /// Pure unit tests for the WakeWordService detection logic. These exercise
 /// the SAME normalization + substring predicate used by the live matcher

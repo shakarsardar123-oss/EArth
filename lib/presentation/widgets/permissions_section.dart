@@ -23,11 +23,11 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:permission_handler/permission_handler.dart' as ph;
 
-import 'package:aura_assistant/l10n/app_localizations.dart';
-import 'package:aura_assistant/features/device_integration/domain/models/permission_status.dart';
-import 'package:aura_assistant/features/central_permissions/presentation/permission_status_card.dart';
-import 'package:aura_assistant/core/permissions/contextual_permission_helper.dart';
-import 'package:aura_assistant/core/theme/app_colors.dart';
+import 'package:texo/l10n/app_localizations.dart';
+import 'package:texo/features/device_integration/domain/models/permission_status.dart';
+import 'package:texo/features/central_permissions/presentation/permission_status_card.dart';
+import 'package:texo/core/permissions/contextual_permission_helper.dart';
+import 'package:texo/core/theme/app_colors.dart';
 
 /// Permissions that can be checked/requested via permission_handler.
 ///

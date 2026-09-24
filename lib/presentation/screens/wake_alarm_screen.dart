@@ -2,7 +2,7 @@ import 'dart:ui';
 
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import 'package:aura_assistant/l10n/app_localizations.dart';
+import 'package:texo/l10n/app_localizations.dart';
 
 import '../../domain/entities/alarm/wake_alarm.dart';
 import '../../domain/entities/alarm/wake_verification_config.dart';

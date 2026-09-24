@@ -3,7 +3,7 @@
 library;
 
 import 'package:flutter_test/flutter_test.dart';
-import 'package:aura_assistant/features/advanced_agent/domain/models/context_aware_config.dart';
+import 'package:texo/features/advanced_agent/domain/models/context_aware_config.dart';
 
 void main() {
   group('ContextAwareConfig', () {

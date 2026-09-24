@@ -6,7 +6,7 @@
 ///
 /// Enhancements:
 ///   • Smart Greeting from greeting_provider shown above AURA header
-///   • AURA identity subtitle "من ئەورای تایبەتی تۆم"
+///   • AURA identity subtitle "من تێکسۆی تایبەتی تۆم"
 ///   • Menu hamburger replaced with Chat navigation button (index 1)
 ///   • Settings gear updated to index 2
 ///   • All hardcoded strings replaced with l10n keys
@@ -15,7 +15,7 @@ library;
 
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import 'package:aura_assistant/l10n/app_localizations.dart';
+import 'package:texo/l10n/app_localizations.dart';
 
 import '../../core/providers/phase3_connection_points.dart';
 import '../../core/providers/greeting_provider.dart';
@@ -159,7 +159,7 @@ class VoiceScreen extends ConsumerWidget {
 
                 // ── AURA header ──
                 Text(
-                  'AURA',
+                  'TEXO',
                   style: TextStyle(
                     fontSize: 28,
                     fontWeight: FontWeight.w800,

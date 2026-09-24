@@ -1,8 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
-import 'package:aura_assistant/core/theme/theme_provider.dart';
-import 'package:aura_assistant/core/theme/app_colors.dart';
-import 'package:aura_assistant/core/theme/app_text_styles.dart';
+import 'package:texo/core/theme/theme_provider.dart';
+import 'package:texo/core/theme/app_colors.dart';
+import 'package:texo/core/theme/app_text_styles.dart';
 
 void main() {
   group('AuraThemeMode', () {

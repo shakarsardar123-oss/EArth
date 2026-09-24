@@ -11,7 +11,7 @@ library;
 import 'dart:async';
 
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import 'package:aura_assistant/core/errors/result.dart' show Result, Success, Failure;
+import 'package:texo/core/errors/result.dart' show Result, Success, Failure;
 import '../application/secure_storage_service.dart';
 import '../domain/models/security_audit_entry.dart';
 import '../domain/models/security_config.dart';

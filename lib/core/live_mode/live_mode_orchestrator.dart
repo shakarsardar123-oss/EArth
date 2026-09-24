@@ -74,7 +74,7 @@ class LiveModeOrchestrator {
     'خۆت ناچالاک بکە',
     'ناچالاک بکە',
     'بەس بکە',
-    'ماڵئاوا ئەورا',
+    'ماڵئاوا تێکسۆ',
     'ماڵئاوا',
     'کۆتایی',
     // English
@@ -540,10 +540,10 @@ class LiveModeOrchestrator {
   Future<AgentConfig> _getDefaultConfig() async {
     return const AgentConfig(
       id: 'default',
-      name: 'AURA',
+      name: 'TEXO',
       description: 'یاریدەدەری تایبەتی تۆ',
       systemPrompt:
-          'من ئەورای تایبەتی تۆم. وەڵامی کوردی سۆرانی بدەرەوە.',
+          'من تێکسۆی تایبەتی تۆم. وەڵامی کوردی سۆرانی بدەرەوە.',
       modelId: 'gemini-3.6-flash',
       temperature: 0.7,
       maxTokens: 2048,

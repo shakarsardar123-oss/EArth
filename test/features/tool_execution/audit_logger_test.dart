@@ -3,8 +3,8 @@
 // Structural validation only.
 
 import 'package:flutter_test/flutter_test.dart';
-import 'package:aura_assistant/features/tool_execution/infrastructure/audit_logger.dart';
-import 'package:aura_assistant/features/tool_execution/domain/models/tool_execution_metadata.dart';
+import 'package:texo/features/tool_execution/infrastructure/audit_logger.dart';
+import 'package:texo/features/tool_execution/domain/models/tool_execution_metadata.dart';
 
 void main() {
   group('AuditLogger', () {

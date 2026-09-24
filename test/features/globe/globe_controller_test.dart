@@ -3,9 +3,9 @@
 // real gazetteer, and never invents coordinates for unknown names.
 import 'package:flutter_test/flutter_test.dart';
 
-import 'package:aura_assistant/features/globe/application/globe_controller.dart';
-import 'package:aura_assistant/features/globe/domain/globe_models.dart';
-import 'package:aura_assistant/features/globe/domain/location_action.dart';
+import 'package:texo/features/globe/application/globe_controller.dart';
+import 'package:texo/features/globe/domain/globe_models.dart';
+import 'package:texo/features/globe/domain/location_action.dart';
 
 void main() {
   group('GlobeController primitives', () {

@@ -4,7 +4,7 @@
 /// FAIL-CLOSED: unknown types are NEVER authorizable.
 /// No Flutter/Dart SDK — structural validation only, NEVER claim runtime test results.
 
-import 'package:aura_assistant/features/trigger_integration/domain/value_objects/trigger_type.dart';
+import 'package:texo/features/trigger_integration/domain/value_objects/trigger_type.dart';
 
 void main() {
   group('TriggerType', () {

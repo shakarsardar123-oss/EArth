@@ -5,7 +5,7 @@
 /// Each feature module that requires permissions implements this class
 /// to declare which DevicePermission values it needs.
 
-import 'package:aura_assistant/features/device_integration/domain/models/permission_status.dart';
+import 'package:texo/features/device_integration/domain/models/permission_status.dart';
 
 /// Maps a feature module to the set of [DevicePermission] values it requires.
 ///

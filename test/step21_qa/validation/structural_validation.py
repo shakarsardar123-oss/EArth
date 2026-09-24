@@ -92,7 +92,7 @@ def check_imports(filepath: Path) -> dict:
         return {"exists": False}
     content = filepath.read_text(encoding="utf-8", errors="replace")
     has_flutter_test = "import 'package:flutter_test/flutter_test.dart'" in content
-    has_aura_import = "import 'package:aura_assistant/" in content or "import 'package:aura_assistant'" in content
+    has_aura_import = "import 'package:texo/" in content or "import 'package:aura_assistant'" in content
     return {
         "exists": True,
         "has_flutter_test_import": has_flutter_test,

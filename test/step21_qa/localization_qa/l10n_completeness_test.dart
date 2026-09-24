@@ -6,7 +6,7 @@
 /// and sensitive data never appears in translation strings.
 
 import 'package:flutter_test/flutter_test.dart';
-import 'package:aura_assistant/features/semantic_memory/l10n/memory_strings.dart';
+import 'package:texo/features/semantic_memory/l10n/memory_strings.dart';
 
 void main() {
   group('Localization QA – Completeness', () {

@@ -4,7 +4,7 @@ import 'dart:math' as math;
 import 'package:camera/camera.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import 'package:aura_assistant/l10n/app_localizations.dart';
+import 'package:texo/l10n/app_localizations.dart';
 import 'package:permission_handler/permission_handler.dart' as ph;
 
 import '../../core/permissions/contextual_permission_helper.dart';

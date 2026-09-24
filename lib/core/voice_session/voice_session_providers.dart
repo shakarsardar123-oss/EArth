@@ -1,7 +1,7 @@
 /// voice_session_providers.dart
-/// AURA Assistant – Phase 5: Riverpod wiring for the voice-assistant session
+/// TEXO – Phase 5: Riverpod wiring for the voice-assistant session
 ///
-/// Exposes the [VoiceSessionCoordinator] and the user-facing Voice Assistant
+/// Exposes the [VoiceSessionCoordinator] and the user-facing TEXO Voice
 /// settings, reusing the EXISTING providers for the wake word, the shared
 /// VoiceService, and the Live Mode orchestrator (no duplicate engines).
 library;
@@ -19,7 +19,7 @@ import '../audio/audio_providers.dart'
         outputLevelMonitorProvider;
 import 'voice_session_coordinator.dart';
 
-// ── Voice Assistant settings (persisted by the UI layer as needed) ──
+// ── TEXO Voice settings (persisted by the UI layer as needed) ──
 
 /// Wake Word ON/OFF.
 final wakeWordEnabledProvider = StateProvider<bool>((ref) => true);
@@ -39,7 +39,7 @@ final voiceResponsesEnabledProvider = StateProvider<bool>((ref) => true);
 final sessionTimeoutProvider = liveSessionTimeoutProvider;
 
 /// The fixed wake phrase, shown (read-only) in settings.
-const String kAuraWakePhrase = 'Hey AURA / ئەورا';
+const String kTexoWakePhrase = 'Hey TEXO / تێکسۆ';
 
 // ── Coordinator ──
 

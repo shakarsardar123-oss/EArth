@@ -4,8 +4,8 @@
 /// Tests for StubCentralPermissionManager (implements CentralPermissionService).
 
 import 'package:flutter_test/flutter_test.dart';
-import 'package:aura_assistant/features/central_permissions/infrastructure/stub_central_permission_manager.dart';
-import 'package:aura_assistant/features/device_integration/domain/models/permission_status.dart';
+import 'package:texo/features/central_permissions/infrastructure/stub_central_permission_manager.dart';
+import 'package:texo/features/device_integration/domain/models/permission_status.dart';
 
 void main() {
   group('StubCentralPermissionManager', () {

@@ -50,9 +50,9 @@ class NativeOutputLevelMonitor implements OutputLevelMonitor {
     EventChannel? eventChannel,
     MethodChannel? controlChannel,
   })  : _events = eventChannel ??
-            const EventChannel('com.aura.aura_assistant/output_level.events'),
+            const EventChannel('com.texo.texo/output_level.events'),
         _control = controlChannel ??
-            const MethodChannel('com.aura.aura_assistant/output_level');
+            const MethodChannel('com.texo.texo/output_level');
 
   final EventChannel _events;
   final MethodChannel _control;

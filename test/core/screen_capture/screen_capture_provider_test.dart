@@ -3,12 +3,12 @@ import 'dart:async';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
-import 'package:aura_assistant/core/errors/result.dart';
-import 'package:aura_assistant/core/errors/failures.dart';
-import 'package:aura_assistant/core/screen_capture/screen_capture_state.dart';
-import 'package:aura_assistant/core/screen_capture/screen_capture_result.dart';
-import 'package:aura_assistant/core/screen_capture/screen_capture_service.dart';
-import 'package:aura_assistant/core/screen_capture/screen_capture_provider.dart';
+import 'package:texo/core/errors/result.dart';
+import 'package:texo/core/errors/failures.dart';
+import 'package:texo/core/screen_capture/screen_capture_state.dart';
+import 'package:texo/core/screen_capture/screen_capture_result.dart';
+import 'package:texo/core/screen_capture/screen_capture_service.dart';
+import 'package:texo/core/screen_capture/screen_capture_provider.dart';
 
 /// A fake [ScreenCaptureService] for provider tests.
 class ProviderFakeScreenCaptureService implements ScreenCaptureService {

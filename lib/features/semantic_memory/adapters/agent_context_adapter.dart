@@ -23,7 +23,7 @@
 /// Kurdish-first, local-first, privacy-conscious.
 library;
 
-import 'package:aura_assistant/core/agent/agent_context.dart';
+import 'package:texo/core/agent/agent_context.dart';
 import '../application/agent_memory_integration.dart';
 
 /// Adapter that makes [AgentContext] conform to the [AgentContextView] interface.

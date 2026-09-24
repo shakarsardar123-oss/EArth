@@ -2,9 +2,9 @@
 library;
 
 import 'package:flutter_test/flutter_test.dart';
-import 'package:aura_assistant/features/security/adapters/security_recovery_adapter.dart';
-import 'package:aura_assistant/features/security/adapters/security_memory_adapter.dart';
-import 'package:aura_assistant/features/security/adapters/security_permission_adapter.dart';
+import 'package:texo/features/security/adapters/security_recovery_adapter.dart';
+import 'package:texo/features/security/adapters/security_memory_adapter.dart';
+import 'package:texo/features/security/adapters/security_permission_adapter.dart';
 
 void main() {
   group('SecurityRecoveryAdapter', () {

@@ -2,7 +2,7 @@
 /// Step 21 – Unit tests for MemorySearchResult (Step 17 domain model)
 
 import 'package:flutter_test/flutter_test.dart';
-import 'package:aura_assistant/features/semantic_memory/domain/models/memory_search_result.dart';
+import 'package:texo/features/semantic_memory/domain/models/memory_search_result.dart';
 
 void main() {
   group('MemorySearchResult', () {

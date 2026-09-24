@@ -1,7 +1,7 @@
 /// Hand-written fake [SecurityPolicy] for voice-screen engine tests.
 library;
 
-import 'package:aura_assistant/core/security/security_policy.dart';
+import 'package:texo/core/security/security_policy.dart';
 
 /// Configuration for [FakeSecurityPolicy].
 class FakeSecurityConfig {

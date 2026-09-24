@@ -7,7 +7,7 @@
 /// FAIL CLOSED: on redaction error, over-redacts (full placeholder).
 library;
 
-import 'package:aura_assistant/core/errors/result.dart';
+import 'package:texo/core/errors/result.dart';
 import '../domain/models/redaction_rule.dart';
 import '../domain/models/security_failure.dart';
 import '../domain/services/sensitive_data_redactor.dart';

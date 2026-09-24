@@ -4,7 +4,7 @@
 library;
 
 import 'package:flutter_test/flutter_test.dart';
-import 'package:aura_assistant/features/device_integration/domain/models/permission_status.dart';
+import 'package:texo/features/device_integration/domain/models/permission_status.dart';
 
 void main() {
   // ─── PermissionStatus ────────────────────────────────────────────

@@ -5,7 +5,7 @@
 /// All logged content MUST be redacted — no raw secrets ever logged.
 library;
 
-import 'package:aura_assistant/core/errors/result.dart';
+import 'package:texo/core/errors/result.dart';
 import '../models/security_audit_entry.dart';
 import '../models/security_config.dart';
 import '../models/security_failure.dart';

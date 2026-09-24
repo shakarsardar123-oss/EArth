@@ -4,9 +4,9 @@
 /// Normalization adds metadata keys: isScreenAction, normalizedFrom.
 /// No Flutter/Dart SDK — structural validation only, NEVER claim runtime test results.
 
-import 'package:aura_assistant/features/trigger_integration/domain/entities/trigger_request.dart';
-import 'package:aura_assistant/features/trigger_integration/domain/value_objects/trigger_type.dart';
-import 'package:aura_assistant/features/trigger_integration/application/normalization/trigger_normalization_service.dart';
+import 'package:texo/features/trigger_integration/domain/entities/trigger_request.dart';
+import 'package:texo/features/trigger_integration/domain/value_objects/trigger_type.dart';
+import 'package:texo/features/trigger_integration/application/normalization/trigger_normalization_service.dart';
 
 void main() {
   group('TriggerNormalizationService', () {

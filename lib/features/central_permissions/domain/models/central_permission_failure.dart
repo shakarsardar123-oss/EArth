@@ -6,8 +6,8 @@
 //   phase enum + factory constructors + phase/message/action/cause.
 // ───────────────────────────────────────────────────────────────────
 
-import 'package:aura_assistant/core/errors/result.dart';
-import 'package:aura_assistant/features/device_integration/domain/models/permission_status.dart';
+import 'package:texo/core/errors/result.dart';
+import 'package:texo/features/device_integration/domain/models/permission_status.dart';
 
 /// Phases during which a central-permission operation can fail.
 enum CentralPermissionFailurePhase {

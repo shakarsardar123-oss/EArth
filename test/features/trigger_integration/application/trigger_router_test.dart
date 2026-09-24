@@ -4,10 +4,10 @@
 /// FAIL-CLOSED: handler errors → denied result.
 /// No Flutter/Dart SDK — structural validation only, NEVER claim runtime test results.
 
-import 'package:aura_assistant/features/trigger_integration/domain/entities/trigger_request.dart';
-import 'package:aura_assistant/features/trigger_integration/domain/entities/trigger_result.dart';
-import 'package:aura_assistant/features/trigger_integration/domain/value_objects/trigger_type.dart';
-import 'package:aura_assistant/features/trigger_integration/application/router/trigger_router.dart';
+import 'package:texo/features/trigger_integration/domain/entities/trigger_request.dart';
+import 'package:texo/features/trigger_integration/domain/entities/trigger_result.dart';
+import 'package:texo/features/trigger_integration/domain/value_objects/trigger_type.dart';
+import 'package:texo/features/trigger_integration/application/router/trigger_router.dart';
 
 // Minimal mock handler for structural testing.
 Future<TriggerResult> _launchedHandler(TriggerRequest request) async {

@@ -13,7 +13,7 @@ import 'dart:io';
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
 
-import 'package:aura_assistant/presentation/widgets/aura_wave_form.dart';
+import 'package:texo/presentation/widgets/aura_wave_form.dart';
 
 String _readWaveFormSource() {
   final file = File('lib/presentation/widgets/aura_wave_form.dart');

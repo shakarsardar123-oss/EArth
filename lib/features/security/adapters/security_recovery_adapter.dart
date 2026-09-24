@@ -9,7 +9,7 @@
 /// failure verdict stands (never downgrade a denial).
 library;
 
-import 'package:aura_assistant/core/errors/result.dart';
+import 'package:texo/core/errors/result.dart';
 import '../domain/models/security_failure.dart';
 import '../domain/models/security_verdict.dart';
 

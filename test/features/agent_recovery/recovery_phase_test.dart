@@ -6,7 +6,7 @@
 library;
 
 import 'package:flutter_test/flutter_test.dart';
-import 'package:aura_assistant/features/agent_recovery/domain/models/recovery_phase.dart';
+import 'package:texo/features/agent_recovery/domain/models/recovery_phase.dart';
 
 void main() {
   group('RecoveryPhase', () {

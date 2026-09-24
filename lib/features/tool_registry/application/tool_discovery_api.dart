@@ -9,8 +9,8 @@
 /// and discovery-specific logic.
 library;
 
-import 'package:aura_assistant/core/errors/result.dart';
-import 'package:aura_assistant/features/tool_registry/domain/models/models.dart';
+import 'package:texo/core/errors/result.dart';
+import 'package:texo/features/tool_registry/domain/models/models.dart';
 
 /// A single discovered tool with its allowlist status.
 class DiscoveredTool {

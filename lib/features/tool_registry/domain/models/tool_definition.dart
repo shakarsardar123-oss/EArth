@@ -11,8 +11,8 @@
 library;
 
 import 'package:flutter/foundation.dart';
-import 'package:aura_assistant/features/tool_registry/domain/models/tool_category.dart';
-import 'package:aura_assistant/features/tool_registry/domain/models/confirmation_policy.dart';
+import 'package:texo/features/tool_registry/domain/models/tool_category.dart';
+import 'package:texo/features/tool_registry/domain/models/confirmation_policy.dart';
 
 /// Risk levels a tool can have. Mirrors Step 19's ActionRiskLevel but
 /// is defined here in tool-registry domain to avoid coupling.

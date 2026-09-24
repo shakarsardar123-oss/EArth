@@ -1,4 +1,4 @@
-package com.aura.aura_assistant
+package com.texo.texo
 
 import android.content.ComponentName
 import android.content.Context
@@ -14,7 +14,7 @@ import io.flutter.plugin.common.MethodChannel
 
 /**
  * Owns the platform-channel wiring for the floating-overlay subsystem
- * (channel name: com.aura.aura_assistant/floating_aura_overlay — must
+ * (channel name: com.texo.texo/floating_texo_overlay — must
  * match FloatingAuraMethodNames / floatingAuraMethodChannelName on the
  * Dart side), independent of [MainActivity]'s existing channel handlers.
  *
@@ -23,16 +23,16 @@ import io.flutter.plugin.common.MethodChannel
  * [MainActivity]. MainActivity only needs to call [attach] once from
  * configureFlutterEngine() and [detach] once from onDestroy().
  */
-object FloatingAuraBridge {
+object FloatingTexoBridge {
 
-    private const val CHANNEL_NAME = "com.aura.aura_assistant/floating_aura_overlay"
+    private const val CHANNEL_NAME = "com.texo.texo/floating_texo_overlay"
 
-    private var service: FloatingAuraOverlayService? = null
+    private var service: FloatingTexoOverlayService? = null
     private var bound = false
 
     private val connection = object : ServiceConnection {
         override fun onServiceConnected(name: ComponentName, binder: IBinder) {
-            service = (binder as FloatingAuraOverlayService.LocalBinder).service()
+            service = (binder as FloatingTexoOverlayService.LocalBinder).service()
             bound = true
         }
 
@@ -135,9 +135,9 @@ object FloatingAuraBridge {
     }
 
     private fun startAndBind(activity: MainActivity, xDp: Int, yDp: Int) {
-        val intent = Intent(activity, FloatingAuraOverlayService::class.java).apply {
-            putExtra(FloatingAuraOverlayService.EXTRA_POS_X_DP, xDp)
-            putExtra(FloatingAuraOverlayService.EXTRA_POS_Y_DP, yDp)
+        val intent = Intent(activity, FloatingTexoOverlayService::class.java).apply {
+            putExtra(FloatingTexoOverlayService.EXTRA_POS_X_DP, xDp)
+            putExtra(FloatingTexoOverlayService.EXTRA_POS_Y_DP, yDp)
         }
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
             activity.startForegroundService(intent)

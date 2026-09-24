@@ -4,7 +4,7 @@
 /// Validates construction, equality, and all fields.
 
 import 'package:flutter_test/flutter_test.dart';
-import 'package:aura_assistant/features/semantic_memory/domain/models/memory_query.dart';
+import 'package:texo/features/semantic_memory/domain/models/memory_query.dart';
 
 void main() {
   group('MemoryQuery', () {

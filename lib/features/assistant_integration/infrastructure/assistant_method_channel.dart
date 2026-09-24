@@ -1,7 +1,7 @@
 /// MethodChannel bridge for Android default-assistant operations.
 ///
 /// Follows the project convention: channel name matches
-/// `com.aura.assistant/<feature_name>`.
+/// `com.texo.texo/<feature_name>`.
 ///
 /// Methods exposed to the Flutter side:
 /// - `checkIsDefaultAssistant` → bool
@@ -12,14 +12,14 @@
 library;
 
 import 'package:flutter/services.dart';
-import 'package:aura_assistant/core/errors/result.dart';
+import 'package:texo/core/errors/result.dart';
 import '../domain/entities/assistant_status.dart';
 import '../domain/entities/assistant_invocation.dart';
 import '../domain/models/assistant_failure.dart';
 import '../domain/assistant_service.dart';
 
 /// MethodChannel name following project convention.
-const String _kChannelName = 'com.aura.assistant/assistant_integration';
+const String _kChannelName = 'com.texo.texo/assistant_integration';
 
 /// Method names invoked on the platform side.
 abstract class AssistantMethodNames {

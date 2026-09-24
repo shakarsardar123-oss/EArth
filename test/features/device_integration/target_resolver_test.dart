@@ -5,13 +5,13 @@ library;
 
 import 'dart:typed_data';
 import 'package:flutter_test/flutter_test.dart';
-import 'package:aura_assistant/features/device_integration/application/target_resolver.dart';
-import 'package:aura_assistant/features/device_integration/domain/entities/device_action.dart';
-import 'package:aura_assistant/features/device_integration/domain/models/device_integration_failure.dart';
-import 'package:aura_assistant/features/device_integration/infrastructure/services/screen_capture_service.dart';
-import 'package:aura_assistant/features/device_integration/infrastructure/services/screen_understanding_engine.dart';
-import 'package:aura_assistant/features/device_integration/infrastructure/services/screen_search_service.dart';
-import 'package:aura_assistant/core/errors/result.dart';
+import 'package:texo/features/device_integration/application/target_resolver.dart';
+import 'package:texo/features/device_integration/domain/entities/device_action.dart';
+import 'package:texo/features/device_integration/domain/models/device_integration_failure.dart';
+import 'package:texo/features/device_integration/infrastructure/services/screen_capture_service.dart';
+import 'package:texo/features/device_integration/infrastructure/services/screen_understanding_engine.dart';
+import 'package:texo/features/device_integration/infrastructure/services/screen_search_service.dart';
+import 'package:texo/core/errors/result.dart';
 
 /// Fake ScreenCaptureService for testing.
 class FakeScreenCaptureService implements ScreenCaptureService {

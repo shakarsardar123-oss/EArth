@@ -5,7 +5,7 @@
 /// all computed properties. No Flutter SDK – structural validation only.
 
 import 'package:flutter_test/flutter_test.dart';
-import 'package:aura_assistant/features/semantic_memory/domain/models/memory_entry.dart';
+import 'package:texo/features/semantic_memory/domain/models/memory_entry.dart';
 
 void main() {
   group('SemanticMemoryEntry', () {

@@ -5,7 +5,7 @@
 /// InMemoryRepository from infrastructure layer.
 
 import 'package:flutter_test/flutter_test.dart';
-import 'package:aura_assistant/features/semantic_memory/domain/repositories/memory_repository.dart';
+import 'package:texo/features/semantic_memory/domain/repositories/memory_repository.dart';
 
 void main() {
   group('SemanticMemoryRepository', () {

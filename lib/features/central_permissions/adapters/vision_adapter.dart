@@ -4,7 +4,7 @@
 /// Adapter for the vision feature module.
 /// Required: camera
 
-import 'package:aura_assistant/features/device_integration/domain/models/permission_status.dart';
+import 'package:texo/features/device_integration/domain/models/permission_status.dart';
 import 'feature_permission_adapter.dart';
 
 class VisionAdapter extends FeaturePermissionAdapter {

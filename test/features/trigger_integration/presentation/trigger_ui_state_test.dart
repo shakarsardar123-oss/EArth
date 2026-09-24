@@ -4,10 +4,10 @@
 /// FAIL-CLOSED: default state is idle/denied-oriented.
 /// No Flutter/Dart SDK — structural validation only, NEVER claim runtime test results.
 
-import 'package:aura_assistant/features/trigger_integration/presentation/state/trigger_ui_state.dart';
-import 'package:aura_assistant/features/trigger_integration/domain/value_objects/trigger_type.dart';
-import 'package:aura_assistant/features/trigger_integration/domain/value_objects/trigger_state.dart';
-import 'package:aura_assistant/features/trigger_integration/domain/entities/trigger_result.dart';
+import 'package:texo/features/trigger_integration/presentation/state/trigger_ui_state.dart';
+import 'package:texo/features/trigger_integration/domain/value_objects/trigger_type.dart';
+import 'package:texo/features/trigger_integration/domain/value_objects/trigger_state.dart';
+import 'package:texo/features/trigger_integration/domain/entities/trigger_result.dart';
 
 void main() {
   group('TriggerUiState', () {

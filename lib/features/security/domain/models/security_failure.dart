@@ -9,7 +9,7 @@
 /// FAIL CLOSED: unknown failures are always treated as blocked/denied.
 library;
 
-import 'package:aura_assistant/core/errors/result.dart';
+import 'package:texo/core/errors/result.dart';
 
 // ─── Phase enum ──────────────────────────────────────────────────────
 

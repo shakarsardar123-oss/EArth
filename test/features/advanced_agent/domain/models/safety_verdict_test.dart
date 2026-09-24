@@ -6,7 +6,7 @@
 library;
 
 import 'package:flutter_test/flutter_test.dart';
-import 'package:aura_assistant/features/advanced_agent/domain/models/safety_verdict.dart';
+import 'package:texo/features/advanced_agent/domain/models/safety_verdict.dart';
 
 void main() {
   group('SafetyVerdictStatus', () {

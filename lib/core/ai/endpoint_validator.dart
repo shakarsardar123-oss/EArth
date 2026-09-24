@@ -9,8 +9,8 @@
 /// Uses project Result/Failure architecture for validation failures.
 library;
 
-import 'package:aura_assistant/core/errors/result.dart';
-import 'package:aura_assistant/features/security/domain/models/security_failure.dart';
+import 'package:texo/core/errors/result.dart';
+import 'package:texo/features/security/domain/models/security_failure.dart';
 
 /// Validates that an AI provider base URL meets security requirements.
 ///

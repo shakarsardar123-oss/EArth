@@ -2,13 +2,13 @@
 /// AURA Assistant – Step 20: Tool Registry & Permissions
 library;
 
-import 'package:aura_assistant/features/tool_registry/application/contracts/tool_permission_adapter.dart';
+import 'package:texo/features/tool_registry/application/contracts/tool_permission_adapter.dart';
 
-export 'package:aura_assistant/features/tool_registry/application/contracts/tool_permission_adapter.dart';
+export 'package:texo/features/tool_registry/application/contracts/tool_permission_adapter.dart';
 
-import 'package:aura_assistant/features/tool_registry/domain/models/models.dart';
-import 'package:aura_assistant/features/central_permissions/domain/central_permission_service.dart';
-import 'package:aura_assistant/features/device_integration/domain/models/permission_status.dart';
+import 'package:texo/features/tool_registry/domain/models/models.dart';
+import 'package:texo/features/central_permissions/domain/central_permission_service.dart';
+import 'package:texo/features/device_integration/domain/models/permission_status.dart';
 
 class DefaultToolPermissionAdapter implements ToolPermissionAdapter {
   bool _isAvailable = false;

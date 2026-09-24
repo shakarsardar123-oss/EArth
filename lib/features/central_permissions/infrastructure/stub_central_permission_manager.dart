@@ -8,10 +8,10 @@
 //     use [PlatformPermissionManager] instead.
 // ───────────────────────────────────────────────────────────────────
 
-import 'package:aura_assistant/core/errors/result.dart';
-import 'package:aura_assistant/features/device_integration/domain/models/permission_status.dart';
-import 'package:aura_assistant/features/central_permissions/domain/central_permission_service.dart';
-import 'package:aura_assistant/features/central_permissions/domain/models/central_permission_failure.dart';
+import 'package:texo/core/errors/result.dart';
+import 'package:texo/features/device_integration/domain/models/permission_status.dart';
+import 'package:texo/features/central_permissions/domain/central_permission_service.dart';
+import 'package:texo/features/central_permissions/domain/models/central_permission_failure.dart';
 
 class StubCentralPermissionManager extends CentralPermissionService {
   /// When true, requestPermission always returns granted.

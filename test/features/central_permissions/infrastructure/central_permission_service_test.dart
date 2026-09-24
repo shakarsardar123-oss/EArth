@@ -4,10 +4,10 @@
 /// Tests for CentralPermissionService abstract interface.
 
 import 'package:flutter_test/flutter_test.dart';
-import 'package:aura_assistant/features/central_permissions/domain/central_permission_service.dart';
-import 'package:aura_assistant/features/central_permissions/infrastructure/stub_central_permission_manager.dart';
-import 'package:aura_assistant/features/device_integration/domain/models/permission_status.dart';
-import 'package:aura_assistant/core/errors/result.dart';
+import 'package:texo/features/central_permissions/domain/central_permission_service.dart';
+import 'package:texo/features/central_permissions/infrastructure/stub_central_permission_manager.dart';
+import 'package:texo/features/device_integration/domain/models/permission_status.dart';
+import 'package:texo/core/errors/result.dart';
 
 /// Concrete test implementation of CentralPermissionService
 /// that delegates to StubCentralPermissionManager.

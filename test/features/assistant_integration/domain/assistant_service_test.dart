@@ -4,12 +4,12 @@
 // the expected methods and the stub implements them correctly.
 
 import 'package:flutter_test/flutter_test.dart';
-import 'package:aura_assistant/core/errors/result.dart';
-import 'package:aura_assistant/features/assistant_integration/domain/assistant_service.dart';
-import 'package:aura_assistant/features/assistant_integration/domain/entities/assistant_status.dart';
-import 'package:aura_assistant/features/assistant_integration/domain/entities/assistant_invocation.dart';
-import 'package:aura_assistant/features/assistant_integration/domain/models/assistant_failure.dart';
-import 'package:aura_assistant/features/assistant_integration/infrastructure/stub_assistant_service.dart';
+import 'package:texo/core/errors/result.dart';
+import 'package:texo/features/assistant_integration/domain/assistant_service.dart';
+import 'package:texo/features/assistant_integration/domain/entities/assistant_status.dart';
+import 'package:texo/features/assistant_integration/domain/entities/assistant_invocation.dart';
+import 'package:texo/features/assistant_integration/domain/models/assistant_failure.dart';
+import 'package:texo/features/assistant_integration/infrastructure/stub_assistant_service.dart';
 
 void main() {
   group('AssistantService', () {

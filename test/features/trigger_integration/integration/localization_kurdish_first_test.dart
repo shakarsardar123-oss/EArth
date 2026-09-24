@@ -7,20 +7,20 @@
 /// STT: ckb_IQ, TTS: ku, appLocale: ku.
 /// No Flutter/Dart SDK — structural validation only, NEVER claim runtime test results.
 
-import 'package:aura_assistant/features/trigger_integration/domain/entities/trigger_request.dart';
-import 'package:aura_assistant/features/trigger_integration/domain/value_objects/trigger_type.dart';
-import 'package:aura_assistant/features/trigger_integration/application/localization/trigger_localization_service.dart';
-import 'package:aura_assistant/features/trigger_integration/localization/trigger_localization_keys.dart';
-import 'package:aura_assistant/features/trigger_integration/domain/entities/trigger_result.dart';
-import 'package:aura_assistant/features/trigger_integration/domain/value_objects/trigger_state.dart';
-import 'package:aura_assistant/features/trigger_integration/domain/repositories/trigger_authorization_repository.dart';
-import 'package:aura_assistant/features/trigger_integration/application/controller/trigger_controller.dart';
-import 'package:aura_assistant/features/trigger_integration/application/normalization/trigger_normalization_service.dart';
-import 'package:aura_assistant/features/trigger_integration/application/router/trigger_router.dart';
-import 'package:aura_assistant/features/trigger_integration/infrastructure/adapters/trigger_orchestration_adapter.dart';
-import 'package:aura_assistant/features/trigger_integration/infrastructure/adapters/security_bridge_adapter.dart';
-import 'package:aura_assistant/features/trigger_integration/presentation/providers/trigger_ui_providers.dart';
-import 'package:aura_assistant/features/trigger_integration/presentation/state/trigger_ui_state.dart';
+import 'package:texo/features/trigger_integration/domain/entities/trigger_request.dart';
+import 'package:texo/features/trigger_integration/domain/value_objects/trigger_type.dart';
+import 'package:texo/features/trigger_integration/application/localization/trigger_localization_service.dart';
+import 'package:texo/features/trigger_integration/localization/trigger_localization_keys.dart';
+import 'package:texo/features/trigger_integration/domain/entities/trigger_result.dart';
+import 'package:texo/features/trigger_integration/domain/value_objects/trigger_state.dart';
+import 'package:texo/features/trigger_integration/domain/repositories/trigger_authorization_repository.dart';
+import 'package:texo/features/trigger_integration/application/controller/trigger_controller.dart';
+import 'package:texo/features/trigger_integration/application/normalization/trigger_normalization_service.dart';
+import 'package:texo/features/trigger_integration/application/router/trigger_router.dart';
+import 'package:texo/features/trigger_integration/infrastructure/adapters/trigger_orchestration_adapter.dart';
+import 'package:texo/features/trigger_integration/infrastructure/adapters/security_bridge_adapter.dart';
+import 'package:texo/features/trigger_integration/presentation/providers/trigger_ui_providers.dart';
+import 'package:texo/features/trigger_integration/presentation/state/trigger_ui_state.dart';
 
 void main() {
   group('Kurdish Sorani RTL First Localization', () {

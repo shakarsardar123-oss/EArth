@@ -14,7 +14,7 @@ import 'package:flutter/services.dart'
 import '../errors/result.dart';
 import '../errors/failures.dart';
 import 'floating_aura_state.dart';
-import 'floating_aura_overlay_position.dart';
+import 'floating_texo_overlay_position.dart';
 import 'floating_aura_service.dart';
 import 'floating_aura_constants.dart';
 

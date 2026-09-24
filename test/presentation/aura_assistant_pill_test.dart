@@ -10,9 +10,9 @@ import 'dart:io';
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
 
-import 'package:aura_assistant/core/voice_session/voice_session_coordinator.dart';
-import 'package:aura_assistant/presentation/widgets/aura_assistant_pill.dart';
-import 'package:aura_assistant/presentation/widgets/aura_wave_form.dart';
+import 'package:texo/core/voice_session/voice_session_coordinator.dart';
+import 'package:texo/presentation/widgets/aura_assistant_pill.dart';
+import 'package:texo/presentation/widgets/aura_wave_form.dart';
 
 String _read(String path) {
   final file = File(path);

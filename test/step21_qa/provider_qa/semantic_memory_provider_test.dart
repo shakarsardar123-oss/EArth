@@ -4,7 +4,7 @@
 /// Validates provider contracts and security enforcement.
 
 import 'package:flutter_test/flutter_test.dart';
-import 'package:aura_assistant/features/semantic_memory/application/providers/memory_context_provider.dart';
+import 'package:texo/features/semantic_memory/application/providers/memory_context_provider.dart';
 
 void main() {
   group('Provider QA – MemoryContextProvider', () {

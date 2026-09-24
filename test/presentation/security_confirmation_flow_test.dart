@@ -3,11 +3,11 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_test/flutter_test.dart';
 
-import 'package:aura_assistant/core/agent/agent_confirmation_manager.dart'
+import 'package:texo/core/agent/agent_confirmation_manager.dart'
     show ToolRiskLevel;
-import 'package:aura_assistant/core/security/confirmation_guard.dart';
-import 'package:aura_assistant/presentation/providers/security_confirmation_provider.dart';
-import 'package:aura_assistant/presentation/widgets/security_confirmation_host.dart';
+import 'package:texo/core/security/confirmation_guard.dart';
+import 'package:texo/presentation/providers/security_confirmation_provider.dart';
+import 'package:texo/presentation/widgets/security_confirmation_host.dart';
 
 ToolConfirmationRequest _request({
   Duration timeout = const Duration(seconds: 60),

@@ -18,7 +18,7 @@
 ///   never shown to end users by the UI paths.
 library;
 
-import 'package:aura_assistant/l10n/app_localizations.dart';
+import 'package:texo/l10n/app_localizations.dart';
 
 import 'provider_exception.dart';
 

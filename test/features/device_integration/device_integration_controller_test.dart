@@ -7,21 +7,21 @@ library;
 
 import 'dart:typed_data';
 import 'package:flutter_test/flutter_test.dart';
-import 'package:aura_assistant/features/device_integration/application/action_validator.dart';
-import 'package:aura_assistant/features/device_integration/application/target_resolver.dart';
-import 'package:aura_assistant/features/device_integration/application/action_verifier.dart';
-import 'package:aura_assistant/features/device_integration/application/device_integration_controller.dart';
-import 'package:aura_assistant/features/device_integration/domain/entities/device_action.dart';
-import 'package:aura_assistant/features/device_integration/domain/models/device_integration_failure.dart';
-import 'package:aura_assistant/features/device_integration/domain/models/device_integration_state.dart';
-import 'package:aura_assistant/features/device_integration/domain/models/permission_status.dart';
-import 'package:aura_assistant/features/device_integration/domain/models/security_verdict.dart';
-import 'package:aura_assistant/features/device_integration/infrastructure/android_device_executor.dart';
-import 'package:aura_assistant/features/device_integration/infrastructure/permission_manager_impl.dart';
-import 'package:aura_assistant/features/device_integration/infrastructure/services/screen_capture_service.dart';
-import 'package:aura_assistant/features/device_integration/infrastructure/services/screen_understanding_engine.dart';
-import 'package:aura_assistant/features/device_integration/infrastructure/services/screen_search_service.dart';
-import 'package:aura_assistant/core/errors/result.dart';
+import 'package:texo/features/device_integration/application/action_validator.dart';
+import 'package:texo/features/device_integration/application/target_resolver.dart';
+import 'package:texo/features/device_integration/application/action_verifier.dart';
+import 'package:texo/features/device_integration/application/device_integration_controller.dart';
+import 'package:texo/features/device_integration/domain/entities/device_action.dart';
+import 'package:texo/features/device_integration/domain/models/device_integration_failure.dart';
+import 'package:texo/features/device_integration/domain/models/device_integration_state.dart';
+import 'package:texo/features/device_integration/domain/models/permission_status.dart';
+import 'package:texo/features/device_integration/domain/models/security_verdict.dart';
+import 'package:texo/features/device_integration/infrastructure/android_device_executor.dart';
+import 'package:texo/features/device_integration/infrastructure/permission_manager_impl.dart';
+import 'package:texo/features/device_integration/infrastructure/services/screen_capture_service.dart';
+import 'package:texo/features/device_integration/infrastructure/services/screen_understanding_engine.dart';
+import 'package:texo/features/device_integration/infrastructure/services/screen_search_service.dart';
+import 'package:texo/core/errors/result.dart';
 
 // ─── Fake AgentEngine ──────────────────────────────────────────────
 class FakeAgentEngine implements AgentEngine {

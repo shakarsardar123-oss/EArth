@@ -2,10 +2,10 @@
 library;
 
 import 'package:flutter_test/flutter_test.dart';
-import 'package:aura_assistant/features/security/presentation/security_providers.dart';
-import 'package:aura_assistant/features/security/presentation/security_state_notifier.dart';
-import 'package:aura_assistant/features/security/domain/models/security_config.dart';
-import 'package:aura_assistant/features/security/domain/models/security_state.dart';
+import 'package:texo/features/security/presentation/security_providers.dart';
+import 'package:texo/features/security/presentation/security_state_notifier.dart';
+import 'package:texo/features/security/domain/models/security_config.dart';
+import 'package:texo/features/security/domain/models/security_state.dart';
 
 void main() {
   group('SecurityProviderNames', () {

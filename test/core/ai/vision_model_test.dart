@@ -15,10 +15,10 @@ import 'package:http/http.dart' as http;
 import 'package:flutter_secure_storage/flutter_secure_storage.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
-import 'package:aura_assistant/services/vision/openai_vision_service.dart';
-import 'package:aura_assistant/core/ai/ai_connection_storage.dart';
-import 'package:aura_assistant/core/ai/ai_connection_config.dart';
-import 'package:aura_assistant/domain/entities/vision/vision_entities.dart';
+import 'package:texo/services/vision/openai_vision_service.dart';
+import 'package:texo/core/ai/ai_connection_storage.dart';
+import 'package:texo/core/ai/ai_connection_config.dart';
+import 'package:texo/domain/entities/vision/vision_entities.dart';
 
 // ─── Fake FlutterSecureStorage ────────────────────────────────────────
 

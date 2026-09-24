@@ -1,13 +1,13 @@
 /// Step 24 — Method Channel Constants
 ///
 /// Platform channel for Step 24 trigger integration.
-/// Namespace: com.aura.assistant/trigger_integration
+/// Namespace: com.texo.texo/trigger_integration
 /// MUST NOT duplicate Step 15's MethodChannel — bridge to Step 15
 /// where operations overlap (e.g., assistant role, security).
 
 class TriggerMethodChannelConstants {
   /// Dedicated MethodChannel for Step 24.
-  static const String channelName = 'com.aura.assistant/trigger_integration';
+  static const String channelName = 'com.texo.texo/trigger_integration';
 
   // --- Method names (Android → Flutter) ---
 

@@ -4,8 +4,8 @@
 // assignment, and asFailure() wrapping.
 
 import 'package:flutter_test/flutter_test.dart';
-import 'package:aura_assistant/core/errors/result.dart';
-import 'package:aura_assistant/features/assistant_integration/domain/models/assistant_failure.dart';
+import 'package:texo/core/errors/result.dart';
+import 'package:texo/features/assistant_integration/domain/models/assistant_failure.dart';
 
 void main() {
   group('AssistantPhase', () {

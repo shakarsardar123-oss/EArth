@@ -9,8 +9,8 @@
 /// Step 19 types directly (uses string identifiers).
 library;
 
-import 'package:aura_assistant/core/errors/result.dart';
-import 'package:aura_assistant/features/tool_registry/domain/models/models.dart';
+import 'package:texo/core/errors/result.dart';
+import 'package:texo/features/tool_registry/domain/models/models.dart';
 
 /// Security verdict after Step 19 validation.
 enum ToolSecurityVerdict {

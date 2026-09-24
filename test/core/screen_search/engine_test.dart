@@ -3,12 +3,12 @@ library;
 
 import 'dart:async';
 
-import 'package:aura_assistant/core/errors/failures.dart';
-import 'package:aura_assistant/core/errors/result.dart';
-import 'package:aura_assistant/core/screen_search/search_engine.dart';
-import 'package:aura_assistant/core/screen_search/search_result.dart';
-import 'package:aura_assistant/core/screen_search/search_state.dart';
-import 'package:aura_assistant/core/screen_understanding/screen_understanding_result.dart';
+import 'package:texo/core/errors/failures.dart';
+import 'package:texo/core/errors/result.dart';
+import 'package:texo/core/screen_search/search_engine.dart';
+import 'package:texo/core/screen_search/search_result.dart';
+import 'package:texo/core/screen_search/search_state.dart';
+import 'package:texo/core/screen_understanding/screen_understanding_result.dart';
 import 'package:flutter_test/flutter_test.dart';
 
 void main() {

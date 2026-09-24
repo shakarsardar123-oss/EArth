@@ -1,8 +1,8 @@
 import 'package:flutter_test/flutter_test.dart';
-import 'package:aura_assistant/services/ai/ai_provider_manager.dart';
-import 'package:aura_assistant/services/ai/ai_provider.dart';
-import 'package:aura_assistant/domain/services/ai_service.dart';
-import 'package:aura_assistant/core/errors/failures.dart';
+import 'package:texo/services/ai/ai_provider_manager.dart';
+import 'package:texo/services/ai/ai_provider.dart';
+import 'package:texo/domain/services/ai_service.dart';
+import 'package:texo/core/errors/failures.dart';
 
 void main() {
   group('AIProviderManager', () {

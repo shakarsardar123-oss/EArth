@@ -11,11 +11,11 @@ import 'dart:async';
 
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
-import 'package:aura_assistant/core/errors/result.dart';
-import 'package:aura_assistant/features/tool_registry/domain/models/models.dart';
-import 'package:aura_assistant/features/tool_registry/domain/services/services.dart';
-import 'package:aura_assistant/features/tool_registry/application/application.dart';
-import 'package:aura_assistant/features/tool_registry/infrastructure/infrastructure.dart';
+import 'package:texo/core/errors/result.dart';
+import 'package:texo/features/tool_registry/domain/models/models.dart';
+import 'package:texo/features/tool_registry/domain/services/services.dart';
+import 'package:texo/features/tool_registry/application/application.dart';
+import 'package:texo/features/tool_registry/infrastructure/infrastructure.dart';
 
 /// StateNotifier for the Tool Registry feature.
 ///

@@ -15,10 +15,10 @@ import 'package:flutter/material.dart';
 import 'package:flutter/rendering.dart';
 import 'package:flutter_test/flutter_test.dart';
 
-import 'package:aura_assistant/features/globe/application/globe_controller.dart';
-import 'package:aura_assistant/features/globe/domain/globe_models.dart';
-import 'package:aura_assistant/features/globe/presentation/earth_textures.dart';
-import 'package:aura_assistant/features/globe/presentation/realistic_globe.dart';
+import 'package:texo/features/globe/application/globe_controller.dart';
+import 'package:texo/features/globe/domain/globe_models.dart';
+import 'package:texo/features/globe/presentation/earth_textures.dart';
+import 'package:texo/features/globe/presentation/realistic_globe.dart';
 
 const _outDir = '/nfs/106246820/outputs';
 

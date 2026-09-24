@@ -3,9 +3,9 @@
 library;
 
 import 'package:flutter_test/flutter_test.dart';
-import 'package:aura_assistant/features/device_integration/application/device_integration_state.dart';
-import 'package:aura_assistant/features/device_integration/domain/entities/device_action.dart';
-import 'package:aura_assistant/features/device_integration/domain/models/device_integration_failure.dart';
+import 'package:texo/features/device_integration/application/device_integration_state.dart';
+import 'package:texo/features/device_integration/domain/entities/device_action.dart';
+import 'package:texo/features/device_integration/domain/models/device_integration_failure.dart';
 
 void main() {
   // ─── DeviceIntegrationProcessingState ────────────────────────────

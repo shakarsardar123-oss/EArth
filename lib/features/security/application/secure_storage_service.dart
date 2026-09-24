@@ -9,7 +9,7 @@
 /// unencrypted data).
 library;
 
-import 'package:aura_assistant/core/errors/result.dart';
+import 'package:texo/core/errors/result.dart';
 import '../domain/models/security_failure.dart';
 
 /// The type of data being stored.

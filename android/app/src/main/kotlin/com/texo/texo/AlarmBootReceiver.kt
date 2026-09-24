@@ -1,4 +1,4 @@
-package com.aura.aura_assistant
+package com.texo.texo
 
 import android.content.BroadcastReceiver
 import android.content.Context

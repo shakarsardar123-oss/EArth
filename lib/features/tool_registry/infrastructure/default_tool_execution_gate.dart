@@ -19,11 +19,11 @@ library;
 
 import 'dart:async';
 
-import 'package:aura_assistant/core/errors/result.dart';
-import 'package:aura_assistant/features/tool_registry/domain/models/models.dart';
-import 'package:aura_assistant/features/tool_registry/domain/services/services.dart';
-import 'package:aura_assistant/features/tool_registry/application/application.dart';
-import 'package:aura_assistant/features/tool_registry/infrastructure/adapters/adapters.dart';
+import 'package:texo/core/errors/result.dart';
+import 'package:texo/features/tool_registry/domain/models/models.dart';
+import 'package:texo/features/tool_registry/domain/services/services.dart';
+import 'package:texo/features/tool_registry/application/application.dart';
+import 'package:texo/features/tool_registry/infrastructure/adapters/adapters.dart';
 
 /// Concrete implementation of [ToolExecutionGate].
 ///

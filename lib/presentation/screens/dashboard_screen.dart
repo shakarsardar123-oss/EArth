@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import 'package:aura_assistant/l10n/app_localizations.dart';
+import 'package:texo/l10n/app_localizations.dart';
 
 import '../../core/providers/phase3_connection_points.dart';
 import 'chat_screen.dart' show currentConversationIdProvider;

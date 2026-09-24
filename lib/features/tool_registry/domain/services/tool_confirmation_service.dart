@@ -10,8 +10,8 @@
 /// FAIL CLOSED: if confirmation status is ambiguous → denied.
 library;
 
-import 'package:aura_assistant/core/errors/result.dart';
-import 'package:aura_assistant/features/tool_registry/domain/models/models.dart';
+import 'package:texo/core/errors/result.dart';
+import 'package:texo/features/tool_registry/domain/models/models.dart';
 
 /// Result of a confirmation request.
 enum ConfirmationResult {

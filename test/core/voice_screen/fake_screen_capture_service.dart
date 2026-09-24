@@ -4,11 +4,11 @@ library;
 import 'dart:async';
 import 'dart:typed_data';
 
-import 'package:aura_assistant/core/screen_capture/screen_capture_service.dart';
-import 'package:aura_assistant/core/screen_capture/screen_capture_state.dart';
-import 'package:aura_assistant/core/screen_capture/screen_capture_result.dart';
-import 'package:aura_assistant/core/errors/result.dart';
-import 'package:aura_assistant/core/errors/failures.dart';
+import 'package:texo/core/screen_capture/screen_capture_service.dart';
+import 'package:texo/core/screen_capture/screen_capture_state.dart';
+import 'package:texo/core/screen_capture/screen_capture_result.dart';
+import 'package:texo/core/errors/result.dart';
+import 'package:texo/core/errors/failures.dart';
 
 /// Configuration for [FakeScreenCaptureService].
 class FakeCaptureConfig {

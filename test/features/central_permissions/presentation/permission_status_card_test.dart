@@ -5,9 +5,9 @@
 /// No Flutter SDK — structural/mock tests only.
 
 import 'package:flutter_test/flutter_test.dart';
-import 'package:aura_assistant/features/central_permissions/presentation/permission_status_card.dart';
-import 'package:aura_assistant/features/device_integration/domain/models/permission_status.dart';
-import 'package:aura_assistant/features/central_permissions/domain/models/permission_explanation.dart';
+import 'package:texo/features/central_permissions/presentation/permission_status_card.dart';
+import 'package:texo/features/device_integration/domain/models/permission_status.dart';
+import 'package:texo/features/central_permissions/domain/models/permission_explanation.dart';
 
 void main() {
   group('PermissionStatusCard', () {

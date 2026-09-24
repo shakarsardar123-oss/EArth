@@ -17,15 +17,15 @@
 
 import 'package:flutter_test/flutter_test.dart';
 
-import 'package:aura_assistant/core/agent/agent_executor.dart'
+import 'package:texo/core/agent/agent_executor.dart'
     show AgentExecutor, CancellationToken;
-import 'package:aura_assistant/core/agent/agent_recovery.dart' as core_recovery;
-import 'package:aura_assistant/core/security/security_policy.dart';
-import 'package:aura_assistant/core/security/confirmation_guard.dart';
-import 'package:aura_assistant/core/tools/tool_registry.dart';
+import 'package:texo/core/agent/agent_recovery.dart' as core_recovery;
+import 'package:texo/core/security/security_policy.dart';
+import 'package:texo/core/security/confirmation_guard.dart';
+import 'package:texo/core/tools/tool_registry.dart';
 
-import 'package:aura_assistant/features/orchestration/domain/repositories/repositories.dart';
-import 'package:aura_assistant/features/orchestration/infrastructure/adapters/adapters.dart';
+import 'package:texo/features/orchestration/domain/repositories/repositories.dart';
+import 'package:texo/features/orchestration/infrastructure/adapters/adapters.dart';
 
 void main() {
   // ── AuditAdapter (Class D — in-memory) ──────────────────────────

@@ -1,8 +1,8 @@
 import 'package:flutter_test/flutter_test.dart';
-import 'package:aura_assistant/core/security/confirmation_guard.dart';
-import 'package:aura_assistant/core/security/security_messages.dart';
-import 'package:aura_assistant/core/tools/tool_arguments.dart';
-import 'package:aura_assistant/core/agent/agent_confirmation_manager.dart';
+import 'package:texo/core/security/confirmation_guard.dart';
+import 'package:texo/core/security/security_messages.dart';
+import 'package:texo/core/tools/tool_arguments.dart';
+import 'package:texo/core/agent/agent_confirmation_manager.dart';
 
 void main() {
   group('ToolConfirmationState', () {

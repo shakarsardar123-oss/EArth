@@ -2,7 +2,7 @@
 library;
 
 import 'package:flutter_test/flutter_test.dart';
-import 'package:aura_assistant/features/security/l10n/security_l10n_keys.dart';
+import 'package:texo/features/security/l10n/security_l10n_keys.dart';
 
 void main() {
   group('SecurityL10nKeys', () {

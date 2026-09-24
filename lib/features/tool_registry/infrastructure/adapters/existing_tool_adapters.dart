@@ -8,7 +8,7 @@
 /// and manage tools that already exist in the AURA Assistant system.
 library;
 
-import 'package:aura_assistant/features/tool_registry/domain/models/models.dart';
+import 'package:texo/features/tool_registry/domain/models/models.dart';
 
 /// Base class for existing tool adapters.
 ///

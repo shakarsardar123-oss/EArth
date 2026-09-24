@@ -9,8 +9,8 @@
 ///   have isAlwaysSensitive=true (unknown is NOT special)
 
 import 'package:flutter_test/flutter_test.dart';
-import 'package:aura_assistant/features/security/domain/models/redaction_rule.dart';
-import 'package:aura_assistant/features/security/domain/models/sensitive_data_category.dart';
+import 'package:texo/features/security/domain/models/redaction_rule.dart';
+import 'package:texo/features/security/domain/models/sensitive_data_category.dart';
 
 void main() {
   group('RedactionRule', () {

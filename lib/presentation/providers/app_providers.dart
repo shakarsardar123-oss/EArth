@@ -280,10 +280,10 @@ final agentConfigEntityProvider = FutureProvider<AgentConfig>((ref) async {
   // Fallback default agent config — now using Gemini model.
   return const AgentConfig(
     id: 'default',
-    name: 'AURA',
+    name: 'TEXO',
     description: 'یاریدەدەری تایبەتی تۆ',
     systemPrompt:
-        'من ئەورای تایبەتی تۆم. وەلامی کوردی سۆرانی بدەرەوە.',
+        'من تێکسۆی تایبەتی تۆم. وەلامی کوردی سۆرانی بدەرەوە.',
     modelId: 'gemini-3.6-flash',
     temperature: 0.7,
     maxTokens: 2048,
@@ -372,10 +372,10 @@ final agentConfigProvider = StateProvider<AgentConfig>((ref) {
   });
   return const AgentConfig(
     id: 'default',
-    name: 'AURA',
+    name: 'TEXO',
     description: 'یاریدەدەری تایبەتی تۆ',
     systemPrompt:
-        'من ئەورای تایبەتی تۆم. وەلامی کوردی سۆرانی بدەرەوە.',
+        'من تێکسۆی تایبەتی تۆم. وەلامی کوردی سۆرانی بدەرەوە.',
     modelId: 'gemini-3.6-flash',
     temperature: 0.7,
     maxTokens: 2048,

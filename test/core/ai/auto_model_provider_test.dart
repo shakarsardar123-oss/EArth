@@ -10,13 +10,13 @@ import 'package:flutter_test/flutter_test.dart';
 import 'package:flutter_secure_storage/flutter_secure_storage.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
-import 'package:aura_assistant/core/ai/ai_connection_storage.dart';
-import 'package:aura_assistant/core/ai/auto_model_provider.dart';
-import 'package:aura_assistant/core/ai/model_discovery.dart';
-import 'package:aura_assistant/core/ai/provider_exception.dart';
-import 'package:aura_assistant/services/ai/ai_provider.dart';
-import 'package:aura_assistant/domain/services/ai_service.dart';
-import 'package:aura_assistant/domain/entities/agent_config.dart';
+import 'package:texo/core/ai/ai_connection_storage.dart';
+import 'package:texo/core/ai/auto_model_provider.dart';
+import 'package:texo/core/ai/model_discovery.dart';
+import 'package:texo/core/ai/provider_exception.dart';
+import 'package:texo/services/ai/ai_provider.dart';
+import 'package:texo/domain/services/ai_service.dart';
+import 'package:texo/domain/entities/agent_config.dart';
 
 // ─── Fakes ──────────────────────────────────────────
 

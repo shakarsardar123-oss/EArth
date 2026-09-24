@@ -5,7 +5,7 @@
 /// and the [message] / [cause] carry diagnostic detail.
 library;
 
-import 'package:aura_assistant/core/errors/result.dart';
+import 'package:texo/core/errors/result.dart';
 
 /// Phase of the assistant integration where a failure occurred.
 enum AssistantPhase {

@@ -1,6 +1,6 @@
-import 'package:aura_assistant/features/security/domain/models/security_failure.dart';
+import 'package:texo/features/security/domain/models/security_failure.dart';
 
-export 'package:aura_assistant/features/security/domain/models/security_failure.dart'
+export 'package:texo/features/security/domain/models/security_failure.dart'
     show SensitiveDataCategory;
 
 /// Stub — MemoryQuery domain model

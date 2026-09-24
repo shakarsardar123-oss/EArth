@@ -1,7 +1,7 @@
 /// State model for the [VoiceScreenEngine] orchestrator.
 library;
 
-import 'package:aura_assistant/core/voice_screen/voice_screen_failure.dart';
+import 'package:texo/core/voice_screen/voice_screen_failure.dart';
 
 /// Status of the voice-screen interaction pipeline.
 enum VoiceScreenStatus {

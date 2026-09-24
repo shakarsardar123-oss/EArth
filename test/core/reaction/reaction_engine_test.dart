@@ -1,5 +1,5 @@
 import 'package:flutter_test/flutter_test.dart';
-import 'package:aura_assistant/core/reaction/reaction.dart';
+import 'package:texo/core/reaction/reaction.dart';
 
 void main() {
   group('ReactionEngine', () {

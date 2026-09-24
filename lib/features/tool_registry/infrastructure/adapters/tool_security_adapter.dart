@@ -2,11 +2,11 @@
 /// AURA Assistant – Step 20: Tool Registry & Allowlist
 library;
 
-import 'package:aura_assistant/features/tool_registry/application/contracts/tool_security_adapter.dart';
+import 'package:texo/features/tool_registry/application/contracts/tool_security_adapter.dart';
 
-export 'package:aura_assistant/features/tool_registry/application/contracts/tool_security_adapter.dart';
+export 'package:texo/features/tool_registry/application/contracts/tool_security_adapter.dart';
 
-import 'package:aura_assistant/features/tool_registry/domain/models/models.dart';
+import 'package:texo/features/tool_registry/domain/models/models.dart';
 
 class DefaultToolSecurityAdapter implements ToolSecurityAdapter {
   bool _isAvailable = false;

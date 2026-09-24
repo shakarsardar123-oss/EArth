@@ -3,7 +3,7 @@
 library;
 
 import 'package:flutter_test/flutter_test.dart';
-import 'package:aura_assistant/core/ai/model_discovery.dart';
+import 'package:texo/core/ai/model_discovery.dart';
 
 AIModelInfo _m(
   String id, {

@@ -8,7 +8,7 @@ library;
 
 /// MethodChannel for floating overlay control operations.
 const String floatingAuraMethodChannelName =
-    'com.aura.aura_assistant/floating_aura_overlay';
+    'com.texo.texo/floating_texo_overlay';
 
 /// Method names invoked on the platform side.
 abstract final class FloatingAuraMethodNames {

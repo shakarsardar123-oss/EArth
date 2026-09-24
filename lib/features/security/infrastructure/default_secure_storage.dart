@@ -13,7 +13,7 @@ import 'dart:convert';
 
 import 'package:flutter_secure_storage/flutter_secure_storage.dart';
 
-import 'package:aura_assistant/core/errors/result.dart';
+import 'package:texo/core/errors/result.dart';
 import '../application/secure_storage_service.dart';
 import '../domain/models/security_failure.dart';
 

@@ -1,8 +1,8 @@
 import 'package:flutter_test/flutter_test.dart';
 import 'package:permission_handler/permission_handler.dart' as ph;
-import 'package:aura_assistant/core/security/security_policy.dart';
-import 'package:aura_assistant/core/tools/tool_permission.dart';
-import 'package:aura_assistant/core/agent/agent_confirmation_manager.dart';
+import 'package:texo/core/security/security_policy.dart';
+import 'package:texo/core/tools/tool_permission.dart';
+import 'package:texo/core/agent/agent_confirmation_manager.dart';
 
 void main() {
   group('SecurityPolicy', () {

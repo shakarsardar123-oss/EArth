@@ -4,7 +4,7 @@
 // These tests verify value semantics, copyWith, and convenience getters.
 
 import 'package:flutter_test/flutter_test.dart';
-import 'package:aura_assistant/features/assistant_integration/domain/entities/assistant_status.dart';
+import 'package:texo/features/assistant_integration/domain/entities/assistant_status.dart';
 
 void main() {
   group('AssistantAvailability', () {

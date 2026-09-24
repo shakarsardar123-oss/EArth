@@ -1,4 +1,4 @@
-package com.aura.aura_assistant
+package com.texo.texo
 
 import android.Manifest
 import android.accessibilityservice.AccessibilityServiceInfo
@@ -29,17 +29,17 @@ import io.flutter.plugin.common.MethodCall
  * AURA MainActivity — unified native MethodChannel handler.
  *
  * Handles ALL platform channels used by the AURA Flutter app:
- *   1. com.aura.assistant/central_permissions  — Central permission check/request/openSettings
- *   2. com.aura.device/permissions             — Special permission check/request (overlay, accessibility, assistant, screenCapture, batteryOptimization, exactAlarm)
- *   3. com.aura.assistant/assistant_integration — Assistant role check/request/openSettings/invocation
- *   4. com.aura.aura_assistant/device           — Device info, battery, network, launch app, settings, URL
+ *   1. com.texo.texo/central_permissions  — Central permission check/request/openSettings
+ *   2. com.texo.texo/permissions             — Special permission check/request (overlay, accessibility, assistant, screenCapture, batteryOptimization, exactAlarm)
+ *   3. com.texo.texo/assistant_integration — Assistant role check/request/openSettings/invocation
+ *   4. com.texo.texo/device           — Device info, battery, network, launch app, settings, URL
  *
  * P2/P3 FIX: All previously empty channels now have working handlers.
  * P3 FIX: ASSIST intent filter data is captured and forwarded to Flutter.
  */
 class MainActivity : FlutterActivity() {
     private companion object {
-        const val TRIGGER_CHANNEL = "com.aura.assistant/trigger_integration"
+        const val TRIGGER_CHANNEL = "com.texo.texo/trigger_integration"
         const val TRIGGER_ASSISTANT_LONG_PRESS = "assistantLongPressTrigger"
         const val TRIGGER_GET_PENDING = "getPendingTriggers"
     }
@@ -50,15 +50,15 @@ class MainActivity : FlutterActivity() {
 
 
     // ─── Channel names (must match Flutter side exactly) ──────────
-    private val centralPermChannel   = "com.aura.assistant/central_permissions"
-    private val devicePermChannel    = "com.aura.device/permissions"
-    private val assistantChannel     = "com.aura.assistant/assistant_integration"
-    private val deviceChannel        = "com.aura.aura_assistant/device"
+    private val centralPermChannel   = "com.texo.texo/central_permissions"
+    private val devicePermChannel    = "com.texo.texo/permissions"
+    private val assistantChannel     = "com.texo.texo/assistant_integration"
+    private val deviceChannel        = "com.texo.texo/device"
     // Phase 6: separate additive channel for system-control capabilities.
-    private val systemControlChannel = "com.aura.aura_assistant/system_control"
+    private val systemControlChannel = "com.texo.texo/system_control"
 
     // Final Voice Phase: native real-audio bridge (own channels registered internally).
-    private var audioBridge: AuraAudioBridge? = null
+    private var audioBridge: TexoAudioBridge? = null
 
     // ─── Lifecycle ───────────────────────────────────────────────
 
@@ -113,10 +113,10 @@ class MainActivity : FlutterActivity() {
         // Final Voice Phase: real audio pipeline (output-level Visualizer,
         // echo-safe mic + AEC/VAD, acoustic wake-word scaffold). Registers its
         // own Method/Event channels on the same messenger.
-        audioBridge = AuraAudioBridge(applicationContext, flutterEngine.dartExecutor.binaryMessenger)
+        audioBridge = TexoAudioBridge(applicationContext, flutterEngine.dartExecutor.binaryMessenger)
 
-        // Floating overlay channel (own file — see FloatingAuraBridge.kt).
-        FloatingAuraBridge.attach(this, flutterEngine)
+        // Floating overlay channel (own file — see FloatingTexoBridge.kt).
+        FloatingTexoBridge.attach(this, flutterEngine)
     }
 
     override fun onNewIntent(intent: Intent?) {
@@ -159,14 +159,14 @@ class MainActivity : FlutterActivity() {
     override fun onDestroy() {
         // Release native audio resources (Visualizer / AudioRecord / AEC).
         try { audioBridge?.dispose() } catch (_: Throwable) {}
-        FloatingAuraBridge.detach(this)
+        FloatingTexoBridge.detach(this)
         audioBridge = null
         super.onDestroy()
     }
 
     // ═══════════════════════════════════════════════════════════════
     // 1.  CENTRAL PERMISSIONS CHANNEL
-    //     com.aura.assistant/central_permissions
+    //     com.texo.texo/central_permissions
     // ═══════════════════════════════════════════════════════════════
 
     private fun handleCentralPermissions(call: MethodCall, result: MethodChannel.Result) {
@@ -230,7 +230,7 @@ class MainActivity : FlutterActivity() {
 
     // ═══════════════════════════════════════════════════════════════
     // 2.  DEVICE / SPECIAL PERMISSIONS CHANNEL
-    //     com.aura.device/permissions
+    //     com.texo.texo/permissions
     // ═══════════════════════════════════════════════════════════════
 
     private fun handleDevicePermissions(call: MethodCall, result: MethodChannel.Result) {
@@ -259,7 +259,7 @@ class MainActivity : FlutterActivity() {
 
     // ═══════════════════════════════════════════════════════════════
     // 3.  ASSISTANT INTEGRATION CHANNEL
-    //     com.aura.assistant/assistant_integration
+    //     com.texo.texo/assistant_integration
     // ═══════════════════════════════════════════════════════════════
 
     private fun handleAssistantIntegration(call: MethodCall, result: MethodChannel.Result) {
@@ -295,7 +295,7 @@ class MainActivity : FlutterActivity() {
 
     // ═══════════════════════════════════════════════════════════════
     // 4.  DEVICE ACTIONS CHANNEL
-    //     com.aura.aura_assistant/device
+    //     com.texo.texo/device
     // ═══════════════════════════════════════════════════════════════
 
     private fun handleDeviceActions(call: MethodCall, result: MethodChannel.Result) {
@@ -402,7 +402,7 @@ class MainActivity : FlutterActivity() {
 
     // ═══════════════════════════════════════════════════════════════
     // 5.  SYSTEM CONTROL CHANNEL  (Phase 6)
-    //     com.aura.aura_assistant/system_control
+    //     com.texo.texo/system_control
     // ═══════════════════════════════════════════════════════════════
 
     private fun handleSystemControl(call: MethodCall, result: MethodChannel.Result) {
@@ -625,7 +625,7 @@ class MainActivity : FlutterActivity() {
 
     private fun isAuraAccessibilityBound(): Boolean {
         // Bound AND enabled: the running instance is the source of truth.
-        return AuraAccessibilityService.instance != null && isAccessibilityEnabled()
+        return TexoAccessibilityService.instance != null && isAccessibilityEnabled()
     }
 
     private fun handleDispatchGesture(call: MethodCall, result: MethodChannel.Result) {
@@ -633,7 +633,7 @@ class MainActivity : FlutterActivity() {
             result.error("platformUnsupported", "Gesture dispatch requires API 24+", null)
             return
         }
-        val service = AuraAccessibilityService.instance
+        val service = TexoAccessibilityService.instance
         if (service == null || !isAccessibilityEnabled()) {
             result.error("accessibilityDisabled", "Accessibility service not bound", null)
             return
@@ -679,7 +679,7 @@ class MainActivity : FlutterActivity() {
             return
         }
 
-        val service = AuraAccessibilityService.instance
+        val service = TexoAccessibilityService.instance
 
         if (service == null || !isAccessibilityEnabled()) {
             result.success(

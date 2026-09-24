@@ -5,7 +5,7 @@
 /// FAIL-CLOSED: missing key → fail_closed_deny Kurdish message.
 /// No Flutter/Dart SDK — structural validation only, NEVER claim runtime test results.
 
-import 'package:aura_assistant/features/trigger_integration/application/localization/trigger_localization_service.dart';
+import 'package:texo/features/trigger_integration/application/localization/trigger_localization_service.dart';
 
 void main() {
   group('TriggerLocalizationService', () {

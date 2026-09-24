@@ -12,9 +12,9 @@
 
 import 'package:flutter/material.dart';
 
-import 'package:aura_assistant/l10n/app_localizations.dart';
-import 'package:aura_assistant/features/device_integration/domain/models/permission_status.dart';
-import 'package:aura_assistant/features/central_permissions/domain/models/permission_explanation.dart';
+import 'package:texo/l10n/app_localizations.dart';
+import 'package:texo/features/device_integration/domain/models/permission_status.dart';
+import 'package:texo/features/central_permissions/domain/models/permission_explanation.dart';
 
 /// Resolves a l10n key string to its localized value via [S].
 ///

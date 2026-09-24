@@ -4,7 +4,7 @@
 /// FAIL-CLOSED: unknown/error → denied or failed category.
 /// No Flutter/Dart SDK — structural validation only, NEVER claim runtime test results.
 
-import 'package:aura_assistant/features/trigger_integration/domain/value_objects/trigger_result_vo.dart';
+import 'package:texo/features/trigger_integration/domain/value_objects/trigger_result_vo.dart';
 
 void main() {
   group('TriggerResultCategory', () {

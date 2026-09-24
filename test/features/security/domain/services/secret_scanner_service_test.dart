@@ -2,7 +2,7 @@
 library;
 
 import 'package:flutter_test/flutter_test.dart';
-import 'package:aura_assistant/features/security/domain/services/secret_scanner_service.dart';
+import 'package:texo/features/security/domain/services/secret_scanner_service.dart';
 
 void main() {
   group('DetectedSecret', () {

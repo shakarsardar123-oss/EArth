@@ -4,9 +4,9 @@
 /// FAIL-CLOSED: unavailable→denied, type not permitted→denied, errors→denied.
 /// No Flutter/Dart SDK — structural validation only, NEVER claim runtime test results.
 
-import 'package:aura_assistant/features/trigger_integration/domain/entities/trigger_request.dart';
-import 'package:aura_assistant/features/trigger_integration/domain/value_objects/trigger_type.dart';
-import 'package:aura_assistant/features/trigger_integration/infrastructure/adapters/security_bridge_adapter.dart';
+import 'package:texo/features/trigger_integration/domain/entities/trigger_request.dart';
+import 'package:texo/features/trigger_integration/domain/value_objects/trigger_type.dart';
+import 'package:texo/features/trigger_integration/infrastructure/adapters/security_bridge_adapter.dart';
 
 void main() {
   group('SecurityBridgeAdapter', () {

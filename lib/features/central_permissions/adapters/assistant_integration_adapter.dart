@@ -4,7 +4,7 @@
 /// Adapter for the assistant_integration feature module.
 /// Required: assistant
 
-import 'package:aura_assistant/features/device_integration/domain/models/permission_status.dart';
+import 'package:texo/features/device_integration/domain/models/permission_status.dart';
 import 'feature_permission_adapter.dart';
 
 class AssistantIntegrationAdapter extends FeaturePermissionAdapter {

@@ -2,14 +2,14 @@
 library;
 
 import 'package:flutter_test/flutter_test.dart';
-import 'package:aura_assistant/features/security/application/security_policy.dart';
-import 'package:aura_assistant/features/security/application/security_controller.dart';
-import 'package:aura_assistant/features/security/application/agent_security_service.dart';
-import 'package:aura_assistant/features/security/application/provider_privacy_service.dart';
-import 'package:aura_assistant/features/security/application/screen_privacy_service.dart';
-import 'package:aura_assistant/features/security/application/voice_privacy_service.dart';
-import 'package:aura_assistant/features/security/application/permission_security_service.dart';
-import 'package:aura_assistant/features/security/application/secure_storage_service.dart';
+import 'package:texo/features/security/application/security_policy.dart';
+import 'package:texo/features/security/application/security_controller.dart';
+import 'package:texo/features/security/application/agent_security_service.dart';
+import 'package:texo/features/security/application/provider_privacy_service.dart';
+import 'package:texo/features/security/application/screen_privacy_service.dart';
+import 'package:texo/features/security/application/voice_privacy_service.dart';
+import 'package:texo/features/security/application/permission_security_service.dart';
+import 'package:texo/features/security/application/secure_storage_service.dart';
 
 void main() {
   group('SecurityCheckType', () {

@@ -2,11 +2,11 @@
 /// AURA Assistant – Step 20: Tool Registry & Recovery
 library;
 
-import 'package:aura_assistant/features/tool_registry/application/contracts/tool_recovery_adapter.dart';
+import 'package:texo/features/tool_registry/application/contracts/tool_recovery_adapter.dart';
 
-export 'package:aura_assistant/features/tool_registry/application/contracts/tool_recovery_adapter.dart';
+export 'package:texo/features/tool_registry/application/contracts/tool_recovery_adapter.dart';
 
-import 'package:aura_assistant/features/tool_registry/domain/models/models.dart';
+import 'package:texo/features/tool_registry/domain/models/models.dart';
 
 class DefaultToolRecoveryAdapter implements ToolRecoveryAdapter {
   bool _isAvailable = false;

@@ -11,8 +11,8 @@
 /// FAIL CLOSED: unknown tools are denied, absent allowlist entries = denied.
 library;
 
-import 'package:aura_assistant/core/errors/result.dart';
-import 'package:aura_assistant/features/tool_registry/domain/models/models.dart';
+import 'package:texo/core/errors/result.dart';
+import 'package:texo/features/tool_registry/domain/models/models.dart';
 
 /// Abstract service for the tool registry.
 ///

@@ -62,9 +62,9 @@ class NativeEchoSafeMicMonitor implements EchoSafeMicMonitor {
     EventChannel? eventChannel,
     MethodChannel? controlChannel,
   })  : _events = eventChannel ??
-            const EventChannel('com.aura.aura_assistant/mic_vad.events'),
+            const EventChannel('com.texo.texo/mic_vad.events'),
         _control = controlChannel ??
-            const MethodChannel('com.aura.aura_assistant/mic_vad');
+            const MethodChannel('com.texo.texo/mic_vad');
 
   final EventChannel _events;
   final MethodChannel _control;

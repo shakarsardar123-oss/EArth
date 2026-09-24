@@ -8,9 +8,9 @@ library;
 import 'dart:async';
 
 import 'package:flutter_test/flutter_test.dart';
-import 'package:aura_assistant/core/reaction/reaction.dart';
-import 'package:aura_assistant/core/errors/result.dart';
-import 'package:aura_assistant/services/voice/voice_service.dart';
+import 'package:texo/core/reaction/reaction.dart';
+import 'package:texo/core/errors/result.dart';
+import 'package:texo/services/voice/voice_service.dart';
 
 // ── ThrowingReactionEngine: always throws on evaluate() ──
 

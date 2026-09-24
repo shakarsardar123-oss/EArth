@@ -13,14 +13,14 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_secure_storage/flutter_secure_storage.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
-import 'package:aura_assistant/presentation/providers/app_providers.dart';
-import 'package:aura_assistant/presentation/providers/vision_providers.dart'
+import 'package:texo/presentation/providers/app_providers.dart';
+import 'package:texo/presentation/providers/vision_providers.dart'
     show openaiVisionServiceProvider;
-import 'package:aura_assistant/core/ai/ai_connection_storage.dart';
-import 'package:aura_assistant/core/ai/openai_provider.dart'
+import 'package:texo/core/ai/ai_connection_storage.dart';
+import 'package:texo/core/ai/openai_provider.dart'
     hide openaiProviderProvider;
-import 'package:aura_assistant/services/vision/openai_vision_service.dart';
-import 'package:aura_assistant/services/ai/ai_provider.dart'
+import 'package:texo/services/vision/openai_vision_service.dart';
+import 'package:texo/services/ai/ai_provider.dart'
     show AIProvider;
 
 // ─── Fake FlutterSecureStorage ────────────────────────────────────────

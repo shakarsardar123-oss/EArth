@@ -7,7 +7,7 @@
 /// FAIL CLOSED: on scan error, treats content as containing secrets.
 library;
 
-import 'package:aura_assistant/core/errors/result.dart';
+import 'package:texo/core/errors/result.dart';
 import '../domain/models/security_failure.dart';
 import '../domain/services/secret_scanner_service.dart';
 

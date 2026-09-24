@@ -9,7 +9,7 @@
 library;
 
 import 'package:flutter_test/flutter_test.dart';
-import 'package:aura_assistant/features/advanced_agent/domain/repositories/recovery_repository.dart';
+import 'package:texo/features/advanced_agent/domain/repositories/recovery_repository.dart';
 
 void main() {
   group('RecoveryRepository', () {

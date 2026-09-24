@@ -6,7 +6,7 @@
 
 import 'dart:async';
 import 'package:flutter_test/flutter_test.dart';
-import 'package:aura_assistant/services/voice/voice_service.dart';
+import 'package:texo/services/voice/voice_service.dart';
 
 /// Concrete test implementation of VoiceService.
 class TestVoiceService implements VoiceService {

@@ -5,17 +5,17 @@
 /// No Flutter SDK — structural/mock tests only.
 
 import 'package:flutter_test/flutter_test.dart';
-import 'package:aura_assistant/features/central_permissions/adapters/voice_screen_adapter.dart';
-import 'package:aura_assistant/features/central_permissions/adapters/vision_adapter.dart';
-import 'package:aura_assistant/features/central_permissions/adapters/screen_capture_adapter.dart';
-import 'package:aura_assistant/features/central_permissions/adapters/floating_overlay_adapter.dart';
-import 'package:aura_assistant/features/central_permissions/adapters/assistant_integration_adapter.dart';
-import 'package:aura_assistant/features/central_permissions/adapters/device_integration_adapter.dart';
-import 'package:aura_assistant/features/central_permissions/adapters/file_storage_adapter.dart';
-import 'package:aura_assistant/features/central_permissions/adapters/notifications_adapter.dart';
-import 'package:aura_assistant/features/central_permissions/adapters/foreground_service_adapter.dart';
-import 'package:aura_assistant/features/central_permissions/adapters/location_services_adapter.dart';
-import 'package:aura_assistant/features/device_integration/domain/models/permission_status.dart';
+import 'package:texo/features/central_permissions/adapters/voice_screen_adapter.dart';
+import 'package:texo/features/central_permissions/adapters/vision_adapter.dart';
+import 'package:texo/features/central_permissions/adapters/screen_capture_adapter.dart';
+import 'package:texo/features/central_permissions/adapters/floating_overlay_adapter.dart';
+import 'package:texo/features/central_permissions/adapters/assistant_integration_adapter.dart';
+import 'package:texo/features/central_permissions/adapters/device_integration_adapter.dart';
+import 'package:texo/features/central_permissions/adapters/file_storage_adapter.dart';
+import 'package:texo/features/central_permissions/adapters/notifications_adapter.dart';
+import 'package:texo/features/central_permissions/adapters/foreground_service_adapter.dart';
+import 'package:texo/features/central_permissions/adapters/location_services_adapter.dart';
+import 'package:texo/features/device_integration/domain/models/permission_status.dart';
 
 void main() {
   group('Feature-Permission Adapters', () {

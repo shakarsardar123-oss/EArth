@@ -6,7 +6,7 @@
 library;
 
 import 'package:flutter_test/flutter_test.dart';
-import 'package:aura_assistant/features/advanced_agent/domain/repositories/security_repository.dart';
+import 'package:texo/features/advanced_agent/domain/repositories/security_repository.dart';
 
 void main() {
   group('SecurityRepository', () {

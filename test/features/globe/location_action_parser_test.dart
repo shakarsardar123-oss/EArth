@@ -7,8 +7,8 @@
 //   • Invalid / out-of-range coordinates are rejected (never invented).
 import 'package:flutter_test/flutter_test.dart';
 
-import 'package:aura_assistant/features/globe/domain/globe_models.dart';
-import 'package:aura_assistant/features/globe/domain/location_action.dart';
+import 'package:texo/features/globe/domain/globe_models.dart';
+import 'package:texo/features/globe/domain/location_action.dart';
 
 void main() {
   const parser = LocationActionParser();

@@ -6,7 +6,7 @@
 /// as containing secrets.
 library;
 
-import 'package:aura_assistant/core/errors/result.dart';
+import 'package:texo/core/errors/result.dart';
 import '../models/security_failure.dart';
 
 /// A detected secret in scanned content.

@@ -4,8 +4,8 @@
 /// Tests for CentralPermissionFailure domain model.
 
 import 'package:flutter_test/flutter_test.dart';
-import 'package:aura_assistant/features/central_permissions/domain/models/central_permission_failure.dart';
-import 'package:aura_assistant/features/device_integration/domain/models/permission_status.dart';
+import 'package:texo/features/central_permissions/domain/models/central_permission_failure.dart';
+import 'package:texo/features/device_integration/domain/models/permission_status.dart';
 
 void main() {
   group('CentralPermissionFailurePhase', () {

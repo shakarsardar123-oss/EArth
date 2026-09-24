@@ -17,11 +17,11 @@
 /// NEVER modifies Step 20 source — wraps from outside.
 library;
 
-import 'package:aura_assistant/features/tool_registry/domain/models/tool_definition.dart';
-import 'package:aura_assistant/features/tool_registry/domain/models/tool_execution_result.dart';
-import 'package:aura_assistant/features/tool_registry/domain/models/tool_failure.dart';
-import 'package:aura_assistant/features/tool_registry/application/tool_execution_gate.dart';
-import 'package:aura_assistant/features/tool_registry/infrastructure/default_tool_execution_gate.dart';
+import 'package:texo/features/tool_registry/domain/models/tool_definition.dart';
+import 'package:texo/features/tool_registry/domain/models/tool_execution_result.dart';
+import 'package:texo/features/tool_registry/domain/models/tool_failure.dart';
+import 'package:texo/features/tool_registry/application/tool_execution_gate.dart';
+import 'package:texo/features/tool_registry/infrastructure/default_tool_execution_gate.dart';
 
 /// Adapter bridging Step 20's DefaultToolExecutionGate to Step 22's needs.
 ///

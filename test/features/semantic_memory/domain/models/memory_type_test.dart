@@ -7,7 +7,7 @@ import 'package:flutter_test/flutter_test.dart';
 
 // Inline import of the source under test.
 // In the real project this would be:
-// import 'package:aura_assistant/features/semantic_memory/domain/models/memory_type.dart';
+// import 'package:texo/features/semantic_memory/domain/models/memory_type.dart';
 // For structural testing we duplicate the enum here to avoid
 // depending on Flutter SDK or full project compilation.
 

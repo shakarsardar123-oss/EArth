@@ -6,7 +6,7 @@
 /// - `secureLoggingMode` → correct field name: `loggingMode`
 
 import 'package:flutter_test/flutter_test.dart';
-import 'package:aura_assistant/features/security/domain/models/security_config.dart';
+import 'package:texo/features/security/domain/models/security_config.dart';
 
 void main() {
   group('SecurityConfig', () {

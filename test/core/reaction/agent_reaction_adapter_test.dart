@@ -9,15 +9,15 @@ library;
 import 'dart:async';
 
 import 'package:flutter_test/flutter_test.dart';
-import 'package:aura_assistant/core/reaction/reaction.dart';
-import 'package:aura_assistant/core/agent/agent_state.dart';
-import 'package:aura_assistant/core/agent/agent_intent.dart';
-import 'package:aura_assistant/core/agent/agent_step.dart';
-import 'package:aura_assistant/core/tools/tool_arguments.dart';
-import 'package:aura_assistant/core/tools/tool_result.dart';
-import 'package:aura_assistant/core/agent/agent_engine.dart';
-import 'package:aura_assistant/core/tools/tool_registry.dart';
-import 'package:aura_assistant/core/errors/result.dart';
+import 'package:texo/core/reaction/reaction.dart';
+import 'package:texo/core/agent/agent_state.dart';
+import 'package:texo/core/agent/agent_intent.dart';
+import 'package:texo/core/agent/agent_step.dart';
+import 'package:texo/core/tools/tool_arguments.dart';
+import 'package:texo/core/tools/tool_result.dart';
+import 'package:texo/core/agent/agent_engine.dart';
+import 'package:texo/core/tools/tool_registry.dart';
+import 'package:texo/core/errors/result.dart';
 
 // ── ThrowingReactionEngine: always throws on evaluate() ──
 

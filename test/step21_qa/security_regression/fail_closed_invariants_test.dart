@@ -8,19 +8,19 @@
 import 'package:flutter_test/flutter_test.dart';
 
 // Step 17 imports
-import 'package:aura_assistant/features/semantic_memory/application/memory_policy.dart';
-import 'package:aura_assistant/features/semantic_memory/domain/models/memory_failure.dart';
-import 'package:aura_assistant/features/semantic_memory/domain/models/sensitive_data_category.dart';
+import 'package:texo/features/semantic_memory/application/memory_policy.dart';
+import 'package:texo/features/semantic_memory/domain/models/memory_failure.dart';
+import 'package:texo/features/semantic_memory/domain/models/sensitive_data_category.dart';
 
 // Step 19 imports
-import 'package:aura_assistant/features/security/domain/models/security_failure.dart';
-import 'package:aura_assistant/features/security/domain/models/security_config.dart';
-import 'package:aura_assistant/features/security/domain/models/security_verdict.dart';
+import 'package:texo/features/security/domain/models/security_failure.dart';
+import 'package:texo/features/security/domain/models/security_config.dart';
+import 'package:texo/features/security/domain/models/security_verdict.dart';
 
 // Step 20 imports
-import 'package:aura_assistant/features/tool_registry/domain/models/tool_failure.dart';
-import 'package:aura_assistant/features/tool_registry/domain/models/tool_allowlist_entry.dart';
-import 'package:aura_assistant/features/tool_registry/domain/models/tool_execution_result.dart';
+import 'package:texo/features/tool_registry/domain/models/tool_failure.dart';
+import 'package:texo/features/tool_registry/domain/models/tool_allowlist_entry.dart';
+import 'package:texo/features/tool_registry/domain/models/tool_execution_result.dart';
 
 void main() {
   // ==============================================================

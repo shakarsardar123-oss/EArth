@@ -12,14 +12,14 @@
 import 'dart:async';
 
 import 'package:flutter_test/flutter_test.dart';
-import 'package:aura_assistant/core/live_mode/live_mode_orchestrator.dart';
-import 'package:aura_assistant/core/live_mode/live_mode_state.dart';
-import 'package:aura_assistant/core/live_mode/agent_processor.dart';
-import 'package:aura_assistant/core/agent/agent_result.dart';
-import 'package:aura_assistant/core/agent/agent_context.dart';
-import 'package:aura_assistant/services/voice/voice_service.dart';
-import 'package:aura_assistant/services/memory/memory_service.dart';
-import 'package:aura_assistant/domain/entities/agent_config.dart';
+import 'package:texo/core/live_mode/live_mode_orchestrator.dart';
+import 'package:texo/core/live_mode/live_mode_state.dart';
+import 'package:texo/core/live_mode/agent_processor.dart';
+import 'package:texo/core/agent/agent_result.dart';
+import 'package:texo/core/agent/agent_context.dart';
+import 'package:texo/services/voice/voice_service.dart';
+import 'package:texo/services/memory/memory_service.dart';
+import 'package:texo/domain/entities/agent_config.dart';
 
 // ── Hand-crafted Fakes ──
 

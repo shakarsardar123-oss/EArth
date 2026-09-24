@@ -5,7 +5,7 @@
 /// isCurrent detection, equality, immutability.
 
 import 'package:flutter_test/flutter_test.dart';
-import 'package:aura_assistant/core/live_mode/live_mode_state.dart';
+import 'package:texo/core/live_mode/live_mode_state.dart';
 
 void main() {
   group('LiveModeSession', () {

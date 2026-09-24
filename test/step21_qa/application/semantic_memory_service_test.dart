@@ -4,7 +4,7 @@
 /// Validates the service interface contract and fail-closed behavior.
 
 import 'package:flutter_test/flutter_test.dart';
-import 'package:aura_assistant/features/semantic_memory/application/services/semantic_memory_service.dart';
+import 'package:texo/features/semantic_memory/application/services/semantic_memory_service.dart';
 
 void main() {
   group('SemanticMemoryService', () {

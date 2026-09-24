@@ -12,10 +12,10 @@ import 'package:flutter_test/flutter_test.dart';
 import 'package:flutter_secure_storage/flutter_secure_storage.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
-import 'package:aura_assistant/core/ai/ai_connection_storage.dart';
-import 'package:aura_assistant/core/ai/ai_connection_config.dart';
-import 'package:aura_assistant/core/ai/connection_type.dart';
-import 'package:aura_assistant/core/ai/provider_exception.dart';
+import 'package:texo/core/ai/ai_connection_storage.dart';
+import 'package:texo/core/ai/ai_connection_config.dart';
+import 'package:texo/core/ai/connection_type.dart';
+import 'package:texo/core/ai/provider_exception.dart';
 
 // ─── Fake FlutterSecureStorage ────────────────────────────────────────
 

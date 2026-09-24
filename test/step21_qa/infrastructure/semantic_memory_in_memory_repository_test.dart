@@ -4,9 +4,9 @@
 /// Validates CRUD operations, search, and in-memory behavior.
 
 import 'package:flutter_test/flutter_test.dart';
-import 'package:aura_assistant/features/semantic_memory/infrastructure/semantic_memory_in_memory_repository.dart';
-import 'package:aura_assistant/features/semantic_memory/domain/models/memory_entry.dart';
-import 'package:aura_assistant/features/semantic_memory/domain/models/memory_query.dart';
+import 'package:texo/features/semantic_memory/infrastructure/semantic_memory_in_memory_repository.dart';
+import 'package:texo/features/semantic_memory/domain/models/memory_entry.dart';
+import 'package:texo/features/semantic_memory/domain/models/memory_query.dart';
 
 void main() {
   group('SemanticMemoryInMemoryRepository', () {

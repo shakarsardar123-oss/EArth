@@ -1,6 +1,6 @@
 import 'package:flutter_test/flutter_test.dart';
-import 'package:aura_assistant/data/models/app_config_model.dart';
-import 'package:aura_assistant/domain/entities/app_config.dart';
+import 'package:texo/data/models/app_config_model.dart';
+import 'package:texo/domain/entities/app_config.dart';
 
 void main() {
   group('AppConfigModel', () {

@@ -2,7 +2,7 @@
 ///
 /// Dart-side platform channel service for Step 24 trigger integration.
 /// Handles communication with the Android/Kotlin side via
-/// MethodChannel com.aura.assistant/trigger_integration.
+/// MethodChannel com.texo.texo/trigger_integration.
 ///
 /// FAIL-CLOSED: any platform channel error → denied result.
 /// UNKNOWN = DENY, ERROR = DENY, UNAVAILABLE = DENY.

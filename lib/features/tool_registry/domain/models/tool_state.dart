@@ -8,9 +8,9 @@
 library;
 
 import 'package:flutter/foundation.dart';
-import 'package:aura_assistant/features/tool_registry/domain/models/tool_definition.dart';
-import 'package:aura_assistant/features/tool_registry/domain/models/tool_allowlist_entry.dart';
-import 'package:aura_assistant/features/tool_registry/domain/models/tool_execution_result.dart';
+import 'package:texo/features/tool_registry/domain/models/tool_definition.dart';
+import 'package:texo/features/tool_registry/domain/models/tool_allowlist_entry.dart';
+import 'package:texo/features/tool_registry/domain/models/tool_execution_result.dart';
 
 /// Overall status of the tool registry.
 enum ToolRegistryStatus {

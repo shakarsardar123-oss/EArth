@@ -8,7 +8,7 @@
 /// - SecurityFailurePhase has 14 values (not 16)
 
 import 'package:flutter_test/flutter_test.dart';
-import 'package:aura_assistant/features/security/domain/models/security_failure.dart';
+import 'package:texo/features/security/domain/models/security_failure.dart';
 
 void main() {
   group('SecurityFailure', () {

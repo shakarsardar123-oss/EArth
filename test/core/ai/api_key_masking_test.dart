@@ -1,6 +1,6 @@
 import 'package:flutter_test/flutter_test.dart';
 
-import 'package:aura_assistant/core/ai/api_key_masker.dart';
+import 'package:texo/core/ai/api_key_masker.dart';
 
 void main() {
   group('API Key Masking — ApiKeyMasker.mask()', () {

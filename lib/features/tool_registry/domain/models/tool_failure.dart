@@ -11,7 +11,7 @@
 ///   execution → discovery → offline → unknown
 library;
 
-import 'package:aura_assistant/core/errors/result.dart';
+import 'package:texo/core/errors/result.dart';
 
 /// Phases of the tool lifecycle where a failure may occur.
 enum ToolFailurePhase {

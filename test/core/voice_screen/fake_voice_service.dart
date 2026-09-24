@@ -3,7 +3,7 @@ library;
 
 import 'dart:async';
 
-import 'package:aura_assistant/services/voice/voice_service.dart';
+import 'package:texo/services/voice/voice_service.dart';
 
 /// Configuration for [FakeVoiceService].
 class FakeVoiceConfig {

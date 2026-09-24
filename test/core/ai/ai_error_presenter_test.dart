@@ -7,9 +7,9 @@ library;
 import 'package:flutter/widgets.dart';
 import 'package:flutter_test/flutter_test.dart';
 
-import 'package:aura_assistant/core/ai/ai_error_presenter.dart';
-import 'package:aura_assistant/core/ai/provider_exception.dart';
-import 'package:aura_assistant/l10n/app_localizations.dart';
+import 'package:texo/core/ai/ai_error_presenter.dart';
+import 'package:texo/core/ai/provider_exception.dart';
+import 'package:texo/l10n/app_localizations.dart';
 
 void main() {
   final l10n = lookupS(const Locale('en'));

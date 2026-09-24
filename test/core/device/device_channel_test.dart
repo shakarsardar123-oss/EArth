@@ -1,7 +1,7 @@
 import 'package:flutter_test/flutter_test.dart';
-import 'package:aura_assistant/core/device/device_channel.dart';
-import 'package:aura_assistant/core/device/android_device_channel.dart';
-import 'package:aura_assistant/core/device/stub_device_channel.dart';
+import 'package:texo/core/device/device_channel.dart';
+import 'package:texo/core/device/android_device_channel.dart';
+import 'package:texo/core/device/stub_device_channel.dart';
 
 void main() {
   group('DeviceChannelResult', () {

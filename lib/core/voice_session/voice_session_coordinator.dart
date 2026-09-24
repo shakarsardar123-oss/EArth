@@ -83,7 +83,7 @@ enum VoiceAssistantPhase {
   /// Kurdish Sorani status label for the pill.
   String get statusText => switch (this) {
         idle => 'ئامادەیە',
-        waking => 'ئەورا...',
+        waking => 'تێکسۆ...',
         listening => 'گوێگرتن...',
         thinking => 'بیرکردنەوە...',
         speaking => 'قسەکردن...',

@@ -16,16 +16,16 @@ import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
-import 'package:aura_assistant/core/reaction/reaction.dart';
-import 'package:aura_assistant/core/reaction/reaction_lifecycle.dart';
-import 'package:aura_assistant/core/reaction/reaction_speech_coordinator.dart';
-import 'package:aura_assistant/core/reaction/reaction_banner_provider.dart';
-import 'package:aura_assistant/core/reaction/reaction_state.dart';
-import 'package:aura_assistant/core/reaction/reaction_visual_style.dart';
-import 'package:aura_assistant/core/localization/s_strings.dart';
-import 'package:aura_assistant/core/localization/s_strings_ku.dart';
-import 'package:aura_assistant/core/localization/s_strings_en.dart';
-import 'package:aura_assistant/services/voice/voice_service.dart';
+import 'package:texo/core/reaction/reaction.dart';
+import 'package:texo/core/reaction/reaction_lifecycle.dart';
+import 'package:texo/core/reaction/reaction_speech_coordinator.dart';
+import 'package:texo/core/reaction/reaction_banner_provider.dart';
+import 'package:texo/core/reaction/reaction_state.dart';
+import 'package:texo/core/reaction/reaction_visual_style.dart';
+import 'package:texo/core/localization/s_strings.dart';
+import 'package:texo/core/localization/s_strings_ku.dart';
+import 'package:texo/core/localization/s_strings_en.dart';
+import 'package:texo/services/voice/voice_service.dart';
 
 // ─── Helpers ───────────────────────────────────────────────────────
 

@@ -1,4 +1,4 @@
-package com.aura.aura_assistant
+package com.texo.texo
 
 import android.content.Context
 import android.content.pm.PackageManager
@@ -21,7 +21,7 @@ import java.io.File
 import kotlin.math.sqrt
 
 /**
- * AuraAudioBridge — REAL native audio pipeline for the AURA voice phase.
+ * TexoAudioBridge — REAL native audio pipeline for the TEXO voice phase.
  *
  * Registers three MethodChannel + EventChannel pairs on ONE shared microphone
  * capture (no duplicate mic pipelines):
@@ -38,7 +38,7 @@ import kotlin.math.sqrt
  *  3) wake          — REAL acoustic keyword spotting for "Hey AURA".
  *                     A bundled Vosk (Kaldi) acoustic model is loaded and a
  *                     GRAMMAR-CONSTRAINED recognizer decodes the shared mic PCM
- *                     against the tiny grammar ["hey aura", "[unk]"]. This is
+ *                     against the tiny grammar ["hey texo", "[unk]"]. This is
  *                     genuine on-device acoustic inference (mic PCM -> acoustic
  *                     model -> phrase + per-word confidence), NOT a free-form
  *                     speech-to-text transcript search. Detections carry the
@@ -51,7 +51,7 @@ import kotlin.math.sqrt
  * runs while either consumer is active and is torn down when both stop.
  * RECORD_AUDIO is required; the bridge checks it and fails closed if absent.
  */
-class AuraAudioBridge(
+class TexoAudioBridge(
     private val context: Context,
     messenger: io.flutter.plugin.common.BinaryMessenger,
 ) {
@@ -81,7 +81,7 @@ class AuraAudioBridge(
 
     init {
         // 1) output_level
-        MethodChannel(messenger, "com.aura.aura_assistant/output_level")
+        MethodChannel(messenger, "com.texo.texo/output_level")
             .setMethodCallHandler { call, result ->
                 when (call.method) {
                     "start" -> result.success(startOutputLevel())
@@ -89,14 +89,14 @@ class AuraAudioBridge(
                     else -> result.notImplemented()
                 }
             }
-        EventChannel(messenger, "com.aura.aura_assistant/output_level.events")
+        EventChannel(messenger, "com.texo.texo/output_level.events")
             .setStreamHandler(object : EventChannel.StreamHandler {
                 override fun onListen(args: Any?, sink: EventChannel.EventSink?) { outputSink = sink }
                 override fun onCancel(args: Any?) { outputSink = null }
             })
 
         // 2) mic_vad
-        MethodChannel(messenger, "com.aura.aura_assistant/mic_vad")
+        MethodChannel(messenger, "com.texo.texo/mic_vad")
             .setMethodCallHandler { call, result ->
                 when (call.method) {
                     "start" -> result.success(startMicVad())
@@ -104,14 +104,14 @@ class AuraAudioBridge(
                     else -> result.notImplemented()
                 }
             }
-        EventChannel(messenger, "com.aura.aura_assistant/mic_vad.events")
+        EventChannel(messenger, "com.texo.texo/mic_vad.events")
             .setStreamHandler(object : EventChannel.StreamHandler {
                 override fun onListen(args: Any?, sink: EventChannel.EventSink?) { micSink = sink }
                 override fun onCancel(args: Any?) { micSink = null }
             })
 
         // 3) wake
-        MethodChannel(messenger, "com.aura.aura_assistant/wake")
+        MethodChannel(messenger, "com.texo.texo/wake")
             .setMethodCallHandler { call, result ->
                 when (call.method) {
                     "initialize" -> result.success(initializeWake())
@@ -120,7 +120,7 @@ class AuraAudioBridge(
                     else -> result.notImplemented()
                 }
             }
-        EventChannel(messenger, "com.aura.aura_assistant/wake.events")
+        EventChannel(messenger, "com.texo.texo/wake.events")
             .setStreamHandler(object : EventChannel.StreamHandler {
                 override fun onListen(args: Any?, sink: EventChannel.EventSink?) { wakeSink = sink }
                 override fun onCancel(args: Any?) { wakeSink = null }
@@ -280,7 +280,7 @@ class AuraAudioBridge(
                     feedWake(buf, n)
                 }
             }
-        }.also { it.isDaemon = true; it.name = "aura-mic-capture"; it.start() }
+        }.also { it.isDaemon = true; it.name = "texo-mic-capture"; it.start() }
         return true
     }
 
@@ -309,8 +309,8 @@ class AuraAudioBridge(
     // ────────────────────── wake: Vosk acoustic KWS ─────────────────
 
     private val modelAssetDir = "vosk-model-small-en-us-0.15"
-    private val wakePhrase = "hey aura"
-    private val wakeGrammar = "[\"hey aura\", \"[unk]\"]"
+    private val wakePhrase = "hey texo"
+    private val wakeGrammar = "[\"hey texo\", \"[unk]\"]"
     // Native pre-gate. The Dart WakeWordDebouncer applies a second (0.5)
     // threshold + cooldown on top of this.
     private val minConfidence = 0.55
@@ -408,7 +408,7 @@ class AuraAudioBridge(
      * Parse a Vosk result JSON and return the average confidence of the words
      * that make up the wake phrase, or null if the phrase is not present.
      * Example: {"result":[{"conf":0.98,"word":"hey"},{"conf":0.95,"word":"aura"}],
-     *           "text":"hey aura"}
+     *           "text":"hey texo"}
      */
     private fun phraseConfidence(json: String?): Double? {
         if (json.isNullOrBlank()) return null
@@ -422,7 +422,7 @@ class AuraAudioBridge(
             for (i in 0 until words.length()) {
                 val w = words.optJSONObject(i) ?: continue
                 val word = w.optString("word", "").lowercase()
-                if (word == "hey" || word == "aura") {
+                if (word == "hey" || word == "texo") {
                     sum += w.optDouble("conf", 1.0)
                     count++
                 }

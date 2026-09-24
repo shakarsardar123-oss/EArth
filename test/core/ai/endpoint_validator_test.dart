@@ -1,7 +1,7 @@
 import 'package:flutter_test/flutter_test.dart';
 
-import 'package:aura_assistant/core/ai/endpoint_validator.dart';
-import 'package:aura_assistant/features/security/domain/models/security_failure.dart';
+import 'package:texo/core/ai/endpoint_validator.dart';
+import 'package:texo/features/security/domain/models/security_failure.dart';
 
 void main() {
   // ─── validate() ─────────────────────────────────────────────────────

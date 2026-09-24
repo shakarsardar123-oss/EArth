@@ -1,6 +1,6 @@
 /// Barrel export for the AURA Dynamic Reaction System.
 ///
-/// Import as: import 'package:aura_assistant/core/reaction/reaction.dart';
+/// Import as: import 'package:texo/core/reaction/reaction.dart';
 library;
 
 export 'reaction_type.dart';

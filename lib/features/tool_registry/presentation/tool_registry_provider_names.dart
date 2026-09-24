@@ -8,10 +8,10 @@ library;
 
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
-import 'package:aura_assistant/features/tool_registry/presentation/tool_registry_state_notifier.dart';
-import 'package:aura_assistant/features/tool_registry/domain/models/models.dart';
-import 'package:aura_assistant/features/tool_registry/infrastructure/infrastructure.dart';
-import 'package:aura_assistant/features/central_permissions/application/central_permission_providers.dart';
+import 'package:texo/features/tool_registry/presentation/tool_registry_state_notifier.dart';
+import 'package:texo/features/tool_registry/domain/models/models.dart';
+import 'package:texo/features/tool_registry/infrastructure/infrastructure.dart';
+import 'package:texo/features/central_permissions/application/central_permission_providers.dart';
 
 /// Provider names for the Tool Registry feature.
 ///

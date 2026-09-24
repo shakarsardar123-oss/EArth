@@ -4,8 +4,8 @@
 // disclaimer, not a political border.
 import 'package:flutter_test/flutter_test.dart';
 
-import 'package:aura_assistant/features/globe/data/geo_gazetteer.dart';
-import 'package:aura_assistant/features/globe/domain/globe_models.dart';
+import 'package:texo/features/globe/data/geo_gazetteer.dart';
+import 'package:texo/features/globe/domain/globe_models.dart';
 
 void main() {
   const gaz = GeoGazetteer();

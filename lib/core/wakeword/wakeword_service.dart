@@ -18,7 +18,7 @@ import '../voice/voice_service_impl.dart';
 ///   the UI language is a SEPARATE concern. To recognise "Hey AURA" without
 ///   forcing every user onto a Kurdish recognizer, [locale] now defaults to
 ///   `null` (the device's system speech locale) instead of the old hardcoded
-///   'ckb_IQ'. An English-speech device will transcribe "hey aura"; a Sorani
+///   'ckb_IQ'. An English-speech device will transcribe "hey texo"; a Sorani
 ///   device will transcribe 'ئەورا'. Guaranteed English-anywhere recognition
 ///   requires the native KWS model path (see [AcousticWakeWordEngine]); this
 ///   STT fallback does its best with the device recognizer.
@@ -59,7 +59,7 @@ class WakeWordService {
   /// Default wake phrases: English primary + reasonable variants, plus the
   /// configured Sorani phrase. Kept narrow to avoid accidental triggers.
   static List<String> _defaultWakePhrases(String kurdishWakeWord) => <String>[
-        'hey aura',
+        'hey texo',
         'hey, aura',
         'hey ora',
         'hey aurora',
@@ -177,7 +177,7 @@ class WakeWordService {
     // Match against ANY configured, normalized wake phrase. This replaces the
     // old single-string raw contains() (which only matched the Kurdish word
     // and could never match "Hey AURA"). Normalization lowercases, strips
-    // punctuation and collapses whitespace so "Hey, AURA!" == "hey aura".
+    // punctuation and collapses whitespace so "Hey, AURA!" == "hey texo".
     if (normalized.isNotEmpty &&
         _normalizedPhrases.any((p) => normalized.contains(p))) {
       _onWakeWordDetected?.call();

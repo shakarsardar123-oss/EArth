@@ -3,7 +3,7 @@
 // ───────────────────────────────────────────────────────────────────
 // MethodChannel-based implementation of [CentralPermissionService].
 //
-// Method channel: com.aura.assistant/central_permissions
+// Method channel: com.texo.texo/central_permissions
 //
 // Supported method calls:
 //   checkStatus     → {permission: String}  → {status: String}
@@ -17,10 +17,10 @@ import 'dart:async';
 
 import 'package:flutter/services.dart';
 
-import 'package:aura_assistant/core/errors/result.dart';
-import 'package:aura_assistant/features/device_integration/domain/models/permission_status.dart';
-import 'package:aura_assistant/features/central_permissions/domain/central_permission_service.dart';
-import 'package:aura_assistant/features/central_permissions/domain/models/central_permission_failure.dart';
+import 'package:texo/core/errors/result.dart';
+import 'package:texo/features/device_integration/domain/models/permission_status.dart';
+import 'package:texo/features/central_permissions/domain/central_permission_service.dart';
+import 'package:texo/features/central_permissions/domain/models/central_permission_failure.dart';
 
 /// Platform-channel implementation of [CentralPermissionService].
 ///
@@ -28,7 +28,7 @@ import 'package:aura_assistant/features/central_permissions/domain/models/centra
 /// NEVER fakes or bypasses a permission.
 class PlatformPermissionManager extends CentralPermissionService {
   static const MethodChannel _channel =
-      MethodChannel('com.aura.assistant/central_permissions');
+      MethodChannel('com.texo.texo/central_permissions');
 
   // ── Feature → Permission mapping ─────────────────────────────────
 

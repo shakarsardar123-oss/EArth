@@ -8,8 +8,8 @@
 /// Step 16 permission checks.
 library;
 
-import 'package:aura_assistant/core/errors/result.dart';
-import 'package:aura_assistant/features/tool_registry/domain/models/models.dart';
+import 'package:texo/core/errors/result.dart';
+import 'package:texo/features/tool_registry/domain/models/models.dart';
 
 /// Permission check result for a tool execution.
 class ToolPermissionResult {

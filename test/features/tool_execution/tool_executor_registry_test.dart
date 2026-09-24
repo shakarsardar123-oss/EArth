@@ -4,8 +4,8 @@
 // Structural validation only.
 
 import 'package:flutter_test/flutter_test.dart';
-import 'package:aura_assistant/features/tool_execution/infrastructure/executors/tool_executor_registry.dart';
-import 'package:aura_assistant/features/tool_execution/domain/services/tool_interface.dart';
+import 'package:texo/features/tool_execution/infrastructure/executors/tool_executor_registry.dart';
+import 'package:texo/features/tool_execution/domain/services/tool_interface.dart';
 
 void main() {
   group('ToolExecutorRegistry', () {

@@ -1,6 +1,6 @@
 /// Concrete [SystemControlChannel] backed by an Android [MethodChannel].
 ///
-/// Channel name: `com.aura.aura_assistant/system_control`
+/// Channel name: `com.texo.texo/system_control`
 /// (a NEW channel, separate from the existing device channel, so no
 /// pre-existing handler or Dart wrapper is disturbed).
 ///
@@ -32,7 +32,7 @@ abstract class SystemControlMethods {
 
 class AndroidSystemControlChannel implements SystemControlChannel {
   static const MethodChannel _channel =
-      MethodChannel('com.aura.aura_assistant/system_control');
+      MethodChannel('com.texo.texo/system_control');
 
   @override
   Future<DeviceChannelResult> getBluetoothState() =>

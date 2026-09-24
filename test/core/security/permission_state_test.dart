@@ -1,6 +1,6 @@
 import 'package:flutter_test/flutter_test.dart';
-import 'package:aura_assistant/core/security/permission_state.dart';
-import 'package:aura_assistant/core/tools/tool_permission.dart';
+import 'package:texo/core/security/permission_state.dart';
+import 'package:texo/core/tools/tool_permission.dart';
 
 void main() {
   group('ToolPermissionStatus', () {

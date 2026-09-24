@@ -16,12 +16,12 @@ import 'package:http/http.dart' as http;
 import 'package:flutter_secure_storage/flutter_secure_storage.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
-import 'package:aura_assistant/core/ai/openai_provider.dart';
-import 'package:aura_assistant/core/ai/ai_connection_storage.dart';
-import 'package:aura_assistant/core/ai/ai_connection_config.dart';
-import 'package:aura_assistant/domain/services/ai_service.dart';
-import 'package:aura_assistant/domain/entities/agent_config.dart';
-import 'package:aura_assistant/core/ai/ai_message.dart';
+import 'package:texo/core/ai/openai_provider.dart';
+import 'package:texo/core/ai/ai_connection_storage.dart';
+import 'package:texo/core/ai/ai_connection_config.dart';
+import 'package:texo/domain/services/ai_service.dart';
+import 'package:texo/domain/entities/agent_config.dart';
+import 'package:texo/core/ai/ai_message.dart';
 
 // ─── Fake FlutterSecureStorage ────────────────────────────────────────
 

@@ -5,7 +5,7 @@
 // shown to the user before the system request dialog.
 // ───────────────────────────────────────────────────────────────────
 
-import 'package:aura_assistant/features/device_integration/domain/models/permission_status.dart';
+import 'package:texo/features/device_integration/domain/models/permission_status.dart';
 
 /// Explains why a [DevicePermission] is required before requesting it.
 ///

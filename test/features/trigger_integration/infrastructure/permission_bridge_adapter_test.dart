@@ -4,8 +4,8 @@
 /// FAIL-CLOSED: permission unavailable → checkPermissions returns false.
 /// No Flutter/Dart SDK — structural validation only, NEVER claim runtime test results.
 
-import 'package:aura_assistant/features/trigger_integration/domain/value_objects/trigger_type.dart';
-import 'package:aura_assistant/features/trigger_integration/infrastructure/adapters/permission_bridge_adapter.dart';
+import 'package:texo/features/trigger_integration/domain/value_objects/trigger_type.dart';
+import 'package:texo/features/trigger_integration/infrastructure/adapters/permission_bridge_adapter.dart';
 
 void main() {
   group('PermissionBridgeAdapter', () {

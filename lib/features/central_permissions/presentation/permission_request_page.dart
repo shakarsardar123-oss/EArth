@@ -6,13 +6,13 @@
 library;
 
 import 'package:flutter/material.dart';
-import 'package:aura_assistant/l10n/app_localizations.dart';
-import 'package:aura_assistant/features/device_integration/domain/models/permission_status.dart';
-import 'package:aura_assistant/features/central_permissions/application/central_permission_controller.dart';
-import 'package:aura_assistant/features/central_permissions/application/central_permission_state.dart';
-import 'package:aura_assistant/features/central_permissions/presentation/permission_status_card.dart';
-import 'package:aura_assistant/features/central_permissions/presentation/permission_explanation_sheet.dart';
-import 'package:aura_assistant/features/central_permissions/domain/models/permission_explanation.dart';
+import 'package:texo/l10n/app_localizations.dart';
+import 'package:texo/features/device_integration/domain/models/permission_status.dart';
+import 'package:texo/features/central_permissions/application/central_permission_controller.dart';
+import 'package:texo/features/central_permissions/application/central_permission_state.dart';
+import 'package:texo/features/central_permissions/presentation/permission_status_card.dart';
+import 'package:texo/features/central_permissions/presentation/permission_explanation_sheet.dart';
+import 'package:texo/features/central_permissions/domain/models/permission_explanation.dart';
 
 class PermissionRequestPage extends StatefulWidget {
   final CentralPermissionController controller;
