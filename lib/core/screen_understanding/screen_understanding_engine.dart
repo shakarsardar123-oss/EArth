@@ -575,11 +575,11 @@ class ScreenUnderstandingEngine implements ScreenUnderstandingService {
           width: frame.width,
           height: frame.height,
           rotation: frame.rotation,
-          appName: metaMap?['app_name'] is String
-              ? metaMap?['app_name'] as String
+          appName: (metaMap?['app_name'] as Object?) is String
+              ? metaMap!['app_name'] as String
               : null,
-          appPackage: metaMap?['app_package'] is String
-              ? metaMap?['app_package'] as String
+          appPackage: (metaMap?['app_package'] as Object?) is String
+              ? metaMap!['app_package'] as String
               : null,
           overallConfidence: _safeConfidence(
             metaMap?['overall_confidence'],

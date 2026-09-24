@@ -12,6 +12,7 @@ import '../../core/ai/provider_exception.dart';
 import '../../core/ai/endpoint_validator.dart';
 import '../../core/ai/model_discovery.dart';
 import '../errors/result.dart';
+import '../tools/tool_definition.dart';
 
 /// Secure storage key for the OpenAI API key.
 const _apiKeyStorageKey = 'aura_openai_api_key';
@@ -497,23 +498,14 @@ class OpenAIProvider implements AIProvider, ModelDiscovery {
   // (Assuming these already exist in the original; keep them as-is)
 
   List<Map<String, dynamic>> _buildMessages(AIRequest request) {
-    return request.messages
+    return request.messages?
         .map((msg) => msg.toMap())
-        .toList();
+        .toList() ?? <Map<String, dynamic>>[];
   }
 
   List<Map<String, dynamic>>? _buildTools(
-      List<AIToolDefinition>? toolDefinitions) {
+      List<ToolDefinition>? toolDefinitions) {
     if (toolDefinitions == null || toolDefinitions.isEmpty) return null;
-    return toolDefinitions
-        .map((tool) => {
-              'type': 'function',
-              'function': {
-                'name': tool.name,
-                'description': tool.description,
-                'parameters': tool.parameters,
-              }
-            })
-        .toList();
+    return toolDefinitions.map((tool) => tool.toOpenAISchema()).toList();
   }
 }

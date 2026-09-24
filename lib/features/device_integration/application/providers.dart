@@ -3,6 +3,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import '../../../core/screen_capture/screen_capture_provider.dart';
 import '../../../core/screen_search/search_provider.dart';
 import '../../../core/screen_understanding/screen_understanding_provider.dart';
+import '../infrastructure/adapters/core_screen_adapters.dart';
 import '../../central_permissions/application/central_permission_providers.dart';
 import '../infrastructure/central_permission_manager_adapter.dart';
 import '../infrastructure/android_device_executor.dart';
@@ -27,21 +28,32 @@ final deviceIntegrationActionValidatorProvider =
   );
 });
 
+final _coreScreenAdapterBundleProvider =
+    Provider<CoreScreenAdapterBundle>((ref) {
+  return buildCoreScreenAdapterBundle(
+    captureService: ref.watch(screenCaptureServiceProvider),
+    understandingService: ref.watch(screenUnderstandingServiceProvider),
+    searchService: ref.watch(screenSearchServiceProvider),
+  );
+});
+
 final deviceIntegrationTargetResolverProvider =
     Provider<TargetResolver>((ref) {
+  final bundle = ref.watch(_coreScreenAdapterBundleProvider);
   return TargetResolver(
-    screenCapture: ref.watch(screenCaptureServiceProvider),
-    screenUnderstanding: ref.watch(screenUnderstandingServiceProvider),
-    screenSearch: ref.watch(screenSearchServiceProvider),
+    screenCapture: bundle.capture,
+    screenUnderstanding: bundle.understanding,
+    screenSearch: bundle.search,
   );
 });
 
 final deviceIntegrationActionVerifierProvider =
     Provider<ActionVerifier>((ref) {
+  final bundle = ref.watch(_coreScreenAdapterBundleProvider);
   return ActionVerifier(
-    screenCapture: ref.watch(screenCaptureServiceProvider),
-    screenUnderstanding: ref.watch(screenUnderstandingServiceProvider),
-    screenSearch: ref.watch(screenSearchServiceProvider),
+    screenCapture: bundle.capture,
+    screenUnderstanding: bundle.understanding,
+    screenSearch: bundle.search,
   );
 });
 

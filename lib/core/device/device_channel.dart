@@ -39,6 +39,9 @@ class DeviceChannelResult {
   /// Whether the call succeeded.
   final bool isSuccess;
 
+  /// Whether the call failed (the inverse of isSuccess).
+  bool get isFailure => !isSuccess;
+
   @override
   String toString() {
     if (isSuccess) return 'DeviceChannelResult.success($data)';

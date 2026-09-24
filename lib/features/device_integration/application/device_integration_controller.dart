@@ -240,8 +240,8 @@ class DeviceIntegrationController {
           return Result.success(
             DeviceAction.tap(
               targetPoint: NormalizedPoint(
-                _number(data['x']),
-                _number(data['y']),
+                x: _number(data['x']),
+                y: _number(data['y']),
               ),
               targetLabel: data['target_label']?.toString(),
             ),
@@ -252,8 +252,8 @@ class DeviceIntegrationController {
           return Result.success(
             DeviceAction.longPress(
               targetPoint: NormalizedPoint(
-                _number(data['x']),
-                _number(data['y']),
+                x: _number(data['x']),
+                y: _number(data['y']),
               ),
               durationMs: _int(data['duration_ms']) ?? 600,
               targetLabel: data['target_label']?.toString(),
@@ -264,12 +264,12 @@ class DeviceIntegrationController {
           return Result.success(
             DeviceAction.swipe(
               swipeStart: NormalizedPoint(
-                _number(data['start_x']),
-                _number(data['start_y']),
+                x: _number(data['start_x']),
+                y: _number(data['start_y']),
               ),
               swipeEnd: NormalizedPoint(
-                _number(data['end_x']),
-                _number(data['end_y']),
+                x: _number(data['end_x']),
+                y: _number(data['end_y']),
               ),
               durationMs: _int(data['duration_ms']) ?? 350,
             ),
@@ -282,8 +282,8 @@ class DeviceIntegrationController {
               text: data['text']?.toString() ?? '',
               targetPoint: data['x'] != null && data['y'] != null
                   ? NormalizedPoint(
-                      _number(data['x']),
-                      _number(data['y']),
+                      x: _number(data['x']),
+                      y: _number(data['y']),
                     )
                   : null,
             ),
