@@ -11,6 +11,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:aura_assistant/features/tool_registry/presentation/tool_registry_state_notifier.dart';
 import 'package:aura_assistant/features/tool_registry/domain/models/models.dart';
 import 'package:aura_assistant/features/tool_registry/infrastructure/infrastructure.dart';
+import 'package:aura_assistant/features/central_permissions/application/central_permission_providers.dart';
 
 /// Provider names for the Tool Registry feature.
 ///
@@ -99,9 +100,19 @@ class ToolRegistryProviders {
   static final toolSecurityAdapterProvider =
       Provider<ToolSecurityAdapter?>((ref) => null);
 
-  /// [ToolPermissionAdapter] provider (optional, defaults to null).
+  /// Production [ToolPermissionAdapter] backed by Central Permissions.
   static final toolPermissionAdapterProvider =
-      Provider<ToolPermissionAdapter?>((ref) => null);
+      Provider<ToolPermissionAdapter?>(
+    (ref) {
+      final permissionService =
+          ref.watch(centralPermissionServiceProvider);
+
+      return Step16PermissionAdapter(
+        permissionService: permissionService,
+      );
+    },
+    name: ToolRegistryProviderNames.toolPermissionAdapterName,
+  );
 
   /// [ToolRecoveryAdapter] provider (optional, defaults to null).
   static final toolRecoveryAdapterProvider =

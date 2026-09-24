@@ -110,7 +110,13 @@ class DefaultToolExecutionGate implements ToolExecutionGate {
 
       // ── Gate 3: Security ──────────────────────────────────
       if (_securityAdapter != null) {
-        final secResult = await _securityAdapter.check(definition);
+        final secResult = await _securityAdapter.validateToolExecution(
+          toolId: toolId,
+          definition: definition,
+          metadata: context == null
+              ? null
+              : <String, dynamic>{'context': context},
+        );
         if (secResult.verdict != ToolSecurityVerdict.allowed) {
           // FAIL CLOSED: security verdict != allowed = denied.
           return Result.failure(
@@ -137,19 +143,22 @@ class DefaultToolExecutionGate implements ToolExecutionGate {
       }
 
       // ── Gate 4: Permission ────────────────────────────────
-      if (_permissionAdapter != null && definition.requiredPermissions.isNotEmpty) {
-        for (final permId in definition.requiredPermissions) {
-          final permResult = await _permissionAdapter.check(permId);
-          if (!permResult.isGranted) {
-            // FAIL CLOSED: permission not granted = denied.
-            return Result.failure(
-              ToolFailure.permission(
-                message:
-                    'Gate 4 failed: permission not granted: $permId. '
-                    '${permResult.reason}',
-              ),
-            );
-          }
+      if (_permissionAdapter != null &&
+          definition.requiredPermissions.isNotEmpty) {
+        final permResult = await _permissionAdapter.checkPermissions(
+          toolId: toolId,
+          requiredPermissions: definition.requiredPermissions,
+        );
+
+        if (!permResult.permitsExecution) {
+          // FAIL CLOSED: required permission(s) not granted.
+          return Result.failure(
+            ToolFailure.permission(
+              message:
+                  'Gate 4 failed: required permissions were not granted: '
+                  '${definition.requiredPermissions.join(', ')}',
+            ),
+          );
         }
       } else if (_permissionAdapter == null &&
           definition.requiredPermissions.isNotEmpty) {
@@ -189,20 +198,12 @@ class DefaultToolExecutionGate implements ToolExecutionGate {
         );
       }
 
-      // Get memory context if available.
-      String? memoryContext;
-      if (_memoryAdapter != null) {
-        final memResult = await _memoryAdapter.getContext(toolId);
-        if (memResult.isSuccess) {
-          memoryContext = memResult.asSuccess.context;
-        }
-        // Memory failure does not block execution.
-      }
-
       // Execute the tool.
+      // Memory retrieval is handled outside this gate through the
+      // current ToolMemoryAdapter contract.
       final execResult = await executor(
-        parameters ?? {},
-        memoryContext: memoryContext,
+        parameters ?? <String, dynamic>{},
+        memoryContext: null,
         toolContext: context,
       );
 
@@ -256,7 +257,13 @@ class DefaultToolExecutionGate implements ToolExecutionGate {
 
       // Gate 3: Security.
       if (_securityAdapter != null) {
-        final secResult = await _securityAdapter.check(definition);
+        final secResult = await _securityAdapter.validateToolExecution(
+          toolId: toolId,
+          definition: definition,
+          metadata: context == null
+              ? null
+              : <String, dynamic>{'context': context},
+        );
         if (secResult.verdict != ToolSecurityVerdict.allowed) {
           return ToolExecutionReadiness.notReady(
             reason: 'Security verdict: ${secResult.verdict.name}',
@@ -267,14 +274,25 @@ class DefaultToolExecutionGate implements ToolExecutionGate {
       // Gate 4: Permission.
       if (_permissionAdapter != null &&
           definition.requiredPermissions.isNotEmpty) {
-        for (final permId in definition.requiredPermissions) {
-          final permResult = await _permissionAdapter.check(permId);
-          if (!permResult.isGranted) {
-            return ToolExecutionReadiness.notReady(
-              reason: 'Permission not granted: $permId',
-            );
-          }
+        final permResult = await _permissionAdapter.checkPermissions(
+          toolId: toolId,
+          requiredPermissions: definition.requiredPermissions,
+        );
+
+        if (!permResult.permitsExecution) {
+          return ToolExecutionReadiness.notReady(
+            reason:
+                'Required permissions were not granted: '
+                '${definition.requiredPermissions.join(', ')}',
+          );
         }
+      } else if (_permissionAdapter == null &&
+          definition.requiredPermissions.isNotEmpty) {
+        return ToolExecutionReadiness.notReady(
+          reason:
+              'No permission adapter available for tool requiring '
+              'permissions: $toolId',
+        );
       }
 
       // Gate 5: Confirmation (check availability only, don't prompt).
@@ -346,11 +364,16 @@ class DefaultToolExecutionGate implements ToolExecutionGate {
 
     try {
       final outcome = await _recoveryAdapter.recover(
-        toolId,
-        error.toString(),
+        toolId: toolId,
+        failure: ToolFailure.execution(
+          message: 'Execution failed: $error',
+          cause: error,
+        ),
+        context: parameters?.map(
+          (key, value) => MapEntry(key, value.toString()),
+        ),
       );
-
-      if (outcome.isRecovered && outcome.shouldRetry) {
+      if (outcome.recovered) {
         // Retry once.
         final retryResult = await _retryOnce(toolId, parameters: parameters);
         if (retryResult.isSuccess) {

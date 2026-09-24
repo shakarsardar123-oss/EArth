@@ -7,6 +7,8 @@ import 'package:aura_assistant/features/tool_registry/application/contracts/tool
 export 'package:aura_assistant/features/tool_registry/application/contracts/tool_permission_adapter.dart';
 
 import 'package:aura_assistant/features/tool_registry/domain/models/models.dart';
+import 'package:aura_assistant/features/central_permissions/domain/central_permission_service.dart';
+import 'package:aura_assistant/features/device_integration/domain/models/permission_status.dart';
 
 class DefaultToolPermissionAdapter implements ToolPermissionAdapter {
   bool _isAvailable = false;
@@ -94,51 +96,25 @@ class DefaultToolPermissionAdapter implements ToolPermissionAdapter {
 /// Translates string permission identifiers to Step 16's
 /// DevicePermission enum values and checks status.
 class Step16PermissionAdapter implements ToolPermissionAdapter {
-  /// The Step 16 permission service instance.
-  ///
-  /// Type is dynamic to avoid direct import. Expected to implement:
-  ///   checkStatus(DevicePermission) -> PermissionStatus
-  ///   requestPermission(DevicePermission) -> PermissionStatus
-  ///   checkAll(List<DevicePermission>) -> Map<DevicePermission, PermissionStatus>
-  final dynamic _permissionService;
-
+  final CentralPermissionService _permissionService;
   bool _isAvailable;
 
-  /// Map of string permission IDs to Step 16 DevicePermission enum names.
-  final Map<String, String> _permissionMapping;
-
   Step16PermissionAdapter({
-    required dynamic permissionService,
+    required CentralPermissionService permissionService,
     bool isAvailable = true,
-    Map<String, String>? permissionMapping,
   })  : _permissionService = permissionService,
-        _isAvailable = isAvailable,
-        _permissionMapping = permissionMapping ?? _defaultMapping;
-
-  /// Default mapping from string IDs to Step 16 DevicePermission names.
-  static const Map<String, String> _defaultMapping = {
-    'microphone': 'microphone',
-    'camera': 'camera',
-    'location': 'location',
-    'storage': 'storage',
-    'contacts': 'contacts',
-    'phone': 'phone',
-    'notifications': 'notifications',
-    'bluetooth': 'bluetooth',
-    'calendar': 'calendar',
-    'sensors': 'sensors',
-  };
+        _isAvailable = isAvailable;
 
   @override
   Future<ToolPermissionResult> checkPermissions({
     required String toolId,
     required List<String> requiredPermissions,
   }) async {
-    // FAIL CLOSED: if service unavailable.
-    if (!_isAvailable || _permissionService == null) {
+    if (!_isAvailable) {
       return ToolPermissionResult.failClosed(
         permissions: requiredPermissions,
-        reason: 'Step 16 permission service unavailable – '
+        reason:
+            'Central permission service unavailable – '
             'fail-closed for tool: $toolId',
       );
     }
@@ -148,20 +124,33 @@ class Step16PermissionAdapter implements ToolPermissionAdapter {
       final denied = <String>[];
       final notDetermined = <String>[];
 
-      for (final permId in requiredPermissions) {
-        final step16Name = _permissionMapping[permId] ?? permId;
-        final status = await _checkSingleViaStep16(step16Name);
+      for (final permissionId in requiredPermissions) {
+        final permission = _resolvePermission(permissionId);
+        if (permission == null) {
+          notDetermined.add(permissionId);
+          continue;
+        }
 
+        final result = await _permissionService.checkStatus(permission);
+
+        if (!result.isSuccess) {
+          notDetermined.add(permissionId);
+          continue;
+        }
+
+        final status = result.valueOrNull?.status;
         switch (status) {
-          case 'granted':
-            granted.add(permId);
+          case PermissionStatus.granted:
+            granted.add(permissionId);
             break;
-          case 'denied':
-            denied.add(permId);
+          case PermissionStatus.denied:
+          case PermissionStatus.permanentlyDenied:
+            denied.add(permissionId);
             break;
-          default:
-            // 'notDetermined', 'unknown' → fail closed.
-            notDetermined.add(permId);
+          case PermissionStatus.notRequested:
+          case PermissionStatus.unknown:
+          case null:
+            notDetermined.add(permissionId);
             break;
         }
       }
@@ -173,10 +162,10 @@ class Step16PermissionAdapter implements ToolPermissionAdapter {
         notDetermined: notDetermined,
       );
     } catch (e) {
-      // FAIL CLOSED: any exception → deny.
       return ToolPermissionResult.failClosed(
         permissions: requiredPermissions,
-        reason: 'Step 16 permission check threw: $e – '
+        reason:
+            'Central permission check threw: $e – '
             'fail-closed for tool: $toolId',
       );
     }
@@ -187,29 +176,49 @@ class Step16PermissionAdapter implements ToolPermissionAdapter {
     required String toolId,
     required List<String> permissions,
   }) async {
-    // FAIL CLOSED: if unavailable.
-    if (!_isAvailable || _permissionService == null) {
+    if (!_isAvailable) {
       return ToolPermissionResult.failClosed(
         permissions: permissions,
-        reason: 'Step 16 unavailable for request – fail-closed',
+        reason: 'Central permission service unavailable – fail-closed',
       );
     }
 
     try {
-      for (final permId in permissions) {
-        final step16Name = _permissionMapping[permId] ?? permId;
-        // Step 16 expected: requestPermission(DevicePermission)
-        await _permissionService.requestPermission(
-          _resolveDevicePermission(step16Name),
-        );
+      for (final permissionId in permissions) {
+        final permission = _resolvePermission(permissionId);
+        if (permission == null) {
+          return ToolPermissionResult.failClosed(
+            permissions: permissions,
+            reason:
+                'Unknown permission "$permissionId" – '
+                'fail-closed for tool: $toolId',
+          );
+        }
+
+        final result =
+            await _permissionService.requestPermission(permission);
+
+        if (!result.isSuccess ||
+            result.valueOrNull?.status != PermissionStatus.granted) {
+          return ToolPermissionResult.failClosed(
+            permissions: permissions,
+            reason:
+                'Permission "$permissionId" was not granted – '
+                'fail-closed for tool: $toolId',
+          );
+        }
       }
 
-      // Re-check after requesting.
-      return checkPermissions(toolId: toolId, requiredPermissions: permissions);
+      return checkPermissions(
+        toolId: toolId,
+        requiredPermissions: permissions,
+      );
     } catch (e) {
       return ToolPermissionResult.failClosed(
         permissions: permissions,
-        reason: 'Step 16 request threw: $e – fail-closed',
+        reason:
+            'Central permission request threw: $e – '
+            'fail-closed for tool: $toolId',
       );
     }
   }
@@ -219,52 +228,44 @@ class Step16PermissionAdapter implements ToolPermissionAdapter {
 
   @override
   Future<String> checkSinglePermission(String permissionId) async {
-    if (!_isAvailable || _permissionService == null) return 'unknown';
-    try {
-      final step16Name = _permissionMapping[permissionId] ?? permissionId;
-      return _checkSingleViaStep16(step16Name);
-    } catch (_) {
-      return 'unknown';
-    }
-  }
+    if (!_isAvailable) return 'unknown';
 
-  /// Internal: check single permission via Step 16.
-  Future<String> _checkSingleViaStep16(String step16Name) async {
     try {
-      final result =
-          await _permissionService.checkStatus(
-            _resolveDevicePermission(step16Name),
-          );
-      // Translate Step 16 PermissionStatus to string.
-      final statusStr = result.toString().toLowerCase();
-      if (statusStr.contains('granted')) return 'granted';
-      if (statusStr.contains('denied')) return 'denied';
-      return 'notDetermined';
-    } catch (_) {
-      return 'unknown';
-    }
-  }
+      final permission = _resolvePermission(permissionId);
+      if (permission == null) return 'unknown';
 
-  /// Resolve a string name to a DevicePermission-like object.
-  ///
-  /// Uses dynamic invocation to avoid direct type coupling.
-  dynamic _resolveDevicePermission(String name) {
-    try {
-      // Try to find the enum value by name.
-      final values = _permissionService.devicePermissionValues;
-      if (values is List) {
-        for (final v in values) {
-          if (v.toString().toLowerCase().contains(name.toLowerCase())) {
-            return v;
-          }
-        }
+      final result = await _permissionService.checkStatus(permission);
+      if (!result.isSuccess) return 'unknown';
+
+      switch (result.valueOrNull?.status) {
+        case PermissionStatus.granted:
+          return 'granted';
+        case PermissionStatus.denied:
+          return 'denied';
+        case PermissionStatus.permanentlyDenied:
+          return 'permanentlyDenied';
+        case PermissionStatus.notRequested:
+          return 'notDetermined';
+        case PermissionStatus.unknown:
+        case null:
+          return 'unknown';
       }
     } catch (_) {
-      // Fall through to string.
+      return 'unknown';
     }
-    return name; // fallback: pass as string
   }
 
-  /// Update availability.
+  DevicePermission? _resolvePermission(String permissionId) {
+    final normalized = permissionId.trim().toLowerCase();
+
+    for (final permission in DevicePermission.values) {
+      if (permission.name.toLowerCase() == normalized) {
+        return permission;
+      }
+    }
+
+    return null;
+  }
+
   void setAvailable(bool available) => _isAvailable = available;
 }

@@ -7,6 +7,7 @@
 library;
 
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import '../../tool_registry/presentation/tool_registry_provider_names.dart';
 import '../domain/models/tool_execution_context.dart';
 import '../domain/models/tool_input.dart';
 import '../domain/models/tool_output.dart';
@@ -15,6 +16,7 @@ import '../domain/services/tool_interface.dart';
 import '../infrastructure/executors/tool_executor_registry.dart';
 import '../infrastructure/executors/executors.dart';
 import '../infrastructure/adapters/adapters.dart';
+import '../../tool_registry/infrastructure/default_tool_execution_gate.dart';
 import '../application/tool_execution_engine.dart';
 import '../application/tool_selection.dart';
 import '../application/background_execution.dart';
@@ -47,7 +49,7 @@ final toolExecutorRegistryProvider = Provider<ToolExecutorRegistry>((ref) {
 /// Provider for the ToolExecutionEngine.
 final toolExecutionEngineProvider = Provider<ToolExecutionEngine>((ref) {
   final registry = ref.watch(toolExecutorRegistryProvider);
-  final gateAdapter = Step20GateAdapter();
+  final concreteGate = ref.watch(ToolRegistryProviders.toolExecutionGateProvider) as DefaultToolExecutionGate; final gateAdapter = Step20GateAdapter(concreteGate: concreteGate);
   final securityBridge = Step19SecurityBridge();
   final retryBridge = Step18RetryBridge();
   final confirmationAdapter = Step20ConfirmationAdapter();

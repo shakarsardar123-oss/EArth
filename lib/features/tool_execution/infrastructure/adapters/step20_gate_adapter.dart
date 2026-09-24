@@ -69,16 +69,13 @@ class Step20GateAdapter {
   /// Bridge: checkReadiness
   /// Maps to DefaultToolExecutionGate.checkReadiness(toolId).
   /// Returns true if tool is ready, false otherwise.
-  bool checkReadiness(String toolId) {
+  Future<bool> checkReadiness(String toolId) async {
     try {
       if (_concreteGate != null) {
-        final readiness = _concreteGate!.checkReadiness(toolId);
-        // ToolExecutionReadiness has .ready and .notReady(reason)
-        // We check if it's the ready variant
-        return readiness.toString().contains('ready') &&
-            !readiness.toString().contains('notReady');
+        final readiness = await _concreteGate!.checkReadiness(toolId);
+        return readiness.isReady;
       }
-      // If no concrete gate, assume ready if registered
+      // If no concrete gate, assume ready only if registered.
       return isToolRegistered(toolId);
     } catch (e) {
       // FAIL CLOSED

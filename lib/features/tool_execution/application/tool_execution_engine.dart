@@ -399,7 +399,7 @@ class ToolExecutionEngine {
     currentMetadata = currentMetadata.withGatePassed();
 
     // ─── Gate 6: Readiness check (bridged) ───────────────────────────
-    final readiness = _gateAdapter.checkReadiness(context.toolId);
+    final readiness = await _gateAdapter.checkReadiness(context.toolId);
     if (!readiness) {
       _audit('gate6_fail', 'Tool not ready: ${context.toolId}');
       return _failClosed(context, currentMetadata, 'Tool not ready');
