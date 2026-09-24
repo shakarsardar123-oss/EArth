@@ -3,3 +3,8 @@
 *.tmp
 backup/
 backups/
+.*_backups/
+*_backup_*/
+*_pre_impl_*/
+*.before_*
+audit/
