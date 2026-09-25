@@ -119,10 +119,8 @@ class MainActivity : FlutterActivity() {
         FloatingTexoBridge.attach(this, flutterEngine)
     }
 
-    override fun onNewIntent(intent: Intent?) {
+    override fun onNewIntent(intent: Intent) {
         super.onNewIntent(intent)
-
-        if (intent == null) return
 
         setIntent(intent)
         forwardAssistIntentToTrigger(intent)
