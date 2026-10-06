@@ -24,6 +24,8 @@ import '../../domain/entities/agent_config.dart';
 import '../../services/memory/memory_service.dart';
 import 'live_mode_state.dart';
 import '../../core/errors/result.dart';
+import '../floating_aura/floating_aura_overlay_position.dart';
+import '../floating_aura/floating_aura_service.dart';
 
 /// Callback for Live Mode state changes (for UI updates).
 typedef LiveModeStateCallback = void Function(LiveModeState state);
@@ -47,12 +49,14 @@ class LiveModeOrchestrator {
     required VoiceService voiceService,
     required AgentProcessor agentProcessor,
     required MemoryService memoryService,
+    required FloatingAuraService floatingAuraService,
     List<String>? exitCommands,
     Duration? inactivityTimeout,
     Duration? rePromptGrace,
   })  : _voiceService = voiceService,
         _agentProcessor = agentProcessor,
         _memoryService = memoryService,
+        _floatingAuraService = floatingAuraService,
         _exitCommands = exitCommands ?? _defaultExitCommands,
         _inactivityTimeout = inactivityTimeout,
         _rePromptGrace = rePromptGrace ?? const Duration(seconds: 8);
@@ -60,6 +64,7 @@ class LiveModeOrchestrator {
   final VoiceService _voiceService;
   final AgentProcessor _agentProcessor;
   final MemoryService _memoryService;
+  final FloatingAuraService _floatingAuraService;
 
   /// Phrases that explicitly end the voice session when heard while
   /// LISTENING. Matched case-insensitively as a substring of the final
@@ -180,6 +185,17 @@ class LiveModeOrchestrator {
     }
 
     _setState(LiveModeState.listening);
+
+    // Show the floating overlay for wake-word/live sessions.
+    // Overlay failure must never prevent Live Mode from starting.
+    try {
+      await _floatingAuraService.showOverlay(
+        FloatingAuraOverlayPosition.defaults,
+      );
+    } catch (_) {
+      // Live Mode remains functional even if the overlay cannot be shown.
+    }
+
     await _startListening(gen);
 
     return LiveModeSession(
@@ -196,6 +212,14 @@ class LiveModeOrchestrator {
     _rePromptGiven = false;
     await _voiceService.stopListening();
     await _voiceService.stopSpeaking();
+
+    // Hide the floating overlay when Live Mode ends.
+    try {
+      await _floatingAuraService.hideOverlay();
+    } catch (_) {
+      // Overlay cleanup must never block Live Mode shutdown.
+    }
+
     _isProcessingRequest = false;
     _currentSessionId = null;
     _setState(LiveModeState.idle);
@@ -248,6 +272,11 @@ class LiveModeOrchestrator {
     _rePromptGiven = false;
     _voiceService.stopListening().catchError((_) {});
     _voiceService.stopSpeaking().catchError((_) {});
+
+    // Hide the floating overlay when the session ends by
+    // spoken exit command or inactivity timeout.
+    _floatingAuraService.hideOverlay().catchError((_) {});
+
     _isProcessingRequest = false;
     _currentSessionId = null;
     _setState(LiveModeState.idle);
@@ -483,6 +512,7 @@ class LiveModeOrchestrator {
     // TTS completed. Reset processing flag and restart listening.
     _isProcessingRequest = false;
     _setState(LiveModeState.listening);
+
     await _startListening(gen);
   }
 
@@ -515,6 +545,11 @@ class LiveModeOrchestrator {
       _generation++; // Invalidate all pending callbacks.
       _voiceService.stopListening().catchError((_) {});
       _voiceService.stopSpeaking().catchError((_) {});
+
+      // Hide the floating overlay when Live Mode auto-stops
+      // after too many consecutive errors.
+      _floatingAuraService.hideOverlay().catchError((_) {});
+
       _currentSessionId = null;
       _setState(LiveModeState.error);
       // After brief error display, go idle.

@@ -9,7 +9,7 @@ class SEn extends S {
   SEn([String locale = 'en']) : super(locale);
 
   @override
-  String get appTitle => 'TEXO';
+  String get appTitle => 'AURA';
 
   @override
   String get welcomeMessage => 'Welcome to AURA';
@@ -69,7 +69,7 @@ class SEn extends S {
   String get noInternet => 'No internet connection';
 
   @override
-  String get agentNameAura => 'TEXO';
+  String get agentNameAura => 'AURA';
 
   @override
   String get agentDescriptionAura => 'Your personal smart assistant';
@@ -587,7 +587,7 @@ class SEn extends S {
   String get customModelHint => 'Enter model name...';
 
   @override
-  String get waveStateIdle => 'TEXO';
+  String get waveStateIdle => 'AURA';
 
   @override
   String get waveStateListening => 'Listening...';

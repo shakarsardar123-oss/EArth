@@ -1,5 +1,7 @@
 import 'dart:async';
 
+import 'package:audioplayers/audioplayers.dart';
+
 import '../../services/voice/voice_service.dart';
 import '../../core/voice/speech_recognition_impl.dart';
 import '../../core/voice/text_to_speech_impl.dart';
@@ -14,6 +16,7 @@ class VoiceServiceImpl implements VoiceService {
 
   final SpeechRecognitionServiceImpl _speechRecognition;
   final TextToSpeechServiceImpl _textToSpeech;
+  final AudioPlayer _micBeepPlayer = AudioPlayer();
 
   VoiceState _state = VoiceState.idle;
   final _stateController = StreamController<VoiceState>.broadcast();
@@ -59,12 +62,32 @@ class VoiceServiceImpl implements VoiceService {
     }
   }
 
+  Future<void> _playMicBeep() async {
+    try {
+      await _micBeepPlayer.stop();
+      await _micBeepPlayer.setReleaseMode(ReleaseMode.stop);
+
+      final completed = _micBeepPlayer.onPlayerComplete.first;
+
+      await _micBeepPlayer.play(
+        AssetSource('audio/texo_mic_beep.mp3'),
+      );
+
+      await completed;
+    } catch (_) {
+      // Beep failure must never block microphone activation.
+    }
+  }
+
   @override
   Future<void> startListening({
     required void Function(String text) onRecognized,
     String? locale = 'ku',
   }) async {
     _onRecognized = onRecognized;
+
+    await _playMicBeep();
+
     _setState(VoiceState.listening);
 
     try {
@@ -130,6 +153,7 @@ class VoiceServiceImpl implements VoiceService {
 
   /// Dispose resources.
   void dispose() {
+    _micBeepPlayer.dispose();
     _stateController.close();
     _resultController.close();
     _soundLevelController.close();

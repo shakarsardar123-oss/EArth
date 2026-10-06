@@ -32,6 +32,17 @@ class ChatMessagesNotifier extends ChangeNotifier {
     notifyListeners();
   }
 
+  void updateLastMessage(String text) {
+    if (_messages.isEmpty || _messages.last.isUser) return;
+
+    _messages[_messages.length - 1] = _ChatMessage(
+      text: text,
+      isUser: false,
+      timestamp: _messages.last.timestamp,
+    );
+    notifyListeners();
+  }
+
   void removeLast() {
     if (_messages.isNotEmpty) {
       _messages.removeLast();
@@ -174,6 +185,10 @@ class _ChatScreenState extends ConsumerState<ChatScreen> {
     _controller.clear();
     final messages = ref.read(chatMessagesProvider);
     messages.addMessage(_ChatMessage(text: text, isUser: true));
+
+    // Create the assistant placeholder immediately so streamed chunks
+    // can update the same message in the UI.
+    messages.addMessage(_ChatMessage(text: '', isUser: false));
     _scrollToBottom();
 
     try {
@@ -210,10 +225,22 @@ class _ChatScreenState extends ConsumerState<ChatScreen> {
       final result = await agentEngine.run(
         userInput: text,
         context: context,
+        onTextChunk: (chunk) {
+          if (!mounted || chunk.isEmpty) return;
+
+          final current = messages.messages.isNotEmpty
+              ? messages.messages.last.text
+              : '';
+
+          messages.updateLastMessage(current + chunk);
+          _scrollToBottom();
+        },
       );
 
       if (result.isSuccess && result.response != null) {
-        messages.addMessage(_ChatMessage(text: result.response!, isUser: false));
+        // The assistant message already exists as the streaming placeholder.
+        // Ensure its final text exactly matches the completed AgentResult.
+        messages.updateLastMessage(result.response!);
 
         // Persist both sides of the conversation to SQLite.
         try {

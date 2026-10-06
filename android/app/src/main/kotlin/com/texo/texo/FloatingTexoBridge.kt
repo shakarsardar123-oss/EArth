@@ -6,32 +6,29 @@ import android.content.Intent
 import android.content.ServiceConnection
 import android.net.Uri
 import android.os.Build
+import android.os.Handler
 import android.os.IBinder
+import android.os.Looper
 import android.provider.Settings
 import io.flutter.embedding.engine.FlutterEngine
 import io.flutter.plugin.common.MethodCall
 import io.flutter.plugin.common.MethodChannel
 
-/**
- * Owns the platform-channel wiring for the floating-overlay subsystem
- * (channel name: com.texo.texo/floating_texo_overlay — must
- * match FloatingAuraMethodNames / floatingAuraMethodChannelName on the
- * Dart side), independent of [MainActivity]'s existing channel handlers.
- *
- * Kept in its own file/singleton so this feature can be wired up
- * without editing the body of the existing (already large)
- * [MainActivity]. MainActivity only needs to call [attach] once from
- * configureFlutterEngine() and [detach] once from onDestroy().
- */
 object FloatingTexoBridge {
-
     private const val CHANNEL_NAME = "com.texo.texo/floating_texo_overlay"
+    private const val SHOW_TIMEOUT_MS = 5000L
+    private const val POLL_INTERVAL_MS = 100L
 
     private var service: FloatingTexoOverlayService? = null
     private var bound = false
 
+    private val mainHandler = Handler(Looper.getMainLooper())
+
     private val connection = object : ServiceConnection {
-        override fun onServiceConnected(name: ComponentName, binder: IBinder) {
+        override fun onServiceConnected(
+            name: ComponentName,
+            binder: IBinder,
+        ) {
             service = (binder as FloatingTexoOverlayService.LocalBinder).service()
             bound = true
         }
@@ -42,29 +39,44 @@ object FloatingTexoBridge {
         }
     }
 
-    /** Call once from MainActivity.configureFlutterEngine(). */
-    fun attach(activity: MainActivity, flutterEngine: FlutterEngine) {
-        MethodChannel(flutterEngine.dartExecutor.binaryMessenger, CHANNEL_NAME)
-            .setMethodCallHandler { call, result -> handle(activity, call, result) }
+    fun attach(
+        activity: MainActivity,
+        flutterEngine: FlutterEngine,
+    ) {
+        MethodChannel(
+            flutterEngine.dartExecutor.binaryMessenger,
+            CHANNEL_NAME,
+        ).setMethodCallHandler { call, result ->
+            handle(activity, call, result)
+        }
     }
 
-    /** Call once from MainActivity.onDestroy(). */
     fun detach(activity: MainActivity) {
+        mainHandler.removeCallbacksAndMessages(null)
+
         if (bound) {
             try {
                 activity.unbindService(connection)
             } catch (_: Throwable) {
-                // Not bound / already unbound — safe to ignore.
             }
             bound = false
         }
+
         service = null
     }
 
-    private fun handle(activity: MainActivity, call: MethodCall, result: MethodChannel.Result) {
+    private fun handle(
+        activity: MainActivity,
+        call: MethodCall,
+        result: MethodChannel.Result,
+    ) {
         when (call.method) {
             "hasPermission" -> {
-                result.success(mapOf("granted" to canDrawOverlays(activity)))
+                result.success(
+                    mapOf(
+                        "granted" to canDrawOverlays(activity),
+                    ),
+                )
             }
 
             "requestPermission" -> {
@@ -72,10 +84,6 @@ object FloatingTexoBridge {
                     result.success(mapOf("granted" to true))
                 } else {
                     openOverlaySettingsIntent(activity)
-                    // ACTION_MANAGE_OVERLAY_PERMISSION does not reliably return
-                    // an activity result across OEMs/versions. The Dart side
-                    // (FloatingAuraStateNotifier.checkPermission) is expected
-                    // to call hasPermission() again when the app resumes.
                     result.success(mapOf("granted" to false))
                 }
             }
@@ -90,19 +98,24 @@ object FloatingTexoBridge {
                     result.success(
                         mapOf(
                             "shown" to false,
-                            "error" to "SYSTEM_ALERT_WINDOW permission not granted"
-                        )
+                            "error" =>
+                                "SYSTEM_ALERT_WINDOW permission not granted",
+                        ),
                     )
                     return
                 }
+
                 val x = (call.argument<Number>("x") ?: 16).toInt()
                 val y = (call.argument<Number>("y") ?: 100).toInt()
+
                 startAndBind(activity, x, y)
-                result.success(mapOf("shown" to true))
+
+                waitForOverlayReady(result)
             }
 
             "hideOverlay" -> {
                 service?.hide()
+
                 if (bound) {
                     try {
                         activity.unbindService(connection)
@@ -110,6 +123,7 @@ object FloatingTexoBridge {
                     }
                     bound = false
                 }
+
                 service = null
                 result.success(null)
             }
@@ -117,6 +131,7 @@ object FloatingTexoBridge {
             "updatePosition" -> {
                 val x = (call.argument<Number>("x") ?: 0).toInt()
                 val y = (call.argument<Number>("y") ?: 0).toInt()
+
                 service?.updatePosition(x, y)
                 result.success(null)
             }
@@ -127,25 +142,94 @@ object FloatingTexoBridge {
             }
 
             "isOverlayVisible" -> {
-                result.success(mapOf("visible" to (service?.isOverlayShowing() ?: false)))
+                result.success(
+                    mapOf(
+                        "visible" to (service?.isOverlayShowing() ?: false),
+                    ),
+                )
             }
 
             else -> result.notImplemented()
         }
     }
 
-    private fun startAndBind(activity: MainActivity, xDp: Int, yDp: Int) {
-        val intent = Intent(activity, FloatingTexoOverlayService::class.java).apply {
-            putExtra(FloatingTexoOverlayService.EXTRA_POS_X_DP, xDp)
-            putExtra(FloatingTexoOverlayService.EXTRA_POS_Y_DP, yDp)
+    private fun waitForOverlayReady(
+        result: MethodChannel.Result,
+        startedAt: Long = System.currentTimeMillis(),
+    ) {
+        val currentService = service
+
+        if (currentService != null) {
+            if (currentService.isOverlayShowing()) {
+                result.success(
+                    mapOf(
+                        "shown" to true,
+                    ),
+                )
+                return
+            }
+
+            val error = currentService.overlayError()
+
+            if (error != null) {
+                result.success(
+                    mapOf(
+                        "shown" to false,
+                        "error" to error,
+                    ),
+                )
+                return
+            }
         }
+
+        if (System.currentTimeMillis() - startedAt >= SHOW_TIMEOUT_MS) {
+            result.success(
+                mapOf(
+                    "shown" to false,
+                    "error" =>
+                        "Overlay service did not create a visible window within ${SHOW_TIMEOUT_MS}ms",
+                ),
+            )
+            return
+        }
+
+        mainHandler.postDelayed(
+            {
+                waitForOverlayReady(result, startedAt)
+            },
+            POLL_INTERVAL_MS,
+        )
+    }
+
+    private fun startAndBind(
+        activity: MainActivity,
+        xDp: Int,
+        yDp: Int,
+    ) {
+        val intent =
+            Intent(activity, FloatingTexoOverlayService::class.java).apply {
+                putExtra(
+                    FloatingTexoOverlayService.EXTRA_POS_X_DP,
+                    xDp,
+                )
+                putExtra(
+                    FloatingTexoOverlayService.EXTRA_POS_Y_DP,
+                    yDp,
+                )
+            }
+
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
             activity.startForegroundService(intent)
         } else {
             activity.startService(intent)
         }
+
         if (!bound) {
-            activity.bindService(intent, connection, Context.BIND_AUTO_CREATE)
+            activity.bindService(
+                intent,
+                connection,
+                Context.BIND_AUTO_CREATE,
+            )
         }
     }
 
@@ -161,8 +245,11 @@ object FloatingTexoBridge {
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
             val intent = Intent(
                 Settings.ACTION_MANAGE_OVERLAY_PERMISSION,
-                Uri.parse("package:${activity.packageName}")
-            ).apply { addFlags(Intent.FLAG_ACTIVITY_NEW_TASK) }
+                Uri.parse("package:${activity.packageName}"),
+            ).apply {
+                addFlags(Intent.FLAG_ACTIVITY_NEW_TASK)
+            }
+
             activity.startActivity(intent)
         }
     }

@@ -309,8 +309,8 @@ class TexoAudioBridge(
     // ────────────────────── wake: Vosk acoustic KWS ─────────────────
 
     private val modelAssetDir = "vosk-model-small-en-us-0.15"
-    private val wakePhrase = "hey texo"
-    private val wakeGrammar = "[\"hey texo\", \"[unk]\"]"
+    private val wakePhrase = "texo"
+    private val wakeGrammar = "[\"texo\", \"hey texo\", \"[unk]\"]"
     // Native pre-gate. The Dart WakeWordDebouncer applies a second (0.5)
     // threshold + cooldown on top of this.
     private val minConfidence = 0.55
@@ -422,7 +422,7 @@ class TexoAudioBridge(
             for (i in 0 until words.length()) {
                 val w = words.optJSONObject(i) ?: continue
                 val word = w.optString("word", "").lowercase()
-                if (word == "hey" || word == "texo") {
+                if (word == "texo") {
                     sum += w.optDouble("conf", 1.0)
                     count++
                 }

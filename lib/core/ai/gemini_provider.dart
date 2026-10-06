@@ -567,10 +567,235 @@ class GeminiProvider implements AIProvider, ModelDiscovery {
 
   @override
   Stream<AIResponse> streamComplete(AIRequest request) async* {
-    // For now, streaming yields the complete response as a single chunk.
-    // Full SSE streaming via Gemini's streamGenerateContent can be added later.
-    final response = await complete(request);
-    yield response;
+    final apiKey = await getApiKey();
+    if (apiKey == null || apiKey.isEmpty) {
+      throw AIProviderException(
+        message: 'Gemini API key not configured. Please set it in Settings.',
+        statusCode: 401,
+        errorCode: 'NO_API_KEY',
+        providerId: id,
+      );
+    }
+
+    final baseUrl =
+        EndpointValidator.normalizeTrailingSlash(await getBaseUrl());
+
+    final model = connectionStorage?.getModel() ??
+        request.agentConfig.modelId ??
+        kDefaultGeminiChatModel;
+
+    final temperature =
+        request.temperature ?? request.agentConfig.temperature;
+    final maxTokens = request.maxTokens ?? request.agentConfig.maxTokens;
+
+    final body = <String, dynamic>{
+      'contents': _buildContents(request),
+      'generationConfig': {
+        'temperature': temperature,
+        'maxOutputTokens': maxTokens,
+      },
+    };
+
+    final systemInstruction = _buildSystemInstruction(request);
+    if (systemInstruction != null) {
+      body['systemInstruction'] = systemInstruction;
+    }
+
+    final generateUri = buildGenerateContentUri(
+      baseUrl: baseUrl,
+      model: model,
+      apiKey: apiKey,
+    );
+
+    final uri = generateUri.replace(
+      path: generateUri.path.replaceFirst(
+        ':generateContent',
+        ':streamGenerateContent',
+      ),
+      queryParameters: {
+        'key': apiKey,
+        'alt': 'sse',
+      },
+    );
+
+    final http.Request httpRequest = http.Request('POST', uri)
+      ..headers['Content-Type'] = 'application/json'
+      ..body = jsonEncode(body);
+
+    http.StreamedResponse response;
+
+    try {
+      response = await _httpClient.send(httpRequest);
+    } on http.ClientException catch (e) {
+      throw AIProviderException(
+        message: 'Network error: ${e.message}',
+        providerId: id,
+        originalError: e,
+      );
+    } on TimeoutException {
+      throw AIProviderException(
+        message: 'Request timed out after 120 seconds',
+        providerId: id,
+        errorCode: 'TIMEOUT',
+      );
+    }
+
+    if (response.statusCode != 200) {
+      final errorBody = await response.stream.bytesToString();
+
+      String errorMessage =
+          'Gemini streaming request failed with status '
+          '${response.statusCode}';
+
+      String? errorCode;
+
+      try {
+        if (errorBody.isNotEmpty) {
+          final data = jsonDecode(errorBody) as Map<String, dynamic>;
+          final error = data['error'] as Map<String, dynamic>?;
+          if (error != null) {
+            errorMessage =
+                error['message'] as String? ?? errorMessage;
+            errorCode = error['status'] as String?;
+          }
+        }
+      } catch (_) {
+        if (errorBody.isNotEmpty) {
+          errorMessage = '$errorMessage: $errorBody';
+        }
+      }
+
+      throw AIProviderException(
+        message: errorMessage,
+        statusCode: response.statusCode,
+        errorCode: errorCode,
+        providerId: id,
+      );
+    }
+
+    final eventData = StringBuffer();
+    final streamResponses = <AIResponse>[];
+
+    void processEvent(String data) {
+      if (data.trim().isEmpty || data.trim() == '[DONE]') {
+        return;
+      }
+
+      final decoded = jsonDecode(data) as Map<String, dynamic>;
+      final candidates = decoded['candidates'] as List<dynamic>?;
+
+      if (candidates == null || candidates.isEmpty) {
+        return;
+      }
+
+      final candidate = candidates.first as Map<String, dynamic>;
+      final content = candidate['content'] as Map<String, dynamic>?;
+      final parts = content?['parts'] as List<dynamic>?;
+
+      var text = '';
+      List<AIToolCall>? toolCalls;
+
+      if (parts != null) {
+        for (final part in parts) {
+          final partMap = part as Map<String, dynamic>;
+
+          if (partMap.containsKey('text')) {
+            text += partMap['text'] as String? ?? '';
+          }
+
+          if (partMap.containsKey('functionCall')) {
+            final fc = partMap['functionCall'] as Map<String, dynamic>;
+            toolCalls ??= [];
+
+            toolCalls.add(
+              AIToolCall(
+                id: 'gemini_fc_${toolCalls.length}',
+                functionName: fc['name'] as String? ?? '',
+                arguments: fc['args'] as Map<String, dynamic>? ?? {},
+              ),
+            );
+          }
+        }
+      }
+
+      if (text.isEmpty && (toolCalls == null || toolCalls.isEmpty)) {
+        return;
+      }
+
+      final finishReason = candidate['finishReason'] as String?;
+      final usageMetadata =
+          decoded['usageMetadata'] as Map<String, dynamic>?;
+
+      final aiResponse = AIResponse(
+        text: text,
+        modelId: model,
+        conversationId: request.conversationId,
+        finishReason: finishReason,
+        usage: usageMetadata != null
+            ? AIUsage(
+                promptTokens:
+                    usageMetadata['promptTokenCount'] as int? ?? 0,
+                completionTokens:
+                    usageMetadata['candidatesTokenCount'] as int? ?? 0,
+                totalTokens:
+                    usageMetadata['totalTokenCount'] as int? ?? 0,
+              )
+            : null,
+      );
+
+      if (toolCalls != null && toolCalls.isNotEmpty) {
+        aiResponse.toolCalls = toolCalls;
+      }
+
+      streamResponses.add(aiResponse);
+    }
+
+    try {
+      await for (final line in response.stream
+          .transform(utf8.decoder)
+          .transform(const LineSplitter())) {
+        if (line.isEmpty) {
+          if (eventData.isNotEmpty) {
+            final data = eventData.toString();
+            eventData.clear();
+
+            processEvent(data);
+            while (streamResponses.isNotEmpty) {
+              yield streamResponses.removeAt(0);
+            }
+          }
+          continue;
+        }
+
+        if (line.startsWith('data:')) {
+          final data = line.substring(5).trimLeft();
+          if (eventData.isNotEmpty) {
+            eventData.write('\n');
+          }
+          eventData.write(data);
+        }
+      }
+
+      if (eventData.isNotEmpty) {
+        processEvent(eventData.toString());
+        while (streamResponses.isNotEmpty) {
+          yield streamResponses.removeAt(0);
+        }
+      }
+    } on FormatException catch (e) {
+      throw AIProviderException(
+        message: 'Failed to parse Gemini streaming response: ${e.message}',
+        providerId: id,
+        errorCode: 'PARSE_ERROR',
+        originalError: e,
+      );
+    } on http.ClientException catch (e) {
+      throw AIProviderException(
+        message: 'Network error: ${e.message}',
+        providerId: id,
+        originalError: e,
+      );
+    }
   }
 
   // ─── ModelDiscovery ────────────────────────────────────────

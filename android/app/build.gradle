@@ -62,7 +62,7 @@ android {
     // the copy is a straight byte stream (and so large .fst/.mdl files are not
     // re-inflated on every launch).
     androidResources {
-        noCompress 'mdl', 'fst', 'int', 'dubm', 'ie', 'mat', 'stats', 'conf'
+        noCompress 'mdl', 'fst', 'int', 'dubm', 'ie', 'mat', 'stats', 'conf', 'onnx'
     }
 }
 
@@ -77,4 +77,5 @@ dependencies {
     // Vosk (Kaldi-based) runs fully offline; Apache 2.0 licensed. The bundled
     // model lives in src/main/assets/vosk-model-small-en-us-0.15/.
     implementation 'com.alphacephei:vosk-android:0.3.47'
+    implementation 'com.microsoft.onnxruntime:onnxruntime-android:1.30.0'
 }

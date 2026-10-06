@@ -130,25 +130,38 @@ class NativeAcousticWakeWordEngine implements AcousticWakeWordEngine {
       // Do NOT fake listening when there is no model / platform support.
       return;
     }
-    try {
-      await _control.invokeMethod('start');
-      _status = WakeEngineStatus.listening;
-      _sub ??= _events.receiveBroadcastStream().listen(
-        (event) {
-          final confidence = (event is Map)
-              ? ((event['confidence'] as num?)?.toDouble() ?? 1.0)
-              : (event is num ? event.toDouble() : 1.0);
-          final now = _clock();
-          if (_debouncer.shouldAccept(now: now, confidence: confidence)) {
-            if (!_controller.isClosed) {
-              _controller
-                  .add(WakeEvent(confidence: confidence, timestamp: now));
-            }
+    // Subscribe BEFORE native capture starts so an immediate wake event
+    // cannot be lost between startWake() and receiveBroadcastStream().
+    _sub ??= _events.receiveBroadcastStream().listen(
+      (event) {
+        final confidence = (event is Map)
+            ? ((event['confidence'] as num?)?.toDouble() ?? 1.0)
+            : (event is num ? event.toDouble() : 1.0);
+        final now = _clock();
+        if (_debouncer.shouldAccept(now: now, confidence: confidence)) {
+          if (!_controller.isClosed) {
+            _controller
+                .add(WakeEvent(confidence: confidence, timestamp: now));
           }
-        },
-        onError: (_) {},
-      );
-    } catch (_) {}
+        }
+      },
+      onError: (_) {},
+    );
+
+    try {
+      final started = await _control.invokeMethod<bool>('start') ?? false;
+      if (started) {
+        _status = WakeEngineStatus.listening;
+      } else {
+        _status = WakeEngineStatus.unavailable;
+        await _sub?.cancel();
+        _sub = null;
+      }
+    } catch (_) {
+      _status = WakeEngineStatus.unavailable;
+      await _sub?.cancel();
+      _sub = null;
+    }
   }
 
   @override

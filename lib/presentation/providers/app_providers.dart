@@ -430,12 +430,14 @@ final agentEngineProvider = Provider<AgentEngine>((ref) {
       required List<Map<String, dynamic>> messages,
       required List<Map<String, dynamic>> toolDefinitions,
       required AgentContext context,
+      void Function(String text)? onTextChunk,
     }) {
       return sendToAIAdapter(
         messages: messages,
         toolDefinitions: toolDefinitions,
         context: context,
         aiProvider: aiProvider,
+        onTextChunk: onTextChunk,
       );
     },
     // ── Phase 1: Memory enrichment before _understand() ─────────────

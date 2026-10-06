@@ -461,6 +461,16 @@ class ScreenUnderstandingEngine implements ScreenUnderstandingService {
 
         final parsed = decoded;
 
+        final hasScreenSchema =
+            parsed['text_items'] is List ||
+            parsed['ui_elements'] is List ||
+            parsed['regions'] is List ||
+            parsed['metadata'] is Map<String, dynamic>;
+
+        if (!hasScreenSchema && visionResult.targets.isNotEmpty) {
+          return _buildFromVisionResult(visionResult, frame);
+        }
+
         final textItems = <ScreenTextItem>[];
         final textList = parsed['text_items'];
 

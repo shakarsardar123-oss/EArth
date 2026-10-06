@@ -9,7 +9,7 @@ class SKu extends S {
   SKu([String locale = 'ku']) : super(locale);
 
   @override
-  String get appTitle => 'TEXO';
+  String get appTitle => 'AURA';
 
   @override
   String get welcomeMessage => 'بەخێربێیت بۆ AURA';
@@ -69,7 +69,7 @@ class SKu extends S {
   String get noInternet => 'پەیوەندی ئینتەرنێت نییە';
 
   @override
-  String get agentNameAura => 'TEXO';
+  String get agentNameAura => 'AURA';
 
   @override
   String get agentDescriptionAura => 'یاریدەدەری زیرەکی تایبەت بە تۆ';
@@ -585,7 +585,7 @@ class SKu extends S {
   String get customModelHint => 'ناوی مۆدێل بنووسە...';
 
   @override
-  String get waveStateIdle => 'TEXO';
+  String get waveStateIdle => 'AURA';
 
   @override
   String get waveStateListening => 'گوێ دەگرێت...';
@@ -600,7 +600,7 @@ class SKu extends S {
   String get waveStateError => 'هەڵە';
 
   @override
-  String get auraIdentity => 'من تێکسۆی تایبەتی تۆم';
+  String get auraIdentity => 'من ئەورای تایبەتی تۆم';
 
   @override
   String get liveModeStartFailed => 'نەمدتوانم دەنگی زیندوو دەست پێ بکەم';

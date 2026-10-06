@@ -17,6 +17,7 @@ import '../errors/result.dart';
 import '../floating_aura/floating_aura_overlay_position.dart';
 import '../floating_aura/floating_aura_service.dart';
 import '../permissions/permission_service.dart';
+import '../screen_capture/screen_capture_result.dart';
 import '../screen_capture/screen_capture_service.dart';
 import '../screen_search/search_result.dart';
 import '../screen_search/search_service.dart';
@@ -361,8 +362,40 @@ class VoiceScreenEngine implements VoiceScreenService {
       generationId: gen,
     ));
 
+    final captureStartResult =
+        await _screenCaptureService.startCapture(
+      const ScreenCaptureConfig(),
+    );
+
+    if (captureStartResult.isFailure) {
+      final sf = captureStartResult.fold<ScreenCaptureFailure>(
+        onSuccess: (_) => const ScreenCaptureFailure(
+          message: 'Unknown screen capture start failure',
+        ),
+        onFailure: (f) => f,
+      );
+      await _finishWithError(
+        VoiceScreenFailure(
+          message: sf.message,
+          code: sf.code,
+          phase: VoiceScreenPhase.capture,
+        ),
+        gen,
+      );
+      return Result.failure(VoiceScreenFailure(
+        message: sf.message,
+        code: sf.code,
+        phase: VoiceScreenPhase.capture,
+      ));
+    }
+
     final captureResult =
         await _screenCaptureService.captureSingleFrame();
+
+    // The frame is copied into Dart, so the MediaProjection session
+    // is no longer needed while screen understanding runs.
+    await _screenCaptureService.stopCapture();
+
     if (captureResult.isFailure) {
       final cf = captureResult.fold<ScreenCaptureFailure>(
         onSuccess: (_) => const ScreenCaptureFailure(

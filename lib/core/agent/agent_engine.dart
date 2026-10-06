@@ -31,6 +31,7 @@ typedef AgentStepCallback = void Function(AgentStep step);
 typedef AgentToolCallCallback = void Function(String toolName, ToolArguments args);
 typedef AgentToolResultCallback = void Function(String toolName, ToolResult result);
 typedef AgentIntentCallback = void Function(AgentIntent intent);
+typedef AgentTextChunkCallback = void Function(String text);
 
 /// Callback for enriching agent context with semantic memory before understanding.
 ///
@@ -77,6 +78,7 @@ class AgentEngine implements AgentProcessor {
     this.onToolCall,
     this.onToolResult,
     this.onIntentParsed,
+    this.onTextChunk,
     this.onMemoryEnrichment,
     this.onMemoryCapture,
     this.maxIterations = 5,
@@ -106,6 +108,7 @@ class AgentEngine implements AgentProcessor {
     required List<Map<String, dynamic>> messages,
     required List<Map<String, dynamic>> toolDefinitions,
     required AgentContext context,
+    void Function(String text)? onTextChunk,
   }) sendToAI;
 
   final AgentStateCallback? onStateChange;
@@ -114,6 +117,7 @@ class AgentEngine implements AgentProcessor {
   final AgentToolCallCallback? onToolCall;
   final AgentToolResultCallback? onToolResult;
   final AgentIntentCallback? onIntentParsed;
+  final AgentTextChunkCallback? onTextChunk;
 
   /// Memory enrichment callback — called BEFORE [_understand] to inject
   /// relevant semantic memories into the context. Optional; when null,
@@ -153,6 +157,7 @@ class AgentEngine implements AgentProcessor {
       required List<Map<String, dynamic>> messages,
       required List<Map<String, dynamic>> toolDefinitions,
       required AgentContext context,
+      void Function(String text)? onTextChunk,
     }) engineSendToAI,
   ) {
     return ({
@@ -180,6 +185,7 @@ class AgentEngine implements AgentProcessor {
   Future<AgentResult> run({
     required String userInput,
     required AgentContext context,
+    AgentTextChunkCallback? onTextChunk,
   }) async {
     _cancellationToken.reset();
     final stopwatch = Stopwatch()..start();
@@ -200,23 +206,29 @@ class AgentEngine implements AgentProcessor {
         }
       }
 
-      // ── Fast path for clearly conversational messages ──
-      // Avoid an extra Gemini intent-classification request for obvious
-      // greetings and simple conversational phrases.
-      if (_isClearlyConversational(userInput)) {
-        _setState(AgentState.responding);
-        final directResponse = await _sendToAIDirectly(userInput, context);
-        stopwatch.stop();
-        _fireMemoryCapture(userInput, context);
-        return AgentResult.success(
-          response: directResponse,
-          stepsCompleted: 0,
-          toolsUsed: [],
-          executionTimeMs: stopwatch.elapsedMilliseconds,
-        );
-      }
+      // ── Fast single-request path ──
+      // Route the request directly through the AI↔tool loop.
+      //
+      // This avoids the extra Gemini intent-classification request from
+      // _understand() and lets Gemini decide in the same request whether
+      // a tool/function call is needed.
+      //
+      // Normal conversation:
+      //   user → Gemini → text
+      //
+      // Tool/action:
+      //   user → Gemini → tool call → tool → Gemini → final text
+      //
+      // This keeps function calling available while removing the redundant
+      // intent-classification request that previously added latency/quota use.
+      return _runIterativeLoop(
+        userInput: userInput,
+        context: context,
+        stopwatch: stopwatch,
+        onTextChunk: onTextChunk,
+      );
 
-      // ── Phase 1: Understand ──
+      // ── Legacy understand/plan lifecycle ──
       _setState(AgentState.understanding);
       final intent = await _understand(userInput, context);
       context = context.update(
@@ -786,6 +798,7 @@ class AgentEngine implements AgentProcessor {
     required String userInput,
     required AgentContext context,
     required Stopwatch stopwatch,
+    AgentTextChunkCallback? onTextChunk,
   }) async {
     final toolsUsed = <String>[];
     int stepsCompleted = 0;
@@ -817,6 +830,7 @@ class AgentEngine implements AgentProcessor {
           messages: messages,
           toolDefinitions: toolDefinitions,
           context: context,
+          onTextChunk: onTextChunk,
         ).timeout(Duration(seconds: context.timeoutSeconds));
 
         final toolCalls = aiResponse['tool_calls'] as List<dynamic>?;
@@ -913,6 +927,7 @@ class AgentEngine implements AgentProcessor {
         messages: messages,
         toolDefinitions: [],
         context: context,
+        onTextChunk: onTextChunk,
       ).timeout(Duration(seconds: context.timeoutSeconds));
 
       stopwatch.stop();

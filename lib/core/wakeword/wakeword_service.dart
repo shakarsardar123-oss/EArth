@@ -9,7 +9,7 @@ import '../voice/voice_service_impl.dart';
 /// is unavailable). Listens to speech-recognition results and fires a
 /// callback when any configured wake phrase is spotted.
 ///
-/// PRIMARY WAKE PHRASE: "Hey AURA" (English). The Kurdish/Sorani phrase
+/// PRIMARY WAKE PHRASE: "TEXO" (English/Latin). The Kurdish/Sorani forms
 /// 'ئەورا' is also matched so a Sorani recognizer still wakes.
 ///
 /// LANGUAGE / LOCALE CONSTRAINT (honest):
@@ -35,7 +35,7 @@ import '../voice/voice_service_impl.dart';
 class WakeWordService {
   WakeWordService({
     required VoiceServiceImpl voiceService,
-    String wakeWord = 'ئەورا',
+    String wakeWord = 'texo',
     List<String>? wakePhrases,
     String? locale,
   })  : _voiceService = voiceService,
@@ -58,14 +58,11 @@ class WakeWordService {
 
   /// Default wake phrases: English primary + reasonable variants, plus the
   /// configured Sorani phrase. Kept narrow to avoid accidental triggers.
-  static List<String> _defaultWakePhrases(String kurdishWakeWord) => <String>[
+  static List<String> _defaultWakePhrases(String wakeWord) => <String>[
+        'texo',
         'hey texo',
-        'hey, aura',
-        'hey ora',
-        'hey aurora',
-        'hi aura',
-        kurdishWakeWord,
-        'هێ ئەورا',
+        'تێکسۆ',
+        'تێکسو',
       ];
 
   bool _isListening = false;

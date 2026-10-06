@@ -236,7 +236,15 @@ class VoiceSessionCoordinator {
           _onWakeWordDetected();
         });
         await engine.start();
-        return;
+
+        // Native start can fail even after initialize() succeeds.
+        // If that happens, fall back to the existing STT wake service
+        // instead of leaving the coordinator falsely armed on a dead engine.
+        if (engine.status == WakeEngineStatus.listening) {
+          return;
+        }
+
+        _usingAcousticWake = false;
       }
     }
 

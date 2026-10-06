@@ -29,6 +29,7 @@
     <!-- ── Foreground Service (normal – auto-granted, never shown) ── -->
     <!-- Used by: Continuous listening, wake-word detection -->
     <uses-permission android:name="android.permission.FOREGROUND_SERVICE" />
+    <uses-permission android:name="android.permission.FOREGROUND_SERVICE_MEDIA_PROJECTION" />
     <!-- Android 14+ type declaration for mic-type FG service -->
     <uses-permission android:name="android.permission.FOREGROUND_SERVICE_MICROPHONE" />
 
@@ -198,6 +199,10 @@
     </service>
 
         <!-- Floating AURA overlay: foreground service that owns the native WindowManager overlay view. -->
+        <service
+            android:name=".ScreenCaptureService"
+            android:exported="false"
+            android:foregroundServiceType="mediaProjection" />
         <service
             android:name=".FloatingTexoOverlayService"
             android:exported="false"

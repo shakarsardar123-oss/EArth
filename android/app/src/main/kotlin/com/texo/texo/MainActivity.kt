@@ -60,6 +60,12 @@ class MainActivity : FlutterActivity() {
     // Final Voice Phase: native real-audio bridge (own channels registered internally).
     private var audioBridge: TexoAudioBridge? = null
 
+    // Native MediaProjection bridge for screen understanding.
+    private var screenCaptureBridge: ScreenCaptureBridge? = null
+
+    // Native offline Sorani TTS bridge.
+    private var vekolTtsBridge: VekolTtsBridge? = null
+
     // ─── Lifecycle ───────────────────────────────────────────────
 
     override fun configureFlutterEngine(@NonNull flutterEngine: FlutterEngine) {
@@ -115,8 +121,84 @@ class MainActivity : FlutterActivity() {
         // own Method/Event channels on the same messenger.
         audioBridge = TexoAudioBridge(applicationContext, flutterEngine.dartExecutor.binaryMessenger)
 
+        // Native MediaProjection + VirtualDisplay + ImageReader bridge.
+        screenCaptureBridge =
+            ScreenCaptureBridge(
+                this,
+                flutterEngine.dartExecutor.binaryMessenger,
+            )
+
+        // Native offline Sorani TTS.
+        vekolTtsBridge = VekolTtsBridge(applicationContext)
+
+        MethodChannel(
+            flutterEngine.dartExecutor.binaryMessenger,
+            "com.texo.texo/vekol_tts"
+        ).setMethodCallHandler { call, result ->
+            when (call.method) {
+                "isReady" -> result.success(vekolTtsBridge?.isReady() == true)
+
+                "speak" -> {
+                    val text = call.argument<String>("text")
+
+                    if (text.isNullOrBlank()) {
+                        result.error(
+                            "INVALID_TEXT",
+                            "TTS text is empty",
+                            null
+                        )
+                    } else {
+                        val bridge = vekolTtsBridge
+
+                        if (bridge == null) {
+                            result.error(
+                                "TTS_NOT_READY",
+                                "Vekol TTS bridge is not initialized",
+                                null
+                            )
+                        } else {
+                            bridge.speak(text) { error ->
+                                runOnUiThread {
+                                    if (error == null) {
+                                        result.success(true)
+                                    } else {
+                                        result.error(
+                                            "TTS_SPEAK_FAILED",
+                                            error.message ?: "Vekol TTS failed",
+                                            null
+                                        )
+                                    }
+                                }
+                            }
+                        }
+                    }
+                }
+
+                "stop" -> {
+                    vekolTtsBridge?.stop()
+                    result.success(true)
+                }
+
+                else -> result.notImplemented()
+            }
+        }
+
         // Floating overlay channel (own file — see FloatingTexoBridge.kt).
         FloatingTexoBridge.attach(this, flutterEngine)
+    }
+
+    override fun onActivityResult(
+        requestCode: Int,
+        resultCode: Int,
+        data: Intent?,
+    ) {
+        super.onActivityResult(requestCode, resultCode, data)
+
+        screenCaptureBridge?.onActivityResult(
+            requestCode,
+            resultCode,
+            data,
+        )
     }
 
     override fun onNewIntent(intent: Intent) {
@@ -157,8 +239,12 @@ class MainActivity : FlutterActivity() {
     override fun onDestroy() {
         // Release native audio resources (Visualizer / AudioRecord / AEC).
         try { audioBridge?.dispose() } catch (_: Throwable) {}
+        try { screenCaptureBridge?.dispose() } catch (_: Throwable) {}
+        try { vekolTtsBridge?.dispose() } catch (_: Throwable) {}
         FloatingTexoBridge.detach(this)
         audioBridge = null
+        screenCaptureBridge = null
+        vekolTtsBridge = null
         super.onDestroy()
     }
 

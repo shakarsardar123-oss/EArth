@@ -13,6 +13,7 @@ Future<Map<String, dynamic>> sendToAIAdapter({
   required List<Map<String, dynamic>> toolDefinitions,
   required AgentContext context,
   required AIProvider aiProvider,
+  void Function(String text)? onTextChunk,
 }) async {
   // Convert raw message maps to AIMessage objects.
   final aiMessages = messages
@@ -33,14 +34,33 @@ Future<Map<String, dynamic>> sendToAIAdapter({
     toolDefinitions: toolDefinitions.isNotEmpty ? toolDefinitions : null,
     temperature: context.agentConfig.temperature,
     maxTokens: context.agentConfig.maxTokens,
+    stream: true,
   );
 
-  // Call the AI provider.
-  final response = await aiProvider.complete(request);
+  final buffer = StringBuffer();
+  final toolCalls = <Map<String, dynamic>>[];
 
-  // Convert AIResponse back to Map<String, dynamic> for AgentEngine.
+  await for (final response in aiProvider.streamComplete(request)) {
+    if (response.text.isNotEmpty) {
+      buffer.write(response.text);
+      onTextChunk?.call(response.text);
+    }
+
+    final responseToolCalls = response.toolCalls;
+    if (responseToolCalls != null && responseToolCalls.isNotEmpty) {
+      for (final toolCall in responseToolCalls) {
+        toolCalls.add(toolCall.toMap());
+      }
+    }
+  }
+
   return {
-    'content': response.text,
-    'tool_calls': response.toolCalls?.map((tc) => tc.toMap()).toList(),
+    'content': buffer.toString(),
+    'tool_calls': toolCalls.isEmpty ? null : toolCalls,
   };
 }
+
+/// Streams text responses from the selected AI provider.
+///
+/// This is kept separate from [sendToAIAdapter] so the existing
+/// tool/agent completion path remains backward-compatible.

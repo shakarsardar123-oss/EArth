@@ -198,25 +198,56 @@ class _AuraOrbState extends State<AuraOrb> with TickerProviderStateMixin {
               ),
             ],
 
-            // ── Outer bloom glow halo ──
+            // ── Glass holographic outer bloom ──
             AnimatedBuilder(
-              animation: Listenable.merge([_pulseController, _bloomController]),
+              animation: Listenable.merge([
+                _pulseController,
+                _bloomController,
+              ]),
               builder: (context, _) {
-                final glowPulse = _pulseController.value;
-                final bloomPulse = _bloomController.value;
-                return Container(
-                  width: s * (1.0 + bloomPulse * 0.08),
-                  height: s * (1.0 + bloomPulse * 0.08),
-                  decoration: BoxDecoration(
-                    shape: BoxShape.circle,
-                    gradient: RadialGradient(
-                      colors: [
-                        _orbBloomCoreColor().withValues(alpha: 0.25 + glowPulse * 0.15),
-                        _orbBloomMidColor().withValues(alpha: 0.12 + glowPulse * 0.08),
-                        _orbBloomOuterColor().withValues(alpha: 0.04 + glowPulse * 0.03),
-                        Colors.transparent,
+                final pulse = _pulseController.value;
+                final bloom = _bloomController.value;
+
+                return Transform.scale(
+                  scale: 1.0 + bloom * 0.045,
+                  child: Container(
+                    width: s * 0.94,
+                    height: s * 0.94,
+                    decoration: BoxDecoration(
+                      shape: BoxShape.circle,
+                      gradient: RadialGradient(
+                        center: const Alignment(-0.22, -0.28),
+                        radius: 0.9,
+                        colors: [
+                          AppColors.orbCyan.withValues(
+                            alpha: 0.035 + pulse * 0.025,
+                          ),
+                          AppColors.violet.withValues(
+                            alpha: 0.055 + pulse * 0.025,
+                          ),
+                          AppColors.orbMagenta.withValues(
+                            alpha: 0.035 + bloom * 0.025,
+                          ),
+                          Colors.transparent,
+                        ],
+                        stops: const [0.0, 0.42, 0.72, 1.0],
+                      ),
+                      boxShadow: [
+                        BoxShadow(
+                          color: AppColors.orbCyan.withValues(
+                            alpha: 0.10 + pulse * 0.05,
+                          ),
+                          blurRadius: 28 + bloom * 12,
+                          spreadRadius: 2,
+                        ),
+                        BoxShadow(
+                          color: AppColors.orbMagenta.withValues(
+                            alpha: 0.08 + bloom * 0.04,
+                          ),
+                          blurRadius: 42 + bloom * 14,
+                          spreadRadius: 4,
+                        ),
                       ],
-                      stops: const [0.0, 0.3, 0.6, 1.0],
                     ),
                   ),
                 );
@@ -239,38 +270,55 @@ class _AuraOrbState extends State<AuraOrb> with TickerProviderStateMixin {
               },
             ),
 
-            // ── Core orb sphere with gradient ──
+            // ── Transparent glass depth layer ──
             AnimatedBuilder(
               animation: _pulseController,
               builder: (context, _) {
-                final scale = 1.0 + _pulseController.value * 0.04;
+                final pulse = _pulseController.value;
+
                 return Transform.scale(
-                  scale: scale,
+                  scale: 1.0 + pulse * 0.018,
                   child: Container(
-                    width: s * 0.38,
-                    height: s * 0.38,
+                    width: s * 0.82,
+                    height: s * 0.82,
                     decoration: BoxDecoration(
                       shape: BoxShape.circle,
                       gradient: RadialGradient(
+                        center: const Alignment(-0.28, -0.34),
+                        radius: 0.92,
                         colors: [
-                          _orbCoreColor().withValues(alpha: 0.9),
-                          _orbMidColor().withValues(alpha: 0.6),
-                          _orbOuterColor().withValues(alpha: 0.2),
+                          Colors.white.withValues(
+                            alpha: 0.025 + pulse * 0.01,
+                          ),
+                          AppColors.orbCyan.withValues(
+                            alpha: 0.028 + pulse * 0.012,
+                          ),
+                          AppColors.violet.withValues(
+                            alpha: 0.035 + pulse * 0.012,
+                          ),
+                          AppColors.orbMagenta.withValues(
+                            alpha: 0.018,
+                          ),
                           Colors.transparent,
                         ],
-                        stops: const [0.0, 0.35, 0.7, 1.0],
-                        center: Alignment.center,
+                        stops: const [0.0, 0.24, 0.52, 0.76, 1.0],
+                      ),
+                      border: Border.all(
+                        color: Colors.white.withValues(
+                          alpha: 0.075 + pulse * 0.025,
+                        ),
+                        width: 1.0,
                       ),
                       boxShadow: [
                         BoxShadow(
-                          color: _orbCoreColor().withValues(alpha: 0.4 + _pulseController.value * 0.2),
-                          blurRadius: 32,
-                          spreadRadius: 4,
+                          color: Colors.black.withValues(alpha: 0.18),
+                          blurRadius: 18,
+                          spreadRadius: -5,
                         ),
                         BoxShadow(
-                          color: _orbBloomCoreColor().withValues(alpha: 0.15),
-                          blurRadius: 48,
-                          spreadRadius: 8,
+                          color: AppColors.violet.withValues(alpha: 0.08),
+                          blurRadius: 30,
+                          spreadRadius: 1,
                         ),
                       ],
                     ),
@@ -487,176 +535,177 @@ class _NeuralFiberPainter extends CustomPainter {
   final AuraOrbState state;
   final double size;
 
-  // Deterministic fiber definitions — each fiber is defined by control points
-  // that rotate around the center based on progress.
-  static const int _fiberCount = 18;
-
   @override
   void paint(Canvas canvas, Size size) {
     final center = Offset(size.width / 2, size.height / 2);
     final radius = size.width / 2;
 
-    // Draw each fiber as a curved path
-    for (int i = 0; i < _fiberCount; i++) {
-      final fiberProgress = (progress + i / _fiberCount) % 1.0;
-      final angle = fiberProgress * 2 * pi;
-
-      // Fiber endpoints rotate around the orb
-      final startAngle = angle + (i * pi / _fiberCount);
-      final endAngle = angle + pi + (i * pi / _fiberCount * 0.7);
-
-      // Control point offset — creates the weaving/interweaving effect
-      final cpOffset = sin(angle * 2 + i) * radius * 0.3;
-      final cpAngle = angle + pi / 2 + (i * 0.3);
-
-      final startPoint = Offset(
-        center.dx + cos(startAngle) * radius * (0.5 + pulse * 0.1),
-        center.dy + sin(startAngle) * radius * (0.5 + pulse * 0.1),
-      );
-      final endPoint = Offset(
-        center.dx + cos(endAngle) * radius * (0.5 + pulse * 0.1),
-        center.dy + sin(endAngle) * radius * (0.5 + pulse * 0.1),
-      );
-      final controlPoint = Offset(
-        center.dx + cos(cpAngle) * cpOffset,
-        center.dy + sin(cpAngle) * cpOffset,
+    // ── Soft holographic inner atmosphere ──
+    final atmospherePaint = Paint()
+      ..shader = RadialGradient(
+        center: Alignment(
+          -0.25 + sin(progress * 2 * pi) * 0.12,
+          -0.30 + cos(progress * 2 * pi) * 0.10,
+        ),
+        radius: 0.92,
+        colors: [
+          AppColors.orbCyanLight.withValues(alpha: 0.22 + pulse * 0.08),
+          AppColors.orbCyan.withValues(alpha: 0.12),
+          AppColors.violet.withValues(alpha: 0.20),
+          AppColors.orbMagenta.withValues(alpha: 0.14),
+          Colors.transparent,
+        ],
+        stops: const [0.0, 0.22, 0.55, 0.78, 1.0],
+      ).createShader(
+        Rect.fromCircle(center: center, radius: radius),
       );
 
-      // Interpolate color between cyan and magenta based on fiber index
-      final isCyanFiber = i % 3 != 0;
-      final fiberColor = isCyanFiber
-          ? _fiberCyanColor().withValues(alpha: _fiberAlpha())
-          : _fiberMagentaColor().withValues(alpha: _fiberAlpha());
+    canvas.drawCircle(center, radius * 0.94, atmospherePaint);
 
-      final paint = Paint()
-        ..color = fiberColor
-        ..style = PaintingStyle.stroke
-        ..strokeWidth = _fiberWidth()
-        ..strokeCap = StrokeCap.round
-        ..maskFilter = MaskFilter.blur(BlurStyle.normal, _fiberBlur());
+    // ── Moving holographic light ──
+    final sweepAngle = progress * 2 * pi;
+    final lightCenter = Offset(
+      center.dx + cos(sweepAngle) * radius * 0.42,
+      center.dy + sin(sweepAngle) * radius * 0.42,
+    );
 
-      final path = Path()
-        ..moveTo(startPoint.dx, startPoint.dy)
-        ..quadraticBezierTo(
-          controlPoint.dx,
-          controlPoint.dy,
-          endPoint.dx,
-          endPoint.dy,
-        );
+    final lightPaint = Paint()
+      ..shader = RadialGradient(
+        colors: [
+          _holographicAccent().withValues(alpha: 0.42 + pulse * 0.16),
+          _holographicAccent().withValues(alpha: 0.14),
+          Colors.transparent,
+        ],
+        stops: const [0.0, 0.32, 1.0],
+      ).createShader(
+        Rect.fromCircle(
+          center: lightCenter,
+          radius: radius * 0.58,
+        ),
+      );
 
-      canvas.drawPath(path, paint);
+    canvas.drawCircle(lightCenter, radius * 0.58, lightPaint);
 
-      // Draw a second, thinner bright core line for the fiber
-      final corePaint = Paint()
-        ..color = (isCyanFiber
+    // ── Glass rim ──
+    final rimPaint = Paint()
+      ..style = PaintingStyle.stroke
+      ..strokeWidth = radius * 0.018
+      ..shader = SweepGradient(
+        transform: GradientRotation(progress * 2 * pi),
+        colors: [
+          Colors.white.withValues(alpha: 0.55),
+          AppColors.orbCyanLight.withValues(alpha: 0.28),
+          AppColors.violetLight.withValues(alpha: 0.42),
+          AppColors.orbMagentaLight.withValues(alpha: 0.35),
+          Colors.white.withValues(alpha: 0.52),
+        ],
+      ).createShader(
+        Rect.fromCircle(center: center, radius: radius * 0.91),
+      );
+
+    canvas.drawCircle(center, radius * 0.91, rimPaint);
+
+    // ── Thin secondary holographic rim ──
+    final innerRimPaint = Paint()
+      ..style = PaintingStyle.stroke
+      ..strokeWidth = radius * 0.008
+      ..color = Colors.white.withValues(alpha: 0.20 + pulse * 0.08);
+
+    canvas.drawCircle(center, radius * 0.84, innerRimPaint);
+
+    // ── Curved glass reflections ──
+    final reflectionPaint = Paint()
+      ..style = PaintingStyle.stroke
+      ..strokeCap = StrokeCap.round
+      ..strokeWidth = radius * 0.045
+      ..color = Colors.white.withValues(alpha: 0.16 + pulse * 0.05)
+      ..maskFilter = MaskFilter.blur(
+        BlurStyle.normal,
+        radius * 0.025,
+      );
+
+    final reflectionPath = Path()
+      ..moveTo(
+        center.dx - radius * 0.54,
+        center.dy - radius * 0.36,
+      )
+      ..quadraticBezierTo(
+        center.dx - radius * 0.12,
+        center.dy - radius * 0.70,
+        center.dx + radius * 0.30,
+        center.dy - radius * 0.56,
+      );
+
+    canvas.drawPath(reflectionPath, reflectionPaint);
+
+    // ── Small specular highlight ──
+    final highlightPaint = Paint()
+      ..shader = RadialGradient(
+        colors: [
+          Colors.white.withValues(alpha: 0.75),
+          Colors.white.withValues(alpha: 0.22),
+          Colors.transparent,
+        ],
+      ).createShader(
+        Rect.fromCircle(
+          center: Offset(
+            center.dx - radius * 0.30,
+            center.dy - radius * 0.38,
+          ),
+          radius: radius * 0.16,
+        ),
+      );
+
+    canvas.drawCircle(
+      Offset(
+        center.dx - radius * 0.30,
+        center.dy - radius * 0.38,
+      ),
+      radius * 0.16,
+      highlightPaint,
+    );
+
+    // ── Subtle holographic particles ──
+    for (int i = 0; i < 9; i++) {
+      final angle = progress * 2 * pi + i * (2 * pi / 9);
+      final orbitRadius =
+          radius * (0.42 + 0.08 * sin(i * 2.1 + progress * 4));
+
+      final particlePosition = Offset(
+        center.dx + cos(angle) * orbitRadius,
+        center.dy + sin(angle) * orbitRadius,
+      );
+
+      final particlePaint = Paint()
+        ..color = (i.isEven
                 ? AppColors.orbCyanLight
                 : AppColors.orbMagentaLight)
-            .withValues(alpha: _fiberAlpha() * 0.6)
-        ..style = PaintingStyle.stroke
-        ..strokeWidth = _fiberWidth() * 0.4
-        ..strokeCap = StrokeCap.round;
+            .withValues(alpha: 0.16 + pulse * 0.12)
+        ..maskFilter = const MaskFilter.blur(
+          BlurStyle.normal,
+          2,
+        );
 
-      canvas.drawPath(path, corePaint);
-    }
-
-    // Draw small bright nodes at intersections
-    for (int i = 0; i < 8; i++) {
-      final nodeAngle = (progress + i / 8) * 2 * pi;
-      final nodeRadius = radius * (0.25 + 0.15 * sin(nodeAngle * 3 + i));
-      final nodePos = Offset(
-        center.dx + cos(nodeAngle) * nodeRadius,
-        center.dy + sin(nodeAngle) * nodeRadius,
+      canvas.drawCircle(
+        particlePosition,
+        radius * 0.018 + pulse * radius * 0.006,
+        particlePaint,
       );
-
-      final nodePaint = Paint()
-        ..color = AppColors.orbFiberCore.withValues(alpha: 0.3 + pulse * 0.2)
-        ..style = PaintingStyle.fill
-        ..maskFilter = const MaskFilter.blur(BlurStyle.normal, 3);
-
-      canvas.drawCircle(nodePos, 2.5 + pulse * 1.5, nodePaint);
     }
   }
 
-  double _fiberAlpha() {
+  Color _holographicAccent() {
     switch (state) {
       case AuraOrbState.idle:
-        return 0.35 + pulse * 0.15;
+        return AppColors.violet;
       case AuraOrbState.listening:
-        return 0.5 + pulse * 0.2;
-      case AuraOrbState.thinking:
-        return 0.45 + pulse * 0.2;
-      case AuraOrbState.speaking:
-        return 0.4 + pulse * 0.25;
-      case AuraOrbState.executing:
-        return 0.5 + pulse * 0.2;
-      case AuraOrbState.error:
-        return 0.3 + pulse * 0.15;
-    }
-  }
-
-  double _fiberWidth() {
-    switch (state) {
-      case AuraOrbState.idle:
-        return 1.8;
-      case AuraOrbState.listening:
-        return 2.2;
-      case AuraOrbState.thinking:
-        return 2.0;
-      case AuraOrbState.speaking:
-        return 1.8;
-      case AuraOrbState.executing:
-        return 2.0;
-      case AuraOrbState.error:
-        return 1.5;
-    }
-  }
-
-  double _fiberBlur() {
-    switch (state) {
-      case AuraOrbState.idle:
-        return 2.0;
-      case AuraOrbState.listening:
-        return 1.5;
-      case AuraOrbState.thinking:
-        return 1.8;
-      case AuraOrbState.speaking:
-        return 2.5;
-      case AuraOrbState.executing:
-        return 1.5;
-      case AuraOrbState.error:
-        return 2.0;
-    }
-  }
-
-  Color _fiberCyanColor() {
-    switch (state) {
-      case AuraOrbState.idle:
         return AppColors.orbCyan;
-      case AuraOrbState.listening:
-        return AppColors.cyanLight;
       case AuraOrbState.thinking:
-        return AppColors.orbCyan;
-      case AuraOrbState.speaking:
-        return AppColors.orbCyan;
-      case AuraOrbState.executing:
-        return AppColors.orbCyan;
-      case AuraOrbState.error:
-        return AppColors.red;
-    }
-  }
-
-  Color _fiberMagentaColor() {
-    switch (state) {
-      case AuraOrbState.idle:
-        return AppColors.orbMagenta;
-      case AuraOrbState.listening:
-        return AppColors.orbMagentaLight;
-      case AuraOrbState.thinking:
-        return AppColors.orbMagenta;
+        return AppColors.purple;
       case AuraOrbState.speaking:
         return AppColors.orbMagenta;
       case AuraOrbState.executing:
-        return AppColors.orbMagentaLight;
+        return AppColors.violetLight;
       case AuraOrbState.error:
         return AppColors.red;
     }
@@ -664,5 +713,8 @@ class _NeuralFiberPainter extends CustomPainter {
 
   @override
   bool shouldRepaint(_NeuralFiberPainter old) =>
-      progress != old.progress || pulse != old.pulse || state != old.state;
+      progress != old.progress ||
+      pulse != old.pulse ||
+      state != old.state;
 }
+

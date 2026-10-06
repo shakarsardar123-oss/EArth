@@ -12,7 +12,6 @@ dependencies:
   flutter_localizations:
     sdk: flutter
 
-  flutter_tts: ^4.0.2
   flutter_local_notifications: ^17.1.2
   flutter_riverpod: ^2.5.1
   flutter_secure_storage: ^10.3.3
@@ -32,6 +31,7 @@ dependencies:
   google_mlkit_face_detection: ^0.11.0
   image_picker: ^1.0.4
   file_picker: ^10.0.0
+  flutter_onnxruntime: ^1.9.0
 
 dev_dependencies:
   flutter_test:
@@ -42,6 +42,9 @@ flutter:
   generate: true
   uses-material-design: true
   assets:
+    - assets/audio/texo_mic_beep.mp3
     - assets/textures/earth/earth_surface.jpg
     - assets/textures/earth/earth_clouds.jpg
     - assets/textures/earth/earth_night.jpg
+    - assets/vekol/model.onnx
+    - assets/vekol/model.onnx.json
