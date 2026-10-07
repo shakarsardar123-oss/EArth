@@ -98,7 +98,7 @@ object FloatingTexoBridge {
                     result.success(
                         mapOf(
                             "shown" to false,
-                            "error" =>
+                            "error" to
                                 "SYSTEM_ALERT_WINDOW permission not granted",
                         ),
                     )
@@ -186,7 +186,7 @@ object FloatingTexoBridge {
             result.success(
                 mapOf(
                     "shown" to false,
-                    "error" =>
+                    "error" to
                         "Overlay service did not create a visible window within ${SHOW_TIMEOUT_MS}ms",
                 ),
             )
