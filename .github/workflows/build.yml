@@ -22,6 +22,8 @@ jobs:
     steps:
       - name: Checkout repository
         uses: actions/checkout@v4
+        with:
+          lfs: true
 
       # JDK 17 is required by Android Gradle Plugin 9.x used in this project.
       - name: Set up Java 17
