@@ -9,3 +9,11 @@ backups/
 *.before_*
 audit/
 android_pre_texo_package_backup/
+
+# Flutter / Android local build files
+.dart_tool/
+build/
+android/.gradle/
+android/local.properties
+*.wav
+*.pyc

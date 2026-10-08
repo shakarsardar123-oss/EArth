@@ -39,7 +39,7 @@ final voiceResponsesEnabledProvider = StateProvider<bool>((ref) => true);
 final sessionTimeoutProvider = liveSessionTimeoutProvider;
 
 /// The fixed wake phrase, shown (read-only) in settings.
-const String kTexoWakePhrase = 'Hey TEXO / تێکسۆ';
+const String kTexoWakePhrase = 'Hey AURA / ئەورا';
 
 // ── Coordinator ──
 

@@ -35,7 +35,7 @@ import '../voice/voice_service_impl.dart';
 class WakeWordService {
   WakeWordService({
     required VoiceServiceImpl voiceService,
-    String wakeWord = 'texo',
+    String wakeWord = 'aura',
     List<String>? wakePhrases,
     String? locale,
   })  : _voiceService = voiceService,
@@ -59,10 +59,10 @@ class WakeWordService {
   /// Default wake phrases: English primary + reasonable variants, plus the
   /// configured Sorani phrase. Kept narrow to avoid accidental triggers.
   static List<String> _defaultWakePhrases(String wakeWord) => <String>[
-        'texo',
-        'hey texo',
-        'تێکسۆ',
-        'تێکسو',
+        'aura',
+        'hey aura',
+        'ئەورا',
+        'ئەورا',
       ];
 
   bool _isListening = false;

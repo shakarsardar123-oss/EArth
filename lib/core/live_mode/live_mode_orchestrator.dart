@@ -26,6 +26,9 @@ import 'live_mode_state.dart';
 import '../../core/errors/result.dart';
 import '../floating_aura/floating_aura_overlay_position.dart';
 import '../floating_aura/floating_aura_service.dart';
+import '../screen_capture/screen_capture_result.dart';
+import '../screen_capture/screen_capture_service.dart';
+import '../screen_understanding/screen_understanding_service.dart';
 
 /// Callback for Live Mode state changes (for UI updates).
 typedef LiveModeStateCallback = void Function(LiveModeState state);
@@ -50,6 +53,8 @@ class LiveModeOrchestrator {
     required AgentProcessor agentProcessor,
     required MemoryService memoryService,
     required FloatingAuraService floatingAuraService,
+    required ScreenCaptureService screenCaptureService,
+    required ScreenUnderstandingService screenUnderstandingService,
     List<String>? exitCommands,
     Duration? inactivityTimeout,
     Duration? rePromptGrace,
@@ -57,6 +62,8 @@ class LiveModeOrchestrator {
         _agentProcessor = agentProcessor,
         _memoryService = memoryService,
         _floatingAuraService = floatingAuraService,
+        _screenCaptureService = screenCaptureService,
+        _screenUnderstandingService = screenUnderstandingService,
         _exitCommands = exitCommands ?? _defaultExitCommands,
         _inactivityTimeout = inactivityTimeout,
         _rePromptGrace = rePromptGrace ?? const Duration(seconds: 8);
@@ -65,6 +72,11 @@ class LiveModeOrchestrator {
   final AgentProcessor _agentProcessor;
   final MemoryService _memoryService;
   final FloatingAuraService _floatingAuraService;
+  final ScreenCaptureService _screenCaptureService;
+  final ScreenUnderstandingService _screenUnderstandingService;
+
+  StreamSubscription<CapturedFrame>? _screenFrameSub;
+  bool _screenAnalysisInFlight = false;
 
   /// Phrases that explicitly end the voice session when heard while
   /// LISTENING. Matched case-insensitively as a substring of the final
@@ -112,6 +124,77 @@ class LiveModeOrchestrator {
   int _consecutiveErrors = 0;
   static const int _maxConsecutiveErrors = 3;
 
+  /// Returns true when the transcript has strong evidence of Sorani.
+  /// This is intentionally conservative because the STT model is Sorani-only
+  /// and may produce Arabic-script text for unsupported languages.
+  bool _looksLikeSorani(String text) {
+    final normalized = text.trim().toLowerCase();
+    if (normalized.isEmpty) return false;
+
+    // Characters that strongly distinguish Sorani from standard Arabic text.
+    const strongMarkers = <String>[
+      'ە',
+      'ێ',
+      'ۆ',
+      'ڕ',
+      'ڵ',
+      'ڤ',
+    ];
+
+    // Common Sorani words/particles. These are used as supporting evidence,
+    // not as the only signal.
+    const commonWords = <String>[
+      'بە',
+      'لە',
+      'دە',
+      'ئە',
+      'ئەم',
+      'ئەو',
+      'چی',
+      'چۆن',
+      'کە',
+      'تۆ',
+      'من',
+      'ئێمە',
+      'ئێستا',
+      'بۆ',
+      'لەگەڵ',
+      'دەکەم',
+      'دەکەیت',
+      'دەتوانم',
+      'دەتوانیت',
+      'تکایە',
+      'باشە',
+      'ناتوانم',
+    ];
+
+    var strongCount = 0;
+    for (final marker in strongMarkers) {
+      if (normalized.contains(marker)) {
+        strongCount++;
+      }
+    }
+
+    if (strongCount >= 1) return true;
+
+    final words = normalized
+        .split(RegExp(r'[\s،؛؟,.!?]+'))
+        .where((word) => word.isNotEmpty)
+        .toSet();
+
+    var commonWordCount = 0;
+    for (final word in commonWords) {
+      if (words.contains(word)) {
+        commonWordCount++;
+      }
+    }
+
+    // A single generic Arabic-script word is not enough.
+    return commonWordCount >= 2;
+  }
+
+  /// This gate is used only for normal Live Mode conversation; wake-word
+  /// detection is handled separately and remains language-independent.
   /// Whether a request is currently in-flight to prevent duplicates.
   bool _isProcessingRequest = false;
 
@@ -196,6 +279,8 @@ class LiveModeOrchestrator {
       // Live Mode remains functional even if the overlay cannot be shown.
     }
 
+    await _startScreenUnderstanding();
+
     await _startListening(gen);
 
     return LiveModeSession(
@@ -212,6 +297,8 @@ class LiveModeOrchestrator {
     _rePromptGiven = false;
     await _voiceService.stopListening();
     await _voiceService.stopSpeaking();
+
+    await _stopScreenUnderstanding();
 
     // Hide the floating overlay when Live Mode ends.
     try {
@@ -328,6 +415,49 @@ class LiveModeOrchestrator {
     _endSession('inactivity_timeout');
   }
 
+
+  Future<void> _startScreenUnderstanding() async {
+    if (!_screenCaptureService.state.canCaptureFrames) {
+      final captureResult = await _screenCaptureService.startCapture(
+        const ScreenCaptureConfig(),
+      );
+
+      if (captureResult.isFailure ||
+          !_screenCaptureService.state.canCaptureFrames) {
+        return;
+      }
+    }
+
+    await _screenFrameSub?.cancel();
+
+    _screenFrameSub = _screenCaptureService.frameStream.listen(
+      (frame) {
+        if (_screenAnalysisInFlight) {
+          return;
+        }
+
+        _screenAnalysisInFlight = true;
+
+        _screenUnderstandingService.analyzeFrame(frame).whenComplete(() {
+          _screenAnalysisInFlight = false;
+        });
+      },
+      onError: (_) {},
+    );
+  }
+
+  Future<void> _stopScreenUnderstanding() async {
+    await _screenFrameSub?.cancel();
+    _screenFrameSub = null;
+    _screenAnalysisInFlight = false;
+
+    _screenUnderstandingService.cancel();
+
+    if (_screenCaptureService.state.canCaptureFrames) {
+      await _screenCaptureService.stopCapture();
+    }
+  }
+
   // ── Core Cycle ──
 
   /// Start listening with generation guard.
@@ -384,6 +514,13 @@ class LiveModeOrchestrator {
       return;
     }
 
+    // Normal Live Mode conversation is Sorani-only.
+    // Wake World is handled separately and remains language-independent.
+    if (!_looksLikeSorani(text)) {
+      unawaited(_rejectNonSoraniAndResume(gen));
+      return;
+    }
+
     // Notify UI of recognized text.
     onUserRecognized?.call(text);
 
@@ -392,6 +529,31 @@ class LiveModeOrchestrator {
 
     // CRITICAL: Stop STT before processing (TTS feedback loop prevention step 1).
     _stopSTTThenProcess(gen, text);
+  }
+
+  /// Reject non-Sorani speech without sending it to the agent.
+  /// Then return to listening so Live Mode remains active.
+  Future<void> _rejectNonSoraniAndResume(int gen) async {
+    if (!_isCurrentGeneration(gen)) return;
+
+    try {
+      await _voiceService.stopListening();
+    } catch (_) {}
+
+    if (!_isCurrentGeneration(gen)) return;
+
+    try {
+      await _voiceService.speak(
+        'تێناگەم، تکایە بە کوردی سۆرانی قسە بکە 😂',
+        locale: 'ku',
+      );
+    } catch (_) {}
+
+    if (!_isCurrentGeneration(gen)) return;
+
+    _isProcessingRequest = false;
+    _setState(LiveModeState.listening);
+    await _startListening(gen);
   }
 
   /// Stop STT, then process the recognized text with AgentProcessor.
@@ -589,6 +751,7 @@ class LiveModeOrchestrator {
 
   /// Dispose resources.
   void dispose() {
+    unawaited(_stopScreenUnderstanding());
     _cancelInactivityTimer();
     _stateController.close();
   }

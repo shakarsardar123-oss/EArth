@@ -20,6 +20,9 @@ import '../../core/agent/agent_engine.dart';
 import '../../core/agent/agent_context.dart';
 import '../../core/ai/agent_engine_adapter.dart';
 import '../../core/tools/tool_registry.dart';
+import '../../core/tools/screen_target_bridge.dart';
+import '../../features/screen_target/application/screen_target_orchestrator.dart';
+import '../../core/system_control/system_control_provider.dart';
 import '../../core/memory/memory_database.dart';
 import '../../core/memory/memory_repository_impl.dart';
 import '../../services/memory/memory_service.dart';
@@ -306,21 +309,6 @@ final deviceChannelProvider = Provider<DeviceChannel>((ref) {
   );
 });
 
-/// Phase 6 provider for [SystemControlChannel].
-///
-/// Returns [AndroidSystemControlChannel] on Android and
-/// [StubSystemControlChannel] (fail-closed) on every other platform.
-/// Kept separate from [deviceChannelProvider] so the existing
-/// [DeviceChannel] contract and its many implementers stay untouched.
-final systemControlChannelProvider = Provider<SystemControlChannel>((ref) {
-  if (Platform.isAndroid) {
-    return AndroidSystemControlChannel();
-  }
-  return StubSystemControlChannel(
-    platformLabel: Platform.operatingSystem,
-  );
-});
-
 /// Provider for [ToolRegistry] with all tools registered.
 final toolRegistryProvider = Provider<ToolRegistry>((ref) {
   final registry = ToolRegistry();
@@ -354,6 +342,13 @@ final toolRegistryProvider = Provider<ToolRegistry>((ref) {
   registry.register(WifiControlTool(systemControl));
   registry.register(ResourceOptimizationTool(systemControl));
   registry.register(ScreenGestureTool(systemControl));
+
+  // Screen understanding + verified target actions.
+  registry.register(
+    ScreenTargetCoreTool(
+      ref.watch(screenTargetOrchestratorProvider),
+    ),
+  );
   // Translation reuses the already-wired AI provider (no new keys/network).
   registry.register(TranslateTextTool(ref.watch(selectedAIProviderProvider)));
   return registry;

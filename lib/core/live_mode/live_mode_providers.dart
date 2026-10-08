@@ -15,6 +15,10 @@ import 'live_mode_orchestrator.dart';
 import '../floating_aura/floating_aura_service.dart';
 import '../floating_aura/floating_aura_provider.dart'
     show floatingAuraServiceProvider;
+import '../screen_capture/screen_capture_provider.dart'
+    show screenCaptureServiceProvider;
+import '../screen_understanding/screen_understanding_provider.dart'
+    show screenUnderstandingServiceProvider;
 
 /// Whether a Live Mode session is currently active.
 final isLiveSessionProvider = StateProvider<bool>((ref) => false);
@@ -36,12 +40,17 @@ final liveModeOrchestratorProvider = Provider<LiveModeOrchestrator>((ref) {
   final agentEngine = ref.read(agentEngineProvider);
   final memoryService = ref.read(memoryServiceProvider);
   final floatingAuraService = ref.read(floatingAuraServiceProvider);
+  final screenCaptureService = ref.read(screenCaptureServiceProvider);
+  final screenUnderstandingService =
+      ref.read(screenUnderstandingServiceProvider);
 
   final orchestrator = LiveModeOrchestrator(
     voiceService: voiceService,
     agentProcessor: agentEngine,
     memoryService: memoryService,
     floatingAuraService: floatingAuraService,
+    screenCaptureService: screenCaptureService,
+    screenUnderstandingService: screenUnderstandingService,
     // Phase 5: spoken exit commands use the orchestrator's built-in
     // defaults; the inactivity timeout is taken as a snapshot here so a
     // silence period gently re-prompts once and then returns to IDLE.

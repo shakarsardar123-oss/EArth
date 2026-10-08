@@ -19,7 +19,6 @@ dependencies:
   intl: ^0.20.3
   http: ^1.2.1
   camera: ^0.10.6
-  speech_to_text: ^7.4.0
   permission_handler: ^11.3.1
   geolocator: ^13.0.0
   sqflite: ^2.3.3

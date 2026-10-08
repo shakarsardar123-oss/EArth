@@ -279,8 +279,21 @@ class VoiceSessionCoordinator {
 
   /// Called by the wake-word engine when "Hey AURA" is spotted.
   Future<void> _onWakeWordDetected() async {
-    // The wake service stops its own STT to free the single mic; mark
-    // disarmed so we don't double-stop, then open the session.
+    // Stop the acoustic KWS engine before opening Live Mode.
+    // The wake callback sets _wakeArmed=false, so disarmWakeWord()
+    // cannot be used here because it intentionally returns when already
+    // disarmed.
+    if (_usingAcousticWake) {
+      _usingAcousticWake = false;
+      try {
+        await _wakeEngine?.stop();
+      } catch (_) {}
+    } else {
+      try {
+        await _wakeWord.stopListening();
+      } catch (_) {}
+    }
+
     _wakeArmed = false;
     await _beginSession();
   }

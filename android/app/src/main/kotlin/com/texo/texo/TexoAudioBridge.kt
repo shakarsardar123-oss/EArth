@@ -69,7 +69,22 @@ class TexoAudioBridge(
     @Volatile private var captureRunning = false
     @Volatile private var micVadEnabled = false
     @Volatile private var wakeEnabled = false
+
+    // ── Sorani STT (Vekol) ──
+    @Volatile private var sttEnabled = false
+    private var sttSink: EventChannel.EventSink? = null
+    private val sttLock = Any()
+    private val sttMaxSamples = 16000 * 20
+    private var sttPcmBuffer = ShortArray(sttMaxSamples)
+    private var sttPcmSize = 0
+    private var sttSpeechStarted = false
+    private var sttSilenceMs = 0L
+    private var sttSpeechMs = 0L
+
     private var micSink: EventChannel.EventSink? = null
+
+    // Offline Sorani Vekol STT engine.
+    private var sttEngine: VekolSttEngine? = null
 
     // ── wake (Vosk acoustic KWS) ──
     private val wakeLock = Any()
@@ -110,7 +125,22 @@ class TexoAudioBridge(
                 override fun onCancel(args: Any?) { micSink = null }
             })
 
-        // 3) wake
+        // 3) Sorani STT
+        MethodChannel(messenger, "com.texo.texo/stt")
+            .setMethodCallHandler { call, result ->
+                when (call.method) {
+                    "start" -> result.success(startStt())
+                    "stop" -> { stopStt(); result.success(true) }
+                    else -> result.notImplemented()
+                }
+            }
+        EventChannel(messenger, "com.texo.texo/stt.events")
+            .setStreamHandler(object : EventChannel.StreamHandler {
+                override fun onListen(args: Any?, sink: EventChannel.EventSink?) { sttSink = sink }
+                override fun onCancel(args: Any?) { sttSink = null }
+            })
+
+        // 4) wake
         MethodChannel(messenger, "com.texo.texo/wake")
             .setMethodCallHandler { call, result ->
                 when (call.method) {
@@ -177,6 +207,197 @@ class TexoAudioBridge(
         try { visualizer?.enabled = false } catch (_: Throwable) {}
         try { visualizer?.release() } catch (_: Throwable) {}
         visualizer = null
+    }
+
+    // ────────────────────── Sorani STT capture ─────────────────────
+
+    /*
+     * Vekol STT is clip-based. We therefore collect one utterance from the
+     * shared 16 kHz PCM stream and emit it only after end-of-speech.
+     *
+     * This phase does NOT run ONNX yet. It only proves that the shared
+     * microphone can produce clean, bounded Sorani speech clips.
+     */
+    private val sttSampleRate = 16000
+    private val sttFrameMs = 32L
+    private val sttSilenceThreshold = 0.012
+    private val sttEndSilenceMs = 800L
+    private val sttMinSpeechMs = 250L
+    private val sttMaxSpeechMs = 20000L
+
+    private fun startStt(): Boolean {
+        synchronized(sttLock) {
+            sttEnabled = true
+            sttPcmSize = 0
+            sttSpeechStarted = false
+            sttSilenceMs = 0L
+            sttSpeechMs = 0L
+        }
+
+        val ok = ensureCapture()
+        if (!ok) {
+            sttEnabled = false
+        }
+        return ok
+    }
+
+    private fun stopStt() {
+        synchronized(sttLock) {
+            sttEnabled = false
+            sttPcmSize = 0
+            sttSpeechStarted = false
+            sttSilenceMs = 0L
+            sttSpeechMs = 0L
+        }
+        stopCaptureIfIdle()
+    }
+
+    /**
+     * STT consumer for one shared PCM frame.
+     *
+     * Emits:
+     *   {"type":"speechStarted"}
+     *   {"type":"utteranceReady","samples":N,"durationMs":N}
+     *
+     * The actual Vekol inference is deliberately added in the next phase.
+     */
+    private fun feedStt(buf: ShortArray, n: Int) {
+        if (n <= 0) return
+
+        var sumSq = 0.0
+        for (i in 0 until n) {
+            val v = buf[i].toDouble() / 32768.0
+            sumSq += v * v
+        }
+        val rms = sqrt(sumSq / n).coerceIn(0.0, 1.0)
+        val frameMs = sttFrameMs
+
+        synchronized(sttLock) {
+            if (!sttEnabled) return
+
+            if (!sttSpeechStarted) {
+                if (rms >= sttSilenceThreshold) {
+                    sttSpeechStarted = true
+                    sttSilenceMs = 0L
+                    sttSpeechMs = frameMs
+                    val copyCount = minOf(n, sttMaxSamples - sttPcmSize)
+                    if (copyCount > 0) {
+                        buf.copyInto(sttPcmBuffer, sttPcmSize, 0, copyCount)
+                        sttPcmSize += copyCount
+                    }
+
+                    main.post {
+                        sttSink?.success(mapOf("type" to "speechStarted"))
+                    }
+                }
+                return
+            }
+
+            // Speech is active: keep every frame while the bounded
+            // utterance buffer still has capacity.
+            val copyCount = minOf(n, sttMaxSamples - sttPcmSize)
+            if (copyCount > 0) {
+                buf.copyInto(sttPcmBuffer, sttPcmSize, 0, copyCount)
+                sttPcmSize += copyCount
+            }
+            sttSpeechMs += frameMs
+
+            if (rms < sttSilenceThreshold) {
+                sttSilenceMs += frameMs
+            } else {
+                sttSilenceMs = 0L
+            }
+
+            val reachedSilence = sttSilenceMs >= sttEndSilenceMs
+            val reachedMaximum = sttSpeechMs >= sttMaxSpeechMs
+
+            if (reachedSilence || reachedMaximum) {
+                val sampleCount = sttPcmSize
+                val durationMs =
+                    (sampleCount * 1000L) / sttSampleRate
+
+                val valid =
+                    sttSpeechMs >= sttMinSpeechMs &&
+                    sampleCount > 0
+
+                val utterance =
+                    if (valid) {
+                        sttPcmBuffer.copyOf(sampleCount)
+                    } else {
+                        null
+                    }
+
+                sttPcmSize = 0
+                sttSpeechStarted = false
+                sttSilenceMs = 0L
+                sttSpeechMs = 0L
+
+                if (utterance != null) {
+                    main.post {
+                        sttSink?.success(
+                            mapOf(
+                                "type" to "processing",
+                                "samples" to sampleCount,
+                                "durationMs" to durationMs,
+                            )
+                        )
+                    }
+
+                    Thread {
+                        try {
+                            val engine = sttEngine ?: synchronized(sttLock) {
+                                sttEngine ?: VekolSttEngine(context).also {
+                                    sttEngine = it
+                                }
+                            }
+
+                            engine.transcribe(
+                                utterance,
+                                onResult = { text ->
+                                    main.post {
+                                        sttSink?.success(
+                                            mapOf(
+                                                "type" to "result",
+                                                "text" to text,
+                                            )
+                                        )
+                                    }
+                                },
+                                onError = { error ->
+                                    main.post {
+                                        sttSink?.success(
+                                            mapOf(
+                                                "type" to "error",
+                                                "message" to (
+                                                    error.message
+                                                        ?: "Vekol STT inference failed"
+                                                ),
+                                            )
+                                        )
+                                    }
+                                },
+                            )
+                        } catch (t: Throwable) {
+                            main.post {
+                                sttSink?.success(
+                                    mapOf(
+                                        "type" to "error",
+                                        "message" to (
+                                            t.message
+                                                ?: "Vekol STT inference failed"
+                                        ),
+                                    )
+                                )
+                            }
+                        }
+                    }.also {
+                        it.isDaemon = true
+                        it.name = "texo-vekol-stt"
+                        it.start()
+                    }
+                }
+            }
+        }
     }
 
     // ────────────────────── shared mic capture + AEC ────────────────
@@ -279,6 +500,11 @@ class TexoAudioBridge(
                 if (wakeEnabled) {
                     feedWake(buf, n)
                 }
+
+                // Consumer C: clip-based Sorani STT capture.
+                if (sttEnabled) {
+                    feedStt(buf, n)
+                }
             }
         }.also { it.isDaemon = true; it.name = "texo-mic-capture"; it.start() }
         return true
@@ -287,7 +513,7 @@ class TexoAudioBridge(
     /** Tear down the shared capture only when NO consumer needs it. */
     @Synchronized
     private fun stopCaptureIfIdle() {
-        if (micVadEnabled || wakeEnabled) return
+        if (micVadEnabled || wakeEnabled || sttEnabled) return
         captureRunning = false
         try { micThread?.join(300) } catch (_: Throwable) {}
         micThread = null
@@ -309,8 +535,8 @@ class TexoAudioBridge(
     // ────────────────────── wake: Vosk acoustic KWS ─────────────────
 
     private val modelAssetDir = "vosk-model-small-en-us-0.15"
-    private val wakePhrase = "texo"
-    private val wakeGrammar = "[\"texo\", \"hey texo\", \"[unk]\"]"
+    private val wakePhrase = "aura"
+    private val wakeGrammar = "[\"aura\", \"hey aura\", \"[unk]\"]"
     // Native pre-gate. The Dart WakeWordDebouncer applies a second (0.5)
     // threshold + cooldown on top of this.
     private val minConfidence = 0.55
@@ -422,7 +648,7 @@ class TexoAudioBridge(
             for (i in 0 until words.length()) {
                 val w = words.optJSONObject(i) ?: continue
                 val word = w.optString("word", "").lowercase()
-                if (word == "texo") {
+                if (word == "aura") {
                     sum += w.optDouble("conf", 1.0)
                     count++
                 }
@@ -486,6 +712,11 @@ class TexoAudioBridge(
         stopOutputLevel()
         micVadEnabled = false
         wakeEnabled = false
+        sttEnabled = false
+
+        sttEngine?.dispose()
+        sttEngine = null
+
         stopCaptureIfIdle()
         synchronized(wakeLock) {
             try { recognizer?.close() } catch (_: Throwable) {}

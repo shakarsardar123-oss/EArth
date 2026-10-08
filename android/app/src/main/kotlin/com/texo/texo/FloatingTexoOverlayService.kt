@@ -231,21 +231,38 @@ class FloatingTexoOverlayService : Service() {
     }
 
     private fun buildOverlayView(): FrameLayout {
-        val container = FrameLayout(this)
+        val container = FrameLayout(this).apply {
+            setPadding(
+                dpToPx(2),
+                dpToPx(2),
+                dpToPx(2),
+                dpToPx(2),
+            )
+        }
 
-        val label =
+        val orb =
             TextView(this).apply {
-                text = "TEXO"
+                text = "A"
                 setTextColor(Color.parseColor("#00E5FF"))
                 gravity = Gravity.CENTER
                 setTextSize(
                     TypedValue.COMPLEX_UNIT_SP,
-                    14f,
+                    20f,
                 )
+                typeface = android.graphics.Typeface.DEFAULT_BOLD
+                background = GradientDrawable().apply {
+                    shape = GradientDrawable.OVAL
+                    setColor(Color.parseColor("#151A23"))
+                    setStroke(
+                        dpToPx(1),
+                        Color.parseColor("#00E5FF"),
+                    )
+                }
+                elevation = dpToPx(4).toFloat()
             }
 
         container.addView(
-            label,
+            orb,
             FrameLayout.LayoutParams(
                 FrameLayout.LayoutParams.MATCH_PARENT,
                 FrameLayout.LayoutParams.MATCH_PARENT,
@@ -265,9 +282,13 @@ class FloatingTexoOverlayService : Service() {
 
         val drawable =
             GradientDrawable().apply {
-                shape = GradientDrawable.RECTANGLE
+                shape = GradientDrawable.OVAL
+                setColor(Color.parseColor("#0B0E14"))
+                setStroke(
+                    dpToPx(1),
+                    Color.parseColor("#6633CCFF"),
+                )
                 cornerRadius = radius
-                setColor(Color.parseColor("#CC0B0E14"))
             }
 
         view.background = drawable

@@ -6,7 +6,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import '../../../core/screen_capture/screen_capture_provider.dart';
 import '../../../core/screen_understanding/screen_understanding_provider.dart';
-import '../../../presentation/providers/app_providers.dart';
+import '../../../core/system_control/system_control_provider.dart';
 import '../domain/repositories/screen_action_repository.dart';
 import '../domain/repositories/vision_repository.dart';
 import '../domain/services/screen_correction_service.dart';

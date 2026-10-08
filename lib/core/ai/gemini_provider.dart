@@ -196,21 +196,84 @@ class GeminiProvider implements AIProvider, ModelDiscovery {
     AIRequest request,
   ) {
     final contents = <Map<String, dynamic>>[];
+    final toolCallNames = <String, String>{};
 
-    // Add conversation history if available.
     if (request.messages != null) {
       for (final msg in request.messages!) {
-        final role = msg.role == AIMessageRole.system
-            ? 'user' // Gemini doesn't have system role; inject via systemInstruction
-            : msg.role == AIMessageRole.assistant
-                ? 'model'
-                : 'user';
+        // Convert assistant messages to Gemini model messages,
+        // including native functionCall parts.
+        if (msg.role == AIMessageRole.assistant) {
+          final parts = <Map<String, dynamic>>[];
 
-        // Skip tool result messages; they'll be handled via functionCall in the future
-        if (msg.role == AIMessageRole.tool) continue;
+          if (msg.content.isNotEmpty) {
+            parts.add({
+              'text': msg.content,
+            });
+          }
+
+          final toolCalls = msg.toolCalls;
+          if (toolCalls != null && toolCalls.isNotEmpty) {
+            for (final toolCall in toolCalls) {
+              toolCallNames[toolCall.id] = toolCall.functionName;
+
+              parts.add({
+                'functionCall': {
+                  'name': toolCall.functionName,
+                  'args': toolCall.arguments,
+                },
+              });
+            }
+          }
+
+          if (parts.isNotEmpty) {
+            contents.add({
+              'role': 'model',
+              'parts': parts,
+            });
+          }
+
+          continue;
+        }
+
+        // Convert internal tool results to Gemini functionResponse.
+        if (msg.role == AIMessageRole.tool) {
+          final functionName = toolCallNames[msg.toolCallId];
+
+          if (functionName == null || functionName.isEmpty) {
+            continue;
+          }
+
+          dynamic responseValue = msg.content;
+
+          try {
+            responseValue = jsonDecode(msg.content);
+          } catch (_) {
+            responseValue = {
+              'result': msg.content,
+            };
+          }
+
+          contents.add({
+            'role': 'user',
+            'parts': [
+              {
+                'functionResponse': {
+                  'name': functionName,
+                  'response': responseValue,
+                },
+              },
+            ],
+          });
+
+          continue;
+        }
+
+        // System messages are handled separately through systemInstruction.
+        // Other normal messages are Gemini user messages.
+        if (msg.content.isEmpty) continue;
 
         contents.add({
-          'role': role,
+          'role': 'user',
           'parts': [
             {'text': msg.content},
           ],
@@ -218,7 +281,7 @@ class GeminiProvider implements AIProvider, ModelDiscovery {
       }
     }
 
-    // Add user prompt if not already covered by messages.
+    // Add user prompt if no conversation messages were supplied.
     if (request.messages == null || request.messages!.isEmpty) {
       contents.add({
         'role': 'user',

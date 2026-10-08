@@ -8,6 +8,7 @@ library;
 
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import '../../tool_registry/presentation/tool_registry_provider_names.dart';
+import '../../screen_target/application/screen_target_orchestrator.dart';
 import '../domain/models/tool_execution_context.dart';
 import '../domain/models/tool_input.dart';
 import '../domain/models/tool_output.dart';
@@ -15,6 +16,7 @@ import '../domain/models/tool_execution_metadata.dart';
 import '../domain/services/tool_interface.dart';
 import '../infrastructure/executors/tool_executor_registry.dart';
 import '../infrastructure/executors/executors.dart';
+import '../infrastructure/executors/screen_target_tool.dart';
 import '../infrastructure/adapters/adapters.dart';
 import '../../tool_registry/infrastructure/default_tool_execution_gate.dart';
 import '../application/tool_execution_engine.dart';
@@ -27,11 +29,16 @@ import '../application/cancellation_token.dart';
 // ─── Tool Registry Provider ───
 
 /// Provider for the ToolExecutorRegistry.
-/// Registers all 12 tool implementations.
+/// Registers all 13 tool implementations.
 final toolExecutorRegistryProvider = Provider<ToolExecutorRegistry>((ref) {
   final registry = ToolExecutorRegistry();
   registry.register(DeviceTool());
   registry.register(ScreenTool());
+  registry.register(
+    ScreenTargetTool(
+      orchestrator: ref.watch(screenTargetOrchestratorProvider),
+    ),
+  );
   registry.register(VoiceTool());
   registry.register(MemoryTool());
   registry.register(VisionTool());

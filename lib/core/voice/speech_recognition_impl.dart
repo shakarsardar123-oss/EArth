@@ -1,38 +1,42 @@
 /// speech_recognition_impl.dart
-/// AURA Assistant – P0 Remediation: Real speech-to-text implementation.
+/// AURA / TEXO – Offline Sorani speech recognition.
 ///
-/// CRITICAL FIX: Added finalResult filtering.
-/// Before fix: onResult fired for EVERY recognition event (partial + final),
-///   causing duplicate processing in Live Mode.
-/// After fix: onResult only fires for final results. Optional onPartial
-///   callback for UI display of interim results.
+/// Uses the native Vekol Whisper-based Sorani STT engine through
+/// TexoAudioBridge. No Android SpeechRecognizer and no speech_to_text
+/// dependency are used.
+///
+/// Public API intentionally remains compatible with the previous service
+/// so existing AURA call-sites do not need to change.
 library;
 
-import 'package:speech_to_text/speech_to_text.dart';
+import 'dart:async';
 
-/// Real speech-to-text implementation wrapping the speech_to_text package.
+import 'package:flutter/services.dart';
+
 class SpeechRecognitionServiceImpl {
-  final SpeechToText _speech = SpeechToText();
+  static const MethodChannel _channel =
+      MethodChannel('com.texo.texo/stt');
+
+  static const EventChannel _events =
+      EventChannel('com.texo.texo/stt.events');
+
   bool _initialized = false;
+  bool _listening = false;
+  StreamSubscription<dynamic>? _eventSubscription;
+
+  void Function(String text)? _onResult;
+  void Function(String text)? _onPartial;
+  void Function(double level)? _onSoundLevel;
 
   Future<bool> initialize() async {
     if (_initialized) return true;
-    _initialized = await _speech.initialize();
-    return _initialized;
+
+    // The Vekol engine is initialized natively on first inference.
+    // There is no device speech-recognition service to initialize.
+    _initialized = true;
+    return true;
   }
 
-  /// Start listening for speech input.
-  ///
-  /// [onResult] – Fires ONLY for final recognition results (no partials).
-  /// [onPartial] – Optional, fires for partial/interim results (for UI display).
-  /// [onSoundLevel] – Optional. Fires with the REAL microphone RMS sound
-  ///   level reported by the speech_to_text engine (`onSoundLevelChange`).
-  ///   This is a genuine audio signal (not synthesized) that the assistant
-  ///   pill waveform uses to react to the user's voice while LISTENING.
-  ///   The raw value range is platform-dependent (Android typically emits
-  ///   roughly -2.0..10.0); callers are expected to normalise it.
-  /// [locale] – Locale ID for speech recognition. `null` uses the device's
-  ///   system speech locale (default: Kurdish Sorani for command capture).
   Future<void> startListening({
     required void Function(String text) onResult,
     void Function(String text)? onPartial,
@@ -42,28 +46,79 @@ class SpeechRecognitionServiceImpl {
     if (!_initialized) {
       await initialize();
     }
-    await _speech.listen(
-      localeId: locale,
-      // Real per-frame microphone amplitude from the platform recognizer.
-      // Only wired when a callback is supplied so existing callers that do
-      // not need amplitude keep their previous behaviour byte-for-byte.
-      onSoundLevelChange:
-          onSoundLevel == null ? null : (level) => onSoundLevel(level),
-      onResult: (result) {
-        // CRITICAL FIX: Only fire onResult for final results.
-        // Before this fix, every partial result would trigger onResult,
-        // causing duplicate processing in Live Mode orchestrator.
-        if (result.finalResult) {
-          onResult(result.recognizedWords);
-        } else {
-          // Partial result — send to optional callback for UI display.
-          onPartial?.call(result.recognizedWords);
+
+    await stopListening();
+
+    _onResult = onResult;
+    _onPartial = onPartial;
+    _onSoundLevel = onSoundLevel;
+
+    _eventSubscription = _events.receiveBroadcastStream().listen(
+      (dynamic event) {
+        if (event is! Map) return;
+
+        final type = event['type'];
+
+        switch (type) {
+          case 'speechStarted':
+            // Native VAD detected the beginning of speech.
+            break;
+
+          case 'processing':
+            // Vekol inference is running.
+            break;
+
+          case 'result':
+            final text = event['text'];
+            if (text is String && text.trim().isNotEmpty) {
+              _onResult?.call(text.trim());
+            }
+            break;
+
+          case 'error':
+            // Errors are handled by stopping the active recognition
+            // session. The existing VoiceService will enter its error
+            // state if the native channel call fails.
+            break;
         }
       },
+      onError: (_) {
+        // Keep the public API compatible with the previous implementation.
+      },
+      cancelOnError: false,
     );
+
+    final started = await _channel.invokeMethod<bool>('start');
+
+    if (started != true) {
+      await _eventSubscription?.cancel();
+      _eventSubscription = null;
+      throw StateError('Failed to start native Vekol STT');
+    }
+
+    _listening = true;
   }
 
   Future<void> stopListening() async {
-    await _speech.stop();
+    if (_listening) {
+      try {
+        await _channel.invokeMethod<bool>('stop');
+      } catch (_) {
+        // Keep shutdown best-effort, matching the old service behavior.
+      }
+    }
+
+    _listening = false;
+
+    await _eventSubscription?.cancel();
+    _eventSubscription = null;
+
+    _onResult = null;
+    _onPartial = null;
+    _onSoundLevel = null;
+  }
+
+  Future<void> dispose() async {
+    await stopListening();
   }
 }
