@@ -1,7 +1,7 @@
 import 'dart:ui';
 
-import '../../../domain/models/screen_target.dart';
-import '../../../domain/repositories/screen_action_repository.dart';
+import '../../domain/models/screen_target.dart';
+import '../../domain/repositories/screen_action_repository.dart';
 import '../../../../core/device/system_control_channel.dart';
 
 /// Android implementation of screen-target actuation.
@@ -51,12 +51,12 @@ class AndroidScreenActionRepository implements ScreenActionRepository {
     }
 
     final sizeResult = await _systemControl.getScreenSize();
-    if (!sizeResult.success) {
+    if (!sizeResult.isSuccess) {
       return ScreenActionResult.unavailable;
     }
 
-    final width = _intValue(sizeResult.data['width']);
-    final height = _intValue(sizeResult.data['height']);
+    final width = _intValue(sizeResult.data?['width']);
+    final height = _intValue(sizeResult.data?['height']);
 
     if (width == null || height == null || width <= 0 || height <= 0) {
       return ScreenActionResult.error;
@@ -96,8 +96,8 @@ class AndroidScreenActionRepository implements ScreenActionRepository {
     final accessibility =
         await _systemControl.isAccessibilityServiceEnabled();
 
-    if (!accessibility.success ||
-        accessibility.data['enabled'] != true) {
+    if (!accessibility.isSuccess ||
+        accessibility.data?['enabled'] != true) {
       return ScreenActionResult.deniedPermission;
     }
 
@@ -148,19 +148,19 @@ class AndroidScreenActionRepository implements ScreenActionRepository {
     final accessibility =
         await _systemControl.isAccessibilityServiceEnabled();
 
-    if (!accessibility.success ||
-        accessibility.data['enabled'] != true) {
+    if (!accessibility.isSuccess ||
+        accessibility.data?['enabled'] != true) {
       return ScreenActionResult.deniedPermission;
     }
 
     final sizeResult = await _systemControl.getScreenSize();
 
-    if (!sizeResult.success) {
+    if (!sizeResult.isSuccess) {
       return ScreenActionResult.unavailable;
     }
 
-    final width = _intValue(sizeResult.data['width']);
-    final height = _intValue(sizeResult.data['height']);
+    final width = _intValue(sizeResult.data?['width']);
+    final height = _intValue(sizeResult.data?['height']);
 
     if (width == null || height == null || width <= 0 || height <= 0) {
       return ScreenActionResult.error;
@@ -221,7 +221,7 @@ class AndroidScreenActionRepository implements ScreenActionRepository {
       y,
       width,
       height,
-    ].every(double.isFinite)) {
+    ].every((v) => v.isFinite)) {
       return null;
     }
 
@@ -255,12 +255,12 @@ class AndroidScreenActionRepository implements ScreenActionRepository {
   ScreenActionResult _mapDispatchResult(
     DeviceChannelResult result,
   ) {
-    if (!result.success) {
+    if (!result.isSuccess) {
       return ScreenActionResult.error;
     }
 
-    final dispatched = result.data['dispatched'] == true;
-    final completed = result.data['completed'] == true;
+    final dispatched = result.data?['dispatched'] == true;
+    final completed = result.data?['completed'] == true;
 
     if (dispatched && completed) {
       return ScreenActionResult.success;

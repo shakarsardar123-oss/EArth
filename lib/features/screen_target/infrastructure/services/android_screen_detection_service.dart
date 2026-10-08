@@ -16,7 +16,7 @@ import '../../domain/services/screen_detection_service.dart';
 class AndroidScreenDetectionService implements ScreenDetectionService {
   final Map<String, DetectionResult> _latestResults = {};
 
-  const AndroidScreenDetectionService();
+  AndroidScreenDetectionService();
 
   @override
   bool get hasPermission => true;
@@ -118,7 +118,7 @@ class AndroidScreenDetectionService implements ScreenDetectionService {
         continue;
       }
 
-      final targetLabel = target.label.trim().toLowerCase();
+      final targetLabel = (target.label ?? "").trim().toLowerCase();
 
       if (targetLabel == wanted) {
         return target;
@@ -166,7 +166,7 @@ class AndroidScreenDetectionService implements ScreenDetectionService {
       return false;
     }
 
-    if (target.label.trim().isEmpty) {
+    if ((target.label ?? "").trim().isEmpty) {
       return false;
     }
 
@@ -193,7 +193,7 @@ class AndroidScreenDetectionService implements ScreenDetectionService {
       return false;
     }
 
-    if (![x, y, width, height].every(double.isFinite)) {
+    if (![x, y, width, height].every((v) => v.isFinite)) {
       return false;
     }
 

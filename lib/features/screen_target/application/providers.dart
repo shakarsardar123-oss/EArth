@@ -17,7 +17,7 @@ import '../infrastructure/services/android_screen_correction_service.dart';
 import '../infrastructure/services/android_screen_detection_service.dart';
 
 final screenDetectionServiceProvider = Provider<ScreenDetectionService>((ref) {
-  return const AndroidScreenDetectionService();
+  return AndroidScreenDetectionService();
 });
 
 final screenCorrectionServiceProvider = Provider<ScreenCorrectionService>((ref) {
