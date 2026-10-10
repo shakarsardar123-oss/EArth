@@ -221,6 +221,8 @@ class GeminiProvider implements AIProvider, ModelDiscovery {
                   'name': toolCall.functionName,
                   'args': toolCall.arguments,
                 },
+                if (toolCall.thoughtSignature != null)
+                  'thoughtSignature': toolCall.thoughtSignature,
               });
             }
           }
@@ -574,6 +576,7 @@ class GeminiProvider implements AIProvider, ModelDiscovery {
               id: 'gemini_fc_${toolCalls.length}',
               functionName: fc['name'] as String? ?? '',
               arguments: fc['args'] as Map<String, dynamic>? ?? {},
+              thoughtSignature: (partMap['thoughtSignature'] ?? partMap['thought_signature']) as String?,
             ));
           }
         }
@@ -789,6 +792,7 @@ class GeminiProvider implements AIProvider, ModelDiscovery {
                 id: 'gemini_fc_${toolCalls.length}',
                 functionName: fc['name'] as String? ?? '',
                 arguments: fc['args'] as Map<String, dynamic>? ?? {},
+                thoughtSignature: (partMap['thoughtSignature'] ?? partMap['thought_signature']) as String?,
               ),
             );
           }

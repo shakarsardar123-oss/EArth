@@ -88,15 +88,20 @@ class AIToolCall {
     required this.id,
     required this.functionName,
     required this.arguments,
+    this.thoughtSignature,
   });
 
   final String id;
   final String functionName;
   final Map<String, dynamic> arguments;
 
+  /// Gemini 3 thought signature (must be echoed back with the functionCall).
+  final String? thoughtSignature;
+
   Map<String, dynamic> toMap() => {
         'id': id,
         'type': 'function',
+        if (thoughtSignature != null) 'thought_signature': thoughtSignature,
         'function': {
           'name': functionName,
           'arguments': arguments,
@@ -110,6 +115,7 @@ class AIToolCall {
       functionName: function?['name'] as String? ?? map['name'] as String? ?? '',
       arguments: function?['arguments'] as Map<String, dynamic>? ??
           map['arguments'] as Map<String, dynamic>? ?? {},
+      thoughtSignature: map['thought_signature'] as String?,
     );
   }
 }
