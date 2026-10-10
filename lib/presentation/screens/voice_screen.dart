@@ -31,6 +31,7 @@ import '../../core/live_mode/live_mode_providers.dart'
     show liveModeOrchestratorProvider, liveModeStateProvider, isLiveSessionProvider;
 import '../providers/app_providers.dart';
 import '../widgets/widgets.dart';
+import '../widgets/voice_visualizer.dart';
 import '../../core/errors/result.dart';
 import '../../features/globe/application/globe_controller.dart';
 import '../../features/globe/domain/location_action.dart';
@@ -102,7 +103,13 @@ class VoiceScreen extends ConsumerWidget {
   Widget build(BuildContext context, WidgetRef ref) {
     final l10n = S.of(context);
     final theme = Theme.of(context);
-    final cs = theme.colorScheme;
+    final dark = theme.brightness == Brightness.dark;
+
+    final iconColor = dark ? Colors.white : Colors.black;
+    final bg = dark
+        ? AppColors.amoledBlack
+        : const Color(0xFFF7F8FA);
+
     ref.watch(voiceStateProvider);
     final transcript = ref.watch(voiceTranscriptProvider);
     final aiResponse = ref.watch(aiResponseProvider);
@@ -110,158 +117,222 @@ class VoiceScreen extends ConsumerWidget {
     final isLive = ref.watch(isLiveSessionProvider);
     final voiceState = ref.read(voiceStateProvider);
 
-    // Smart Greeting — from greeting_provider
     final greetingAsync = ref.watch(smartGreetingProvider);
     final greetingText = greetingAsync.maybeWhen(
       data: (key) => resolveGreetingKey(key),
       orElse: () => 'سڵاو',
     );
 
-    // Map to WaveForm state
     final waveFormState = isLive
         ? _liveModeStateToWaveFormState(liveModeState)
         : _voiceStateToWaveFormState(voiceState);
-
-    final statusText = isLive
-        ? l10n.liveModeActive
-        : _getStatusText(l10n, voiceState);
 
     final isListening = voiceState == VoiceState.listening ||
         (isLive && liveModeState == LiveModeState.listening);
 
     return Scaffold(
-      backgroundColor: AppColors.amoledBlack, // AMOLED pure black
+      backgroundColor: bg,
       body: SafeArea(
         child: Stack(
           children: [
-            // ── Main layout ──
             Column(
               children: [
-                const SizedBox(height: 12),
-
-                // ── Smart Greeting ──
+                // ── Modern top bar ──
                 Padding(
-                  padding: const EdgeInsets.symmetric(horizontal: 32),
-                  child: Text(
-                    greetingText,
-                    style: TextStyle(
-                      fontSize: 16,
-                      fontWeight: FontWeight.w500,
-                      color: AppColors.violetLight.withOpacity(0.85),
-                      letterSpacing: 0.5,
-                      height: 1.4,
-                    ),
-                    textAlign: TextAlign.center,
+                  padding: const EdgeInsets.fromLTRB(14, 10, 14, 0),
+                  child: Row(
+                    children: [
+                      _ModernCircleButton(
+                        icon: Icons.settings_rounded,
+                        color: iconColor,
+                        onTap: () {
+                          ref.read(navigationIndexProvider.notifier).state = 2;
+                        },
+                      ),
+
+                      const Spacer(),
+
+                      // Live Mode pill
+                      Container(
+                        padding: const EdgeInsets.symmetric(
+                          horizontal: 14,
+                          vertical: 8,
+                        ),
+                        decoration: BoxDecoration(
+                          color: iconColor.withValues(alpha: 0.07),
+                          borderRadius: BorderRadius.circular(22),
+                          border: Border.all(
+                            color: iconColor.withValues(alpha: 0.10),
+                          ),
+                        ),
+                        child: Row(
+                          mainAxisSize: MainAxisSize.min,
+                          children: [
+                            Container(
+                              width: 8,
+                              height: 8,
+                              decoration: BoxDecoration(
+                                color: isLive
+                                    ? const Color(0xFF25B7FF)
+                                    : iconColor.withValues(alpha: 0.35),
+                                shape: BoxShape.circle,
+                              ),
+                            ),
+                            const SizedBox(width: 7),
+                            Text(
+                              'Live Mode',
+                              style: TextStyle(
+                                color: iconColor,
+                                fontWeight: FontWeight.w700,
+                                fontSize: 12,
+                              ),
+                            ),
+                          ],
+                        ),
+                      ),
+
+                      const Spacer(),
+
+                      _EndLiveButton(
+                        onTap: () {
+                          if (isLive) {
+                            _toggleLiveMode(context, ref);
+                          }
+                        },
+                      ),
+                    ],
+                  ),
+                ),
+
+                const Spacer(flex: 2),
+
+                // ── Greeting / identity ──
+                Text(
+                  greetingText,
+                  style: TextStyle(
+                    fontSize: 13,
+                    fontWeight: FontWeight.w500,
+                    color: dark
+                        ? Colors.white.withValues(alpha: 0.62)
+                        : Colors.black.withValues(alpha: 0.62),
+                    letterSpacing: 0.4,
+                  ),
+                  textAlign: TextAlign.center,
+                ),
+
+                const SizedBox(height: 8),
+
+                Text(
+                  'TEXO',
+                  style: TextStyle(
+                    fontSize: 25,
+                    fontWeight: FontWeight.w800,
+                    color: dark
+                        ? Colors.white
+                        : Colors.black,
+                    letterSpacing: 6,
+                  ),
+                ),
+
+                const SizedBox(height: 5),
+
+                Text(
+                  l10n.auraIdentity,
+                  style: TextStyle(
+                    fontSize: 11,
+                    color: iconColor.withValues(alpha: 0.45),
+                    letterSpacing: 0.8,
                   ),
                 ),
 
                 const SizedBox(height: 10),
 
-                // ── AURA header ──
                 Text(
-                  'TEXO',
+                  isListening
+                      ? l10n.voiceStatusListening
+                      : isLive
+                          ? l10n.liveModeActive
+                          : _getStatusText(l10n, voiceState),
                   style: TextStyle(
-                    fontSize: 28,
-                    fontWeight: FontWeight.w800,
-                    color: AppColors.waveFormCyan,
-                    letterSpacing: 6.0,
+                    fontSize: 12,
+                    fontWeight: FontWeight.w600,
+                    color: isListening
+                        ? const Color(0xFF25B7FF)
+                        : iconColor.withValues(alpha: 0.60),
+                    letterSpacing: 1.2,
+                  ),
+                ),
+
+                const Spacer(flex: 2),
+
+                // ── Orb + waveform composition ──
+                const SizedBox(height: 8),
+                SizedBox(
+                  height: 235,
+                  child: Stack(
+                    alignment: Alignment.center,
+                    children: [
+                      Positioned.fill(
+                        child: Center(
+                          child: AuraWaveForm(
+                            state: waveFormState,
+                            barCount: 56,
+                            barGap: 2.5,
+                            maxBarHeight: 82,
+                            minBarHeight: 3,
+                            fullBleed: true,
+                            centerGap: 0.30,
+                            occlusionRadius: 88,
+                            occlusionFeather: 34,
+                          ),
+                        ),
+                      ),
+                      RealisticGlobe(
+                        controller: _globeController,
+                        size: 168,
+                      ),
+                    ],
                   ),
                 ),
 
                 const SizedBox(height: 4),
 
-                // ── AURA Identity ──
+                // ── Status / prompt ──
+                AnimatedOpacity(
+                  opacity: isLive ? 1 : 0.45,
+                  duration: const Duration(milliseconds: 200),
+                  child: VoiceVisualizer(
+                    barCount: 36,
+                    maxBarHeight: 42,
+                    barWidth: 3,
+                  ),
+                ),
+
+                const SizedBox(height: 14),
+
                 Text(
-                  l10n.auraIdentity,
+                  isListening
+                      ? l10n.voiceStatusListening
+                      : isLive
+                          ? l10n.liveModeActive
+                          : l10n.voicePromptHint,
                   style: TextStyle(
                     fontSize: 12,
-                    fontWeight: FontWeight.w400,
-                    color: AppColors.cyan.withOpacity(0.6),
-                    letterSpacing: 1.0,
+                    color: theme.colorScheme.onSurfaceVariant
+                        .withValues(alpha: 0.75),
                   ),
+                  textAlign: TextAlign.center,
                 ),
 
-                const SizedBox(height: 6),
+                const Spacer(flex: 2),
 
-                // ── Status text ──
-                Text(
-                  statusText,
-                  style: TextStyle(
-                    fontSize: 13,
-                    fontWeight: FontWeight.w500,
-                    color: isListening
-                        ? AppColors.cyan
-                        : AppColors.violetLight,
-                    letterSpacing: 1.5,
-                  ),
-                ),
-
-                const Spacer(flex: 3),
-
-                // ── Central visualization: wave form + globe as ONE
-                // composition. The waveform runs full-bleed edge to edge;
-                // `occlusionRadius` is derived directly from `globeSize`
-                // (the same value the globe itself uses) so the bars
-                // smoothly fade out exactly where the globe actually is,
-                // not at some hardcoded screen coordinate. `centerGap`
-                // adds a gentle amplitude taper on top so the shape
-                // narrows before it reaches the globe rather than
-                // staying full-height right up to the fade boundary.
-                Builder(builder: (context) {
-                  const double globeSize = 168.0;
-                  return SizedBox(
-                    height: 190,
-                    child: Stack(
-                      alignment: Alignment.center,
-                      children: [
-                        Positioned.fill(
-                          child: Center(
-                            child: AuraWaveForm(
-                              state: waveFormState,
-                              barCount: 56,
-                              barGap: 2.5,
-                              maxBarHeight: 90.0,
-                              minBarHeight: 3.0,
-                              fullBleed: true,
-                              centerGap: 0.3,
-                              occlusionRadius: globeSize / 2 + 4,
-                              occlusionFeather: 34,
-                            ),
-                          ),
-                        ),
-                        RealisticGlobe(
-                          controller: _globeController,
-                          size: globeSize,
-                        ),
-                      ],
-                    ),
-                  );
-                }),
-
-                const SizedBox(height: 32),
-
-                // ── Descriptive subtext ──
-                Padding(
-                  padding: const EdgeInsets.symmetric(horizontal: 40),
-                  child: Text(
-                    isLive ? l10n.liveModeActive : l10n.voicePromptHint,
-                    style: TextStyle(
-                      fontSize: 11,
-                      fontWeight: FontWeight.w400,
-                      color: AppColors.hint.withOpacity(0.5),
-                      letterSpacing: 2.0,
-                      height: 1.6,
-                    ),
-                    textAlign: TextAlign.center,
-                  ),
-                ),
-
-                const Spacer(flex: 3),
-
-                // ── Transcript area (when there's content) ──
+                // ── Transcript / response ──
                 if (transcript.isNotEmpty || aiResponse.isNotEmpty)
                   Padding(
-                    padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 8),
+                    padding: const EdgeInsets.symmetric(
+                      horizontal: 20,
+                      vertical: 8,
+                    ),
                     child: GlassCard(
                       padding: const EdgeInsets.all(16),
                       child: Column(
@@ -272,30 +343,36 @@ class VoiceScreen extends ConsumerWidget {
                               l10n.transcriptLabel,
                               style: TextStyle(
                                 fontSize: 11,
-                                color: cs.onSurfaceVariant,
+                                color: theme.colorScheme.onSurfaceVariant,
                                 fontWeight: FontWeight.w500,
                               ),
                             ),
                             const SizedBox(height: 4),
                             Text(
                               transcript,
-                              style: TextStyle(fontSize: 14, color: cs.onSurface),
+                              style: TextStyle(
+                                fontSize: 14,
+                                color: theme.colorScheme.onSurface,
+                              ),
                             ),
                           ],
                           if (aiResponse.isNotEmpty) ...[
                             const SizedBox(height: 12),
                             Text(
                               l10n.responseLabel,
-                              style: TextStyle(
+                              style: const TextStyle(
                                 fontSize: 11,
-                                color: AppColors.cyan,
-                                fontWeight: FontWeight.w500,
+                                color: Color(0xFF25B7FF),
+                                fontWeight: FontWeight.w600,
                               ),
                             ),
                             const SizedBox(height: 4),
                             Text(
                               aiResponse,
-                              style: TextStyle(fontSize: 14, color: cs.onSurface),
+                              style: TextStyle(
+                                fontSize: 14,
+                                color: theme.colorScheme.onSurface,
+                              ),
                             ),
                           ],
                         ],
@@ -303,102 +380,71 @@ class VoiceScreen extends ConsumerWidget {
                     ),
                   ),
 
-                // ── 3 Footer controls ──
+                // ── Modern controls ──
                 Padding(
-                  padding: const EdgeInsets.only(bottom: 24, top: 12),
+                  padding: const EdgeInsets.only(
+                    left: 20,
+                    right: 20,
+                    bottom: 22,
+                    top: 12,
+                  ),
                   child: Row(
-                    mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+                    mainAxisAlignment: MainAxisAlignment.center,
                     children: [
-                      // Chat navigation button (replaces dead menu hamburger)
-                      Container(
-                        width: 52,
-                        height: 52,
-                        decoration: BoxDecoration(
-                          shape: BoxShape.circle,
-                          color: AppColors.glassBackground,
-                          border: Border.all(
-                            color: AppColors.glassBorder,
-                            width: 0.5,
-                          ),
-                        ),
-                        child: IconButton(
-                          icon: Icon(
-                            Icons.chat_bubble_outline_rounded,
-                            color: AppColors.onBackground.withOpacity(0.7),
-                            size: 24,
-                          ),
-                          onPressed: () {
-                            ref.read(navigationIndexProvider.notifier).state = 1;
-                          },
-                        ),
+                      _SmallLiveButton(
+                        icon: isListening
+                            ? Icons.mic_rounded
+                            : Icons.mic_none_rounded,
+                        color: iconColor,
+                        onTap: () => _handleMicTap(context, ref),
                       ),
 
-                      // Central voice button
+                      const SizedBox(width: 26),
+
                       GestureDetector(
-                        onTap: isLive
-                            ? () => _toggleLiveMode(context, ref)
-                            : () => _handleMicTap(context, ref),
-                        child: Container(
-                          width: 72,
-                          height: 72,
+                        onTap: () => _handleMicTap(context, ref),
+                        child: AnimatedContainer(
+                          duration: const Duration(milliseconds: 140),
+                          width: isListening ? 78 : 70,
+                          height: isListening ? 78 : 70,
                           decoration: BoxDecoration(
+                            color: iconColor.withValues(
+                              alpha: isListening ? 0.16 : 0.08,
+                            ),
                             shape: BoxShape.circle,
-                            gradient: const LinearGradient(
-                              begin: Alignment.topLeft,
-                              end: Alignment.bottomRight,
-                              colors: [
-                                AppColors.voiceButtonGradientStart,
-                                AppColors.voiceButtonGradientEnd,
-                              ],
+                            border: Border.all(
+                              color: iconColor.withValues(
+                                alpha: isListening ? 0.9 : 0.18,
+                              ),
+                              width: isListening ? 2 : 1,
                             ),
                             boxShadow: isListening
                                 ? [
                                     BoxShadow(
-                                      color: AppColors.magenta.withOpacity(0.4),
-                                      blurRadius: 24,
-                                      spreadRadius: 4,
+                                      color: const Color(0xFF008CFF)
+                                          .withValues(alpha: 0.35),
+                                      blurRadius: 28,
                                     ),
                                   ]
-                                : [
-                                    BoxShadow(
-                                      color: AppColors.violet.withOpacity(0.25),
-                                      blurRadius: 16,
-                                      spreadRadius: 2,
-                                    ),
-                                  ],
+                                : const [],
                           ),
                           child: Icon(
-                            isListening
-                                ? Icons.mic_rounded
-                                : Icons.mic_none_rounded,
-                            color: Colors.white,
-                            size: 32,
+                            Icons.mic_rounded,
+                            color: iconColor,
+                            size: 30,
                           ),
                         ),
                       ),
 
-                      // Settings gear (index 2)
-                      Container(
-                        width: 52,
-                        height: 52,
-                        decoration: BoxDecoration(
-                          shape: BoxShape.circle,
-                          color: AppColors.glassBackground,
-                          border: Border.all(
-                            color: AppColors.glassBorder,
-                            width: 0.5,
-                          ),
-                        ),
-                        child: IconButton(
-                          icon: Icon(
-                            Icons.settings_outlined,
-                            color: AppColors.onBackground.withOpacity(0.7),
-                            size: 22,
-                          ),
-                          onPressed: () {
-                            ref.read(navigationIndexProvider.notifier).state = 2;
-                          },
-                        ),
+                      const SizedBox(width: 26),
+
+                      _EndLiveButton(
+                        onTap: () {
+                          if (isLive) {
+                            _toggleLiveMode(context, ref);
+                          }
+                        },
+                        size: 58,
                       ),
                     ],
                   ),
@@ -406,7 +452,6 @@ class VoiceScreen extends ConsumerWidget {
               ],
             ),
 
-            // ── Reaction Banner overlay at top ──
             const Positioned(
               top: 0,
               left: 0,
@@ -414,6 +459,30 @@ class VoiceScreen extends ConsumerWidget {
               child: AuraReactionBanner(),
             ),
           ],
+        ),
+      ),
+    );
+  }
+
+  Widget _ModernCircleButton({
+    required IconData icon,
+    required Color color,
+    required VoidCallback onTap,
+  }) {
+    return Material(
+      color: color.withValues(alpha: 0.07),
+      shape: const CircleBorder(),
+      child: InkWell(
+        onTap: onTap,
+        customBorder: const CircleBorder(),
+        child: SizedBox(
+          width: 44,
+          height: 44,
+          child: Icon(
+            icon,
+            color: color,
+            size: 21,
+          ),
         ),
       ),
     );
@@ -553,5 +622,70 @@ class VoiceScreen extends ConsumerWidget {
       ref.read(aiResponseProvider.notifier).update((_) => 'ببورە، نەمتوانم وەڵام بدەمەوە.');
       ref.read(voiceStateProvider.notifier).setState(VoiceState.error);
     }
+  }
+}
+
+
+/// Compact circular button used by the modern voice screen.
+class _SmallLiveButton extends StatelessWidget {
+  const _SmallLiveButton({
+    required this.icon,
+    required this.color,
+    required this.onTap,
+  });
+
+  final IconData icon;
+  final Color color;
+  final VoidCallback onTap;
+
+  @override
+  Widget build(BuildContext context) {
+    return Material(
+      color: color.withValues(alpha: 0.07),
+      shape: const CircleBorder(),
+      child: InkWell(
+        onTap: onTap,
+        customBorder: const CircleBorder(),
+        child: SizedBox(
+          width: 58,
+          height: 58,
+          child: Icon(icon, color: color, size: 22),
+        ),
+      ),
+    );
+  }
+}
+
+/// Red circular control for the Live Mode action.
+class _EndLiveButton extends StatelessWidget {
+  const _EndLiveButton({
+    required this.onTap,
+    this.size = 44,
+  });
+
+  final VoidCallback onTap;
+  final double size;
+
+  @override
+  Widget build(BuildContext context) {
+    const red = Color(0xFFFF4D5E);
+
+    return Material(
+      color: red.withValues(alpha: 0.16),
+      shape: const CircleBorder(),
+      child: InkWell(
+        onTap: onTap,
+        customBorder: const CircleBorder(),
+        child: SizedBox(
+          width: size,
+          height: size,
+          child: const Icon(
+            Icons.call_end_rounded,
+            color: red,
+            size: 21,
+          ),
+        ),
+      ),
+    );
   }
 }

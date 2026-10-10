@@ -3,6 +3,7 @@ import 'dart:async';
 import 'package:meta/meta.dart';
 
 import '../voice/voice_service_impl.dart';
+import '../../services/voice/voice_service.dart' show VoiceState;
 
 /// Service for STT-keyword-based wake word detection (the documented
 /// FALLBACK path used when the native [AcousticWakeWordEngine] model asset

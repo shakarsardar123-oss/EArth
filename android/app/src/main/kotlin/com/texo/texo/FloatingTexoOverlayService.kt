@@ -1,5 +1,7 @@
 package com.texo.texo
 
+import android.animation.ObjectAnimator
+import android.animation.ValueAnimator
 import android.app.Notification
 import android.app.NotificationChannel
 import android.app.NotificationManager
@@ -19,6 +21,7 @@ import android.view.MotionEvent
 import android.view.View
 import android.view.WindowManager
 import android.widget.FrameLayout
+import android.widget.LinearLayout
 import android.widget.TextView
 
 /**
@@ -48,6 +51,9 @@ class FloatingTexoOverlayService : Service() {
     private var posY = 0
 
     private var lastOverlayError: String? = null
+    private val waveformAnimators = mutableListOf<ObjectAnimator>()
+    private var subtitlesEnabled = false
+    var onOverlayAction: ((String) -> Unit)? = null
 
     companion object {
         const val EXTRA_POS_X_DP = "posXDp"
@@ -56,9 +62,10 @@ class FloatingTexoOverlayService : Service() {
         private const val NOTIFICATION_CHANNEL_ID = "texo_floating_overlay"
         private const val NOTIFICATION_ID = 4201
 
+        private const val COLLAPSED_WIDTH_DP = 232
         private const val COLLAPSED_SIZE_DP = 56
-        private const val EXPANDED_WIDTH_DP = 280
-        private const val EXPANDED_HEIGHT_DP = 400
+        private const val EXPANDED_WIDTH_DP = 300
+        private const val EXPANDED_HEIGHT_DP = 112
     }
 
     override fun onBind(intent: Intent?): IBinder = binder
@@ -153,8 +160,8 @@ class FloatingTexoOverlayService : Service() {
         lastOverlayError = null
         isShowing = false
 
-        posX = dpToPx(xDp)
-        posY = dpToPx(yDp)
+        posX = 0
+        posY = dpToPx(36)
 
         val view = buildOverlayView()
         overlayView = view
@@ -169,14 +176,14 @@ class FloatingTexoOverlayService : Service() {
 
         val params =
             WindowManager.LayoutParams(
-                dpToPx(COLLAPSED_SIZE_DP),
+                dpToPx(COLLAPSED_WIDTH_DP),
                 dpToPx(COLLAPSED_SIZE_DP),
                 type,
                 WindowManager.LayoutParams.FLAG_NOT_FOCUSABLE or
                     WindowManager.LayoutParams.FLAG_LAYOUT_NO_LIMITS,
                 PixelFormat.TRANSLUCENT,
             ).apply {
-                gravity = Gravity.TOP or Gravity.START
+                gravity = Gravity.TOP or Gravity.CENTER_HORIZONTAL
                 x = posX
                 y = posY
             }
@@ -215,6 +222,7 @@ class FloatingTexoOverlayService : Service() {
     }
 
     private fun removeOverlayInternal() {
+        stopWaveformAnimations()
         val view = overlayView ?: return
 
         try {
@@ -231,67 +239,249 @@ class FloatingTexoOverlayService : Service() {
     }
 
     private fun buildOverlayView(): FrameLayout {
-        val container = FrameLayout(this).apply {
-            setPadding(
-                dpToPx(2),
-                dpToPx(2),
-                dpToPx(2),
-                dpToPx(2),
-            )
+        return FrameLayout(this).apply {
+            setPadding(dpToPx(5), dpToPx(4), dpToPx(5), dpToPx(4))
+            isClickable = true
+            applyRoundedCollapsedShape(this)
+            showCollapsedContent(this)
+        }
+    }
+
+    private fun makeText(
+        text: String,
+        color: Int,
+        size: Float,
+    ): TextView = TextView(this).apply {
+        this.text = text
+        setTextColor(color)
+        setTextSize(TypedValue.COMPLEX_UNIT_SP, size)
+        gravity = Gravity.CENTER
+        includeFontPadding = false
+    }
+
+    private fun stopWaveformAnimations() {
+        waveformAnimators.forEach { it.cancel() }
+        waveformAnimators.clear()
+    }
+
+    private fun makeWaveform(): LinearLayout {
+        return LinearLayout(this).apply {
+            orientation = LinearLayout.HORIZONTAL
+            gravity = Gravity.CENTER
+            layoutDirection = View.LAYOUT_DIRECTION_LTR
+
+            val heights = listOf(9, 20, 13, 26, 15, 22, 10)
+            heights.forEachIndexed { index, height ->
+                val bar = View(this@FloatingTexoOverlayService).apply {
+                    background = GradientDrawable().apply {
+                        shape = GradientDrawable.RECTANGLE
+                        cornerRadius = dpToPx(3).toFloat()
+                        setColor(Color.parseColor("#55D9FF"))
+                    }
+                    pivotY = dpToPx(15).toFloat()
+                }
+
+                addView(
+                    bar,
+                    LinearLayout.LayoutParams(
+                        dpToPx(3),
+                        dpToPx(height),
+                    ).apply {
+                        marginStart = dpToPx(2)
+                        marginEnd = dpToPx(2)
+                    },
+                )
+
+                val animator = ObjectAnimator.ofFloat(
+                    bar, View.SCALE_Y, 0.35f, 1f,
+                ).apply {
+                    duration = 350L + index * 75L
+                    repeatCount = ValueAnimator.INFINITE
+                    repeatMode = ValueAnimator.REVERSE
+                    startDelay = index * 55L
+                }
+                waveformAnimators.add(animator)
+                animator.start()
+            }
+        }
+    }
+
+    private fun makeActionButton(
+        label: String,
+        backgroundColor: Int,
+        action: () -> Unit,
+    ): TextView {
+        return makeText(label, Color.WHITE, 11f).apply {
+            isClickable = true
+            isFocusable = true
+            setPadding(dpToPx(4), 0, dpToPx(4), 0)
+            background = GradientDrawable().apply {
+                shape = GradientDrawable.RECTANGLE
+                cornerRadius = dpToPx(12).toFloat()
+                setColor(backgroundColor)
+            }
+            setOnClickListener { action() }
+        }
+    }
+
+    private fun showCollapsedContent(container: FrameLayout) {
+        stopWaveformAnimations()
+        container.removeAllViews()
+
+        val row = LinearLayout(this).apply {
+            orientation = LinearLayout.HORIZONTAL
+            gravity = Gravity.CENTER_VERTICAL
+            layoutDirection = View.LAYOUT_DIRECTION_LTR
+            setPadding(dpToPx(3), 0, dpToPx(3), 0)
         }
 
-        val orb =
-            TextView(this).apply {
-                text = "A"
-                setTextColor(Color.parseColor("#00E5FF"))
-                gravity = Gravity.CENTER
-                setTextSize(
-                    TypedValue.COMPLEX_UNIT_SP,
-                    20f,
-                )
-                typeface = android.graphics.Typeface.DEFAULT_BOLD
-                background = GradientDrawable().apply {
-                    shape = GradientDrawable.OVAL
-                    setColor(Color.parseColor("#151A23"))
-                    setStroke(
-                        dpToPx(1),
-                        Color.parseColor("#00E5FF"),
-                    )
-                }
-                elevation = dpToPx(4).toFloat()
+        val endButton = makeText("×", Color.WHITE, 28f).apply {
+            isClickable = true
+            isFocusable = true
+            background = GradientDrawable().apply {
+                shape = GradientDrawable.OVAL
+                setColor(Color.parseColor("#E53945"))
             }
+            setOnClickListener { onOverlayAction?.invoke("endCall") }
+        }
+
+        row.addView(
+            endButton,
+            LinearLayout.LayoutParams(dpToPx(38), dpToPx(38)).apply {
+                marginEnd = dpToPx(10)
+            },
+        )
+
+        row.addView(
+            makeWaveform(),
+            LinearLayout.LayoutParams(0, dpToPx(34), 1f),
+        )
+
+        row.addView(
+            makeText("✨", Color.WHITE, 23f),
+            LinearLayout.LayoutParams(dpToPx(35), dpToPx(42)),
+        )
 
         container.addView(
-            orb,
+            row,
+            FrameLayout.LayoutParams(
+                FrameLayout.LayoutParams.MATCH_PARENT,
+                FrameLayout.LayoutParams.MATCH_PARENT,
+            ),
+        )
+        applyRoundedCollapsedShape(container)
+    }
+
+    private fun showExpandedContent(container: FrameLayout) {
+        stopWaveformAnimations()
+        container.removeAllViews()
+
+        val panel = LinearLayout(this).apply {
+            orientation = LinearLayout.VERTICAL
+            layoutDirection = View.LAYOUT_DIRECTION_LTR
+            setPadding(dpToPx(12), dpToPx(7), dpToPx(12), dpToPx(8))
+        }
+
+        val header = LinearLayout(this).apply {
+            orientation = LinearLayout.HORIZONTAL
+            gravity = Gravity.CENTER_VERTICAL
+            layoutDirection = View.LAYOUT_DIRECTION_LTR
+        }
+
+        header.addView(
+            makeText("TEXO  •  LIVE", Color.parseColor("#75DFFF"), 12f),
+            LinearLayout.LayoutParams(0, dpToPx(28), 1f),
+        )
+        header.addView(
+            makeWaveform(),
+            LinearLayout.LayoutParams(dpToPx(72), dpToPx(28)),
+        )
+        header.addView(
+            makeText("✨", Color.WHITE, 21f),
+            LinearLayout.LayoutParams(dpToPx(32), dpToPx(28)),
+        )
+
+        panel.addView(
+            header,
+            LinearLayout.LayoutParams(
+                LinearLayout.LayoutParams.MATCH_PARENT,
+                dpToPx(30),
+            ),
+        )
+
+        val actions = LinearLayout(this).apply {
+            orientation = LinearLayout.HORIZONTAL
+            gravity = Gravity.CENTER
+            layoutDirection = View.LAYOUT_DIRECTION_LTR
+        }
+
+        actions.addView(
+            makeActionButton("کۆتایی", Color.parseColor("#C62835")) {
+                onOverlayAction?.invoke("endCall")
+            },
+            LinearLayout.LayoutParams(0, dpToPx(42), 1f).apply {
+                marginEnd = dpToPx(5)
+            },
+        )
+
+        actions.addView(
+            makeActionButton(
+                if (subtitlesEnabled) "ژێرنوس: کراوە" else "ژێرنوس: داخراو",
+                Color.parseColor("#202630"),
+            ) {
+                subtitlesEnabled = !subtitlesEnabled
+                onOverlayAction?.invoke("toggleSubtitles")
+                showExpandedContent(container)
+            },
+            LinearLayout.LayoutParams(0, dpToPx(42), 1.2f).apply {
+                marginEnd = dpToPx(5)
+            },
+        )
+
+        actions.addView(
+            makeActionButton("کردنەوەی ئەپ", Color.parseColor("#202630")) {
+                onOverlayAction?.invoke("openApp")
+                packageManager.getLaunchIntentForPackage(packageName)?.let { intent ->
+                    intent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK)
+                    startActivity(intent)
+                }
+            },
+            LinearLayout.LayoutParams(0, dpToPx(42), 1.1f),
+        )
+
+        panel.addView(
+            actions,
+            LinearLayout.LayoutParams(
+                LinearLayout.LayoutParams.MATCH_PARENT,
+                dpToPx(44),
+            ).apply {
+                topMargin = dpToPx(8)
+            },
+        )
+
+        container.addView(
+            panel,
             FrameLayout.LayoutParams(
                 FrameLayout.LayoutParams.MATCH_PARENT,
                 FrameLayout.LayoutParams.MATCH_PARENT,
             ),
         )
 
-        applyRoundedCollapsedShape(container)
-
-        return container
+        container.background = GradientDrawable().apply {
+            shape = GradientDrawable.RECTANGLE
+            cornerRadius = dpToPx(20).toFloat()
+            setColor(Color.BLACK)
+            setStroke(dpToPx(1), Color.parseColor("#30435A"))
+        }
     }
 
-    private fun applyRoundedCollapsedShape(
-        view: FrameLayout,
-    ) {
-        val radius =
-            dpToPx(COLLAPSED_SIZE_DP / 2).toFloat()
-
-        val drawable =
-            GradientDrawable().apply {
-                shape = GradientDrawable.OVAL
-                setColor(Color.parseColor("#0B0E14"))
-                setStroke(
-                    dpToPx(1),
-                    Color.parseColor("#6633CCFF"),
-                )
-                cornerRadius = radius
-            }
-
-        view.background = drawable
+    private fun applyRoundedCollapsedShape(view: FrameLayout) {
+        view.background = GradientDrawable().apply {
+            shape = GradientDrawable.RECTANGLE
+            cornerRadius = dpToPx(COLLAPSED_SIZE_DP / 2).toFloat()
+            setColor(Color.BLACK)
+            setStroke(dpToPx(1), Color.parseColor("#30435A"))
+        }
     }
 
     private fun applyExpandedState() {
@@ -301,14 +491,11 @@ class FloatingTexoOverlayService : Service() {
         if (isExpanded) {
             params.width = dpToPx(EXPANDED_WIDTH_DP)
             params.height = dpToPx(EXPANDED_HEIGHT_DP)
-
-            (view.background as? GradientDrawable)
-                ?.cornerRadius = dpToPx(16).toFloat()
+            showExpandedContent(view)
         } else {
-            params.width = dpToPx(COLLAPSED_SIZE_DP)
+            params.width = dpToPx(COLLAPSED_WIDTH_DP)
             params.height = dpToPx(COLLAPSED_SIZE_DP)
-
-            applyRoundedCollapsedShape(view)
+            showCollapsedContent(view)
         }
 
         try {
@@ -332,50 +519,34 @@ class FloatingTexoOverlayService : Service() {
                 MotionEvent.ACTION_DOWN -> {
                     initialX = params.x
                     initialY = params.y
-
                     initialTouchX = event.rawX
                     initialTouchY = event.rawY
-
                     moved = false
                     true
                 }
 
                 MotionEvent.ACTION_MOVE -> {
-                    val dx =
-                        (event.rawX - initialTouchX).toInt()
+                    val dx = (event.rawX - initialTouchX).toInt()
+                    val dy = (event.rawY - initialTouchY).toInt()
 
-                    val dy =
-                        (event.rawY - initialTouchY).toInt()
-
-                    if (
-                        kotlin.math.abs(dx) > 8 ||
-                        kotlin.math.abs(dy) > 8
-                    ) {
+                    if (kotlin.math.abs(dx) > 8 || kotlin.math.abs(dy) > 8) {
                         moved = true
                     }
 
                     params.x = initialX + dx
                     params.y = initialY + dy
-
                     posX = params.x
                     posY = params.y
 
                     try {
-                        windowManager.updateViewLayout(
-                            v,
-                            params,
-                        )
+                        windowManager.updateViewLayout(v, params)
                     } catch (_: Throwable) {
                     }
-
                     true
                 }
 
                 MotionEvent.ACTION_UP -> {
-                    if (!moved) {
-                        togglePanel()
-                    }
-
+                    if (!moved) togglePanel()
                     true
                 }
 

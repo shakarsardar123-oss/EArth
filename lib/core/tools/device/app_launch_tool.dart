@@ -7,44 +7,9 @@ import '../tool_result.dart';
 import '../../device/device_channel.dart';
 import '../../../core/errors/result.dart';
 
-/// Regular expression for a valid Android package name.
-///
-/// Android package names follow the pattern:
-/// - At least two segments separated by dots
-/// - Each segment starts with a lowercase letter
-/// - Segments contain only lowercase letters, digits, and underscores
-/// - No segment starts with a digit or underscore
-/// - No consecutive dots
-/// - Maximum length of 255 characters
-final RegExp _packageNamePattern = RegExp(
-  r'^[a-z][a-z0-9]*(\.[a-z][a-z0-9]*)+$',
-);
-
-/// Maximum allowed length for a package name.
+/// Maximum allowed length of an app name or package ID.
 const int _maxPackageNameLength = 255;
-
-/// Characters and patterns that must never appear in a package name
-/// to prevent shell injection or command execution.
-const List<String> _forbiddenPatterns = [
-  ';',
-  '&',
-  '|',
-  '`',
-  '\$',
-  '(',
-  ')',
-  '{',
-  '}',
-  '<',
-  '>',
-  '!',
-  '\n',
-  '\r',
-  '\t',
-  ' ',
-  '..',
-  '//',
-];
+final RegExp _controlCharPattern = RegExp(r'[\x00-\x1F\x7F]');
 
 /// Tool to launch an Android application by its package name.
 ///
@@ -76,9 +41,9 @@ class AppLaunchTool extends Tool {
   ToolDefinition get definition => const ToolDefinition(
         name: 'app_launch',
         description:
-            'ئەپێک بکەرەوە بە ناوی پاکێجەکەی. '
+            'ئەپێک بکەرەوە بە ناوی ئەپەکە یان ناوی پاکێجەکەی. '
             '— '
-            'Launch an application by its Android package name '
+            'Launch an installed app by its display name or Android package ID '
             '(e.g. com.android.chrome, com.whatsapp).',
         category: 'device',
         parameters: [
@@ -86,14 +51,14 @@ class AppLaunchTool extends Tool {
             name: 'packageName',
             type: 'string',
             description:
-                'ناوی پاکێجی ئەپەکە (بۆ نموونە com.android.chrome). '
+                'ناوی ئەپەکە یان package ID ـەکەی. '
                 '— '
-                'Android package name of the app to launch '
+                'Installed app display name or package ID '
                 '(e.g. com.android.chrome, com.whatsapp).',
             isRequired: true,
             example: 'com.android.chrome',
             label: 'پاکێج',
-            hintText: 'com.example.app',
+            hintText: 'YouTube',
             keyboardType: 'text',
           ),
         ],
@@ -146,19 +111,9 @@ class AppLaunchTool extends Tool {
           '— پاکێج ناو لە $_maxPackageNameLength پیت زیاترە.';
     }
 
-    // 4. Must not contain forbidden patterns (shell injection prevention)
-    for (final pattern in _forbiddenPatterns) {
-      if (packageName.contains(pattern)) {
-        return 'packageName contains forbidden character "$pattern". '
-            '— پاکێج ناو پیتی نادروست "$pattern" لەخۆ دەگرێت.';
-      }
-    }
-
-    // 5. Must match valid Android package name format
-    if (!_packageNamePattern.hasMatch(packageName)) {
-      return 'packageName must be a valid Android package name '
-          '(e.g. com.android.chrome). '
-          '— پاکێج ناو دەبێت فۆرماتی دروستی ئەندرۆید بێت.';
+    // Names are passed to Android intents, never to a shell.
+    if (_controlCharPattern.hasMatch(packageName)) {
+      return 'App name contains control characters.';
     }
 
     return null; // Valid

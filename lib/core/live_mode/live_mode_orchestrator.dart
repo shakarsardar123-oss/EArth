@@ -66,7 +66,13 @@ class LiveModeOrchestrator {
         _screenUnderstandingService = screenUnderstandingService,
         _exitCommands = exitCommands ?? _defaultExitCommands,
         _inactivityTimeout = inactivityTimeout,
-        _rePromptGrace = rePromptGrace ?? const Duration(seconds: 8);
+        _rePromptGrace = rePromptGrace ?? const Duration(seconds: 8) {
+    _floatingAuraService.setOverlayActionHandler((action) {
+      if (action == 'endCall') {
+        unawaited(stopSession());
+      }
+    });
+  }
 
   final VoiceService _voiceService;
   final AgentProcessor _agentProcessor;
@@ -272,9 +278,13 @@ class LiveModeOrchestrator {
     // Show the floating overlay for wake-word/live sessions.
     // Overlay failure must never prevent Live Mode from starting.
     try {
-      await _floatingAuraService.showOverlay(
-        FloatingAuraOverlayPosition.defaults,
-      );
+      final permissionResult = await _floatingAuraService.hasPermission();
+
+      if (permissionResult.isSuccess) {
+        await _floatingAuraService.showOverlay(
+          FloatingAuraOverlayPosition.defaults,
+        );
+      }
     } catch (_) {
       // Live Mode remains functional even if the overlay cannot be shown.
     }
@@ -514,13 +524,6 @@ class LiveModeOrchestrator {
       return;
     }
 
-    // Normal Live Mode conversation is Sorani-only.
-    // Wake World is handled separately and remains language-independent.
-    if (!_looksLikeSorani(text)) {
-      unawaited(_rejectNonSoraniAndResume(gen));
-      return;
-    }
-
     // Notify UI of recognized text.
     onUserRecognized?.call(text);
 
@@ -751,6 +754,7 @@ class LiveModeOrchestrator {
 
   /// Dispose resources.
   void dispose() {
+    _floatingAuraService.setOverlayActionHandler(null);
     unawaited(_stopScreenUnderstanding());
     _cancelInactivityTimer();
     _stateController.close();

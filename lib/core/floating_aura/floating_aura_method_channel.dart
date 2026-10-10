@@ -26,8 +26,19 @@ class FloatingAuraMethodChannel implements FloatingAuraService {
             const MethodChannel(floatingAuraMethodChannelName);
 
   final MethodChannel _methodChannel;
+  void Function(String action)? _overlayActionHandler;
 
   FloatingAuraState _state = const FloatingAuraState();
+
+  @override
+  void setOverlayActionHandler(void Function(String action)? handler) {
+    _overlayActionHandler = handler;
+    _methodChannel.setMethodCallHandler((call) async {
+      if (call.method == 'overlayAction' && call.arguments is String) {
+        _overlayActionHandler?.call(call.arguments as String);
+      }
+    });
+  }
 
   @override
   FloatingAuraState get state => _state;
@@ -350,6 +361,7 @@ class FloatingAuraMethodChannel implements FloatingAuraService {
 
   @override
   Future<void> dispose() async {
+    setOverlayActionHandler(null);
     if (_state.status != FloatingAuraOverlayStatus.idle) {
       await hideOverlay();
     }

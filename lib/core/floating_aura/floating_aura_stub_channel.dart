@@ -20,6 +20,9 @@ class FloatingAuraStubChannel implements FloatingAuraService {
   const FloatingAuraStubChannel();
 
   @override
+  void setOverlayActionHandler(void Function(String action)? handler) {}
+
+  @override
   FloatingAuraState get state => const FloatingAuraState();
 
   @override

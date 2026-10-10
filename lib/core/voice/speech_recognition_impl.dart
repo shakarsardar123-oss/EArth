@@ -76,14 +76,13 @@ class SpeechRecognitionServiceImpl {
             break;
 
           case 'error':
-            // Errors are handled by stopping the active recognition
-            // session. The existing VoiceService will enter its error
-            // state if the native channel call fails.
+            final message = event['message'] ?? 'Unknown native STT error';
+            print('[AURA STT ERROR] $message');
             break;
         }
       },
-      onError: (_) {
-        // Keep the public API compatible with the previous implementation.
+      onError: (Object error, StackTrace stackTrace) {
+        print('[AURA STT STREAM ERROR] $error');
       },
       cancelOnError: false,
     );

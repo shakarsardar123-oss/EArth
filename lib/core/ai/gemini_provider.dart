@@ -303,9 +303,15 @@ class GeminiProvider implements AIProvider, ModelDiscovery {
     if (systemPrompt.isEmpty && baseIdentity.isEmpty) return null;
 
     // Combine identity with any custom system prompt
-    final combined = systemPrompt.isEmpty
-        ? baseIdentity
-        : '$baseIdentity\n\n$systemPrompt';
+    const appLaunchRules =
+        'کاتێک داوای کردنەوەی ئەپێک دەکرێت، app_launch بەکاربهێنە و ناوی ئەپ یان package ID لە packageName بنێرە. '
+        'ناوی نزیکیش تاقی بکەرەوە. تەنها دوای ئەنجامی launched=true بڵێ ئەپەکە کرایەوە؛ '
+        'ئەگەر ئەنجام نەسەرکەوتوو بوو، بە ڕاستی ڕوونی بکەرەوە.';
+    final combined = [
+      baseIdentity,
+      if (systemPrompt.isNotEmpty) systemPrompt,
+      appLaunchRules,
+    ].join('\n\n');
 
     return {
       'parts': [
@@ -373,23 +379,26 @@ class GeminiProvider implements AIProvider, ModelDiscovery {
   ) {
     if (toolDefinitions == null || toolDefinitions.isEmpty) return null;
 
-    return toolDefinitions.map((tool) {
+    final declarations = toolDefinitions.map((tool) {
       final function = tool['function'] as Map<String, dynamic>? ?? tool;
       final rawParameters =
           function['parameters'] ?? tool['parameters'] ?? {};
       final normalizedParameters =
           _normalizeSchemaTypes(rawParameters) as Map<String, dynamic>;
-      return {
-        'functionDeclarations': [
-          {
-            'name': function['name'] ?? tool['name'] ?? '',
-            'description':
-                function['description'] ?? tool['description'] ?? '',
-            'parameters': normalizedParameters,
-          },
-        ],
+
+      return <String, dynamic>{
+        'name': function['name'] ?? tool['name'] ?? '',
+        'description':
+            function['description'] ?? tool['description'] ?? '',
+        'parameters': normalizedParameters,
       };
     }).toList();
+
+    return [
+      <String, dynamic>{
+        'functionDeclarations': declarations,
+      },
+    ];
   }
 
   @override
@@ -662,6 +671,11 @@ class GeminiProvider implements AIProvider, ModelDiscovery {
     final systemInstruction = _buildSystemInstruction(request);
     if (systemInstruction != null) {
       body['systemInstruction'] = systemInstruction;
+    }
+
+    final tools = _buildToolDeclarations(request.toolDefinitions);
+    if (tools != null && tools.isNotEmpty) {
+      body['tools'] = tools;
     }
 
     final generateUri = buildGenerateContentUri(

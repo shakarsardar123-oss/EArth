@@ -433,19 +433,87 @@ class MainActivity : FlutterActivity() {
                 }
             }
             "launchApp" -> {
-                val packageId = call.argument<String>("packageId") ?: run {
-                    result.error("INVALID_ARGS", "Missing 'packageId'", null)
+                val target = call.argument<String>("packageId")?.trim()
+                if (target.isNullOrEmpty()) {
+                    result.error("INVALID_ARGS", "Missing app name or package ID", null)
                     return
                 }
                 try {
-                    val intent = packageManager.getLaunchIntentForPackage(packageId)
-                    if (intent != null) {
-                        intent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK)
-                        startActivity(intent)
-                        result.success(mapOf("launched" to true))
-                    } else {
-                        result.error("appNotFound", "App $packageId not found", null)
+                    var resolvedPackage = target
+                    var intent = packageManager.getLaunchIntentForPackage(target)
+
+                    if (intent == null) {
+                        fun normalize(value: String): String =
+                            value.lowercase().replace(Regex("[^\\p{L}\\p{N}]"), "")
+
+                        fun distance(a: String, b: String): Int {
+                            var previous = IntArray(b.length + 1) { it }
+                            for (i in a.indices) {
+                                val current = IntArray(b.length + 1)
+                                current[0] = i + 1
+                                for (j in b.indices) {
+                                    current[j + 1] = minOf(
+                                        current[j] + 1,
+                                        previous[j + 1] + 1,
+                                        previous[j] + if (a[i] == b[j]) 0 else 1
+                                    )
+                                }
+                                previous = current
+                            }
+                            return previous[b.length]
+                        }
+
+                        val targetKey = normalize(target)
+                        val apps = packageManager.getInstalledApplications(0)
+                            .filter {
+                                packageManager.getLaunchIntentForPackage(it.packageName) != null
+                            }
+                            .map {
+                                Triple(
+                                    it.packageName,
+                                    packageManager.getApplicationLabel(it).toString(),
+                                    normalize(packageManager.getApplicationLabel(it).toString())
+                                )
+                            }
+
+                        val exact = apps.filter { it.third == targetKey }
+                        val partial = if (exact.isEmpty() && targetKey.length >= 4) {
+                            apps.filter { it.third.contains(targetKey) || targetKey.contains(it.third) }
+                        } else emptyList()
+
+                        val matches = when {
+                            exact.isNotEmpty() -> exact
+                            partial.isNotEmpty() -> partial
+                            targetKey.length >= 4 -> {
+                                val ranked = apps.map { it to distance(targetKey, it.third) }
+                                val best = ranked.minOfOrNull { it.second }
+                                if (best != null && best <= maxOf(1, targetKey.length / 4)) {
+                                    ranked.filter { it.second == best }.map { it.first }
+                                } else emptyList()
+                            }
+                            else -> emptyList()
+                        }
+
+                        if (matches.isEmpty()) {
+                            result.error("appNotFound", "No close app-name match for: $target", null)
+                            return
+                        }
+                        if (matches.size > 1) {
+                            result.error("ambiguousAppName", "Several apps match '$target'; use the full app name or package ID.", null)
+                            return
+                        }
+
+                        resolvedPackage = matches.first().first
+                        intent = packageManager.getLaunchIntentForPackage(resolvedPackage)
                     }
+
+                    if (intent == null) {
+                        result.error("appNotFound", "App is not launchable: $target", null)
+                        return
+                    }
+                    intent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK)
+                    startActivity(intent)
+                    result.success(mapOf("launched" to true, "packageName" to resolvedPackage))
                 } catch (e: Exception) {
                     result.error("launchFailed", e.message, null)
                 }

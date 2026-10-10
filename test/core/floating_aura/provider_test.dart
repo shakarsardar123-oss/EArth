@@ -150,6 +150,13 @@ class FakeFloatingAuraService implements FloatingAuraService {
     return _config.isOverlayVisibleResult;
   }
 
+  void Function(String action)? _overlayActionHandler;
+
+  @override
+  void setOverlayActionHandler(void Function(String action)? handler) {
+    _overlayActionHandler = handler;
+  }
+
   @override
   Future<void> dispose() async {
     disposeCallCount++;

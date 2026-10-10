@@ -87,6 +87,9 @@ abstract class FloatingAuraService {
   /// Whether the overlay is currently visible on screen.
   Future<Result<bool, FloatingAuraOverlayFailure>> isOverlayVisible();
 
+  /// Registers a callback for actions sent by the native overlay.
+  void setOverlayActionHandler(void Function(String action)? handler);
+
   /// Releases all resources and hides the overlay.
   ///
   /// Call in widget dispose / app lifecycle pause to ensure

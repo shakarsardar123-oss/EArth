@@ -20,6 +20,7 @@ object FloatingTexoBridge {
     private const val POLL_INTERVAL_MS = 100L
 
     private var service: FloatingTexoOverlayService? = null
+    private var methodChannel: MethodChannel? = null
     private var bound = false
 
     private val mainHandler = Handler(Looper.getMainLooper())
@@ -30,6 +31,11 @@ object FloatingTexoBridge {
             binder: IBinder,
         ) {
             service = (binder as FloatingTexoOverlayService.LocalBinder).service()
+            service?.onOverlayAction = { action ->
+                mainHandler.post {
+                    methodChannel?.invokeMethod("overlayAction", action)
+                }
+            }
             bound = true
         }
 
@@ -43,10 +49,12 @@ object FloatingTexoBridge {
         activity: MainActivity,
         flutterEngine: FlutterEngine,
     ) {
-        MethodChannel(
+        val channel = MethodChannel(
             flutterEngine.dartExecutor.binaryMessenger,
             CHANNEL_NAME,
-        ).setMethodCallHandler { call, result ->
+        )
+        methodChannel = channel
+        channel.setMethodCallHandler { call, result ->
             handle(activity, call, result)
         }
     }
@@ -62,7 +70,9 @@ object FloatingTexoBridge {
             bound = false
         }
 
+        service?.onOverlayAction = null
         service = null
+        methodChannel = null
     }
 
     private fun handle(
@@ -114,6 +124,7 @@ object FloatingTexoBridge {
             }
 
             "hideOverlay" -> {
+                service?.onOverlayAction = null
                 service?.hide()
 
                 if (bound) {
