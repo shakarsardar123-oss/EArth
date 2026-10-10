@@ -164,6 +164,10 @@ class FloatingAuraMethodChannel implements FloatingAuraService {
   Future<Result<FloatingAuraState, FloatingAuraOverlayFailure>> showOverlay(
     FloatingAuraOverlayPosition? position,
   ) async {
+    // Always refresh the real permission state from the platform;
+    // the cached _state can be stale when showOverlay is called directly.
+    await hasPermission();
+
     if (!_state.hasPermission) {
       _state = _state.copyWith(
         status: FloatingAuraOverlayStatus.error,
