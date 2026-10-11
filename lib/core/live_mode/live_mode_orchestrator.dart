@@ -13,6 +13,7 @@
 /// NEVER uses timers for TTS completion — relies on VoiceService.speak() await.
 library;
 
+import '../phone_agent/debug_toast.dart';
 import 'dart:async';
 
 import '../../services/voice/voice_service.dart'
@@ -278,15 +279,18 @@ class LiveModeOrchestrator {
     // Show the floating overlay for wake-word/live sessions.
     // Overlay failure must never prevent Live Mode from starting.
     try {
-      await _floatingAuraService.requestPermission();
+      final perm = await _floatingAuraService.requestPermission();
+      debugToast('TEXO overlay perm: ${perm.isFailure ? "DENIED/FAILED" : "OK"}');
       final shown = await _floatingAuraService.showOverlay(
         FloatingAuraOverlayPosition.defaults,
       );
       // ignore: avoid_print
       print('[TEXO OVERLAY] showOverlay -> $shown');
+      debugToast('TEXO overlay show: ${shown.isFailure ? "FAILED" : "OK"} $shown');
     } catch (e) {
       // ignore: avoid_print
       print('[TEXO OVERLAY] error: $e');
+      debugToast('TEXO overlay error: $e');
     }
 
     await _startScreenUnderstanding();

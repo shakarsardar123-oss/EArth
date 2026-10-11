@@ -8,6 +8,7 @@
 /// - Default AgentConfig modelId changed to gemini-3.6-flash.
 library;
 
+import '../../services/ai/retrying_ai_provider.dart';
 import '../../core/phone_agent/phone_control_hook.dart';
 import '../../core/phone_agent/phone_control_processor.dart';
 import 'package:flutter/material.dart';
@@ -225,6 +226,10 @@ final geminiProviderProvider = Provider<AIProvider>((ref) {
 /// instead of the broken OpenAI-compatible shim.
 /// OpenAI-compatible types still use [OpenAIProvider].
 final selectedAIProviderProvider = Provider<AIProvider>((ref) {
+  return RetryingAIProvider(ref.watch(_selectedAIProviderRawProvider));
+});
+
+final _selectedAIProviderRawProvider = Provider<AIProvider>((ref) {
   final storage = ref.watch(aiConnectionStorageProvider);
   final connectionType = storage.getConnectionType();
 

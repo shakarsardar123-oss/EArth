@@ -61,6 +61,12 @@ class VekolTtsBridge(
         }
     }
 
+    private fun toast(msg: String) {
+        android.os.Handler(android.os.Looper.getMainLooper()).post {
+            android.widget.Toast.makeText(context.applicationContext, msg, android.widget.Toast.LENGTH_SHORT).show()
+        }
+    }
+
     fun isReady(): Boolean = phonemeMap.isNotEmpty()
 
     fun stop() {
@@ -86,6 +92,7 @@ class VekolTtsBridge(
     }
 
     fun speak(text: String, onComplete: (Throwable?) -> Unit) {
+        toast("TTS speak: ${text.length} chars")
         stop()
 
         stopped = false
@@ -100,6 +107,7 @@ class VekolTtsBridge(
                     onComplete(null)
                 }
             } catch (t: Throwable) {
+                toast("TTS error: ${t::class.java.simpleName}: ${t.message}")
                 onComplete(t)
             }
         }
@@ -107,6 +115,7 @@ class VekolTtsBridge(
 
     private fun speakBlocking(text: String) {
         val ids = buildIds(text)
+        if (ids.size <= 4) toast("TTS: no known letters in text (${ids.size} ids)")
 
         val input = OnnxTensor.createTensor(
             ortEnvironment,
@@ -146,6 +155,7 @@ class VekolTtsBridge(
 
                 val output = result[0].value
                 val audio = extractAudio(output)
+                if (audio.isEmpty()) toast("TTS: model returned EMPTY audio")
 
                 if (audio.isNotEmpty()) {
                     play(audio)
