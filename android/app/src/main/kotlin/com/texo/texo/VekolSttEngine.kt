@@ -222,7 +222,7 @@ class VekolSttEngine(
                 lastStart + i - pad,
             )
 
-            padded[lastStart + N_FFT + i] =
+            if (lastStart + N_FFT + i < padded.size) padded[lastStart + N_FFT + i] =
                 if (src >= 0) audio[src] else 0.0f
         }
 
@@ -260,7 +260,7 @@ class VekolSttEngine(
                 imag[i] = 0.0
             }
 
-            fft(real, imag)
+            fftFast(real, imag)
 
             for (k in power.indices) {
                 power[k] =
@@ -296,7 +296,7 @@ class VekolSttEngine(
                 }
             }
 
-            val floor = maxLog - 8.0
+            val floor = Double.NEGATIVE_INFINITY
 
             for (m in 0 until N_MELS) {
                 val clipped = max(
@@ -309,10 +309,46 @@ class VekolSttEngine(
             }
         }
 
+        // Whisper: clamp to (global max - 8.0), in scaled units that is max - 2.
+        var gMax = Float.NEGATIVE_INFINITY
+        for (v in output) if (v > gMax) gMax = v
+        val gFloor = gMax - 2.0f
+        for (i in output.indices) if (output[i] < gFloor) output[i] = gFloor
         return output
     }
 
+        /** Whisper-compatible Slaney mel filterbank (norm = slaney). */
     private fun buildMelFilters(): Array<DoubleArray> {
+        val bins = N_FFT / 2 + 1
+        val fSp = 200.0 / 3.0
+        val minLogHz = 1000.0
+        val minLogMel = minLogHz / fSp
+        val logStep = ln(6.4) / 27.0
+        fun hz2mel(f: Double): Double =
+            if (f >= minLogHz) minLogMel + ln(f / minLogHz) / logStep else f / fSp
+        fun mel2hz(m: Double): Double =
+            if (m >= minLogMel) minLogHz * exp(logStep * (m - minLogMel)) else fSp * m
+        val melMin = hz2mel(0.0)
+        val melMax = hz2mel(8000.0)
+        val pts = DoubleArray(N_MELS + 2) {
+            mel2hz(melMin + (melMax - melMin) * it / (N_MELS + 1))
+        }
+        val freqs = DoubleArray(bins) { it * SAMPLE_RATE.toDouble() / N_FFT }
+        val filters = Array(N_MELS) { DoubleArray(bins) }
+        for (m in 0 until N_MELS) {
+            val lo = pts[m]; val ce = pts[m + 1]; val hi = pts[m + 2]
+            val enorm = 2.0 / (hi - lo)
+            for (k in 0 until bins) {
+                val f = freqs[k]
+                val up = (f - lo) / (ce - lo)
+                val down = (hi - f) / (hi - ce)
+                filters[m][k] = max(0.0, min(up, down)) * enorm
+            }
+        }
+        return filters
+    }
+
+    private fun buildMelFiltersOld(): Array<DoubleArray> {
         val bins = N_FFT / 2 + 1
 
         val filters = Array(N_MELS) {
@@ -443,6 +479,34 @@ class VekolSttEngine(
 
         System.arraycopy(outReal, 0, real, 0, n)
         System.arraycopy(outImag, 0, imag, 0, n)
+    }
+
+        private val twCos = DoubleArray(400) { cos(2.0 * PI * it / 400) }
+    private val twSin = DoubleArray(400) { -sin(2.0 * PI * it / 400) }
+
+    /** DFT of a real 400-sample frame, bins 0..200 only, table-based. */
+    private fun fftFast(real: DoubleArray, imag: DoubleArray) {
+        val n = 400
+        var any = false
+        for (t in 0 until n) { if (real[t] != 0.0) { any = true; break } }
+        if (!any) { java.util.Arrays.fill(imag, 0.0); return }
+        val outR = DoubleArray(201)
+        val outI = DoubleArray(201)
+        for (k in 0..200) {
+            var sr = 0.0
+            var si = 0.0
+            var idx = 0
+            for (t in 0 until n) {
+                val r = real[t]
+                sr += r * twCos[idx]
+                si += r * twSin[idx]
+                idx += k
+                if (idx >= n) idx -= n
+            }
+            outR[k] = sr
+            outI[k] = si
+        }
+        for (k in 0..200) { real[k] = outR[k]; imag[k] = outI[k] }
     }
 
     private fun decodeNoCache(

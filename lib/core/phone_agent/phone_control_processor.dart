@@ -66,12 +66,24 @@ class PhoneControlProcessor implements AgentProcessor {
         response: 'هێشتا خەریکی کارەکەی پێشووم.',
       );
     }
-    if (!await _isPhoneTask(userInput)) return null;
+    if (!_isPhoneTaskLocal(userInput)) return null;
 
     _toast('TEXO: agent starting');
     final r = await _agent.run(userInput);
     _toast('TEXO: agent finished: ${r.message}');
     return AgentResult.success(response: r.killed ? 'وەستێنرا.' : r.message);
+  }
+
+  static final RegExp _questionLike = RegExp(
+    r'(^|\s)(چی|چۆن|بۆچی|کێ|کەی|لەکوێ|what|how|why|who|when|where)(\s|$)|[؟?]\s*$',
+    caseSensitive: false,
+  );
+
+  /// Local PHONE/CHAT decision: no LLM call (saves one request per command).
+  bool _isPhoneTaskLocal(String text) {
+    final isPhone = !_questionLike.hasMatch(text.trim());
+    _toast('TEXO: local classifier -> ${isPhone ? 'PHONE' : 'CHAT'}');
+    return isPhone;
   }
 
   Future<bool> _isPhoneTask(String text) async {

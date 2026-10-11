@@ -86,20 +86,35 @@ class FloatingTexoOverlayService : Service() {
         startId: Int,
     ): Int {
         val fgNotification = buildNotification()
+        var fgOk = false
+        var fgErr = ""
         try {
             startForeground(NOTIFICATION_ID, fgNotification)
-        } catch (e: SecurityException) {
+            fgOk = true
+        } catch (e: Throwable) {
+            fgErr = "${e::class.java.simpleName}: ${e.message}"
+            debugToast("TEXO: startForeground failed: $fgErr")
             if (Build.VERSION.SDK_INT >= 34) {
-                startForeground(
-                    NOTIFICATION_ID,
-                    fgNotification,
-                    android.content.pm.ServiceInfo.FOREGROUND_SERVICE_TYPE_SPECIAL_USE,
-                )
-            } else {
-                throw e
+                try {
+                    startForeground(
+                        NOTIFICATION_ID,
+                        fgNotification,
+                        android.content.pm.ServiceInfo.FOREGROUND_SERVICE_TYPE_SPECIAL_USE,
+                    )
+                    fgOk = true
+                    debugToast("TEXO: fallback specialUse OK")
+                } catch (e2: Throwable) {
+                    fgErr = "${e2::class.java.simpleName}: ${e2.message}"
+                    debugToast("TEXO: fallback FAILED: $fgErr")
+                }
             }
         }
-        debugToast("TEXO: service started")
+        if (!fgOk) {
+            lastOverlayError = "startForeground failed: $fgErr"
+            stopSelf()
+            return START_NOT_STICKY
+        }
+        debugToast("TEXO: service started (foreground OK)")
 
         if (overlayView == null) {
             val xDp =

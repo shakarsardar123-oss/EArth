@@ -37,10 +37,10 @@ class VekolTtsBridge(
     private var audioTrack: AudioTrack? = null
 
     init {
-        val modelBytes = context.assets.open(MODEL_PATH).use { it.readBytes() }
+        val modelPath = materializeModel()
 
         session = ortEnvironment.createSession(
-            modelBytes,
+            modelPath,
             OrtSession.SessionOptions()
         )
 
@@ -59,6 +59,24 @@ class VekolTtsBridge(
                 phonemeMap[key] = values.getInt(0)
             }
         }
+    }
+
+    private fun materializeModel(): String {
+        val out = java.io.File(context.filesDir, MODEL_PATH)
+        out.parentFile?.mkdirs()
+        val expected = context.assets.open(MODEL_PATH).use { it.available().toLong() }
+        if (expected > 0L && out.exists() && out.length() == expected) {
+            return out.absolutePath
+        }
+        val tmp = java.io.File(out.parentFile, out.name + ".tmp")
+        context.assets.open(MODEL_PATH).use { input ->
+            tmp.outputStream().use { output -> input.copyTo(output, 1024 * 1024) }
+        }
+        if (out.exists()) out.delete()
+        if (!tmp.renameTo(out)) {
+            throw java.io.IOException("Could not install TTS model")
+        }
+        return out.absolutePath
     }
 
     private fun toast(msg: String) {
