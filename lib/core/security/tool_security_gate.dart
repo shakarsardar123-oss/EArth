@@ -485,7 +485,12 @@ class ToolSecurityGate {
     for (final perm in requiredPermissions) {
       final permName = perm.toString();
       try {
-        final isGranted = await permissionService.isPermissionGranted(perm);
+        var isGranted = await permissionService.isPermissionGranted(perm);
+        if (!isGranted &&
+            !await permissionService.isPermissionPermanentlyDenied(perm)) {
+          await permissionService.requestPermission(perm);
+          isGranted = await permissionService.isPermissionGranted(perm);
+        }
         if (isGranted) {
           statuses.putIfAbsent(ToolPermissionStatus.granted, () => [])
               .add(permName);
