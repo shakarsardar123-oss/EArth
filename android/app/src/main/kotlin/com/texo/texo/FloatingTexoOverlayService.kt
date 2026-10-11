@@ -15,11 +15,13 @@ import android.graphics.drawable.GradientDrawable
 import android.os.Binder
 import android.os.Build
 import android.os.IBinder
+import android.os.SystemClock
 import android.util.TypedValue
 import android.view.Gravity
 import android.view.MotionEvent
 import android.view.View
 import android.view.WindowManager
+import android.widget.Chronometer
 import android.widget.FrameLayout
 import android.widget.LinearLayout
 import android.widget.TextView
@@ -53,6 +55,7 @@ class FloatingTexoOverlayService : Service() {
     private var lastOverlayError: String? = null
     private val waveformAnimators = mutableListOf<ObjectAnimator>()
     private var subtitlesEnabled = false
+    private var sessionStartElapsed = SystemClock.elapsedRealtime()
     var onOverlayAction: ((String) -> Unit)? = null
 
     companion object {
@@ -86,6 +89,7 @@ class FloatingTexoOverlayService : Service() {
             NOTIFICATION_ID,
             buildNotification(),
         )
+        debugToast("TEXO: service started")
 
         if (overlayView == null) {
             val xDp =
@@ -107,8 +111,17 @@ class FloatingTexoOverlayService : Service() {
     }
 
     override fun onDestroy() {
+        debugToast("TEXO: service onDestroy")
         removeOverlayInternal()
         super.onDestroy()
+    }
+
+    private fun debugToast(msg: String) {
+        android.os.Handler(android.os.Looper.getMainLooper()).post {
+            android.widget.Toast.makeText(
+                applicationContext, msg, android.widget.Toast.LENGTH_LONG
+            ).show()
+        }
     }
 
     fun isOverlayShowing(): Boolean = isShowing
@@ -116,6 +129,7 @@ class FloatingTexoOverlayService : Service() {
     fun overlayError(): String? = lastOverlayError
 
     fun hide() {
+        debugToast("TEXO: hide() called by app")
         removeOverlayInternal()
 
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.N) {
@@ -160,6 +174,7 @@ class FloatingTexoOverlayService : Service() {
         lastOverlayError = null
         isShowing = false
 
+        sessionStartElapsed = SystemClock.elapsedRealtime()
         posX = 0
         posY = dpToPx(36)
 
@@ -197,6 +212,7 @@ class FloatingTexoOverlayService : Service() {
 
             isShowing = true
             lastOverlayError = null
+            debugToast("TEXO: overlay view added OK")
         } catch (error: Throwable) {
             isShowing = false
 
@@ -216,6 +232,7 @@ class FloatingTexoOverlayService : Service() {
                     append("]")
                 }
 
+            debugToast("TEXO: addView FAILED: $lastOverlayError")
             overlayView = null
             layoutParams = null
         }
@@ -263,6 +280,16 @@ class FloatingTexoOverlayService : Service() {
         waveformAnimators.forEach { it.cancel() }
         waveformAnimators.clear()
     }
+
+    private fun makeTimer(sizeSp: Float): Chronometer =
+        Chronometer(this).apply {
+            base = sessionStartElapsed
+            setTextColor(Color.WHITE)
+            setTextSize(TypedValue.COMPLEX_UNIT_SP, sizeSp)
+            gravity = Gravity.CENTER
+            includeFontPadding = false
+            start()
+        }
 
     private fun makeWaveform(): LinearLayout {
         return LinearLayout(this).apply {
@@ -358,8 +385,8 @@ class FloatingTexoOverlayService : Service() {
         )
 
         row.addView(
-            makeText("✨", Color.WHITE, 23f),
-            LinearLayout.LayoutParams(dpToPx(35), dpToPx(42)),
+            makeTimer(13f),
+            LinearLayout.LayoutParams(dpToPx(52), dpToPx(42)),
         )
 
         container.addView(
@@ -391,6 +418,10 @@ class FloatingTexoOverlayService : Service() {
         header.addView(
             makeText("TEXO  •  LIVE", Color.parseColor("#75DFFF"), 12f),
             LinearLayout.LayoutParams(0, dpToPx(28), 1f),
+        )
+        header.addView(
+            makeTimer(13f),
+            LinearLayout.LayoutParams(dpToPx(56), dpToPx(28)),
         )
         header.addView(
             makeWaveform(),

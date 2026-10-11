@@ -105,6 +105,7 @@ object FloatingTexoBridge {
 
             "showOverlay" -> {
                 if (!canDrawOverlays(activity)) {
+                    debugToast(activity, "TEXO: showOverlay BLOCKED - no overlay permission")
                     result.success(
                         mapOf(
                             "shown" to false,
@@ -118,12 +119,14 @@ object FloatingTexoBridge {
                 val x = (call.argument<Number>("x") ?: 16).toInt()
                 val y = (call.argument<Number>("y") ?: 100).toInt()
 
+                debugToast(activity, "TEXO: showOverlay called")
                 startAndBind(activity, x, y)
 
                 waitForOverlayReady(result)
             }
 
             "hideOverlay" -> {
+                debugToast(activity, "TEXO: hideOverlay called from Dart")
                 service?.onOverlayAction = null
                 service?.hide()
 
@@ -241,6 +244,14 @@ object FloatingTexoBridge {
                 connection,
                 Context.BIND_AUTO_CREATE,
             )
+        }
+    }
+
+    private fun debugToast(ctx: Context, msg: String) {
+        mainHandler.post {
+            android.widget.Toast.makeText(
+                ctx.applicationContext, msg, android.widget.Toast.LENGTH_LONG
+            ).show()
         }
     }
 
