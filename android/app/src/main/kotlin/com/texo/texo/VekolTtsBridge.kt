@@ -170,7 +170,13 @@ class VekolTtsBridge(
     }
 
     private fun buildIds(text: String): LongArray {
-        val normalized = normalize(text)
+        // Same as the reference script: decompose (NFD) so letters such as
+        // U+0626, which is not in the map as one char, become two in-map
+        // characters instead of being dropped.
+        val normalized = java.text.Normalizer.normalize(
+            normalize(text),
+            java.text.Normalizer.Form.NFD,
+        )
 
         val ids = ArrayList<Long>()
         val pad = phonemeMap["_"] ?: 0
