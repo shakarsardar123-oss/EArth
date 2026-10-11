@@ -9,6 +9,7 @@
 /// so existing AURA call-sites do not need to change.
 library;
 
+import '../phone_agent/debug_toast.dart';
 import 'dart:async';
 
 import 'package:flutter/services.dart';
@@ -61,14 +62,17 @@ class SpeechRecognitionServiceImpl {
 
         switch (type) {
           case 'speechStarted':
+            debugToast('STT: speech started');
             // Native VAD detected the beginning of speech.
             break;
 
           case 'processing':
+            debugToast('STT: processing');
             // Vekol inference is running.
             break;
 
           case 'result':
+            debugToast('STT result: "${event['text']}"');
             final text = event['text'];
             if (text is String && text.trim().isNotEmpty) {
               _onResult?.call(text.trim());
@@ -78,11 +82,13 @@ class SpeechRecognitionServiceImpl {
           case 'error':
             final message = event['message'] ?? 'Unknown native STT error';
             print('[AURA STT ERROR] $message');
+            debugToast('STT ERROR: $message');
             break;
         }
       },
       onError: (Object error, StackTrace stackTrace) {
         print('[AURA STT STREAM ERROR] $error');
+        debugToast('STT STREAM ERROR: $error');
       },
       cancelOnError: false,
     );
@@ -92,6 +98,7 @@ class SpeechRecognitionServiceImpl {
     if (started != true) {
       await _eventSubscription?.cancel();
       _eventSubscription = null;
+      debugToast('STT: failed to start');
       throw StateError('Failed to start native Vekol STT');
     }
 
