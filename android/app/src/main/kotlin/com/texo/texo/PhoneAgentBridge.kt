@@ -31,6 +31,14 @@ object PhoneAgentBridge {
     private var wakeLock: PowerManager.WakeLock? = null
 
     fun handle(ctx: Context, call: MethodCall, result: MethodChannel.Result) {
+        if (call.method == "agentToast") {
+            val tmsg = call.argument<String>("message") ?: ""
+            android.os.Handler(android.os.Looper.getMainLooper()).post {
+                android.widget.Toast.makeText(ctx.applicationContext, tmsg, android.widget.Toast.LENGTH_LONG).show()
+            }
+            result.success(mapOf("ok" to true))
+            return
+        }
         if (call.method == "agentAsk") {
             try { ask(ctx, call, result) } catch (t: Throwable) {
                 result.success(mapOf("ok" to true, "allowed" to false, "error" to (t.message ?: "ask_failed")))

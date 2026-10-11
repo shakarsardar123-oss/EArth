@@ -1,3 +1,4 @@
+import '../phone_agent/phone_control_hook.dart';
 import 'dart:async';
 import 'dart:convert';
 
@@ -187,6 +188,12 @@ class AgentEngine implements AgentProcessor {
     required AgentContext context,
     AgentTextChunkCallback? onTextChunk,
   }) async {
+    final phoneHook = phoneControlHook;
+    if (phoneHook != null) {
+      final handled = await phoneHook(userInput, context);
+      if (handled != null) return handled;
+    }
+
     _cancellationToken.reset();
     final stopwatch = Stopwatch()..start();
     final toolsUsed = <String>[];

@@ -62,7 +62,7 @@ class FloatingTexoOverlayService : Service() {
         const val EXTRA_POS_X_DP = "posXDp"
         const val EXTRA_POS_Y_DP = "posYDp"
 
-        private const val NOTIFICATION_CHANNEL_ID = "texo_floating_overlay"
+        private const val NOTIFICATION_CHANNEL_ID = "texo_floating_overlay_v2"
         private const val NOTIFICATION_ID = 4201
 
         private const val COLLAPSED_WIDTH_DP = 232
@@ -85,10 +85,20 @@ class FloatingTexoOverlayService : Service() {
         flags: Int,
         startId: Int,
     ): Int {
-        startForeground(
-            NOTIFICATION_ID,
-            buildNotification(),
-        )
+        val fgNotification = buildNotification()
+        try {
+            startForeground(NOTIFICATION_ID, fgNotification)
+        } catch (e: SecurityException) {
+            if (Build.VERSION.SDK_INT >= 34) {
+                startForeground(
+                    NOTIFICATION_ID,
+                    fgNotification,
+                    android.content.pm.ServiceInfo.FOREGROUND_SERVICE_TYPE_SPECIAL_USE,
+                )
+            } else {
+                throw e
+            }
+        }
         debugToast("TEXO: service started")
 
         if (overlayView == null) {
@@ -602,7 +612,7 @@ class FloatingTexoOverlayService : Service() {
                     NotificationChannel(
                         NOTIFICATION_CHANNEL_ID,
                         "TEXO Floating Assistant",
-                        NotificationManager.IMPORTANCE_MIN,
+                        NotificationManager.IMPORTANCE_LOW,
                     ).apply {
                         description =
                             "Keeps the TEXO floating button available on screen."
@@ -640,9 +650,11 @@ class FloatingTexoOverlayService : Service() {
 
         return builder
             .setContentTitle("TEXO")
-            .setContentText("Floating assistant is active")
+            .setContentText("TEXO Live")
             .setSmallIcon(applicationInfo.icon)
             .setOngoing(true)
+            .setUsesChronometer(true)
+            .setWhen(System.currentTimeMillis())
             .apply {
                 contentIntent?.let {
                     setContentIntent(it)

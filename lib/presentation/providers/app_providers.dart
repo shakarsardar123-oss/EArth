@@ -8,6 +8,8 @@
 /// - Default AgentConfig modelId changed to gemini-3.6-flash.
 library;
 
+import '../../core/phone_agent/phone_control_hook.dart';
+import '../../core/phone_agent/phone_control_processor.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_secure_storage/flutter_secure_storage.dart';
@@ -409,6 +411,9 @@ final semanticMemoryStateProvider =
 /// Phase 1 wiring: includes [onMemoryEnrichment] and [onMemoryCapture]
 /// callbacks that integrate semantic memory into the agent lifecycle.
 final agentEngineProvider = Provider<AgentEngine>((ref) {
+  phoneControlHook = PhoneControlProcessor(
+    providerGetter: () => ref.read(selectedAIProviderProvider),
+  ).tryHandle;
   final toolRegistry = ref.watch(toolRegistryProvider);
   final aiProvider = ref.watch(selectedAIProviderProvider);
   final securityGate = ref.watch(toolSecurityGateProvider);

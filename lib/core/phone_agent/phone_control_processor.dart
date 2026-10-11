@@ -1,8 +1,8 @@
-/// Decorator around the real [AgentProcessor] (AgentEngine).
+/// Phone-control entry point.
 ///
-/// If the user's message is a phone-control task (open apps, play music,
-/// alarms, navigate inside apps, ...) it is handed to [PhoneAgent].
-/// Everything else goes to [inner] exactly as before.
+/// [tryHandle] is installed as [phoneControlHook] and is called from
+/// AgentEngine.run() for every screen. [run] only delegates to [inner]
+/// (the hook already ran inside it), so nothing is classified twice.
 library;
 
 import 'package:flutter/services.dart';
@@ -10,6 +10,7 @@ import 'package:flutter/services.dart';
 import '../../domain/entities/agent_config.dart';
 import '../../domain/services/ai_service.dart';
 import '../../services/ai/ai_provider.dart';
+import '../ai/ai_message.dart';
 import '../agent/agent_context.dart';
 import '../agent/agent_result.dart';
 import '../live_mode/agent_processor.dart';
@@ -17,24 +18,23 @@ import 'phone_agent.dart';
 
 class PhoneControlProcessor implements AgentProcessor {
   PhoneControlProcessor({
-    required this.inner,
     required this.providerGetter,
-    this.log,
+    this.inner,
   });
 
-  final AgentProcessor inner;
   final AIProvider Function() providerGetter;
-  final void Function(String line)? log;
+  final AgentProcessor? inner;
 
   String _modelId = 'default';
+
+  static const MethodChannel _sys =
+      MethodChannel('com.texo.texo/system_control');
 
   late final PhoneAgent _agent = PhoneAgent(
     llm: _llm,
     askConsent: _consent,
-    log: log,
+    log: (l) => _toast(l),
   );
-
-  static const MethodChannel _sys = MethodChannel('com.texo.texo/system_control');
 
   // Cheap pre-filter so ordinary chat never pays for a classifier call.
   static final RegExp _hint = RegExp(
@@ -50,31 +50,46 @@ class PhoneControlProcessor implements AgentProcessor {
     required String userInput,
     required AgentContext context,
   }) async {
+    final i = inner;
+    if (i == null) {
+      return const AgentResult.failure(errorMessage: 'no inner processor');
+    }
+    return i.run(userInput: userInput, context: context);
+  }
+
+  Future<AgentResult?> tryHandle(String userInput, AgentContext context) async {
+    if (!_hint.hasMatch(userInput)) return null;
     _modelId = context.agentConfig.modelId;
 
-    if (_agent.isRunning || !_hint.hasMatch(userInput) || !await _isPhoneTask(userInput)) {
-      return inner.run(userInput: userInput, context: context);
+    if (_agent.isRunning) {
+      return const AgentResult.success(
+        response: 'هێشتا خەریکی کارەکەی پێشووم.',
+      );
     }
+    if (!await _isPhoneTask(userInput)) return null;
 
+    _toast('TEXO: agent starting');
     final r = await _agent.run(userInput);
-    return AgentResult.success(
-      response: r.killed ? 'وەستێنرا.' : r.message,
-    );
+    _toast('TEXO: agent finished: ${r.message}');
+    return AgentResult.success(response: r.killed ? 'وەستێنرا.' : r.message);
   }
 
   Future<bool> _isPhoneTask(String text) async {
     try {
       final out = await _llm(
-        'Reply with exactly one word.',
+        'Reply with exactly one word: PHONE or CHAT.',
         'Decide if the user message asks to operate the phone itself '
-        '(open an app, play something in an app, search inside an app, set an alarm, '
-        'change a setting, navigate to a page, send a message, call someone, etc.) '
-        'or is just conversation / a general question.\n'
-        'Reply PHONE or CHAT only.\n\nMessage: $text',
+        '(open an app, play something in an app, search inside an app, set an '
+        'alarm, change a setting, navigate to a page, send a message, call '
+        'someone, etc.) or is just conversation / a general question.\n\n'
+        'Message: $text',
       );
-      return out.toUpperCase().contains('PHONE');
-    } catch (_) {
-      return false; // classifier failure -> normal chat path
+      final isPhone = out.toUpperCase().contains('PHONE');
+      _toast('TEXO: classifier -> ${isPhone ? 'PHONE' : 'CHAT'}');
+      return isPhone;
+    } catch (e) {
+      _toast('TEXO: classifier error: $e');
+      return false;
     }
   }
 
@@ -83,17 +98,20 @@ class PhoneControlProcessor implements AgentProcessor {
       id: 'phone_agent',
       name: 'Phone Agent',
       description: 'Phone control agent',
-      systemPrompt: 'Reply with JSON or the single word asked for. No prose.',
+      systemPrompt: system,
       modelId: _modelId,
       temperature: 0.2,
-      maxTokens: 1024,
+      maxTokens: 2048,
     );
     final res = await providerGetter().complete(
       AIRequest(
-        prompt: '$system\n\n---\n$user',
+        prompt: user,
         agentConfig: cfg,
+        messages: [
+          AIMessage.fromMap({'role': 'user', 'content': user}),
+        ],
         temperature: 0.2,
-        maxTokens: 1024,
+        maxTokens: 2048,
       ),
     );
     return res.text;
@@ -106,5 +124,12 @@ class PhoneControlProcessor implements AgentProcessor {
     } catch (_) {
       return false;
     }
+  }
+
+  void _toast(String m) {
+    final msg = m.length > 140 ? m.substring(0, 140) : m;
+    _sys
+        .invokeMethod<dynamic>('agentToast', {'message': msg})
+        .catchError((_) {});
   }
 }

@@ -572,7 +572,7 @@ class MainActivity : FlutterActivity() {
             "verifyScreenTarget" -> handleVerifyScreenTarget(call, result)
             "openSettingsPanel" -> handleOpenSettingsPanel(call, result)
             "agentBegin", "agentEnd", "agentKilled", "a11yRead", "a11yClick", "a11yTap",
-            "a11yType", "a11yScroll", "a11yGlobal", "a11yEnter", "a11yStartIntent", "agentAsk" ->
+            "a11yType", "a11yScroll", "a11yGlobal", "a11yEnter", "a11yStartIntent", "agentAsk", "agentToast" ->
                 PhoneAgentBridge.handle(this, call, result)
             else -> result.notImplemented()
         }
