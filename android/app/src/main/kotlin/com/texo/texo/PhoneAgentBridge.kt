@@ -252,13 +252,13 @@ object PhoneAgentBridge {
         val dm = svc.resources.displayMetrics
         val w = dm.widthPixels.toFloat()
         val h = dm.heightPixels.toFloat()
-        val ok = when (dir) {
+        val scrolled = when (dir) {
             "down" -> gesture(svc, w * 0.5f, h * 0.7f, w * 0.5f, h * 0.3f, 350)
             "up" -> gesture(svc, w * 0.5f, h * 0.3f, w * 0.5f, h * 0.7f, 350)
             "right" -> gesture(svc, w * 0.8f, h * 0.5f, w * 0.2f, h * 0.5f, 350)
             else -> gesture(svc, w * 0.2f, h * 0.5f, w * 0.8f, h * 0.5f, 350)
         }
-        return if (ok) ok("via" to "gesture") else fail("scroll_failed")
+        return if (scrolled) ok("via" to "gesture") else fail("scroll_failed")
     }
 
     private fun global(svc: TexoAccessibilityService, call: MethodCall): Map<String, Any?> {
