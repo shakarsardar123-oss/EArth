@@ -400,7 +400,9 @@ class ToolSecurityGate {
     if (toolName == 'app_launch' && arguments.containsKey('packageName')) {
       final packageName = arguments['packageName'] as String?;
       if (packageName == null ||
-          !securityPolicy.isValidPackageName(packageName)) {
+          packageName.trim().isEmpty ||
+          packageName.length > 100 ||
+          RegExp(r'[\x00-\x1F]').hasMatch(packageName)) {
         return SecurityGateResult.validationFailed(
           errorMessage: _messages.invalidPackageName,
           errorCode: 'INVALID_PACKAGE_NAME',
