@@ -57,21 +57,40 @@ class VekolSttEngine(
     private var closed = false
 
     init {
-        val encoderBytes =
-            context.assets.open(ENCODER_PATH).use { it.readBytes() }
-
-        val decoderBytes =
-            context.assets.open(DECODER_PATH).use { it.readBytes() }
-
+        // Load models from a file path: readBytes() put ~280 MB (plus
+        // copies) on the Java heap and can throw OutOfMemoryError.
         encoderSession = ortEnvironment.createSession(
-            encoderBytes,
+            materializeAsset(ENCODER_PATH),
             OrtSession.SessionOptions(),
         )
 
         decoderSession = ortEnvironment.createSession(
-            decoderBytes,
+            materializeAsset(DECODER_PATH),
             OrtSession.SessionOptions(),
         )
+    }
+
+    private fun materializeAsset(assetPath: String): String {
+        val out = java.io.File(context.filesDir, assetPath)
+        out.parentFile?.mkdirs()
+
+        val expected =
+            context.assets.open(assetPath).use { it.available().toLong() }
+        if (expected > 0L && out.exists() && out.length() == expected) {
+            return out.absolutePath
+        }
+
+        val tmp = java.io.File(out.parentFile, out.name + ".tmp")
+        context.assets.open(assetPath).use { input ->
+            tmp.outputStream().use { output ->
+                input.copyTo(output, 1024 * 1024)
+            }
+        }
+        if (out.exists()) out.delete()
+        if (!tmp.renameTo(out)) {
+            throw java.io.IOException("Could not install model: $assetPath")
+        }
+        return out.absolutePath
     }
 
     fun isReady(): Boolean = !closed
