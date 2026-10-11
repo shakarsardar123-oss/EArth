@@ -662,13 +662,39 @@ class LiveModeOrchestrator {
   /// Speak the response, then restart listening.
   /// This is the REAL TTS completion callback — speak() resolves
   /// only after TTS finishes (awaitSpeakCompletion(true)).
+  List<String> _splitForTts(String text) {
+    final raw = text.split(RegExp(r'(?<=[.!?؟۔])\s+|\n+'));
+    final out = <String>[];
+    var buf = '';
+    for (final p in raw) {
+      final s = p.trim();
+      if (s.isEmpty) continue;
+      buf = buf.isEmpty ? s : '$buf $s';
+      if (buf.length >= 20) {
+        out.add(buf);
+        buf = '';
+      }
+    }
+    if (buf.isNotEmpty) {
+      if (out.isNotEmpty) {
+        out[out.length - 1] = '${out.last} $buf';
+      } else {
+        out.add(buf);
+      }
+    }
+    return out.isEmpty ? [text] : out;
+  }
+
   Future<void> _speakThenRestartListening(int gen, String text) async {
     if (!_isCurrentGeneration(gen)) return;
 
     try {
       // VoiceServiceImpl.speak() awaits _tts.speak() which resolves
       // only after speech completes (because awaitSpeakCompletion(true)).
-      await _voiceService.speak(text, locale: 'ku');
+      for (final part in _splitForTts(text)) {
+        if (!_isCurrentGeneration(gen)) return;
+        await _voiceService.speak(part, locale: 'ku');
+      }
     } catch (e) {
       if (!_isCurrentGeneration(gen)) return;
       // TTS error — try to continue the cycle.

@@ -17,6 +17,7 @@ import '../../core/reaction/reaction.dart';
 import '../../core/live_mode/live_mode_state.dart';
 import '../../core/live_mode/live_mode_providers.dart'
     show liveModeOrchestratorProvider, liveModeStateProvider, isLiveSessionProvider;
+import 'dart:async' as texo_async;
 import '../providers/app_providers.dart';
 import '../widgets/widgets.dart';
 import '../widgets/wireframe_background.dart';
@@ -589,8 +590,9 @@ class _ChatScreenState extends ConsumerState<ChatScreen> {
                   horizontal: 14,
                   vertical: 10,
                 ),
-                child: Text(
+                child: _TypewriterText(
                   msg.text,
+                  animate: !msg.isUser && DateTime.now().difference(msg.timestamp).inSeconds < 30,
                   style: TextStyle(
                     fontSize: 14,
                     color: AppColors.onBackground,
@@ -714,5 +716,70 @@ class _ChatScreenState extends ConsumerState<ChatScreen> {
         ),
       ),
     );
+  }
+}
+
+class _TypewriterText extends StatefulWidget {
+  const _TypewriterText(this.text, {required this.animate, this.style});
+  final String text;
+  final bool animate;
+  final TextStyle? style;
+
+  @override
+  State<_TypewriterText> createState() => _TypewriterTextState();
+}
+
+class _TypewriterTextState extends State<_TypewriterText> {
+  int _shown = 0;
+  texo_async.Timer? _timer;
+
+  @override
+  void initState() {
+    super.initState();
+    _shown = widget.animate ? 0 : widget.text.length;
+    _kick();
+  }
+
+  @override
+  void didUpdateWidget(covariant _TypewriterText old) {
+    super.didUpdateWidget(old);
+    if (!widget.animate || widget.text.length < _shown) {
+      _shown = widget.text.length;
+    }
+    _kick();
+  }
+
+  void _kick() {
+    if (_timer != null || _shown >= widget.text.length) return;
+    _timer = texo_async.Timer.periodic(const Duration(milliseconds: 18), (_) {
+      if (!mounted) return;
+      final total = widget.text.length;
+      if (_shown >= total) {
+        _timer?.cancel();
+        _timer = null;
+        return;
+      }
+      final backlog = total - _shown;
+      final step = backlog > 80 ? 4 : (backlog > 40 ? 2 : 1);
+      setState(() {
+        _shown = (_shown + step).clamp(0, total);
+      });
+    });
+  }
+
+  @override
+  void dispose() {
+    _timer?.cancel();
+    super.dispose();
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    var n = _shown.clamp(0, widget.text.length);
+    if (n > 0 && n < widget.text.length) {
+      final c = widget.text.codeUnitAt(n - 1);
+      if (c >= 0xD800 && c <= 0xDBFF) n++;
+    }
+    return Text(widget.text.substring(0, n), style: widget.style);
   }
 }
