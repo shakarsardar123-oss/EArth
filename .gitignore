@@ -17,6 +17,5 @@ android/.gradle/
 android/local.properties
 *.wav
 *.pyc
-android/app/src/main/assets/vekol_stt/*.onnx
 *.bak*
 icon_backup/
