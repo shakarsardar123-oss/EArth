@@ -278,15 +278,15 @@ class LiveModeOrchestrator {
     // Show the floating overlay for wake-word/live sessions.
     // Overlay failure must never prevent Live Mode from starting.
     try {
-      final permissionResult = await _floatingAuraService.hasPermission();
-
-      if (permissionResult.isSuccess) {
-        await _floatingAuraService.showOverlay(
-          FloatingAuraOverlayPosition.defaults,
-        );
-      }
-    } catch (_) {
-      // Live Mode remains functional even if the overlay cannot be shown.
+      await _floatingAuraService.requestPermission();
+      final shown = await _floatingAuraService.showOverlay(
+        FloatingAuraOverlayPosition.defaults,
+      );
+      // ignore: avoid_print
+      print('[TEXO OVERLAY] showOverlay -> $shown');
+    } catch (e) {
+      // ignore: avoid_print
+      print('[TEXO OVERLAY] error: $e');
     }
 
     await _startScreenUnderstanding();
