@@ -24,7 +24,7 @@ final Map<ToolPermission, ph.Permission?> securityPolicyPermissionMap = {
   ToolPermission.contacts: ph.Permission.contacts,
   ToolPermission.phone: ph.Permission.phone,
   ToolPermission.battery: null, // battery info needs no explicit permission
-  ToolPermission.system: ph.Permission.accessNotificationPolicy,
+  ToolPermission.system: null, // no runtime permission needed (launch app, wifi, ...)
   // screen_capture uses Android MediaProjection, which is not a standard
   // permission_handler permission. Permission is obtained via the
   // MediaProjection system dialog at capture time, handled by
