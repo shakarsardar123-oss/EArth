@@ -9,7 +9,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import '../voice/voice_service_provider.dart'
     show voiceServiceImplProvider;
 import '../../presentation/providers/app_providers.dart'
-    show agentEngineProvider, memoryServiceProvider;
+    show agentEngineProvider, memoryServiceProvider, selectedAIProviderProvider;
 import 'live_mode_state.dart';
 import 'live_mode_orchestrator.dart';
 import '../floating_aura/floating_aura_service.dart';
@@ -19,6 +19,8 @@ import '../screen_capture/screen_capture_provider.dart'
     show screenCaptureServiceProvider;
 import '../screen_understanding/screen_understanding_provider.dart'
     show screenUnderstandingServiceProvider;
+
+import '../phone_agent/phone_control_processor.dart';
 
 /// Whether a Live Mode session is currently active.
 final isLiveSessionProvider = StateProvider<bool>((ref) => false);
@@ -46,7 +48,10 @@ final liveModeOrchestratorProvider = Provider<LiveModeOrchestrator>((ref) {
 
   final orchestrator = LiveModeOrchestrator(
     voiceService: voiceService,
-    agentProcessor: agentEngine,
+    agentProcessor: PhoneControlProcessor(
+      inner: agentEngine,
+      providerGetter: () => ref.read(selectedAIProviderProvider),
+    ),
     memoryService: memoryService,
     floatingAuraService: floatingAuraService,
     screenCaptureService: screenCaptureService,

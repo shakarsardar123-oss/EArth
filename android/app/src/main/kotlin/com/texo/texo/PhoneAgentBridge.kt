@@ -31,10 +31,124 @@ object PhoneAgentBridge {
     private var wakeLock: PowerManager.WakeLock? = null
 
     fun handle(ctx: Context, call: MethodCall, result: MethodChannel.Result) {
+        if (call.method == "agentAsk") {
+            try { ask(ctx, call, result) } catch (t: Throwable) {
+                result.success(mapOf("ok" to true, "allowed" to false, "error" to (t.message ?: "ask_failed")))
+            }
+            return
+        }
         try {
             result.success(dispatch(ctx, call))
         } catch (t: Throwable) {
             result.success(fail("${t::class.java.simpleName}: ${t.message}"))
+        }
+    }
+
+
+    // ── consent dialog (system overlay, visible over any app) ───────
+
+    private var askDismiss: (() -> Unit)? = null
+
+    private fun ask(ctx: Context, call: MethodCall, result: MethodChannel.Result) {
+        val msg = call.argument<String>("message") ?: ""
+        val app = ctx.applicationContext
+        if (!android.provider.Settings.canDrawOverlays(app)) {
+            result.success(mapOf("ok" to true, "allowed" to false, "error" to "no_overlay_permission"))
+            return
+        }
+        askDismiss?.invoke()
+        val wm = app.getSystemService(Context.WINDOW_SERVICE) as android.view.WindowManager
+        val density = app.resources.displayMetrics.density
+        fun dp(v: Int): Int = (v * density).toInt()
+        var answered = false
+        lateinit var root: android.widget.LinearLayout
+
+        fun finish(allowed: Boolean) {
+            if (answered) return
+            answered = true
+            askDismiss = null
+            try { wm.removeView(root) } catch (_: Throwable) {}
+            result.success(mapOf("ok" to true, "allowed" to allowed))
+        }
+
+        fun pill(color: String): android.graphics.drawable.GradientDrawable =
+            android.graphics.drawable.GradientDrawable().apply {
+                cornerRadius = dp(14).toFloat()
+                setColor(android.graphics.Color.parseColor(color))
+            }
+
+        root = android.widget.LinearLayout(app).apply {
+            orientation = android.widget.LinearLayout.VERTICAL
+            setPadding(dp(18), dp(16), dp(18), dp(14))
+            background = android.graphics.drawable.GradientDrawable().apply {
+                cornerRadius = dp(22).toFloat()
+                setColor(android.graphics.Color.parseColor("#0B0F17"))
+                setStroke(dp(1), android.graphics.Color.parseColor("#30435A"))
+            }
+        }
+
+        val title = android.widget.TextView(app).apply {
+            text = "ڕەزامەندی پێویستە"
+            setTextColor(android.graphics.Color.parseColor("#75DFFF"))
+            textSize = 14f
+            gravity = android.view.Gravity.CENTER
+        }
+        val body = android.widget.TextView(app).apply {
+            text = msg
+            setTextColor(android.graphics.Color.WHITE)
+            textSize = 16f
+            gravity = android.view.Gravity.CENTER
+            setPadding(0, dp(10), 0, dp(14))
+        }
+        val row = android.widget.LinearLayout(app).apply {
+            orientation = android.widget.LinearLayout.HORIZONTAL
+            layoutDirection = android.view.View.LAYOUT_DIRECTION_LTR
+        }
+
+        fun button(label: String, color: String, allowed: Boolean): android.widget.TextView =
+            android.widget.TextView(app).apply {
+                text = label
+                setTextColor(android.graphics.Color.WHITE)
+                textSize = 15f
+                gravity = android.view.Gravity.CENTER
+                setPadding(0, dp(12), 0, dp(12))
+                background = pill(color)
+                isClickable = true
+                setOnClickListener { finish(allowed) }
+            }
+
+        row.addView(
+            button("ڕەتکردنەوە", "#C62835", false),
+            android.widget.LinearLayout.LayoutParams(0, android.widget.LinearLayout.LayoutParams.WRAP_CONTENT, 1f)
+                .apply { marginEnd = dp(8) },
+        )
+        row.addView(
+            button("ڕێگەپێدان", "#1F8F55", true),
+            android.widget.LinearLayout.LayoutParams(0, android.widget.LinearLayout.LayoutParams.WRAP_CONTENT, 1f),
+        )
+        root.addView(title)
+        root.addView(body)
+        root.addView(row)
+
+        val type = if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O)
+            android.view.WindowManager.LayoutParams.TYPE_APPLICATION_OVERLAY
+        else
+            @Suppress("DEPRECATION") android.view.WindowManager.LayoutParams.TYPE_PHONE
+        val lp = android.view.WindowManager.LayoutParams(
+            dp(320),
+            android.view.WindowManager.LayoutParams.WRAP_CONTENT,
+            type,
+            android.view.WindowManager.LayoutParams.FLAG_NOT_FOCUSABLE,
+            android.graphics.PixelFormat.TRANSLUCENT,
+        ).apply { gravity = android.view.Gravity.CENTER }
+
+        askDismiss = { finish(false) }
+        try {
+            wm.addView(root, lp)
+        } catch (t: Throwable) {
+            askDismiss = null
+            answered = true
+            result.success(mapOf("ok" to true, "allowed" to false, "error" to (t.message ?: "add_view_failed")))
         }
     }
 
@@ -81,6 +195,7 @@ object PhoneAgentBridge {
             val r = object : BroadcastReceiver() {
                 override fun onReceive(c: Context?, i: Intent?) {
                     killRequested = true
+                    askDismiss?.invoke()
                     releaseWake()
                 }
             }
