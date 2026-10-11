@@ -1,0 +1,96 @@
+import 'dart:typed_data';
+
+import 'package:flutter_onnxruntime/flutter_onnxruntime.dart';
+
+class VekolTtsService {
+  VekolTtsService._();
+
+  static final VekolTtsService instance = VekolTtsService._();
+
+  static const String _modelAsset = 'assets/vekol/model.onnx';
+
+  OrtSession? _session;
+
+  Future<void> initialize() async {
+    if (_session != null) return;
+
+    final runtime = OnnxRuntime();
+
+    _session = await runtime.createSessionFromAsset(
+      _modelAsset,
+    );
+  }
+
+  Future<void> dispose() async {
+    final session = _session;
+    _session = null;
+
+    if (session != null) {
+      await session.close();
+    }
+  }
+
+  Future<List<double>> synthesizeIds(List<int> ids) async {
+    await initialize();
+
+    final session = _session;
+    if (session == null) {
+      throw StateError('Vekol ONNX session is not initialized.');
+    }
+
+    final input = await OrtValue.fromList(
+      Int64List.fromList(ids),
+      [1, ids.length],
+    );
+
+    final inputLengths = await OrtValue.fromList(
+      Int64List.fromList([ids.length]),
+      [1],
+    );
+
+    final scales = await OrtValue.fromList(
+      Float32List.fromList([0.667, 1.0, 0.35]),
+      [3],
+    );
+
+    final speakerId = await OrtValue.fromList(
+      Int64List.fromList([0]),
+      [1],
+    );
+
+    Map<String, OrtValue>? outputs;
+
+    try {
+      outputs = await session.run({
+        'input': input,
+        'input_lengths': inputLengths,
+        'scales': scales,
+        'sid': speakerId,
+      });
+
+      final output = outputs['output'];
+
+      if (output == null) {
+        throw StateError(
+          'Vekol ONNX model did not return an "output" tensor.',
+        );
+      }
+
+      return (await output.asFlattenedList())
+          .map((value) => (value as num).toDouble())
+          .toList();
+    } finally {
+      await input.dispose();
+      await inputLengths.dispose();
+      await scales.dispose();
+      await speakerId.dispose();
+
+      final result = outputs;
+      if (result != null) {
+        for (final value in result.values) {
+          await value.dispose();
+        }
+      }
+    }
+  }
+}

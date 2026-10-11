@@ -1,0 +1,310 @@
+import 'dart:typed_data';
+
+import 'package:flutter/foundation.dart';
+
+import 'package:flutter_onnxruntime/flutter_onnxruntime.dart';
+
+class VekolTtsService {
+  VekolTtsService._();
+
+  static final VekolTtsService instance = VekolTtsService._();
+
+  static const String _modelAsset = 'assets/vekol/model.onnx';
+
+  OrtSession? _session;
+
+  Future<void> initialize() async {
+    if (_session != null) return;
+
+    final runtime = OnnxRuntime();
+
+    _session = await runtime.createSessionFromAsset(
+      _modelAsset,
+    );
+  }
+
+  Future<void> dispose() async {
+    final session = _session;
+    _session = null;
+
+    if (session != null) {
+      await session.close();
+    }
+  }
+
+  static const Map<String, int> _phonemeIds = {
+    '_': 0,
+    '^': 1,
+    r'$': 2,
+    ' ': 3,
+    '\n': 4,
+    '!': 5,
+    '"': 6,
+    '-': 7,
+    '.': 8,
+    ':': 9,
+    '،': 10,
+    '؛': 11,
+    '؟': 12,
+    'ء': 13,
+    'ا': 14,
+    'ب': 15,
+    'ت': 16,
+    'ج': 17,
+    'ح': 18,
+    'خ': 19,
+    'د': 20,
+    'ر': 21,
+    'ز': 22,
+    'س': 23,
+    'ش': 24,
+    'ع': 25,
+    'غ': 26,
+    'ف': 27,
+    'ق': 28,
+    'ل': 29,
+    'م': 30,
+    'ن': 31,
+    'ه': 32,
+    'و': 33,
+    'ي': 34,
+    'ٔ': 35,
+    'پ': 36,
+    'چ': 37,
+    'ڕ': 38,
+    'ژ': 39,
+    'ڤ': 40,
+    'ک': 41,
+    'گ': 42,
+    'ڵ': 43,
+    'ۆ': 44,
+    'ی': 45,
+    'ێ': 46,
+    'ە': 47,
+  };
+
+  static const Map<String, String> _normalization = {
+    'ك': 'ک',
+    'ھ': 'ه',
+    'ہ': 'ه',
+    'ۀ': 'ە',
+    'ة': 'ە',
+    'ى': 'ی',
+    'ﻯ': 'ی',
+    'ﺉ': 'ئ',
+    'ٸ': 'ئ',
+    'ؤ': 'و',
+    'أ': 'ا',
+    'إ': 'ا',
+    'آ': 'ا',
+    'ٱ': 'ا',
+    'ڭ': 'گ',
+    '‌': '',
+    '‍': '',
+    'ـ': '',
+    '“': '"',
+    '”': '"',
+    '’': "'",
+    '‘': "'",
+    '—': '-',
+    '–': '-',
+    '…': '.',
+  };
+
+  String _normalize(String text) {
+    final buffer = StringBuffer();
+
+    for (final rune in text.runes) {
+      final char = String.fromCharCode(rune);
+      buffer.write(_normalization[char] ?? char);
+    }
+
+    return buffer.toString();
+  }
+
+  static const List<String> _ones = [
+    'سفر',
+    'یەک',
+    'دوو',
+    'سێ',
+    'چوار',
+    'پێنج',
+    'شەش',
+    'حەوت',
+    'هەشت',
+    'نۆ',
+  ];
+
+  static const List<String> _teens = [
+    'دە',
+    'یازدە',
+    'دوازدە',
+    'سیازدە',
+    'چواردە',
+    'پازدە',
+    'شازدە',
+    'حەڤدە',
+    'هەژدە',
+    'نۆزدە',
+  ];
+
+  static const List<String> _tens = [
+    '',
+    '',
+    'بیست',
+    'سی',
+    'چل',
+    'پەنجا',
+    'شەست',
+    'حەفتا',
+    'هەشتا',
+    'نەوەد',
+  ];
+
+  String _numberToKurdish(int number) {
+    if (number < 10) return _ones[number];
+    if (number < 20) return _teens[number - 10];
+    if (number < 100) {
+      final tens = number ~/ 10;
+      final ones = number % 10;
+      return ones == 0
+          ? _tens[tens]
+          : '${_tens[tens]} و ${_ones[ones]}';
+    }
+
+    if (number < 1000) {
+      final hundreds = number ~/ 100;
+      final remainder = number % 100;
+      final hundredWord = hundreds == 1
+          ? 'سەد'
+          : '${_ones[hundreds]} سەد';
+
+      return remainder == 0
+          ? hundredWord
+          : '$hundredWord و ${_numberToKurdish(remainder)}';
+    }
+
+    if (number < 1000000) {
+      final thousands = number ~/ 1000;
+      final remainder = number % 1000;
+      final thousandWord = thousands == 1
+          ? 'هەزار'
+          : '${_numberToKurdish(thousands)} هەزار';
+
+      return remainder == 0
+          ? thousandWord
+          : '$thousandWord و ${_numberToKurdish(remainder)}';
+    }
+
+    return number.toString();
+  }
+
+  String _replaceNumbers(String text) {
+    return text.replaceAllMapped(
+      RegExp(r'\d+'),
+      (match) {
+        final value = int.tryParse(match.group(0)!);
+        if (value == null) return match.group(0)!;
+        return _numberToKurdish(value);
+      },
+    );
+  }
+
+  List<int> _textToIds(String text) {
+    final normalized = _normalize(_replaceNumbers(text));
+    final ids = <int>[1, 0];
+
+    for (final rune in normalized.runes) {
+      final char = String.fromCharCode(rune);
+      final id = _phonemeIds[char];
+
+      if (id != null) {
+        ids
+          ..add(id)
+          ..add(0);
+      } else {
+        debugPrint(
+          '[Vekol] dropped unsupported character '
+          "'$char' U+${rune.toRadixString(16).toUpperCase().padLeft(4, '0')}",
+        );
+      }
+    }
+
+    ids.add(2);
+    return ids;
+  }
+
+  Future<List<double>> synthesizeText(String text) async {
+    final trimmed = text.trim();
+
+    if (trimmed.isEmpty) {
+      throw ArgumentError('Vekol text cannot be empty.');
+    }
+
+    return synthesizeIds(_textToIds(trimmed));
+  }
+
+  Future<List<double>> synthesizeIds(List<int> ids) async {
+    await initialize();
+
+    final session = _session;
+    if (session == null) {
+      throw StateError('Vekol ONNX session is not initialized.');
+    }
+
+    final input = await OrtValue.fromList(
+      Int64List.fromList(ids),
+      [1, ids.length],
+    );
+
+    final inputLengths = await OrtValue.fromList(
+      Int64List.fromList([ids.length]),
+      [1],
+    );
+
+    final scales = await OrtValue.fromList(
+      Float32List.fromList([0.667, 1.0, 0.35]),
+      [3],
+    );
+
+    final speakerId = await OrtValue.fromList(
+      Int64List.fromList([0]),
+      [1],
+    );
+
+    Map<String, OrtValue>? outputs;
+
+    try {
+      outputs = await session.run({
+        'input': input,
+        'input_lengths': inputLengths,
+        'scales': scales,
+        'sid': speakerId,
+      });
+
+      final output = outputs['output'];
+
+      if (output == null) {
+        throw StateError(
+          'Vekol ONNX model did not return an "output" tensor.',
+        );
+      }
+
+      return (await output.asFlattenedList())
+          .map((value) => (value as num).toDouble())
+          .toList();
+    } finally {
+      await input.dispose();
+      await inputLengths.dispose();
+      await scales.dispose();
+      await speakerId.dispose();
+
+      final result = outputs;
+      if (result != null) {
+        for (final value in result.values) {
+          await value.dispose();
+        }
+      }
+    }
+  }
+}
