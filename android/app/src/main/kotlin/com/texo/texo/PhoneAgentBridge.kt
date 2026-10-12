@@ -34,7 +34,7 @@ object PhoneAgentBridge {
         if (call.method == "agentToast") {
             val tmsg = call.argument<String>("message") ?: ""
             android.os.Handler(android.os.Looper.getMainLooper()).post {
-                android.widget.Toast.makeText(ctx.applicationContext, tmsg, android.widget.Toast.LENGTH_LONG).show()
+                TexoLog.log(ctx, tmsg)
             }
             result.success(mapOf("ok" to true))
             return

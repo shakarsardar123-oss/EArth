@@ -142,11 +142,7 @@ class FloatingTexoOverlayService : Service() {
     }
 
     private fun debugToast(msg: String) {
-        android.os.Handler(android.os.Looper.getMainLooper()).post {
-            android.widget.Toast.makeText(
-                applicationContext, msg, android.widget.Toast.LENGTH_LONG
-            ).show()
-        }
+        TexoLog.log(applicationContext, msg)
     }
 
     fun isOverlayShowing(): Boolean = isShowing

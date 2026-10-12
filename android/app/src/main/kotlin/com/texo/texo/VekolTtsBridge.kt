@@ -80,9 +80,7 @@ class VekolTtsBridge(
     }
 
     private fun toast(msg: String) {
-        android.os.Handler(android.os.Looper.getMainLooper()).post {
-            android.widget.Toast.makeText(context.applicationContext, msg, android.widget.Toast.LENGTH_SHORT).show()
-        }
+        TexoLog.log(context, msg)
     }
 
     fun isReady(): Boolean = phonemeMap.isNotEmpty()

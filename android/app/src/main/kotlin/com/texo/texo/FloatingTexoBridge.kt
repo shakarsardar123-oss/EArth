@@ -104,6 +104,7 @@ object FloatingTexoBridge {
             }
 
             "showOverlay" -> {
+                debugToast(activity, "TEXO: bridge showOverlay called")
                 if (!canDrawOverlays(activity)) {
                     debugToast(activity, "TEXO: showOverlay BLOCKED - no overlay permission")
                     result.success(
@@ -248,11 +249,7 @@ object FloatingTexoBridge {
     }
 
     private fun debugToast(ctx: Context, msg: String) {
-        mainHandler.post {
-            android.widget.Toast.makeText(
-                ctx.applicationContext, msg, android.widget.Toast.LENGTH_LONG
-            ).show()
-        }
+        TexoLog.log(ctx, msg)
     }
 
     private fun canDrawOverlays(activity: MainActivity): Boolean {
