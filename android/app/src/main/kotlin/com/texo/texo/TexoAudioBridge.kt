@@ -77,6 +77,11 @@ class TexoAudioBridge(
     private val sttMaxSamples = 16000 * 20
     private var sttPcmBuffer = ShortArray(sttMaxSamples)
     private var sttPcmSize = 0
+    private val sttPreMax = 16000 * 4 / 10 // ~400 ms pre-roll
+    private val sttPre = ShortArray(sttPreMax)
+    private var sttPreSize = 0
+    private var sttVoicedMs = 0L
+    private val sttMinVoicedMs = 200L
     private var sttSpeechStarted = false
     private var sttSilenceMs = 0L
     private var sttSpeechMs = 0L
@@ -221,14 +226,58 @@ class TexoAudioBridge(
     private val sttSampleRate = 16000
     private val sttFrameMs = 32L
     private val sttSilenceThreshold = 0.012
-    private val sttEndSilenceMs = 800L
+    private val sttEndSilenceMs = 1000L
     private val sttMinSpeechMs = 250L
     private val sttMaxSpeechMs = 20000L
+
+    /** Debug: save each utterance fed to the model as a WAV in Download/texo_utterances. */
+    @android.annotation.SuppressLint("NewApi")
+    private fun saveUtteranceWav(pcm: ShortArray) {
+        if (android.os.Build.VERSION.SDK_INT < 29) return
+        val copy = pcm.copyOf()
+        Thread {
+            try {
+                val values = android.content.ContentValues().apply {
+                    put(android.provider.MediaStore.Downloads.DISPLAY_NAME, "utt_" + System.currentTimeMillis() + ".wav")
+                    put(android.provider.MediaStore.Downloads.MIME_TYPE, "audio/wav")
+                    put(android.provider.MediaStore.Downloads.RELATIVE_PATH, "Download/texo_utterances")
+                }
+                val uri = context.contentResolver.insert(
+                    android.provider.MediaStore.Downloads.EXTERNAL_CONTENT_URI,
+                    values,
+                )
+                if (uri != null) {
+                    context.contentResolver.openOutputStream(uri)?.use { out ->
+                        val dataLen = copy.size * 2
+                        val bb = java.nio.ByteBuffer.allocate(44 + dataLen)
+                            .order(java.nio.ByteOrder.LITTLE_ENDIAN)
+                        bb.put("RIFF".toByteArray())
+                        bb.putInt(36 + dataLen)
+                        bb.put("WAVE".toByteArray())
+                        bb.put("fmt ".toByteArray())
+                        bb.putInt(16)
+                        bb.putShort(1)
+                        bb.putShort(1)
+                        bb.putInt(sttSampleRate)
+                        bb.putInt(sttSampleRate * 2)
+                        bb.putShort(2)
+                        bb.putShort(16)
+                        bb.put("data".toByteArray())
+                        bb.putInt(dataLen)
+                        for (s in copy) bb.putShort(s)
+                        out.write(bb.array())
+                    }
+                }
+            } catch (_: Throwable) {
+            }
+        }.also { it.isDaemon = true }.start()
+    }
 
     private fun startStt(): Boolean {
         synchronized(sttLock) {
             sttEnabled = true
             sttPcmSize = 0
+            sttPreSize = 0
             sttSpeechStarted = false
             sttSilenceMs = 0L
             sttSpeechMs = 0L
@@ -280,6 +329,17 @@ class TexoAudioBridge(
                     sttSpeechStarted = true
                     sttSilenceMs = 0L
                     sttSpeechMs = frameMs
+                    sttVoicedMs = frameMs
+                    // Pre-roll: keep the quiet audio just before the threshold
+                    // crossing so soft word onsets are not clipped.
+                    if (sttPreSize > 0) {
+                        val pre = minOf(sttPreSize, sttMaxSamples - sttPcmSize)
+                        if (pre > 0) {
+                            sttPre.copyInto(sttPcmBuffer, sttPcmSize, 0, pre)
+                            sttPcmSize += pre
+                        }
+                    }
+                    sttPreSize = 0
                     val copyCount = minOf(n, sttMaxSamples - sttPcmSize)
                     if (copyCount > 0) {
                         buf.copyInto(sttPcmBuffer, sttPcmSize, 0, copyCount)
@@ -289,6 +349,15 @@ class TexoAudioBridge(
                     main.post {
                         sttSink?.success(mapOf("type" to "speechStarted"))
                     }
+                } else {
+                    // Slide the pre-roll window.
+                    val take = minOf(n, sttPreMax)
+                    val keep = minOf(sttPreSize, sttPreMax - take)
+                    if (keep > 0) {
+                        sttPre.copyInto(sttPre, 0, sttPreSize - keep, sttPreSize)
+                    }
+                    buf.copyInto(sttPre, keep, n - take, n)
+                    sttPreSize = keep + take
                 }
                 return
             }
@@ -306,6 +375,7 @@ class TexoAudioBridge(
                 sttSilenceMs += frameMs
             } else {
                 sttSilenceMs = 0L
+                sttVoicedMs += frameMs
             }
 
             val reachedSilence = sttSilenceMs >= sttEndSilenceMs
@@ -317,7 +387,7 @@ class TexoAudioBridge(
                     (sampleCount * 1000L) / sttSampleRate
 
                 val valid =
-                    sttSpeechMs >= sttMinSpeechMs &&
+                    sttVoicedMs >= sttMinVoicedMs &&
                     sampleCount > 0
 
                 val utterance =
@@ -333,6 +403,7 @@ class TexoAudioBridge(
                 sttSpeechMs = 0L
 
                 if (utterance != null) {
+                    saveUtteranceWav(utterance)
                     main.post {
                         sttSink?.success(
                             mapOf(

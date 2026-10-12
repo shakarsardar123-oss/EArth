@@ -107,7 +107,10 @@ class VekolSttEngine(
 
         executor.execute {
             try {
+                val t0 = System.nanoTime()
                 val text = transcribeBlocking(samples)
+                val ms = (System.nanoTime() - t0) / 1_000_000
+                TexoLog.log(context, "STT: ${samples.size / 16} ms audio -> ${ms} ms [${text}]")
                 onResult(text)
             } catch (t: Throwable) {
                 onError(t)
@@ -115,8 +118,27 @@ class VekolSttEngine(
         }
     }
 
+    @Volatile
+    private var maxNewTokens = 40
+
+    /** Boost quiet phone-mic audio so Whisper sees a normal level. */
+    private fun normalizeLevel(src: ShortArray): ShortArray {
+        var peak = 0
+        for (s in src) {
+            val a = kotlin.math.abs(s.toInt())
+            if (a > peak) peak = a
+        }
+        if (peak < 200) return src
+        val gain = (0.9f * 32767f / peak).coerceIn(1f, 12f)
+        if (gain < 1.05f) return src
+        return ShortArray(src.size) { i ->
+            (src[i] * gain).toInt().coerceIn(-32768, 32767).toShort()
+        }
+    }
+
     private fun transcribeBlocking(samples: ShortArray): String {
-        val features = whisperLogMel(samples)
+        maxNewTokens = (12 + 10 * (samples.size / 16000.0)).toInt().coerceIn(16, 80)
+        val features = whisperLogMel(normalizeLevel(samples))
 
         val featureData = Array(1) {
             Array(N_MELS) { mel ->
@@ -519,7 +541,7 @@ class VekolSttEngine(
             50363L, // <|notimestamps|>
         )
 
-        val maxTokens = 128
+        val maxTokens = 4 + maxNewTokens
         val eosToken = 50257L
 
         while (tokenIds.size < maxTokens) {
@@ -615,6 +637,27 @@ class VekolSttEngine(
 
                         val lastLogits =
                             sequenceLogits[sequenceLogits.size - 1]
+                        // Whisper-style rules: no blank/EOT as the very first
+                        // token (unless the model hears no speech), and never
+                        // emit special or timestamp tokens.
+                        if (tokenIds.size == 4) {
+                            var mx = Float.NEGATIVE_INFINITY
+                            for (v in lastLogits) {
+                                if (v > mx) mx = v
+                            }
+                            var sum = 0.0
+                            for (v in lastLogits) {
+                                sum += Math.exp((v - mx).toDouble())
+                            }
+                            val pNoSpeech =
+                                Math.exp((lastLogits[50362] - mx).toDouble()) / sum
+                            if (pNoSpeech > 0.8) return ""
+                            lastLogits[220] = Float.NEGATIVE_INFINITY
+                            lastLogits[50257] = Float.NEGATIVE_INFINITY
+                        }
+                        for (i in 50258 until lastLogits.size) {
+                            lastLogits[i] = Float.NEGATIVE_INFINITY
+                        }
 
                         var bestId = 0
                         var bestValue =
@@ -636,6 +679,12 @@ class VekolSttEngine(
                         }
 
                         tokenIds.add(nextToken)
+                        if (tokenIds.size >= 12) {
+                            val tail = tokenIds.subList(tokenIds.size - 8, tokenIds.size)
+                            if (tail.toSet().size <= 2) {
+                                return decodeTokens(tokenIds.subList(0, tokenIds.size - 6))
+                            }
+                        }
                     }
                 } finally {
                     inputs.values.forEach { tensor ->
