@@ -130,6 +130,20 @@ class PhoneControlProcessor implements AgentProcessor {
     return q;
   }
 
+  static const String _pkgYtMusic = 'com.google.android.apps.youtube.music';
+  static const String _pkgSpotify = 'com.spotify.music';
+
+  /// Music apps to try in order, so Android never shows the app chooser.
+  List<String> _musicPackages(String text) {
+    final l = text.toLowerCase();
+    final wantsSpotify = l.contains('spotify') ||
+        l.contains('سپۆتیفای') ||
+        l.contains('سپوتیفای');
+    return wantsSpotify
+        ? [_pkgSpotify, _pkgYtMusic]
+        : [_pkgYtMusic, _pkgSpotify];
+  }
+
   Future<Map<String, dynamic>> _fastCall(
       MethodChannel ch, String m, Map<String, dynamic> a) async {
     try {
@@ -162,13 +176,18 @@ class PhoneControlProcessor implements AgentProcessor {
       }
       if (!hasYoutube) {
         await _fastCall(_sys, 'agentBegin', {});
-        final r = await _fastCall(_sys, 'a11yStartIntent', {
-          'action': 'android.media.action.MEDIA_PLAY_FROM_SEARCH',
-          'extras': {
-            'query': q,
-            'android.intent.extra.focus': 'vnd.android.cursor.item/*',
-          },
-        });
+        var r = <String, dynamic>{'ok': false};
+        for (final pkg in _musicPackages(t)) {
+          r = await _fastCall(_sys, 'a11yStartIntent', {
+            'action': 'android.media.action.MEDIA_PLAY_FROM_SEARCH',
+            'package': pkg,
+            'extras': {
+              'query': q,
+              'android.intent.extra.focus': 'vnd.android.cursor.item/*',
+            },
+          });
+          if (r['ok'] != false) break;
+        }
         await _fastCall(_sys, 'agentEnd', {});
         if (r['ok'] != false) {
           return q.isEmpty ? 'موزیکم دەست پێکرد.' : 'داوای لێدانی «$q»م نارد.';
