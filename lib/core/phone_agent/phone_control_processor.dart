@@ -107,6 +107,29 @@ class PhoneControlProcessor implements AgentProcessor {
     'تێلێگرام': 'telegram', 'سناپ': 'snapchat',
   };
 
+  static final RegExp _songWord =
+      RegExp(r'^گۆرانی(?:ەکی|ەک|ەکە|ەکان|یەکی|یەک)?$');
+  static const Set<String> _chatWords = {
+    'سڵاو', 'سلاو', 'چۆنیت', 'چۆنی', 'دەتوانی', 'دەتوانیت', 'ئایا',
+  };
+
+  /// Search query for a music request. Returns '' when no song is named, or
+  /// null for free-form sentences (greetings, long requests): the agent
+  /// handles those instead of guessing a query from the whole sentence.
+  String? _extractMusicQuery(List<String> tokens) {
+    if (tokens.length > 8) return null;
+    if (tokens.any((w) => _chatWords.contains(w))) return null;
+    const extra = <String>{'بۆ', 'ئێستا', 'ئەمجارە', 'هەر'};
+    final songIdx = tokens.indexWhere((w) => _songWord.hasMatch(w));
+    final rest = songIdx >= 0 ? tokens.sublist(songIdx + 1) : tokens;
+    final q = rest
+        .where((w) => !_fillers.contains(w.toLowerCase()) && !extra.contains(w))
+        .join(' ')
+        .trim();
+    if (q.split(' ').where((w) => w.isNotEmpty).length > 4) return null;
+    return q;
+  }
+
   Future<Map<String, dynamic>> _fastCall(
       MethodChannel ch, String m, Map<String, dynamic> a) async {
     try {
@@ -131,7 +154,8 @@ class PhoneControlProcessor implements AgentProcessor {
     });
 
     if (_musicWords.hasMatch(t)) {
-      final q = tokens.where((w) => !_fillers.contains(w.toLowerCase())).join(' ').trim();
+      final q = _extractMusicQuery(tokens);
+      if (q == null) return null; // free-form sentence: the agent handles it
       if (q.isEmpty && hasYoutube) {
         final r = await _fastCall(_dev, 'launchApp', {'packageId': 'youtube'});
         return (r['ok'] != false && r['error'] == null) ? 'یوتوبم کردەوە.' : null;
@@ -147,7 +171,7 @@ class PhoneControlProcessor implements AgentProcessor {
         });
         await _fastCall(_sys, 'agentEnd', {});
         if (r['ok'] != false) {
-          return q.isEmpty ? 'موزیکم دەست پێکرد.' : 'گۆرانی $q دەست پێکرد.';
+          return q.isEmpty ? 'موزیکم دەست پێکرد.' : 'داوای لێدانی «$q»م نارد.';
         }
       }
       if (q.isNotEmpty) {

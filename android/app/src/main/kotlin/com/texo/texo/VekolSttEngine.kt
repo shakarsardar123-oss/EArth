@@ -661,36 +661,29 @@ class VekolSttEngine(
         return decodeTokens(tokenIds)
     }
 
-    private fun emptyKvTensor(): OnnxTensor {
-        val data =
-            Array(1) {
-                Array(8) {
-                    Array(0) {
-                        FloatArray(64)
-                    }
-                }
-            }
+    private fun emptyKvTensor(): OnnxTensor = placeholderKvTensor()
 
-        return OnnxTensor.createTensor(
-            ortEnvironment,
-            data,
-        )
-    }
+    private fun emptyEncoderKvTensor(): OnnxTensor = placeholderKvTensor()
 
-    private fun emptyEncoderKvTensor(): OnnxTensor {
-        val data =
-            Array(1) {
-                Array(8) {
-                    Array(0) {
-                        FloatArray(64)
-                    }
-                }
-            }
-
-        return OnnxTensor.createTensor(
-            ortEnvironment,
-            data,
-        )
+    /**
+     * Placeholder past_key_values for the merged decoder (use_cache_branch=false).
+     * ORT Java rejects zero-length dimensions in nested arrays, so build the
+     * tensor from a buffer. Fallback: length-1 dummy (unused by the no-cache branch).
+     */
+    private fun placeholderKvTensor(): OnnxTensor {
+        return try {
+            OnnxTensor.createTensor(
+                ortEnvironment,
+                java.nio.FloatBuffer.allocate(0),
+                longArrayOf(1, 8, 0, 64),
+            )
+        } catch (_: Throwable) {
+            OnnxTensor.createTensor(
+                ortEnvironment,
+                java.nio.FloatBuffer.allocate(8 * 64),
+                longArrayOf(1, 8, 1, 64),
+            )
+        }
     }
 
     private fun decodeTokens(
