@@ -1,3 +1,4 @@
+import 'dart:typed_data';
 import 'dart:ui' as ui;
 
 import 'package:flutter/foundation.dart';
@@ -9,6 +10,15 @@ class UiMessage {
 
   final bool isUser;
   final String text;
+}
+
+/// A file the user attaches to a message (audio, image, PDF, text...).
+class UiAttachment {
+  const UiAttachment({required this.name, required this.mime, required this.bytes});
+
+  final String name;
+  final String mime;
+  final Uint8List bytes;
 }
 
 class UiConversation {
@@ -65,7 +75,14 @@ abstract class TexoBackend {
   Future<void> stopLive();
   Future<void> toggleMic();
 
-  Future<String> ask(String text, {String? conversationId});
+  /// Opens the system file picker. Returns null if the user cancels.
+  Future<UiAttachment?> pickAttachment();
+
+  Future<String> ask(
+    String text, {
+    String? conversationId,
+    List<UiAttachment> attachments = const <UiAttachment>[],
+  });
   Future<void> speak(String text);
 
   Future<List<UiConversation>> conversations();

@@ -92,6 +92,8 @@ class UiStrings {
     'cancel': 'هەڵوەشاندنەوە',
     'keySet': 'دانراوە',
     'keyMissing': 'دانەنراوە',
+    'attachPrompt': 'ئەم فایلە بخوێنەوە و پوختەیەکی بنووسە، یان ئەگەر دەنگە بە کوردی بینووسەرەوە.',
+    'attachRemove': 'لابردن',
   };
 
   static const Map<String, String> _en = <String, String>{
@@ -158,5 +160,7 @@ class UiStrings {
     'cancel': 'Cancel',
     'keySet': 'Set',
     'keyMissing': 'Not set',
+    'attachPrompt': 'Read this file and summarize it, or transcribe it if it is audio.',
+    'attachRemove': 'Remove',
   };
 }

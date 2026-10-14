@@ -10,11 +10,20 @@ import 'strings.dart';
 import 'widgets.dart';
 
 class _Msg {
-  _Msg(this.isUser, this.text, {this.fresh = false});
+  _Msg(this.isUser, this.text, {this.fresh = false, this.files = const <String>[]});
 
   final bool isUser;
   final String text;
   final bool fresh;
+  final List<String> files;
+}
+
+IconData _fileIcon(String mime) {
+  if (mime.startsWith('audio/')) return Icons.audiotrack_outlined;
+  if (mime.startsWith('image/')) return Icons.image_outlined;
+  if (mime.startsWith('video/')) return Icons.movie_outlined;
+  if (mime == 'application/pdf') return Icons.picture_as_pdf_outlined;
+  return Icons.insert_drive_file_outlined;
 }
 
 class ChatScreen extends StatefulWidget {
@@ -31,6 +40,7 @@ class _ChatScreenState extends State<ChatScreen> {
   final TextEditingController _ctl = TextEditingController();
   final ScrollController _scroll = ScrollController();
   final List<_Msg> _msgs = <_Msg>[];
+  final List<UiAttachment> _pending = <UiAttachment>[];
   bool _thinking = false;
   bool _started = false;
 
@@ -80,15 +90,23 @@ class _ChatScreenState extends State<ChatScreen> {
     });
   }
 
-  Future<void> _send(TexoBackend backend, String text) async {
+  Future<void> _send(
+    TexoBackend backend,
+    String text, {
+    List<UiAttachment> attachments = const <UiAttachment>[],
+  }) async {
     setState(() {
-      _msgs.add(_Msg(true, text));
+      _msgs.add(_Msg(true, text, files: attachments.map((UiAttachment a) => a.name).toList()));
       _thinking = true;
     });
     _toBottom();
     String reply;
     try {
-      reply = await backend.ask(text, conversationId: widget.conversationId);
+      reply = await backend.ask(
+        text,
+        conversationId: widget.conversationId,
+        attachments: attachments,
+      );
     } catch (e) {
       reply = '$e';
     }
@@ -102,12 +120,67 @@ class _ChatScreenState extends State<ChatScreen> {
 
   void _submit(TexoBackend backend) {
     final String text = _ctl.text.trim();
-    if (text.isEmpty || _thinking) return;
+    if ((text.isEmpty && _pending.isEmpty) || _thinking) return;
+    final UiStrings s = UiScope.of(context).s;
+    final List<UiAttachment> files = List<UiAttachment>.of(_pending);
     _ctl.clear();
-    _send(backend, text);
+    setState(_pending.clear);
+    _send(backend, text.isEmpty ? s.t('attachPrompt') : text, attachments: files);
   }
 
-  Widget _userBubble(String text) {
+  Future<void> _pick(TexoBackend backend) async {
+    final UiAttachment? a = await backend.pickAttachment();
+    if (a == null || !mounted) return;
+    setState(() => _pending.add(a));
+  }
+
+  Widget _pendingRow(UiStrings s) {
+    return SizedBox(
+      height: 48,
+      child: ListView(
+        scrollDirection: Axis.horizontal,
+        padding: const EdgeInsets.symmetric(horizontal: 16),
+        children: <Widget>[
+          for (final UiAttachment a in _pending)
+            Padding(
+              padding: const EdgeInsetsDirectional.only(end: 8),
+              child: Container(
+                padding: const EdgeInsetsDirectional.only(start: 12, end: 4),
+                decoration: BoxDecoration(
+                  color: UiColors.white,
+                  borderRadius: BorderRadius.circular(22),
+                  boxShadow: UiColors.cardShadow,
+                ),
+                child: Row(
+                  children: <Widget>[
+                    Icon(_fileIcon(a.mime), size: 18, color: UiColors.violetText),
+                    const SizedBox(width: 8),
+                    ConstrainedBox(
+                      constraints: const BoxConstraints(maxWidth: 140),
+                      child: Text(
+                        a.name,
+                        maxLines: 1,
+                        overflow: TextOverflow.ellipsis,
+                        style: const TextStyle(fontSize: 13, color: UiColors.ink),
+                      ),
+                    ),
+                    UiIconButton(
+                      icon: Icons.close,
+                      label: s.t('attachRemove'),
+                      size: 16,
+                      color: UiColors.inkSoft,
+                      onTap: () => setState(() => _pending.remove(a)),
+                    ),
+                  ],
+                ),
+              ),
+            ),
+        ],
+      ),
+    );
+  }
+
+  Widget _userBubble(String text, List<String> files) {
     return Align(
       alignment: AlignmentDirectional.centerEnd,
       child: PopIn(
@@ -123,9 +196,33 @@ class _ChatScreenState extends State<ChatScreen> {
               bottomEnd: Radius.circular(6),
             ),
           ),
-          child: Text(
-            text,
-            style: const TextStyle(fontSize: 16, height: 1.7, color: UiColors.skyInk),
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: <Widget>[
+              for (final String f in files)
+                Padding(
+                  padding: const EdgeInsets.only(bottom: 6),
+                  child: Row(
+                    mainAxisSize: MainAxisSize.min,
+                    children: <Widget>[
+                      const Icon(Icons.attach_file, size: 16, color: UiColors.skyInk),
+                      const SizedBox(width: 6),
+                      Flexible(
+                        child: Text(
+                          f,
+                          maxLines: 1,
+                          overflow: TextOverflow.ellipsis,
+                          style: const TextStyle(fontSize: 13, color: UiColors.skyInk),
+                        ),
+                      ),
+                    ],
+                  ),
+                ),
+              Text(
+                text,
+                style: const TextStyle(fontSize: 16, height: 1.7, color: UiColors.skyInk),
+              ),
+            ],
           ),
         ),
       ),
@@ -249,10 +346,11 @@ class _ChatScreenState extends State<ChatScreen> {
                       );
                     }
                     final _Msg m = _msgs[i];
-                    return m.isUser ? _userBubble(m.text) : _aiBlock(backend, s, m);
+                    return m.isUser ? _userBubble(m.text, m.files) : _aiBlock(backend, s, m);
                   },
                 ),
               ),
+              if (_pending.isNotEmpty) _pendingRow(s),
               Container(
                 height: 64,
                 margin: const EdgeInsets.fromLTRB(16, 0, 16, 16),
@@ -270,7 +368,7 @@ class _ChatScreenState extends State<ChatScreen> {
                       icon: Icons.add,
                       label: s.t('attach'),
                       size: 26,
-                      onTap: () {},
+                      onTap: () => _pick(backend),
                     ),
                     Expanded(
                       child: TextField(

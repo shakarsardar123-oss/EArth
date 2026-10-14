@@ -1,5 +1,6 @@
 import 'dart:async';
 import 'dart:math' as math;
+import 'dart:typed_data';
 import 'dart:ui' as ui;
 
 import 'package:flutter/material.dart';
@@ -135,7 +136,16 @@ class DemoBackend implements TexoBackend {
   }
 
   @override
-  Future<String> ask(String text, {String? conversationId}) async {
+  Future<UiAttachment?> pickAttachment() async {
+    return UiAttachment(name: 'sample.wav', mime: 'audio/wav', bytes: Uint8List(0));
+  }
+
+  @override
+  Future<String> ask(
+    String text, {
+    String? conversationId,
+    List<UiAttachment> attachments = const <UiAttachment>[],
+  }) async {
     await Future<void>.delayed(const Duration(milliseconds: 1400));
     return 'بەڵێ، ئێستا دەیکەم. شتێکی تر دەتەوێت؟';
   }
