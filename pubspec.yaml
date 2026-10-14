@@ -42,6 +42,7 @@ flutter:
   uses-material-design: true
   assets:
     - assets/audio/texo_mic_beep.mp3
+    - assets/logo/texo_logo.png
     - assets/textures/earth/earth_surface.jpg
     - assets/textures/earth/earth_clouds.jpg
     - assets/textures/earth/earth_night.jpg
