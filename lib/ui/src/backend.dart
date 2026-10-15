@@ -2,6 +2,7 @@ import 'dart:typed_data';
 import 'dart:ui' as ui;
 
 import 'package:flutter/foundation.dart';
+import 'package:flutter/widgets.dart' show Widget;
 
 enum LiveMode { listening, thinking, speaking }
 
@@ -71,9 +72,21 @@ abstract class TexoBackend {
 
   LiveVoiceSource get liveSource;
 
+  /// Called when a chat screen opens: [conversationId] null = brand new chat.
+  void beginChat(String? conversationId);
+
   Future<void> startLive();
   Future<void> stopLive();
   Future<void> toggleMic();
+
+  /// Live camera: true while the camera is on. The app attaches the current
+  /// frame to what the user says, so the assistant can "see".
+  ValueListenable<bool> get cameraActive;
+  Future<void> setCamera(bool on);
+  Future<void> switchCamera();
+
+  /// The live camera preview, or null when the camera is off. Fills its parent.
+  Widget? buildCameraPreview();
 
   /// Opens the system file picker. Returns null if the user cancels.
   Future<UiAttachment?> pickAttachment();

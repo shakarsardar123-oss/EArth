@@ -428,12 +428,14 @@ class GlassCircle extends StatelessWidget {
     required this.label,
     required this.onTap,
     this.size = 52,
+    this.active = false,
   });
 
   final IconData icon;
   final String label;
   final VoidCallback onTap;
   final double size;
+  final bool active;
 
   @override
   Widget build(BuildContext context) {
@@ -447,8 +449,8 @@ class GlassCircle extends StatelessWidget {
           height: size,
           decoration: BoxDecoration(
             shape: BoxShape.circle,
-            color: const Color(0x14FFFFFF),
-            border: Border.all(color: const Color(0x24FFFFFF)),
+            color: active ? const Color(0x558B5CF6) : const Color(0x14FFFFFF),
+            border: Border.all(color: active ? const Color(0xFFA78BFA) : const Color(0x24FFFFFF)),
           ),
           child: Icon(icon, color: UiColors.liveInk, size: size * 0.42),
         ),

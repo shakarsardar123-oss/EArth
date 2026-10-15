@@ -55,6 +55,7 @@ class _ChatScreenState extends State<ChatScreen> {
 
   Future<void> _init(TexoBackend backend) async {
     final String? id = widget.conversationId;
+    backend.beginChat(id);
     if (id != null) {
       final List<UiMessage> list = await backend.messages(id);
       if (!mounted) return;

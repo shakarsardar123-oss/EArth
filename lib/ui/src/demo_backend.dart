@@ -70,6 +70,29 @@ class DemoBackend implements TexoBackend {
   double _offset = 0;
   bool _ku = true;
 
+  final ValueNotifier<bool> _cam = ValueNotifier<bool>(false);
+
+  @override
+  ValueListenable<bool> get cameraActive => _cam;
+
+  @override
+  Future<void> setCamera(bool on) async {
+    _cam.value = on;
+  }
+
+  @override
+  Future<void> switchCamera() async {}
+
+  @override
+  Widget? buildCameraPreview() {
+    if (!_cam.value) return null;
+    return Container(
+      color: const Color(0xFF223355),
+      alignment: Alignment.center,
+      child: const Icon(Icons.videocam, color: Colors.white54, size: 36),
+    );
+  }
+
   final Map<String, bool> _toggles = <String, bool>{'wake': true, 'read': true, 'hap': false};
   bool _hasKey = false;
 
@@ -78,6 +101,9 @@ class DemoBackend implements TexoBackend {
 
   @override
   LiveVoiceSource get liveSource => _live;
+
+  @override
+  void beginChat(String? conversationId) {}
 
   @override
   Future<void> startLive() async {

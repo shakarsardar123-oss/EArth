@@ -1,10 +1,11 @@
 name: UI analyze
 
-# Fast compile check of lib/ui only (no APK, no LFS). ~3 minutes.
+# Fast compile check of lib/ui and lib/bridge only (no APK, no LFS). ~3 minutes.
 on:
   push:
     paths:
       - 'lib/ui/**'
+      - 'lib/bridge/**'
       - '.github/workflows/ui-check.yml'
   workflow_dispatch:
 
@@ -21,4 +22,4 @@ jobs:
           channel: stable
           cache: true
       - run: flutter pub get
-      - run: flutter analyze lib/ui --no-fatal-infos --no-fatal-warnings
+      - run: flutter analyze lib/ui lib/bridge --no-fatal-infos --no-fatal-warnings

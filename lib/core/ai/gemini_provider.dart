@@ -29,6 +29,7 @@ import '../../core/ai/provider_exception.dart';
 import '../../core/ai/endpoint_validator.dart';
 import '../../core/ai/model_discovery.dart';
 import '../errors/result.dart';
+import '../vision/live_vision_frame.dart';
 
 /// Secure storage key for the Gemini API key.
 const _geminiApiKeyStorageKey = 'aura_gemini_api_key';
@@ -274,12 +275,20 @@ class GeminiProvider implements AIProvider, ModelDiscovery {
         // Other normal messages are Gemini user messages.
         if (msg.content.isEmpty) continue;
 
-        contents.add({
-          'role': 'user',
-          'parts': [
-            {'text': msg.content},
-          ],
-        });
+        final userParts = <Map<String, dynamic>>[
+          {'text': msg.content},
+        ];
+        final attached = msg.metadata?['attachments'];
+        if (attached is List) {
+          for (final a in attached) {
+            if (a is Map && a['data'] is String && a['mime'] is String) {
+              userParts.add({
+                'inlineData': {'mimeType': a['mime'], 'data': a['data']},
+              });
+            }
+          }
+        }
+        contents.add({'role': 'user', 'parts': userParts});
       }
     }
 
@@ -293,6 +302,25 @@ class GeminiProvider implements AIProvider, ModelDiscovery {
       });
     }
 
+    // LIVE-VISION: attach the current camera frame to the last user text message.
+    final liveFrame = LiveVisionFrame.fresh();
+    if (liveFrame != null) {
+      for (var i = contents.length - 1; i >= 0; i--) {
+        final c = contents[i];
+        final parts = c['parts'];
+        if (c['role'] == 'user' &&
+            parts is List &&
+            parts.any((p) => p is Map && p.containsKey('text'))) {
+          final np = <dynamic>[
+            ...parts,
+            {'text': '(The next image is the live camera view from the user\'s phone right now.)'},
+            {'inlineData': {'mimeType': 'image/jpeg', 'data': base64Encode(liveFrame)}},
+          ];
+          contents[i] = <String, dynamic>{...c, 'parts': np};
+          break;
+        }
+      }
+    }
     return contents;
   }
 

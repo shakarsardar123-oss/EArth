@@ -94,6 +94,8 @@ class UiStrings {
     'keyMissing': 'دانەنراوە',
     'attachPrompt': 'ئەم فایلە بخوێنەوە و پوختەیەکی بنووسە، یان ئەگەر دەنگە بە کوردی بینووسەرەوە.',
     'attachRemove': 'لابردن',
+    'camera': 'کامێرا',
+    'cameraFlip': 'گۆڕینی کامێرا',
   };
 
   static const Map<String, String> _en = <String, String>{
@@ -162,5 +164,7 @@ class UiStrings {
     'keyMissing': 'Not set',
     'attachPrompt': 'Read this file and summarize it, or transcribe it if it is audio.',
     'attachRemove': 'Remove',
+    'camera': 'Camera',
+    'cameraFlip': 'Switch camera',
   };
 }

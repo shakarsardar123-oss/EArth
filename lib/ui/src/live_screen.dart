@@ -35,6 +35,7 @@ class _LiveScreenState extends State<LiveScreen> with SingleTickerProviderStateM
 
   @override
   void dispose() {
+    _backend?.setCamera(false);
     _backend?.stopLive();
     _frame.dispose();
     super.dispose();
@@ -45,6 +46,7 @@ class _LiveScreenState extends State<LiveScreen> with SingleTickerProviderStateM
     final UiScope scope = UiScope.of(context);
     final UiStrings s = scope.s;
     final LiveVoiceSource src = scope.backend.liveSource;
+    final double top = MediaQuery.of(context).padding.top;
     return Scaffold(
       backgroundColor: UiColors.liveTop,
       body: UiBackground(
@@ -135,7 +137,17 @@ class _LiveScreenState extends State<LiveScreen> with SingleTickerProviderStateM
                             MaterialPageRoute<void>(builder: (BuildContext _) => const ChatScreen()),
                           ),
                         ),
-                        const SizedBox(width: 26),
+                        const SizedBox(width: 18),
+                        ValueListenableBuilder<bool>(
+                          valueListenable: scope.backend.cameraActive,
+                          builder: (BuildContext c, bool on, Widget? _) => GlassCircle(
+                            icon: on ? Icons.videocam : Icons.videocam_off_outlined,
+                            label: s.t('camera'),
+                            active: on,
+                            onTap: () => scope.backend.setCamera(!on),
+                          ),
+                        ),
+                        const SizedBox(width: 18),
                         Semantics(
                           button: true,
                           label: s.t('mic'),
@@ -164,7 +176,7 @@ class _LiveScreenState extends State<LiveScreen> with SingleTickerProviderStateM
                             ),
                           ),
                         ),
-                        const SizedBox(width: 26),
+                        const SizedBox(width: 18),
                         GlassCircle(
                           icon: Icons.close,
                           label: s.t('close'),
@@ -175,6 +187,40 @@ class _LiveScreenState extends State<LiveScreen> with SingleTickerProviderStateM
                   ),
                 ],
               ),
+            ),
+            ValueListenableBuilder<bool>(
+              valueListenable: scope.backend.cameraActive,
+              builder: (BuildContext c, bool on, Widget? _) {
+                if (!on) return const SizedBox.shrink();
+                final Widget? view = scope.backend.buildCameraPreview();
+                if (view == null) return const SizedBox.shrink();
+                return PositionedDirectional(
+                  top: top + 84,
+                  end: 20,
+                  child: Semantics(
+                    button: true,
+                    label: s.t('cameraFlip'),
+                    child: GestureDetector(
+                      onTap: () => scope.backend.switchCamera(),
+                      child: Container(
+                        width: 112,
+                        height: 150,
+                        decoration: BoxDecoration(
+                          borderRadius: BorderRadius.circular(18),
+                          border: Border.all(color: const Color(0x66FFFFFF)),
+                          boxShadow: const <BoxShadow>[
+                            BoxShadow(color: Color(0x668B5CF6), blurRadius: 24),
+                          ],
+                        ),
+                        child: ClipRRect(
+                          borderRadius: BorderRadius.circular(17),
+                          child: view,
+                        ),
+                      ),
+                    ),
+                  ),
+                );
+              },
             ),
           ],
         ),
