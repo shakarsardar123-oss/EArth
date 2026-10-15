@@ -1,0 +1,49 @@
+name: UI preview APK
+
+# Builds the new UI with demo data (lib/ui/preview_main.dart) as a SEPARATE app
+# (com.texo.texo.preview) so it installs next to the real TEXO. No LFS used.
+on:
+  push:
+    branches: [ ui-new ]
+    paths:
+      - 'lib/ui/**'
+      - '.github/workflows/ui-preview.yml'
+  workflow_dispatch:
+
+jobs:
+  preview:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          lfs: false
+      - uses: actions/setup-java@v4
+        with:
+          distribution: 'zulu'
+          java-version: '17'
+      - uses: subosito/flutter-action@v2
+        with:
+          channel: 'stable'
+          flutter-version: '3.47.4'
+          cache: true
+      - uses: android-actions/setup-android@v3
+        with:
+          packages: 'platforms;android-36 build-tools;36.0.0'
+      - name: Make it a separate app
+        run: |
+          for f in android/app/build.gradle android/app/build.gradle.kts; do
+            if [ -f "$f" ]; then
+              sed -i 's/applicationId\([ =]*\)"com\.texo\.texo"/applicationId\1"com.texo.texo.preview"/' "$f"
+            fi
+          done
+          grep -n "applicationId" android/app/build.gradle* || true
+          grep -q "com.texo.texo.preview" android/app/build.gradle* || { echo "applicationId was NOT patched"; exit 1; }
+          M=android/app/src/main/AndroidManifest.xml
+          sed -i 's/authorities="com\.texo\.texo\./authorities="com.texo.texo.preview./g' "$M"
+          sed -i '0,/android:label="[^"]*"/s//android:label="TEXO Preview"/' "$M"
+      - run: flutter pub get
+      - run: flutter build apk --release -t lib/ui/preview_main.dart --target-platform android-arm64
+      - uses: actions/upload-artifact@v4
+        with:
+          name: texo-ui-preview
+          path: build/app/outputs/flutter-apk/app-release.apk
