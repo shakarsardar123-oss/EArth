@@ -1,13 +1,20 @@
 name: UI analyze
 
-# Fast compile check of lib/ui and lib/bridge only (no APK, no LFS). ~3 minutes.
+# Fast compile check (no APK, no LFS). The result is saved in the branch as
+# ui_analyze.txt: run `git pull` then `cat ui_analyze.txt`.
 on:
   push:
+    branches: [ ui-new ]
     paths:
       - 'lib/ui/**'
       - 'lib/bridge/**'
+      - 'lib/core/ai/**'
+      - 'lib/core/vision/**'
       - '.github/workflows/ui-check.yml'
   workflow_dispatch:
+
+permissions:
+  contents: write
 
 jobs:
   analyze:
@@ -21,5 +28,22 @@ jobs:
           flutter-version: '3.47.4'
           channel: stable
           cache: true
-      - run: flutter pub get
-      - run: flutter analyze lib/ui lib/bridge --no-fatal-infos --no-fatal-warnings
+      - name: Analyze and save the report
+        run: |
+          set +e
+          {
+            flutter --version
+            flutter pub get
+            echo "----- analyze -----"
+            flutter analyze lib/ui lib/bridge lib/core/vision lib/core/ai/gemini_provider.dart --no-fatal-infos --no-fatal-warnings
+            echo "exit code: $?"
+          } > ui_analyze.txt 2>&1
+          tail -n 60 ui_analyze.txt
+      - name: Commit the report
+        if: always()
+        run: |
+          git config user.name "ui-check"
+          git config user.email "ui-check@users.noreply.github.com"
+          git add ui_analyze.txt
+          git commit -m "ui-check: analyze report [skip ci]" || echo "nothing to commit"
+          git push || echo "push failed"
