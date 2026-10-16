@@ -1,0 +1,50 @@
+name: Overlay test APK
+
+# Builds a tiny diagnostics app (lib/ui/overlay_test_main.dart) that calls the
+# real native overlay bridge. Separate app id, no LFS.
+on:
+  push:
+    branches: [ ui-new ]
+    paths:
+      - 'lib/ui/overlay_test_main.dart'
+      - 'android/app/src/main/kotlin/**'
+      - '.github/workflows/overlay-test.yml'
+  workflow_dispatch:
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          lfs: false
+      - uses: actions/setup-java@v4
+        with:
+          distribution: 'zulu'
+          java-version: '17'
+      - uses: subosito/flutter-action@v2
+        with:
+          channel: 'stable'
+          flutter-version: '3.47.4'
+          cache: true
+      - uses: android-actions/setup-android@v3
+        with:
+          packages: 'platforms;android-36 build-tools;36.0.0'
+      - name: Make it a separate app
+        run: |
+          for f in android/app/build.gradle android/app/build.gradle.kts; do
+            if [ -f "$f" ]; then
+              sed -i 's/applicationId\([ =]*\)"com\.texo\.texo"/applicationId\1"com.texo.texo.overlaytest"/' "$f"
+            fi
+          done
+          grep -n "applicationId" android/app/build.gradle* || true
+          grep -q "com.texo.texo.overlaytest" android/app/build.gradle* || { echo "applicationId was NOT patched"; exit 1; }
+          M=android/app/src/main/AndroidManifest.xml
+          sed -i 's/authorities="com\.texo\.texo\./authorities="com.texo.texo.overlaytest./g' "$M"
+          sed -i '0,/android:label="[^"]*"/s//android:label="TEXO overlay test"/' "$M"
+      - run: flutter pub get
+      - run: flutter build apk --release -t lib/ui/overlay_test_main.dart --target-platform android-arm64
+      - uses: actions/upload-artifact@v4
+        with:
+          name: texo-overlay-test
+          path: build/app/outputs/flutter-apk/app-release.apk
