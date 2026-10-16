@@ -55,11 +55,12 @@ Downloading packages...
   test_api 0.7.12 (0.7.15 available)
   timezone 0.9.4 (0.11.2 available)
   vector_math 2.4.2 (2.4.3 available)
+  vm_service 15.3.0 (15.4.0 available)
   win32 5.15.0 (6.4.0 available)
   win32_registry 1.1.5 (3.0.3 available)
   xml 7.0.1 (7.1.0 available)
 Got dependencies!
-54 packages have newer versions incompatible with dependency constraints.
+55 packages have newer versions incompatible with dependency constraints.
 Try `flutter pub outdated` for more information.
 /home/runner/work/EArth/EArth/l10n.yaml: The argument "synthetic-package" no longer has any effect and should be removed. See http://flutter.dev/to/flutter-gen-deprecation
 ----- analyze -----
@@ -116,11 +117,12 @@ Downloading packages...
   test_api 0.7.12 (0.7.15 available)
   timezone 0.9.4 (0.11.2 available)
   vector_math 2.4.2 (2.4.3 available)
+  vm_service 15.3.0 (15.4.0 available)
   win32 5.15.0 (6.4.0 available)
   win32_registry 1.1.5 (3.0.3 available)
   xml 7.0.1 (7.1.0 available)
 Got dependencies!
-54 packages have newer versions incompatible with dependency constraints.
+55 packages have newer versions incompatible with dependency constraints.
 Try `flutter pub outdated` for more information.
 Analyzing 4 items...                                            
 
@@ -138,6 +140,7 @@ warning • The left operand can't be null, so the right operand is never execut
    info • Missing a required trailing comma. Try adding a trailing comma • lib/core/ai/gemini_provider.dart:608:14 • require_trailing_commas
 warning • The left operand can't be null, so the right operand is never executed. Try removing the operator and the right operand • lib/core/ai/gemini_provider.dart:688:9 • dead_null_aware_expression
    info • Missing a required trailing comma. Try adding a trailing comma • lib/core/ai/gemini_provider.dart:1000:10 • require_trailing_commas
+   info • Missing a required trailing comma. Try adding a trailing comma • lib/ui/overlay_test_main.dart:18:4 • require_trailing_commas
    info • The import of 'dart:typed_data' is unnecessary because all of the used elements are also provided by the import of 'package:flutter/foundation.dart'. Try removing the import directive • lib/ui/src/backend.dart:1:8 • unnecessary_import
    info • The import of 'dart:typed_data' is unnecessary because all of the used elements are also provided by the import of 'package:flutter/foundation.dart'. Try removing the import directive • lib/ui/src/demo_backend.dart:3:8 • unnecessary_import
    info • The private field _ku could be 'final'. Try making the field 'final' • lib/ui/src/demo_backend.dart:72:8 • prefer_final_fields
@@ -153,5 +156,5 @@ warning • The left operand can't be null, so the right operand is never execut
    info • Missing a required trailing comma. Try adding a trailing comma • lib/ui/src/settings_screen.dart:319:64 • require_trailing_commas
    info • Missing a required trailing comma. Try adding a trailing comma • lib/ui/src/settings_screen.dart:321:63 • require_trailing_commas
 
-28 issues found. (ran in 13.2s)
+29 issues found. (ran in 13.2s)
 exit code: 0
