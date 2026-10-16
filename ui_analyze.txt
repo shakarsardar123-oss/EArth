@@ -7,7 +7,7 @@ Downloading packages...
   android_alarm_manager_plus 4.0.8 (5.1.2 available)
   camera 0.10.6 (0.12.1 available)
   camera_android 0.10.11+1 (0.10.12 available)
-  camera_avfoundation 0.9.23+2 (0.11.0+1 available)
+  camera_avfoundation 0.9.23+2 (0.11.0+3 available)
   camera_platform_interface 2.13.1 (2.15.0 available)
   code_assets 2.0.0 (2.1.0 available)
   connectivity_plus 6.1.5 (7.3.2 available)
@@ -63,13 +63,13 @@ Got dependencies!
 55 packages have newer versions incompatible with dependency constraints.
 Try `flutter pub outdated` for more information.
 /home/runner/work/EArth/EArth/l10n.yaml: The argument "synthetic-package" no longer has any effect and should be removed. See http://flutter.dev/to/flutter-gen-deprecation
------ analyze -----
+----- analyze (new UI + bridge) -----
 Resolving dependencies...
 Downloading packages...
   android_alarm_manager_plus 4.0.8 (5.1.2 available)
   camera 0.10.6 (0.12.1 available)
   camera_android 0.10.11+1 (0.10.12 available)
-  camera_avfoundation 0.9.23+2 (0.11.0+1 available)
+  camera_avfoundation 0.9.23+2 (0.11.0+3 available)
   camera_platform_interface 2.13.1 (2.15.0 available)
   code_assets 2.0.0 (2.1.0 available)
   connectivity_plus 6.1.5 (7.3.2 available)
@@ -127,9 +127,9 @@ Try `flutter pub outdated` for more information.
 Analyzing 4 items...                                            
 
    info • The import of 'dart:typed_data' is unnecessary because all of the used elements are also provided by the import of 'package:flutter/foundation.dart'. Try removing the import directive • lib/bridge/live_camera.dart:3:8 • unnecessary_import
-   info • Missing a required trailing comma. Try adding a trailing comma • lib/bridge/riverpod_backend.dart:131:12 • require_trailing_commas
-   info • Missing a required trailing comma. Try adding a trailing comma • lib/bridge/riverpod_backend.dart:162:10 • require_trailing_commas
-   info • Missing a required trailing comma. Try adding a trailing comma • lib/bridge/riverpod_backend.dart:212:8 • require_trailing_commas
+   info • Missing a required trailing comma. Try adding a trailing comma • lib/bridge/riverpod_backend.dart:138:12 • require_trailing_commas
+   info • Missing a required trailing comma. Try adding a trailing comma • lib/bridge/riverpod_backend.dart:169:10 • require_trailing_commas
+   info • Missing a required trailing comma. Try adding a trailing comma • lib/bridge/riverpod_backend.dart:219:8 • require_trailing_commas
 warning • Unused import: '../errors/result.dart'. Try removing the import directive • lib/core/ai/gemini_provider.dart:31:8 • unused_import
    info • The member 'getApiKey' overrides an inherited member but isn't annotated with '@override'. Try adding the '@override' annotation • lib/core/ai/gemini_provider.dart:154:19 • annotate_overrides
    info • The member 'setApiKey' overrides an inherited member but isn't annotated with '@override'. Try adding the '@override' annotation • lib/core/ai/gemini_provider.dart:158:16 • annotate_overrides
@@ -140,7 +140,7 @@ warning • The left operand can't be null, so the right operand is never execut
    info • Missing a required trailing comma. Try adding a trailing comma • lib/core/ai/gemini_provider.dart:608:14 • require_trailing_commas
 warning • The left operand can't be null, so the right operand is never executed. Try removing the operator and the right operand • lib/core/ai/gemini_provider.dart:688:9 • dead_null_aware_expression
    info • Missing a required trailing comma. Try adding a trailing comma • lib/core/ai/gemini_provider.dart:1000:10 • require_trailing_commas
-   info • Missing a required trailing comma. Try adding a trailing comma • lib/ui/overlay_test_main.dart:18:4 • require_trailing_commas
+   info • Missing a required trailing comma. Try adding a trailing comma • lib/ui/overlay_test_main.dart:20:4 • require_trailing_commas
    info • The import of 'dart:typed_data' is unnecessary because all of the used elements are also provided by the import of 'package:flutter/foundation.dart'. Try removing the import directive • lib/ui/src/backend.dart:1:8 • unnecessary_import
    info • The import of 'dart:typed_data' is unnecessary because all of the used elements are also provided by the import of 'package:flutter/foundation.dart'. Try removing the import directive • lib/ui/src/demo_backend.dart:3:8 • unnecessary_import
    info • The private field _ku could be 'final'. Try making the field 'final' • lib/ui/src/demo_backend.dart:72:8 • prefer_final_fields
@@ -157,4 +157,31 @@ warning • The left operand can't be null, so the right operand is never execut
    info • Missing a required trailing comma. Try adding a trailing comma • lib/ui/src/settings_screen.dart:321:63 • require_trailing_commas
 
 29 issues found. (ran in 13.2s)
-exit code: 0
+analyze exit code: 0
+----- whole app compile (flutter build bundle) -----
+bundle exit code: 0
+  material_color_utilities 0.13.0 (0.13.1 available)
+  nm 0.5.0 (0.6.0 available)
+  objective_c 9.6.0 (9.6.2 available)
+  permission_handler 11.4.0 (13.0.2 available)
+  permission_handler_android 12.1.0 (14.1.0 available)
+  permission_handler_apple 9.6.1 (9.6.2 available)
+  petitparser 7.0.2 (7.1.0 available)
+  riverpod 2.6.1 (3.4.3 available)
+  shared_preferences 2.5.5 (2.5.6 available)
+  sqflite 2.4.4 (2.4.4+2 available)
+  sqflite_android 2.4.4 (2.4.4+1 available)
+  sqflite_common 2.5.12 (2.5.14 available)
+  sqflite_darwin 2.4.4 (2.4.4+1 available)
+  synchronized 3.4.2 (3.5.0 available)
+  test_api 0.7.12 (0.7.15 available)
+  timezone 0.9.4 (0.11.2 available)
+  vector_math 2.4.2 (2.4.3 available)
+  vm_service 15.3.0 (15.4.0 available)
+  win32 5.15.0 (6.4.0 available)
+  win32_registry 1.1.5 (3.0.3 available)
+  xml 7.0.1 (7.1.0 available)
+Got dependencies!
+55 packages have newer versions incompatible with dependency constraints.
+Try `flutter pub outdated` for more information.
+/home/runner/work/EArth/EArth/l10n.yaml: The argument "synthetic-package" no longer has any effect and should be removed. See http://flutter.dev/to/flutter-gen-deprecation
