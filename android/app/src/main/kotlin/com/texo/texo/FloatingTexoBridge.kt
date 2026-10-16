@@ -22,6 +22,7 @@ object FloatingTexoBridge {
     private var service: FloatingTexoOverlayService? = null
     private var methodChannel: MethodChannel? = null
     private var bound = false
+    private var activityRef: MainActivity? = null
 
     private val mainHandler = Handler(Looper.getMainLooper())
 
@@ -34,6 +35,9 @@ object FloatingTexoBridge {
             service?.onOverlayAction = { action ->
                 mainHandler.post {
                     methodChannel?.invokeMethod("overlayAction", action)
+                    if (action == "close") {
+                        closeFromOverlay()
+                    }
                 }
             }
             bound = true
@@ -54,6 +58,7 @@ object FloatingTexoBridge {
             CHANNEL_NAME,
         )
         methodChannel = channel
+        activityRef = activity
         channel.setMethodCallHandler { call, result ->
             handle(activity, call, result)
         }
@@ -73,6 +78,7 @@ object FloatingTexoBridge {
         service?.onOverlayAction = null
         service = null
         methodChannel = null
+        activityRef = null
     }
 
     private fun handle(
@@ -121,9 +127,14 @@ object FloatingTexoBridge {
                 val y = (call.argument<Number>("y") ?: 100).toInt()
 
                 debugToast(activity, "TEXO: showOverlay called")
-                startAndBind(activity, x, y)
+                val hidden = call.argument<Boolean>("hidden") ?: false
+                startAndBind(activity, x, y, hidden)
 
-                waitForOverlayReady(result)
+                if (hidden) {
+                    result.success(mapOf("shown" to false, "hidden" to true))
+                } else {
+                    waitForOverlayReady(result)
+                }
             }
 
             "hideOverlay" -> {
@@ -151,6 +162,19 @@ object FloatingTexoBridge {
                 result.success(null)
             }
 
+            "overlayState" -> {
+                val map = call.arguments as? Map<*, *>
+                if (map != null) {
+                    service?.applyState(map)
+                }
+                result.success(null)
+            }
+
+            "setOverlayVisible" -> {
+                service?.setVisible(call.argument<Boolean>("visible") ?: true)
+                result.success(null)
+            }
+
             "togglePanel" -> {
                 val expanded = service?.togglePanel() ?: false
                 result.success(mapOf("isExpanded" to expanded))
@@ -166,6 +190,21 @@ object FloatingTexoBridge {
 
             else -> result.notImplemented()
         }
+    }
+
+    private fun closeFromOverlay() {
+        service?.onOverlayAction = null
+        service?.hide()
+
+        if (bound) {
+            try {
+                activityRef?.unbindService(connection)
+            } catch (_: Throwable) {
+            }
+            bound = false
+        }
+
+        service = null
     }
 
     private fun waitForOverlayReady(
@@ -220,6 +259,7 @@ object FloatingTexoBridge {
         activity: MainActivity,
         xDp: Int,
         yDp: Int,
+        hidden: Boolean = false,
     ) {
         val intent =
             Intent(activity, FloatingTexoOverlayService::class.java).apply {
@@ -231,6 +271,7 @@ object FloatingTexoBridge {
                     FloatingTexoOverlayService.EXTRA_POS_Y_DP,
                     yDp,
                 )
+                putExtra(FloatingTexoOverlayService.EXTRA_HIDDEN, hidden)
             }
 
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {

@@ -43,7 +43,8 @@ class LiveVoiceSource {
       : mode = ValueNotifier<LiveMode>(initial),
         level = ValueNotifier<double>(0.0),
         content = ValueNotifier<ui.Image?>(null),
-        caption = ValueNotifier<String>('');
+        caption = ValueNotifier<String>(''),
+        active = ValueNotifier<bool>(true);
 
   /// listening / thinking / speaking.
   final ValueNotifier<LiveMode> mode;
@@ -57,11 +58,16 @@ class LiveVoiceSource {
   /// Question while listening, answer text while speaking.
   final ValueNotifier<String> caption;
 
+  /// Becomes false when the session was ended from outside the Live screen
+  /// (for example by the floating overlay's close button).
+  final ValueNotifier<bool> active;
+
   void dispose() {
     mode.dispose();
     level.dispose();
     content.dispose();
     caption.dispose();
+    active.dispose();
   }
 }
 

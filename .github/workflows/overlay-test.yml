@@ -11,6 +11,9 @@ on:
       - '.github/workflows/overlay-test.yml'
   workflow_dispatch:
 
+permissions:
+  contents: write
+
 jobs:
   build:
     runs-on: ubuntu-latest
@@ -43,7 +46,25 @@ jobs:
           sed -i 's/authorities="com\.texo\.texo\./authorities="com.texo.texo.overlaytest./g' "$M"
           sed -i '0,/android:label="[^"]*"/s//android:label="TEXO overlay test"/' "$M"
       - run: flutter pub get
-      - run: flutter build apk --release -t lib/ui/overlay_test_main.dart --target-platform android-arm64
+      - name: Build (the report is saved in the repo as overlay_build.txt)
+        run: |
+          set +e
+          flutter build apk --release -t lib/ui/overlay_test_main.dart --target-platform android-arm64 > build_log.txt 2>&1
+          code=$?
+          echo "exit code: $code" >> build_log.txt
+          grep -n -i "^e: \|error:\|FAILED\|What went wrong" build_log.txt | head -80 > overlay_build.txt
+          echo "----- last 40 lines -----" >> overlay_build.txt
+          tail -n 40 build_log.txt >> overlay_build.txt
+          cat overlay_build.txt
+          exit $code
+      - name: Commit the build report
+        if: always()
+        run: |
+          git config user.name "overlay-test"
+          git config user.email "overlay-test@users.noreply.github.com"
+          git add overlay_build.txt
+          git commit -m "overlay-test: build report [skip ci]" || echo "nothing to commit"
+          git push || echo "push failed"
       - uses: actions/upload-artifact@v4
         with:
           name: texo-overlay-test

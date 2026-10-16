@@ -1,15 +1,13 @@
 name: UI analyze
 
-# Fast compile check (no APK, no LFS). The result is saved in the branch as
+# Fast compile checks (no APK, no LFS). The result is saved in the branch as
 # ui_analyze.txt: run `git pull` then `cat ui_analyze.txt`.
 on:
   push:
     branches: [ ui-new ]
     paths:
-      - 'lib/ui/**'
-      - 'lib/bridge/**'
-      - 'lib/core/ai/**'
-      - 'lib/core/vision/**'
+      - 'lib/**'
+      - 'pubspec.yaml'
       - '.github/workflows/ui-check.yml'
   workflow_dispatch:
 
@@ -28,17 +26,22 @@ jobs:
           flutter-version: '3.47.4'
           channel: stable
           cache: true
-      - name: Analyze and save the report
+      - name: Analyze, compile and save the report
         run: |
           set +e
           {
             flutter --version
             flutter pub get
-            echo "----- analyze -----"
+            echo "----- analyze (new UI + bridge) -----"
             flutter analyze lib/ui lib/bridge lib/core/vision lib/core/ai/gemini_provider.dart --no-fatal-infos --no-fatal-warnings
-            echo "exit code: $?"
+            echo "analyze exit code: $?"
+            echo "----- whole app compile (flutter build bundle) -----"
+            flutter build bundle --target=lib/main.dart > bundle_log.txt 2>&1
+            echo "bundle exit code: $?"
+            grep -n -i "error" bundle_log.txt | head -60
+            tail -n 25 bundle_log.txt
           } > ui_analyze.txt 2>&1
-          tail -n 60 ui_analyze.txt
+          tail -n 80 ui_analyze.txt
       - name: Commit the report
         if: always()
         run: |

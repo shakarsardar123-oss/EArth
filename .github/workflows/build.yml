@@ -23,7 +23,21 @@ jobs:
       - name: Checkout repository
         uses: actions/checkout@v4
         with:
-          lfs: true
+          lfs: false
+
+      # The LFS objects (models, ~290 MB) are cached between builds so the
+      # GitHub LFS bandwidth quota is only used when the models change.
+      - name: Create LFS file list
+        run: git lfs ls-files -l | cut -d' ' -f1 | sort > .lfs-assets-id
+
+      - name: Restore LFS cache
+        uses: actions/cache@v4
+        with:
+          path: .git/lfs
+          key: lfs-${{ hashFiles('.lfs-assets-id') }}-v1
+
+      - name: Pull LFS objects
+        run: git lfs pull
 
       # JDK 17 is required by Android Gradle Plugin 9.x used in this project.
       - name: Set up Java 17

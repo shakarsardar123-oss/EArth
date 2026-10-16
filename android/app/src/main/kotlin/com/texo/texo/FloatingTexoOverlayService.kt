@@ -1,7 +1,5 @@
 package com.texo.texo
 
-import android.animation.ObjectAnimator
-import android.animation.ValueAnimator
 import android.app.Notification
 import android.app.NotificationChannel
 import android.app.NotificationManager
@@ -9,29 +7,18 @@ import android.app.PendingIntent
 import android.app.Service
 import android.content.Context
 import android.content.Intent
-import android.graphics.Color
 import android.graphics.PixelFormat
-import android.graphics.drawable.GradientDrawable
 import android.os.Binder
 import android.os.Build
 import android.os.IBinder
-import android.os.SystemClock
-import android.util.TypedValue
 import android.view.Gravity
-import android.view.MotionEvent
-import android.view.View
 import android.view.WindowManager
-import android.widget.Chronometer
-import android.widget.FrameLayout
-import android.widget.LinearLayout
-import android.widget.TextView
+import kotlin.math.max
+import kotlin.math.min
 
 /**
- * Foreground service that owns the AURA floating overlay's native
- * WindowManager view.
- *
- * This version keeps the existing native placeholder UI, but reports
- * the REAL result of WindowManager.addView() to the Dart side.
+ * Foreground service that owns the TEXO floating overlay (the pill drawn by
+ * [TexoOverlayView]) and reports the REAL result of WindowManager.addView().
  */
 class FloatingTexoOverlayService : Service() {
 
@@ -43,48 +30,34 @@ class FloatingTexoOverlayService : Service() {
 
     private lateinit var windowManager: WindowManager
 
-    private var overlayView: FrameLayout? = null
+    private var overlayView: TexoOverlayView? = null
     private var layoutParams: WindowManager.LayoutParams? = null
 
-    private var isExpanded = false
     private var isShowing = false
-
-    private var posX = 0
-    private var posY = 0
-
     private var lastOverlayError: String? = null
-    private val waveformAnimators = mutableListOf<ObjectAnimator>()
-    private var subtitlesEnabled = false
-    private var sessionStartElapsed = SystemClock.elapsedRealtime()
+    private var pendingState: Map<*, *>? = null
+    private var wantVisible = true
+
     var onOverlayAction: ((String) -> Unit)? = null
 
     companion object {
         const val EXTRA_POS_X_DP = "posXDp"
         const val EXTRA_POS_Y_DP = "posYDp"
+        const val EXTRA_HIDDEN = "hidden"
 
-        private const val NOTIFICATION_CHANNEL_ID = "texo_floating_overlay_v2"
+        private const val NOTIFICATION_CHANNEL_ID = "texo_floating_overlay_v3"
         private const val NOTIFICATION_ID = 4201
-
-        private const val COLLAPSED_WIDTH_DP = 232
-        private const val COLLAPSED_SIZE_DP = 56
-        private const val EXPANDED_WIDTH_DP = 300
-        private const val EXPANDED_HEIGHT_DP = 112
+        private const val OVERLAY_WIDTH_DP = 356f
     }
 
     override fun onBind(intent: Intent?): IBinder = binder
 
     override fun onCreate() {
         super.onCreate()
-
-        windowManager =
-            getSystemService(Context.WINDOW_SERVICE) as WindowManager
+        windowManager = getSystemService(Context.WINDOW_SERVICE) as WindowManager
     }
 
-    override fun onStartCommand(
-        intent: Intent?,
-        flags: Int,
-        startId: Int,
-    ): Int {
+    override fun onStartCommand(intent: Intent?, flags: Int, startId: Int): Int {
         val fgNotification = buildNotification()
         var fgOk = false
         var fgErr = ""
@@ -93,7 +66,7 @@ class FloatingTexoOverlayService : Service() {
             fgOk = true
         } catch (e: Throwable) {
             fgErr = "${e::class.java.simpleName}: ${e.message}"
-            debugToast("TEXO: startForeground failed: $fgErr")
+            debugLog("TEXO: startForeground failed: $fgErr")
             if (Build.VERSION.SDK_INT >= 34) {
                 try {
                     startForeground(
@@ -102,10 +75,10 @@ class FloatingTexoOverlayService : Service() {
                         android.content.pm.ServiceInfo.FOREGROUND_SERVICE_TYPE_SPECIAL_USE,
                     )
                     fgOk = true
-                    debugToast("TEXO: fallback specialUse OK")
+                    debugLog("TEXO: fallback specialUse OK")
                 } catch (e2: Throwable) {
                     fgErr = "${e2::class.java.simpleName}: ${e2.message}"
-                    debugToast("TEXO: fallback FAILED: $fgErr")
+                    debugLog("TEXO: fallback FAILED: $fgErr")
                 }
             }
         }
@@ -114,43 +87,35 @@ class FloatingTexoOverlayService : Service() {
             stopSelf()
             return START_NOT_STICKY
         }
-        debugToast("TEXO: service started (foreground OK)")
+        debugLog("TEXO: service started (foreground OK)")
 
-        if (overlayView == null) {
-            val xDp =
-                intent?.getIntExtra(
-                    EXTRA_POS_X_DP,
-                    16,
-                ) ?: 16
-
-            val yDp =
-                intent?.getIntExtra(
-                    EXTRA_POS_Y_DP,
-                    100,
-                ) ?: 100
-
-            showOverlayInternal(xDp, yDp)
+        if (intent != null && intent.hasExtra(EXTRA_HIDDEN)) {
+            wantVisible = !intent.getBooleanExtra(EXTRA_HIDDEN, false)
         }
-
+        if (overlayView == null && wantVisible) {
+            showOverlayInternal()
+        }
         return START_STICKY
     }
 
     override fun onDestroy() {
-        debugToast("TEXO: service onDestroy")
+        debugLog("TEXO: service onDestroy")
         removeOverlayInternal()
         super.onDestroy()
     }
 
-    private fun debugToast(msg: String) {
+    private fun debugLog(msg: String) {
         TexoLog.log(applicationContext, msg)
     }
+
+    // ---- API used by FloatingTexoBridge ------------------------------------------------
 
     fun isOverlayShowing(): Boolean = isShowing
 
     fun overlayError(): String? = lastOverlayError
 
     fun hide() {
-        debugToast("TEXO: hide() called by app")
+        debugLog("TEXO: hide() called")
         removeOverlayInternal()
 
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.N) {
@@ -159,525 +124,160 @@ class FloatingTexoOverlayService : Service() {
             @Suppress("DEPRECATION")
             stopForeground(true)
         }
-
         stopSelf()
     }
 
-    fun updatePosition(
-        xDp: Int,
-        yDp: Int,
-    ) {
-        val view = overlayView ?: return
-        val params = layoutParams ?: return
-
-        posX = dpToPx(xDp)
-        posY = dpToPx(yDp)
-
-        params.x = posX
-        params.y = posY
-
-        try {
-            windowManager.updateViewLayout(view, params)
-        } catch (_: Throwable) {
+    /**
+     * Show or hide the pill WITHOUT stopping the foreground service, so the
+     * app can start Live Mode while visible and only reveal the pill when the
+     * user leaves the app.
+     */
+    fun setVisible(visible: Boolean) {
+        wantVisible = visible
+        if (visible) {
+            if (overlayView == null) showOverlayInternal()
+        } else {
+            removeOverlayInternal()
         }
     }
 
-    fun togglePanel(): Boolean {
-        isExpanded = !isExpanded
-        applyExpandedState()
-        return isExpanded
+    /** The pill is pinned under the camera; kept for API compatibility. */
+    fun updatePosition(xDp: Int, yDp: Int) {
     }
 
-    private fun showOverlayInternal(
-        xDp: Int,
-        yDp: Int,
-    ) {
+    /** Opens / closes the tools tray. */
+    fun togglePanel(): Boolean = overlayView?.toggleTray() ?: false
+
+    /** State pushed from Dart: mode, level, emoji, flags, subtitle texts. */
+    fun applyState(state: Map<*, *>) {
+        pendingState = state
+        overlayView?.applyState(state)
+    }
+
+    // ---- window ------------------------------------------------------------------------------
+
+    @Suppress("DEPRECATION")
+    private fun overlayType(): Int =
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
+            WindowManager.LayoutParams.TYPE_APPLICATION_OVERLAY
+        } else {
+            WindowManager.LayoutParams.TYPE_PHONE
+        }
+
+    private fun statusBarHeightPx(): Int {
+        val id = resources.getIdentifier("status_bar_height", "dimen", "android")
+        return if (id > 0) resources.getDimensionPixelSize(id) else (24f * resources.displayMetrics.density).toInt()
+    }
+
+    private fun showOverlayInternal() {
         lastOverlayError = null
         isShowing = false
 
-        sessionStartElapsed = SystemClock.elapsedRealtime()
-        posX = 0
-        posY = dpToPx(36)
-
-        val view = buildOverlayView()
+        val view = TexoOverlayView(this)
+        view.listener = object : TexoOverlayView.Listener {
+            override fun onAction(action: String) {
+                onOverlayAction?.invoke(action)
+            }
+        }
         overlayView = view
 
-        val type =
-            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
-                WindowManager.LayoutParams.TYPE_APPLICATION_OVERLAY
-            } else {
-                @Suppress("DEPRECATION")
-                WindowManager.LayoutParams.TYPE_PHONE
-            }
+        val metrics = resources.displayMetrics
+        val widthPx = min(
+            (OVERLAY_WIDTH_DP * metrics.density).toInt(),
+            metrics.widthPixels - (16f * metrics.density).toInt(),
+        )
+        val topPx = max(statusBarHeightPx() - (4f * metrics.density).toInt(), (18f * metrics.density).toInt())
 
-        val params =
-            WindowManager.LayoutParams(
-                dpToPx(COLLAPSED_WIDTH_DP),
-                dpToPx(COLLAPSED_SIZE_DP),
-                type,
-                WindowManager.LayoutParams.FLAG_NOT_FOCUSABLE or
-                    WindowManager.LayoutParams.FLAG_LAYOUT_NO_LIMITS,
-                PixelFormat.TRANSLUCENT,
-            ).apply {
-                gravity = Gravity.TOP or Gravity.CENTER_HORIZONTAL
-                x = posX
-                y = posY
-            }
-
+        val params = WindowManager.LayoutParams(
+            widthPx,
+            WindowManager.LayoutParams.WRAP_CONTENT,
+            overlayType(),
+            WindowManager.LayoutParams.FLAG_NOT_FOCUSABLE or
+                WindowManager.LayoutParams.FLAG_NOT_TOUCH_MODAL or
+                WindowManager.LayoutParams.FLAG_LAYOUT_IN_SCREEN or
+                WindowManager.LayoutParams.FLAG_LAYOUT_NO_LIMITS,
+            PixelFormat.TRANSLUCENT,
+        ).apply {
+            gravity = Gravity.TOP or Gravity.CENTER_HORIZONTAL
+            x = 0
+            y = topPx
+        }
         layoutParams = params
-
-        attachDragHandling(view, params)
 
         try {
             windowManager.addView(view, params)
-
             isShowing = true
             lastOverlayError = null
-            debugToast("TEXO: overlay view added OK")
+            pendingState?.let { view.applyState(it) }
+            debugLog("TEXO: overlay view added OK")
         } catch (error: Throwable) {
             isShowing = false
-
-            lastOverlayError =
-                buildString {
-                    append("WindowManager.addView failed")
-
-                    val message = error.message
-
-                    if (!message.isNullOrBlank()) {
-                        append(": ")
-                        append(message)
-                    }
-
-                    append(" [")
-                    append(error::class.java.simpleName)
-                    append("]")
+            lastOverlayError = buildString {
+                append("WindowManager.addView failed")
+                val message = error.message
+                if (!message.isNullOrBlank()) {
+                    append(": ")
+                    append(message)
                 }
-
-            debugToast("TEXO: addView FAILED: $lastOverlayError")
+                append(" [")
+                append(error::class.java.simpleName)
+                append("]")
+            }
+            debugLog("TEXO: addView FAILED: $lastOverlayError")
             overlayView = null
             layoutParams = null
         }
     }
 
     private fun removeOverlayInternal() {
-        stopWaveformAnimations()
         val view = overlayView ?: return
-
         try {
             windowManager.removeView(view)
         } catch (_: Throwable) {
         }
-
         overlayView = null
         layoutParams = null
-
         isShowing = false
-        isExpanded = false
         lastOverlayError = null
     }
 
-    private fun buildOverlayView(): FrameLayout {
-        return FrameLayout(this).apply {
-            setPadding(dpToPx(5), dpToPx(4), dpToPx(5), dpToPx(4))
-            isClickable = true
-            applyRoundedCollapsedShape(this)
-            showCollapsedContent(this)
-        }
-    }
+    // ---- notification ----------------------------------------------------------------------
 
-    private fun makeText(
-        text: String,
-        color: Int,
-        size: Float,
-    ): TextView = TextView(this).apply {
-        this.text = text
-        setTextColor(color)
-        setTextSize(TypedValue.COMPLEX_UNIT_SP, size)
-        gravity = Gravity.CENTER
-        includeFontPadding = false
-    }
-
-    private fun stopWaveformAnimations() {
-        waveformAnimators.forEach { it.cancel() }
-        waveformAnimators.clear()
-    }
-
-    private fun makeTimer(sizeSp: Float): Chronometer =
-        Chronometer(this).apply {
-            base = sessionStartElapsed
-            setTextColor(Color.WHITE)
-            setTextSize(TypedValue.COMPLEX_UNIT_SP, sizeSp)
-            gravity = Gravity.CENTER
-            includeFontPadding = false
-            start()
-        }
-
-    private fun makeWaveform(): LinearLayout {
-        return LinearLayout(this).apply {
-            orientation = LinearLayout.HORIZONTAL
-            gravity = Gravity.CENTER
-            layoutDirection = View.LAYOUT_DIRECTION_LTR
-
-            val heights = listOf(9, 20, 13, 26, 15, 22, 10)
-            heights.forEachIndexed { index, height ->
-                val bar = View(this@FloatingTexoOverlayService).apply {
-                    background = GradientDrawable().apply {
-                        shape = GradientDrawable.RECTANGLE
-                        cornerRadius = dpToPx(3).toFloat()
-                        setColor(Color.parseColor("#55D9FF"))
-                    }
-                    pivotY = dpToPx(15).toFloat()
-                }
-
-                addView(
-                    bar,
-                    LinearLayout.LayoutParams(
-                        dpToPx(3),
-                        dpToPx(height),
-                    ).apply {
-                        marginStart = dpToPx(2)
-                        marginEnd = dpToPx(2)
-                    },
-                )
-
-                val animator = ObjectAnimator.ofFloat(
-                    bar, View.SCALE_Y, 0.35f, 1f,
-                ).apply {
-                    duration = 350L + index * 75L
-                    repeatCount = ValueAnimator.INFINITE
-                    repeatMode = ValueAnimator.REVERSE
-                    startDelay = index * 55L
-                }
-                waveformAnimators.add(animator)
-                animator.start()
-            }
-        }
-    }
-
-    private fun makeActionButton(
-        label: String,
-        backgroundColor: Int,
-        action: () -> Unit,
-    ): TextView {
-        return makeText(label, Color.WHITE, 11f).apply {
-            isClickable = true
-            isFocusable = true
-            setPadding(dpToPx(4), 0, dpToPx(4), 0)
-            background = GradientDrawable().apply {
-                shape = GradientDrawable.RECTANGLE
-                cornerRadius = dpToPx(12).toFloat()
-                setColor(backgroundColor)
-            }
-            setOnClickListener { action() }
-        }
-    }
-
-    private fun showCollapsedContent(container: FrameLayout) {
-        stopWaveformAnimations()
-        container.removeAllViews()
-
-        val row = LinearLayout(this).apply {
-            orientation = LinearLayout.HORIZONTAL
-            gravity = Gravity.CENTER_VERTICAL
-            layoutDirection = View.LAYOUT_DIRECTION_LTR
-            setPadding(dpToPx(3), 0, dpToPx(3), 0)
-        }
-
-        val endButton = makeText("×", Color.WHITE, 28f).apply {
-            isClickable = true
-            isFocusable = true
-            background = GradientDrawable().apply {
-                shape = GradientDrawable.OVAL
-                setColor(Color.parseColor("#E53945"))
-            }
-            setOnClickListener { onOverlayAction?.invoke("endCall") }
-        }
-
-        row.addView(
-            endButton,
-            LinearLayout.LayoutParams(dpToPx(38), dpToPx(38)).apply {
-                marginEnd = dpToPx(10)
-            },
-        )
-
-        row.addView(
-            makeWaveform(),
-            LinearLayout.LayoutParams(0, dpToPx(34), 1f),
-        )
-
-        row.addView(
-            makeTimer(13f),
-            LinearLayout.LayoutParams(dpToPx(52), dpToPx(42)),
-        )
-
-        container.addView(
-            row,
-            FrameLayout.LayoutParams(
-                FrameLayout.LayoutParams.MATCH_PARENT,
-                FrameLayout.LayoutParams.MATCH_PARENT,
-            ),
-        )
-        applyRoundedCollapsedShape(container)
-    }
-
-    private fun showExpandedContent(container: FrameLayout) {
-        stopWaveformAnimations()
-        container.removeAllViews()
-
-        val panel = LinearLayout(this).apply {
-            orientation = LinearLayout.VERTICAL
-            layoutDirection = View.LAYOUT_DIRECTION_LTR
-            setPadding(dpToPx(12), dpToPx(7), dpToPx(12), dpToPx(8))
-        }
-
-        val header = LinearLayout(this).apply {
-            orientation = LinearLayout.HORIZONTAL
-            gravity = Gravity.CENTER_VERTICAL
-            layoutDirection = View.LAYOUT_DIRECTION_LTR
-        }
-
-        header.addView(
-            makeText("TEXO  •  LIVE", Color.parseColor("#75DFFF"), 12f),
-            LinearLayout.LayoutParams(0, dpToPx(28), 1f),
-        )
-        header.addView(
-            makeTimer(13f),
-            LinearLayout.LayoutParams(dpToPx(56), dpToPx(28)),
-        )
-        header.addView(
-            makeWaveform(),
-            LinearLayout.LayoutParams(dpToPx(72), dpToPx(28)),
-        )
-        header.addView(
-            makeText("✨", Color.WHITE, 21f),
-            LinearLayout.LayoutParams(dpToPx(32), dpToPx(28)),
-        )
-
-        panel.addView(
-            header,
-            LinearLayout.LayoutParams(
-                LinearLayout.LayoutParams.MATCH_PARENT,
-                dpToPx(30),
-            ),
-        )
-
-        val actions = LinearLayout(this).apply {
-            orientation = LinearLayout.HORIZONTAL
-            gravity = Gravity.CENTER
-            layoutDirection = View.LAYOUT_DIRECTION_LTR
-        }
-
-        actions.addView(
-            makeActionButton("کۆتایی", Color.parseColor("#C62835")) {
-                onOverlayAction?.invoke("endCall")
-            },
-            LinearLayout.LayoutParams(0, dpToPx(42), 1f).apply {
-                marginEnd = dpToPx(5)
-            },
-        )
-
-        actions.addView(
-            makeActionButton(
-                if (subtitlesEnabled) "ژێرنوس: کراوە" else "ژێرنوس: داخراو",
-                Color.parseColor("#202630"),
-            ) {
-                subtitlesEnabled = !subtitlesEnabled
-                onOverlayAction?.invoke("toggleSubtitles")
-                showExpandedContent(container)
-            },
-            LinearLayout.LayoutParams(0, dpToPx(42), 1.2f).apply {
-                marginEnd = dpToPx(5)
-            },
-        )
-
-        actions.addView(
-            makeActionButton("کردنەوەی ئەپ", Color.parseColor("#202630")) {
-                onOverlayAction?.invoke("openApp")
-                packageManager.getLaunchIntentForPackage(packageName)?.let { intent ->
-                    intent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK)
-                    startActivity(intent)
-                }
-            },
-            LinearLayout.LayoutParams(0, dpToPx(42), 1.1f),
-        )
-
-        panel.addView(
-            actions,
-            LinearLayout.LayoutParams(
-                LinearLayout.LayoutParams.MATCH_PARENT,
-                dpToPx(44),
-            ).apply {
-                topMargin = dpToPx(8)
-            },
-        )
-
-        container.addView(
-            panel,
-            FrameLayout.LayoutParams(
-                FrameLayout.LayoutParams.MATCH_PARENT,
-                FrameLayout.LayoutParams.MATCH_PARENT,
-            ),
-        )
-
-        container.background = GradientDrawable().apply {
-            shape = GradientDrawable.RECTANGLE
-            cornerRadius = dpToPx(20).toFloat()
-            setColor(Color.BLACK)
-            setStroke(dpToPx(1), Color.parseColor("#30435A"))
-        }
-    }
-
-    private fun applyRoundedCollapsedShape(view: FrameLayout) {
-        view.background = GradientDrawable().apply {
-            shape = GradientDrawable.RECTANGLE
-            cornerRadius = dpToPx(COLLAPSED_SIZE_DP / 2).toFloat()
-            setColor(Color.BLACK)
-            setStroke(dpToPx(1), Color.parseColor("#30435A"))
-        }
-    }
-
-    private fun applyExpandedState() {
-        val view = overlayView ?: return
-        val params = layoutParams ?: return
-
-        if (isExpanded) {
-            params.width = dpToPx(EXPANDED_WIDTH_DP)
-            params.height = dpToPx(EXPANDED_HEIGHT_DP)
-            showExpandedContent(view)
-        } else {
-            params.width = dpToPx(COLLAPSED_WIDTH_DP)
-            params.height = dpToPx(COLLAPSED_SIZE_DP)
-            showCollapsedContent(view)
-        }
-
-        try {
-            windowManager.updateViewLayout(view, params)
-        } catch (_: Throwable) {
-        }
-    }
-
-    private fun attachDragHandling(
-        view: View,
-        params: WindowManager.LayoutParams,
-    ) {
-        var initialX = 0
-        var initialY = 0
-        var initialTouchX = 0f
-        var initialTouchY = 0f
-        var moved = false
-
-        view.setOnTouchListener { v, event ->
-            when (event.action) {
-                MotionEvent.ACTION_DOWN -> {
-                    initialX = params.x
-                    initialY = params.y
-                    initialTouchX = event.rawX
-                    initialTouchY = event.rawY
-                    moved = false
-                    true
-                }
-
-                MotionEvent.ACTION_MOVE -> {
-                    val dx = (event.rawX - initialTouchX).toInt()
-                    val dy = (event.rawY - initialTouchY).toInt()
-
-                    if (kotlin.math.abs(dx) > 8 || kotlin.math.abs(dy) > 8) {
-                        moved = true
-                    }
-
-                    params.x = initialX + dx
-                    params.y = initialY + dy
-                    posX = params.x
-                    posY = params.y
-
-                    try {
-                        windowManager.updateViewLayout(v, params)
-                    } catch (_: Throwable) {
-                    }
-                    true
-                }
-
-                MotionEvent.ACTION_UP -> {
-                    if (!moved) togglePanel()
-                    true
-                }
-
-                else -> false
-            }
-        }
-    }
+    @Suppress("DEPRECATION")
+    private fun legacyBuilder(): Notification.Builder = Notification.Builder(this)
 
     private fun buildNotification(): Notification {
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
-            val manager =
-                getSystemService(
-                    Context.NOTIFICATION_SERVICE,
-                ) as NotificationManager
-
-            if (
-                manager.getNotificationChannel(
-                    NOTIFICATION_CHANNEL_ID,
-                ) == null
-            ) {
-                val channel =
-                    NotificationChannel(
-                        NOTIFICATION_CHANNEL_ID,
-                        "TEXO Floating Assistant",
-                        NotificationManager.IMPORTANCE_LOW,
-                    ).apply {
-                        description =
-                            "Keeps the TEXO floating button available on screen."
-
-                        setShowBadge(false)
-                    }
-
-                manager.createNotificationChannel(channel)
-            }
+            val nm = getSystemService(Context.NOTIFICATION_SERVICE) as NotificationManager
+            val channel = NotificationChannel(
+                NOTIFICATION_CHANNEL_ID,
+                "TEXO Live",
+                NotificationManager.IMPORTANCE_LOW,
+            )
+            nm.createNotificationChannel(channel)
         }
-
-        val contentIntent =
-            packageManager
-                .getLaunchIntentForPackage(packageName)
-                ?.let {
-                    PendingIntent.getActivity(
-                        this,
-                        0,
-                        it,
-                        PendingIntent.FLAG_IMMUTABLE or
-                            PendingIntent.FLAG_UPDATE_CURRENT,
-                    )
-                }
-
-        val builder =
-            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
-                Notification.Builder(
-                    this,
-                    NOTIFICATION_CHANNEL_ID,
-                )
-            } else {
-                @Suppress("DEPRECATION")
-                Notification.Builder(this)
-            }
-
-        return builder
+        val launch = packageManager.getLaunchIntentForPackage(packageName)
+        val pending = if (launch != null) {
+            PendingIntent.getActivity(
+                this,
+                0,
+                launch,
+                PendingIntent.FLAG_IMMUTABLE or PendingIntent.FLAG_UPDATE_CURRENT,
+            )
+        } else {
+            null
+        }
+        val builder = if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
+            Notification.Builder(this, NOTIFICATION_CHANNEL_ID)
+        } else {
+            legacyBuilder()
+        }
+        builder
             .setContentTitle("TEXO")
-            .setContentText("TEXO Live")
+            .setContentText("Live")
             .setSmallIcon(applicationInfo.icon)
             .setOngoing(true)
-            .setUsesChronometer(true)
-            .setWhen(System.currentTimeMillis())
-            .apply {
-                contentIntent?.let {
-                    setContentIntent(it)
-                }
-            }
-            .build()
+        if (pending != null) builder.setContentIntent(pending)
+        return builder.build()
     }
-
-    private fun dpToPx(dp: Int): Int =
-        TypedValue.applyDimension(
-            TypedValue.COMPLEX_UNIT_DIP,
-            dp.toFloat(),
-            resources.displayMetrics,
-        ).toInt()
 }

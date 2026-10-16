@@ -1,0 +1,769 @@
+package com.texo.texo
+
+import android.content.Context
+import android.graphics.Canvas
+import android.graphics.Color
+import android.graphics.LinearGradient
+import android.graphics.Paint
+import android.graphics.Path
+import android.graphics.PathMeasure
+import android.graphics.PointF
+import android.graphics.RadialGradient
+import android.graphics.RectF
+import android.graphics.Shader
+import android.os.SystemClock
+import android.text.Layout
+import android.text.StaticLayout
+import android.text.TextDirectionHeuristics
+import android.text.TextPaint
+import android.view.HapticFeedbackConstants
+import android.view.MotionEvent
+import android.view.View
+import kotlin.math.PI
+import kotlin.math.ceil
+import kotlin.math.exp
+import kotlin.math.hypot
+import kotlin.math.max
+import kotlin.math.min
+import kotlin.math.pow
+import kotlin.math.sin
+
+/**
+ * TEXO overlay: a dark glass pill (emoji, voice ribbon, mic / mute / close),
+ * a tools tray that opens after holding the pill for 2 seconds, and a
+ * subtitles card. Everything is drawn on a Canvas; the Dart side only sends
+ * state (mode, level, emoji, flags) through [applyState].
+ */
+class TexoOverlayView(context: Context) : View(context) {
+
+    interface Listener {
+        fun onAction(action: String)
+    }
+
+    var listener: Listener? = null
+
+    private val density = resources.displayMetrics.density
+    private fun dp(v: Float): Float = v * density
+
+    // ---- state ---------------------------------------------------------------
+    private var mode = 0 // 0 listening, 1 thinking, 2 speaking
+    private var targetLevel = 0f
+    private var level = 0f
+    private var lastLevelAt = 0L
+    private var emoji = "\uD83D\uDE42"
+    private var emojiChangedAt = 0L
+    private var micOff = false
+    private var muted = false
+    private var subsOn = false
+    private var transOn = false
+    private var guideOn = false
+    private var ku = true
+    private var youText = ""
+    private var aiText = ""
+    private var trayOpen = false
+
+    private var pressedKey: String? = null
+    private var holding = false
+    private var holdStartAt = 0L
+
+    private val t0 = SystemClock.uptimeMillis()
+    private var lastFrame = t0
+
+    // ---- geometry (filled by layoutGeo) -------------------------------------------
+    private val pillRect = RectF()
+    private val emojiC = PointF()
+    private var emojiR = 0f
+    private val micC = PointF()
+    private val spkC = PointF()
+    private val closeC = PointF()
+    private var btnR = 0f
+    private val holdRect = RectF()
+    private val trayRects = arrayOf(RectF(), RectF(), RectF())
+    private val trayKeys = arrayOf("subs", "trans", "guide")
+    private val trayRect = RectF()
+    private val subsRect = RectF()
+
+    private var youLayout: StaticLayout? = null
+    private var aiLayout: StaticLayout? = null
+    private var layoutWidth = -1
+    private var layoutDirty = true
+
+    // ---- paints ---------------------------------------------------------------------
+    private val fill = Paint(Paint.ANTI_ALIAS_FLAG).apply { style = Paint.Style.FILL }
+    private val stroke = Paint(Paint.ANTI_ALIAS_FLAG).apply {
+        style = Paint.Style.STROKE
+        strokeCap = Paint.Cap.ROUND
+        strokeJoin = Paint.Join.ROUND
+    }
+    private val emojiPaint = Paint(Paint.ANTI_ALIAS_FLAG).apply { textAlign = Paint.Align.CENTER }
+    private val labelPaint = Paint(Paint.ANTI_ALIAS_FLAG).apply {
+        textAlign = Paint.Align.CENTER
+        color = Color.parseColor("#C4BEE4")
+    }
+    private val ip = Paint(Paint.ANTI_ALIAS_FLAG).apply {
+        style = Paint.Style.STROKE
+        strokeCap = Paint.Cap.ROUND
+        strokeJoin = Paint.Join.ROUND
+        strokeWidth = 1.9f
+    }
+    private val ipText = Paint(Paint.ANTI_ALIAS_FLAG).apply { textAlign = Paint.Align.CENTER }
+    private val tmpRect = RectF()
+    private val tmpPath = Path()
+
+    private val youPaint = TextPaint(Paint.ANTI_ALIAS_FLAG).apply { color = Color.parseColor("#CCEDEAF8") }
+    private val aiPaint = TextPaint(Paint.ANTI_ALIAS_FLAG).apply { color = Color.WHITE }
+    private val tagPaint = TextPaint(Paint.ANTI_ALIAS_FLAG).apply { isFakeBoldText = true }
+
+    private val ringColors = intArrayOf(
+        Color.parseColor("#5DD6FF"),
+        Color.parseColor("#C084FC"),
+        Color.parseColor("#FFC46B"),
+        Color.parseColor("#8A8FA8"),
+    )
+    private val waveColors = arrayOf(
+        intArrayOf(Color.parseColor("#5DD6FF"), Color.parseColor("#A78BFA"), Color.parseColor("#F472B6")),
+        intArrayOf(
+            Color.parseColor("#F472B6"),
+            Color.parseColor("#A78BFA"),
+            Color.parseColor("#38BDF8"),
+            Color.parseColor("#34D399"),
+        ),
+        intArrayOf(Color.parseColor("#FFC46B"), Color.parseColor("#FF7AA8"), Color.parseColor("#A78BFA")),
+        intArrayOf(Color.parseColor("#6B7090"), Color.parseColor("#6B7090")),
+    )
+    // k, speed, phase, amplitude, width (dp), alpha
+    private val layers = arrayOf(
+        floatArrayOf(0.06f, 1.6f, 0f, 1f, 2.2f, 1f),
+        floatArrayOf(0.09f, -2.1f, 2f, 0.7f, 1.6f, 0.8f),
+        floatArrayOf(0.045f, 1.1f, 4f, 0.5f, 1.3f, 0.6f),
+    )
+
+    companion object {
+        private const val PILL_H = 70f
+        private const val TRAY_H = 76f
+        private const val GAP = 8f
+        private const val PAD = 3f
+        private const val HOLD_MS = 2000L
+        private const val TRAY_IDLE_MS = 7000L
+    }
+
+    // ---- public API -------------------------------------------------------------------
+
+    fun applyState(m: Map<*, *>) {
+        (m["mode"] as? String)?.let {
+            mode = when (it) {
+                "thinking" -> 1
+                "speaking" -> 2
+                else -> 0
+            }
+        }
+        (m["level"] as? Number)?.let {
+            targetLevel = it.toFloat().coerceIn(0f, 1f)
+            lastLevelAt = SystemClock.uptimeMillis()
+        }
+        (m["emoji"] as? String)?.let {
+            if (it.isNotEmpty() && it != emoji) {
+                emoji = it
+                emojiChangedAt = SystemClock.uptimeMillis()
+            }
+        }
+        (m["micOff"] as? Boolean)?.let { micOff = it }
+        (m["muted"] as? Boolean)?.let { muted = it }
+        (m["trans"] as? Boolean)?.let { transOn = it }
+        (m["guide"] as? Boolean)?.let { guideOn = it }
+        (m["lang"] as? String)?.let { ku = it != "en" }
+        var texts = false
+        (m["you"] as? String)?.let {
+            if (it != youText) {
+                youText = it
+                texts = true
+            }
+        }
+        (m["ai"] as? String)?.let {
+            if (it != aiText) {
+                aiText = it
+                texts = true
+            }
+        }
+        (m["subs"] as? Boolean)?.let {
+            if (it != subsOn) {
+                subsOn = it
+                layoutDirty = true
+                requestLayout()
+            }
+        }
+        if (texts) {
+            layoutDirty = true
+            if (subsOn) requestLayout()
+        }
+        invalidate()
+    }
+
+    fun toggleTray(): Boolean {
+        setTray(!trayOpen)
+        return trayOpen
+    }
+
+    // ---- measuring / geometry ------------------------------------------------------------
+
+    override fun onMeasure(widthMeasureSpec: Int, heightMeasureSpec: Int) {
+        val w = MeasureSpec.getSize(widthMeasureSpec)
+        var h = dp(PILL_H) + 2f * dp(PAD)
+        if (trayOpen) h += dp(GAP + TRAY_H)
+        if (subsOn) h += dp(GAP) + subsHeight(w)
+        setMeasuredDimension(w, ceil(h).toInt())
+    }
+
+    private fun ensureLayouts(w: Int) {
+        if (!layoutDirty && layoutWidth == w) return
+        layoutWidth = w
+        layoutDirty = false
+        val inner = max(40, (w - 2f * dp(PAD) - dp(32f)).toInt())
+        youPaint.textSize = dp(13f)
+        aiPaint.textSize = dp(13.5f)
+        val you = if (youText.isNotBlank()) youText else if (ku) "قسە بکە..." else "Speak..."
+        youLayout = buildLayout(you, youPaint, inner)
+        aiLayout = if (aiText.isNotBlank()) buildLayout(aiText, aiPaint, inner) else null
+    }
+
+    private fun buildLayout(text: String, paint: TextPaint, width: Int): StaticLayout {
+        return StaticLayout.Builder.obtain(text, 0, text.length, paint, width)
+            .setAlignment(Layout.Alignment.ALIGN_NORMAL)
+            .setTextDirection(TextDirectionHeuristics.FIRSTSTRONG_LTR)
+            .setLineSpacing(0f, 1.25f)
+            .setMaxLines(4)
+            .setEllipsize(android.text.TextUtils.TruncateAt.END)
+            .build()
+    }
+
+    private fun subsHeight(w: Int): Float {
+        ensureLayouts(w)
+        var h = dp(24f)
+        youLayout?.let { h += dp(15f) + it.height }
+        aiLayout?.let { h += dp(8f) + dp(15f) + it.height }
+        return h
+    }
+
+    private fun layoutGeo(w: Float) {
+        val pad = dp(PAD)
+        pillRect.set(pad, pad, w - pad, pad + dp(PILL_H))
+        val cy = pillRect.centerY()
+        emojiR = dp(23f)
+        emojiC.set(pillRect.left + dp(10f) + emojiR, cy)
+        btnR = dp(19f)
+        closeC.set(pillRect.right - dp(10f) - btnR, cy)
+        spkC.set(closeC.x - 2f * btnR - dp(8f), cy)
+        micC.set(spkC.x - 2f * btnR - dp(8f), cy)
+        holdRect.set(emojiC.x - emojiR, pillRect.top, micC.x - btnR - dp(4f), pillRect.bottom)
+        if (trayOpen) {
+            val top = pillRect.bottom + dp(GAP)
+            trayRect.set(pad, top, w - pad, top + dp(TRAY_H))
+            val slot = trayRect.width() / 3f
+            val bw = dp(104f)
+            val bh = dp(60f)
+            for (i in 0..2) {
+                val cx = trayRect.left + slot * (i + 0.5f)
+                trayRects[i].set(cx - bw / 2f, trayRect.centerY() - bh / 2f, cx + bw / 2f, trayRect.centerY() + bh / 2f)
+            }
+        }
+    }
+
+    // ---- touch -----------------------------------------------------------------------------
+
+    private fun hit(x: Float, y: Float): String? {
+        val slop = btnR + dp(5f)
+        if (hypot(x - micC.x, y - micC.y) <= slop) return "mic"
+        if (hypot(x - spkC.x, y - spkC.y) <= slop) return "mute"
+        if (hypot(x - closeC.x, y - closeC.y) <= slop) return "close"
+        if (trayOpen) {
+            for (i in 0..2) if (trayRects[i].contains(x, y)) return trayKeys[i]
+        }
+        if (holdRect.contains(x, y)) return "hold"
+        return null
+    }
+
+    private val holdRunnable = Runnable {
+        holding = false
+        pressedKey = null
+        performHapticFeedback(HapticFeedbackConstants.LONG_PRESS)
+        setTray(true)
+        listener?.onAction("tray_open")
+    }
+    private val trayHideRunnable = Runnable { setTray(false) }
+
+    private fun setTray(open: Boolean) {
+        removeCallbacks(trayHideRunnable)
+        if (open == trayOpen) {
+            if (open) postDelayed(trayHideRunnable, TRAY_IDLE_MS)
+            return
+        }
+        trayOpen = open
+        requestLayout()
+        invalidate()
+        if (open) postDelayed(trayHideRunnable, TRAY_IDLE_MS)
+    }
+
+    private fun cancelHold() {
+        removeCallbacks(holdRunnable)
+        holding = false
+    }
+
+    private fun fire(key: String) {
+        when (key) {
+            "mic" -> {
+                micOff = !micOff
+                listener?.onAction("mic")
+            }
+            "mute" -> {
+                muted = !muted
+                listener?.onAction("mute")
+            }
+            "close" -> listener?.onAction("close")
+            "subs" -> {
+                subsOn = !subsOn
+                layoutDirty = true
+                requestLayout()
+                listener?.onAction("subs")
+                setTray(true)
+            }
+            "trans" -> {
+                transOn = !transOn
+                listener?.onAction("translate")
+                setTray(true)
+            }
+            "guide" -> {
+                guideOn = !guideOn
+                listener?.onAction("guide")
+                setTray(true)
+            }
+        }
+    }
+
+    override fun onTouchEvent(e: MotionEvent): Boolean {
+        layoutGeo(width.toFloat())
+        when (e.actionMasked) {
+            MotionEvent.ACTION_DOWN -> {
+                val k = hit(e.x, e.y)
+                pressedKey = k
+                if (k == "hold" && !trayOpen) {
+                    holding = true
+                    holdStartAt = SystemClock.uptimeMillis()
+                    postDelayed(holdRunnable, HOLD_MS)
+                } else if (k == "hold" && trayOpen) {
+                    setTray(true)
+                }
+                invalidate()
+                return true
+            }
+            MotionEvent.ACTION_MOVE -> {
+                val k = hit(e.x, e.y)
+                if (k != pressedKey) {
+                    cancelHold()
+                    pressedKey = null
+                    invalidate()
+                }
+                return true
+            }
+            MotionEvent.ACTION_UP -> {
+                val k = pressedKey
+                cancelHold()
+                pressedKey = null
+                if (k != null && k != "hold") fire(k)
+                invalidate()
+                return true
+            }
+            MotionEvent.ACTION_CANCEL -> {
+                cancelHold()
+                pressedKey = null
+                invalidate()
+                return true
+            }
+        }
+        return super.onTouchEvent(e)
+    }
+
+    override fun onDetachedFromWindow() {
+        removeCallbacks(holdRunnable)
+        removeCallbacks(trayHideRunnable)
+        super.onDetachedFromWindow()
+    }
+
+    // ---- drawing ---------------------------------------------------------------------------
+
+    private fun visual(): Int = if (mode == 0 && micOff) 3 else mode
+
+    private fun withAlpha(color: Int, a: Float): Int =
+        Color.argb((a.coerceIn(0f, 1f) * 255f).toInt(), Color.red(color), Color.green(color), Color.blue(color))
+
+    private fun label(): String = when {
+        mode == 0 && micOff -> if (ku) "مایک داخراوە" else "Mic is off"
+        mode == 2 && muted -> if (ku) "بێدەنگە — ژێرنووس" else "Muted — subtitles"
+        mode == 1 -> if (ku) "بیر دەکەمەوە..." else "Thinking..."
+        mode == 2 -> if (ku) "قسە دەکەم..." else "Speaking..."
+        else -> if (ku) "گوێم لێتە..." else "Listening..."
+    }
+
+    override fun onDraw(canvas: Canvas) {
+        val now = SystemClock.uptimeMillis()
+        val t = (now - t0) / 1000f
+        val dt = min(0.05f, (now - lastFrame) / 1000f)
+        lastFrame = now
+        if (now - lastLevelAt > 1500L) targetLevel = 0f
+        level += (targetLevel - level) * (1f - exp(-dt * (if (targetLevel > level) 14f else 6f)))
+
+        val w = width.toFloat()
+        layoutGeo(w)
+        drawPill(canvas, t, now)
+        if (trayOpen) drawTray(canvas)
+        if (subsOn) drawSubs(canvas, w)
+        postInvalidateOnAnimation()
+    }
+
+    private fun gradientFill(r: RectF, top: Int, bottom: Int) {
+        fill.shader = LinearGradient(0f, r.top, 0f, r.bottom, top, bottom, Shader.TileMode.CLAMP)
+    }
+
+    private fun drawPill(c: Canvas, t: Float, now: Long) {
+        val v = visual()
+        val r = pillRect.height() / 2f
+
+        stroke.shader = null
+        stroke.color = withAlpha(ringColors[v], 0.16f)
+        stroke.strokeWidth = dp(3f)
+        tmpRect.set(pillRect)
+        tmpRect.inset(-dp(1.5f), -dp(1.5f))
+        c.drawRoundRect(tmpRect, r + dp(1.5f), r + dp(1.5f), stroke)
+
+        gradientFill(pillRect, Color.parseColor("#F01E1E4E"), Color.parseColor("#F0121434"))
+        c.drawRoundRect(pillRect, r, r, fill)
+        fill.shader = null
+        stroke.color = withAlpha(Color.WHITE, 0.14f)
+        stroke.strokeWidth = dp(1f)
+        c.drawRoundRect(pillRect, r, r, stroke)
+
+        if (holding) {
+            val prog = ((now - holdStartAt) / HOLD_MS.toFloat()).coerceIn(0f, 1f)
+            tmpRect.set(pillRect)
+            tmpRect.inset(-dp(2f), -dp(2f))
+            val rr = tmpRect.height() / 2f
+            tmpPath.reset()
+            tmpPath.moveTo(tmpRect.centerX(), tmpRect.top)
+            tmpPath.lineTo(tmpRect.right - rr, tmpRect.top)
+            tmpPath.arcTo(RectF(tmpRect.right - 2f * rr, tmpRect.top, tmpRect.right, tmpRect.bottom), -90f, 180f)
+            tmpPath.lineTo(tmpRect.left + rr, tmpRect.bottom)
+            tmpPath.arcTo(RectF(tmpRect.left, tmpRect.top, tmpRect.left + 2f * rr, tmpRect.bottom), 90f, 180f)
+            tmpPath.lineTo(tmpRect.centerX(), tmpRect.top)
+            val pm = PathMeasure(tmpPath, false)
+            val seg = Path()
+            pm.getSegment(0f, pm.length * prog, seg, true)
+            stroke.color = Color.parseColor("#A78BFA")
+            stroke.strokeWidth = dp(3f)
+            c.drawPath(seg, stroke)
+        }
+
+        drawEmoji(c, v, now)
+        drawWave(c, v, t)
+
+        val micBg = if (micOff) Color.parseColor("#33FF5A6E") else Color.parseColor("#295DD6FF")
+        val micBorder = if (micOff) Color.parseColor("#80FF788C") else Color.parseColor("#735DD6FF")
+        drawButton(c, micC, micBg, micBorder, pressedKey == "mic")
+        drawMic(c, micC.x, micC.y, dp(19f), Color.WHITE, micOff)
+
+        val spkBg = if (muted) Color.parseColor("#33FFB454") else Color.parseColor("#1AFFFFFF")
+        val spkBorder = if (muted) Color.parseColor("#8CFFC46B") else Color.parseColor("#29FFFFFF")
+        drawButton(c, spkC, spkBg, spkBorder, pressedKey == "mute")
+        drawSpeaker(c, spkC.x, spkC.y, dp(19f), Color.WHITE, muted)
+
+        drawButton(c, closeC, Color.parseColor("#33FF5A6E"), Color.parseColor("#80FF788C"), pressedKey == "close")
+        drawClose(c, closeC.x, closeC.y, dp(17f), Color.parseColor("#FFD3DA"))
+    }
+
+    private fun drawEmoji(c: Canvas, v: Int, now: Long) {
+        val cx = emojiC.x
+        val cy = emojiC.y
+        fill.shader = RadialGradient(
+            cx - emojiR * 0.3f, cy - emojiR * 0.4f, emojiR * 1.3f,
+            withAlpha(Color.WHITE, 0.16f), withAlpha(Color.WHITE, 0.05f), Shader.TileMode.CLAMP,
+        )
+        c.drawCircle(cx, cy, emojiR, fill)
+        fill.shader = null
+        stroke.shader = null
+        stroke.color = withAlpha(ringColors[v], 0.22f)
+        stroke.strokeWidth = dp(6f)
+        c.drawCircle(cx, cy, emojiR, stroke)
+        stroke.color = ringColors[v]
+        stroke.strokeWidth = dp(2f)
+        c.drawCircle(cx, cy, emojiR - dp(1f), stroke)
+
+        val p = min(1f, (now - emojiChangedAt) / 550f)
+        val tt = p - 1f
+        val s = if (p >= 1f) 1f else 0.3f + 0.7f * (tt * tt * (3.5f * tt + 2.5f) + 1f)
+        c.save()
+        c.scale(s, s, cx, cy)
+        emojiPaint.textSize = dp(25f)
+        val fm = emojiPaint.fontMetrics
+        c.drawText(emoji, cx, cy - (fm.ascent + fm.descent) / 2f, emojiPaint)
+        c.restore()
+
+        if (muted) {
+            val bx = cx + emojiR * 0.72f
+            val by = cy + emojiR * 0.72f
+            fill.color = Color.parseColor("#FFB454")
+            c.drawCircle(bx, by, dp(9f), fill)
+            ip.color = Color.parseColor("#3A2300")
+            ip.strokeWidth = dp(2f)
+            c.drawLine(bx - dp(3.5f), by - dp(3.5f), bx + dp(3.5f), by + dp(3.5f), ip)
+            ip.strokeWidth = 1.9f
+        }
+    }
+
+    private fun drawWave(c: Canvas, v: Int, t: Float) {
+        val wL = emojiC.x + emojiR + dp(10f)
+        val wR = micC.x - btnR - dp(8f)
+        val wW = wR - wL
+        if (wW < dp(30f)) return
+        val cy = pillRect.centerY() - dp(7f)
+        val eff = when {
+            v == 3 -> 0.02f
+            v == 1 -> 0.16f + 0.05f * sin(t * 2.4f)
+            else -> level
+        } * (if (muted && mode == 2) 0.35f else 1f)
+        val amp = dp(15.8f)
+        val wDp = wW / density
+
+        stroke.shader = LinearGradient(wL, 0f, wR, 0f, waveColors[v], null, Shader.TileMode.CLAMP)
+        for (L in layers) {
+            for (pass in 0..1) {
+                tmpPath.reset()
+                var x = 0f
+                var first = true
+                while (x <= wDp) {
+                    val env = sin(PI.toFloat() * x / wDp).coerceAtLeast(0f).pow(1.1f)
+                    val y = cy + sin(x * L[0] + t * L[1] + L[2]) * amp * L[3] * env * (0.10f + 0.90f * eff)
+                    if (first) {
+                        tmpPath.moveTo(wL + x * density, y)
+                        first = false
+                    } else {
+                        tmpPath.lineTo(wL + x * density, y)
+                    }
+                    x += 2f
+                }
+                stroke.strokeWidth = if (pass == 0) dp(6f) else dp(L[4])
+                stroke.alpha = ((if (pass == 0) 0.14f else 0.95f) * L[5] * 255f).toInt()
+                c.drawPath(tmpPath, stroke)
+            }
+        }
+        stroke.shader = null
+        stroke.alpha = 255
+
+        if (v != 3) {
+            for (i in 0..2) {
+                val p = (t * 0.22f + i / 3f) % 1f
+                val x = p * wDp
+                val env = sin(PI.toFloat() * x / wDp).coerceAtLeast(0f).pow(1.1f)
+                val l0 = layers[0]
+                val y = cy + sin(x * l0[0] + t * l0[1] + l0[2]) * amp * l0[3] * env * (0.10f + 0.90f * eff)
+                val al = sin(PI.toFloat() * p) * 0.9f
+                val px = wL + x * density
+                fill.color = withAlpha(Color.WHITE, al * 0.25f)
+                c.drawCircle(px, y, dp(6f), fill)
+                fill.color = withAlpha(Color.WHITE, al)
+                c.drawCircle(px, y, dp(2f), fill)
+            }
+        }
+
+        labelPaint.textSize = dp(11.5f)
+        c.drawText(label(), (wL + wR) / 2f, pillRect.centerY() + dp(21f), labelPaint)
+    }
+
+    private fun drawButton(c: Canvas, p: PointF, bg: Int, border: Int, pressed: Boolean) {
+        val r = if (pressed) btnR * 0.92f else btnR
+        fill.shader = null
+        fill.color = bg
+        c.drawCircle(p.x, p.y, r, fill)
+        stroke.shader = null
+        stroke.color = border
+        stroke.strokeWidth = dp(1f)
+        c.drawCircle(p.x, p.y, r, stroke)
+    }
+
+    private inline fun icon(c: Canvas, cx: Float, cy: Float, size: Float, color: Int, block: () -> Unit) {
+        c.save()
+        c.translate(cx - size / 2f, cy - size / 2f)
+        c.scale(size / 24f, size / 24f)
+        ip.color = color
+        ip.strokeWidth = 1.9f
+        block()
+        c.restore()
+    }
+
+    private fun drawMic(c: Canvas, cx: Float, cy: Float, size: Float, color: Int, off: Boolean) {
+        icon(c, cx, cy, size, color) {
+            tmpRect.set(9f, 3f, 15f, 15f)
+            c.drawRoundRect(tmpRect, 3f, 3f, ip)
+            tmpRect.set(5f, 4f, 19f, 18f)
+            c.drawArc(tmpRect, 0f, 180f, false, ip)
+            c.drawLine(12f, 18f, 12f, 21f, ip)
+            if (off) {
+                ip.color = Color.parseColor("#FF8FA0")
+                ip.strokeWidth = 2.4f
+                c.drawLine(4f, 4f, 20f, 20f, ip)
+            }
+        }
+    }
+
+    private fun drawSpeaker(c: Canvas, cx: Float, cy: Float, size: Float, color: Int, off: Boolean) {
+        icon(c, cx, cy, size, color) {
+            tmpPath.reset()
+            tmpPath.moveTo(5f, 10f)
+            tmpPath.lineTo(5f, 14f)
+            tmpPath.lineTo(8f, 14f)
+            tmpPath.lineTo(12f, 17.5f)
+            tmpPath.lineTo(12f, 6.5f)
+            tmpPath.lineTo(8f, 10f)
+            tmpPath.close()
+            c.drawPath(tmpPath, ip)
+            if (!off) {
+                tmpRect.set(12f - 4.5f, 12f - 4.5f, 12f + 4.5f, 12f + 4.5f)
+                c.drawArc(tmpRect, -42f, 84f, false, ip)
+                tmpRect.set(12f - 7.5f, 12f - 7.5f, 12f + 7.5f, 12f + 7.5f)
+                c.drawArc(tmpRect, -42f, 84f, false, ip)
+            } else {
+                ip.color = Color.parseColor("#FFC46B")
+                ip.strokeWidth = 2.4f
+                c.drawLine(4f, 4f, 20f, 20f, ip)
+            }
+        }
+    }
+
+    private fun drawClose(c: Canvas, cx: Float, cy: Float, size: Float, color: Int) {
+        icon(c, cx, cy, size, color) {
+            ip.strokeWidth = 2.3f
+            c.drawLine(6f, 6f, 18f, 18f, ip)
+            c.drawLine(18f, 6f, 6f, 18f, ip)
+        }
+    }
+
+    private fun drawTray(c: Canvas) {
+        val rad = dp(26f)
+        gradientFill(trayRect, Color.parseColor("#F01E1E4E"), Color.parseColor("#F0121434"))
+        c.drawRoundRect(trayRect, rad, rad, fill)
+        fill.shader = null
+        stroke.shader = null
+        stroke.color = withAlpha(Color.WHITE, 0.14f)
+        stroke.strokeWidth = dp(1f)
+        c.drawRoundRect(trayRect, rad, rad, stroke)
+
+        val active = booleanArrayOf(subsOn, transOn, guideOn)
+        val names = if (ku) arrayOf("ژێرنووس", "تەرجومەی شاشە", "ڕێنمایی") else arrayOf("Subtitles", "Translate screen", "Guide me")
+        labelPaint.textSize = dp(11.5f)
+        labelPaint.isFakeBoldText = true
+        for (i in 0..2) {
+            val r = trayRects[i]
+            val on = active[i]
+            val pressed = pressedKey == trayKeys[i]
+            tmpRect.set(r)
+            if (pressed) tmpRect.inset(dp(2f), dp(2f))
+            if (on) {
+                fill.shader = LinearGradient(
+                    tmpRect.left, tmpRect.top, tmpRect.right, tmpRect.bottom,
+                    Color.parseColor("#8C8B5CF6"), Color.parseColor("#4DA78BFA"), Shader.TileMode.CLAMP,
+                )
+            } else {
+                fill.color = Color.parseColor("#12FFFFFF")
+            }
+            c.drawRoundRect(tmpRect, dp(18f), dp(18f), fill)
+            fill.shader = null
+            stroke.color = if (on) Color.parseColor("#E6A78BFA") else withAlpha(Color.WHITE, 0.14f)
+            c.drawRoundRect(tmpRect, dp(18f), dp(18f), stroke)
+
+            val fg = if (on) Color.WHITE else Color.parseColor("#D5D0F2")
+            val ix = r.centerX()
+            val iy = r.top + dp(19f)
+            when (i) {
+                0 -> drawSubsIcon(c, ix, iy, dp(22f), fg)
+                1 -> drawTransIcon(c, ix, iy, dp(22f), fg)
+                else -> drawGuideIcon(c, ix, iy, dp(22f), fg)
+            }
+            labelPaint.color = fg
+            c.drawText(names[i], r.centerX(), r.bottom - dp(11f), labelPaint)
+        }
+        labelPaint.isFakeBoldText = false
+        labelPaint.color = Color.parseColor("#C4BEE4")
+    }
+
+    private fun drawSubsIcon(c: Canvas, cx: Float, cy: Float, size: Float, color: Int) {
+        icon(c, cx, cy, size, color) {
+            tmpRect.set(3f, 5f, 21f, 19f)
+            c.drawRoundRect(tmpRect, 3.5f, 3.5f, ip)
+            c.drawLine(7f, 10.5f, 11f, 10.5f, ip)
+            c.drawLine(13f, 10.5f, 17f, 10.5f, ip)
+            c.drawLine(7f, 14f, 9.5f, 14f, ip)
+            c.drawLine(12f, 14f, 17f, 14f, ip)
+        }
+    }
+
+    private fun drawTransIcon(c: Canvas, cx: Float, cy: Float, size: Float, color: Int) {
+        icon(c, cx, cy, size, color) {
+            ipText.color = color
+            ipText.isFakeBoldText = true
+            ipText.textSize = 13f
+            c.drawText("ک", 7.5f, 11.5f, ipText)
+            ipText.textSize = 12f
+            c.drawText("A", 16.5f, 19.5f, ipText)
+            tmpRect.set(3f, 3f, 21f, 21f)
+            c.drawArc(tmpRect, 200f, 70f, false, ip)
+        }
+    }
+
+    private fun drawGuideIcon(c: Canvas, cx: Float, cy: Float, size: Float, color: Int) {
+        icon(c, cx, cy, size, color) {
+            c.drawCircle(6f, 18f, 2.2f, ip)
+            c.drawCircle(18f, 6f, 2.2f, ip)
+            tmpPath.reset()
+            tmpPath.moveTo(8f, 17.5f)
+            tmpPath.cubicTo(14f, 17.5f, 10f, 6.5f, 16f, 6.3f)
+            c.drawPath(tmpPath, ip)
+        }
+    }
+
+    private fun drawSubs(c: Canvas, w: Float) {
+        ensureLayouts(w.toInt())
+        var top = pillRect.bottom + dp(GAP)
+        if (trayOpen) top = trayRect.bottom + dp(GAP)
+        val h = subsHeight(w.toInt())
+        subsRect.set(dp(PAD), top, w - dp(PAD), top + h)
+        val rad = dp(22f)
+        fill.shader = null
+        fill.color = Color.parseColor("#E6121434")
+        c.drawRoundRect(subsRect, rad, rad, fill)
+        stroke.shader = null
+        stroke.color = withAlpha(Color.WHITE, 0.12f)
+        stroke.strokeWidth = dp(1f)
+        c.drawRoundRect(subsRect, rad, rad, stroke)
+
+        var y = subsRect.top + dp(12f)
+        val x = subsRect.left + dp(16f)
+        tagPaint.textSize = dp(11f)
+        youLayout?.let {
+            tagPaint.color = Color.parseColor("#9FD8FF")
+            c.drawText(if (ku) "تۆ" else "You", x, y + dp(11f), tagPaint)
+            y += dp(15f)
+            c.save()
+            c.translate(x, y)
+            it.draw(c)
+            c.restore()
+            y += it.height
+        }
+        aiLayout?.let {
+            y += dp(8f)
+            tagPaint.color = Color.parseColor("#FFC46B")
+            c.drawText(if (ku) "تێکسۆ" else "TEXO", x, y + dp(11f), tagPaint)
+            y += dp(15f)
+            c.save()
+            c.translate(x, y)
+            it.draw(c)
+            c.restore()
+        }
+    }
+}

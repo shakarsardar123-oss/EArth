@@ -29,12 +29,22 @@ class _LiveScreenState extends State<LiveScreen> with SingleTickerProviderStateM
       final TexoBackend backend = UiScope.of(context).backend;
       _backend = backend;
       _painter = LivePainter(backend.liveSource, repaint: _frame);
+      backend.liveSource.active.value = true;
+      backend.liveSource.active.addListener(_onActive);
       backend.startLive();
+    }
+  }
+
+  void _onActive() {
+    final TexoBackend? b = _backend;
+    if (b != null && !b.liveSource.active.value && mounted) {
+      Navigator.of(context).maybePop();
     }
   }
 
   @override
   void dispose() {
+    _backend?.liveSource.active.removeListener(_onActive);
     _backend?.setCamera(false);
     _backend?.stopLive();
     _frame.dispose();

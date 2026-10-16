@@ -18,6 +18,7 @@ import '../domain/services/ai_service.dart';
 import '../presentation/providers/app_providers.dart';
 import '../ui/texo_ui.dart';
 import 'live_camera.dart';
+import 'overlay_controller.dart';
 
 /// Connects the new UI ([TexoBackend]) to the existing app logic (Riverpod).
 class RiverpodBackend implements TexoBackend {
@@ -26,6 +27,12 @@ class RiverpodBackend implements TexoBackend {
   final ProviderContainer _c;
   final LiveVoiceSource _live = LiveVoiceSource();
   final LiveCamera _cam = LiveCamera();
+  late final OverlayController _overlay = OverlayController(onAction: _onOverlayAction);
+  int _ovTick = 0;
+  bool _micOff = false;
+  bool _muted = false;
+  bool _subs = false;
+  String _lastYou = '';
 
   String? _convId;
   Timer? _levelTimer;
@@ -285,6 +292,7 @@ class RiverpodBackend implements TexoBackend {
         ? LiveMode.thinking
         : (s == LiveModeState.speaking ? LiveMode.speaking : LiveMode.listening);
     _cam.capturing = _live.mode.value == LiveMode.listening;
+    _pushOverlay();
   }
 
   @override
@@ -302,6 +310,8 @@ class RiverpodBackend implements TexoBackend {
       ..start();
     _levelTimer?.cancel();
     _levelTimer = Timer.periodic(const Duration(milliseconds: 16), (Timer _) => _tickLevel());
+    _live.active.value = true;
+    await _overlay.start();
     await _c.read(liveModeOrchestratorProvider).startSession();
   }
 
@@ -321,6 +331,7 @@ class RiverpodBackend implements TexoBackend {
       v = 0.08 + 0.05 * math.sin(t * 1.3);
     }
     _live.level.value = v;
+    if (++_ovTick % 5 == 0) _pushOverlay();
   }
 
   @override
@@ -331,9 +342,59 @@ class RiverpodBackend implements TexoBackend {
     _liveSub = null;
     _live.level.value = 0;
     await _cam.stop();
+    await _overlay.stop();
     try {
       await _c.read(liveModeOrchestratorProvider).stopSession();
     } catch (_) {}
+  }
+
+  String _emoji(LiveMode m) {
+    if (m == LiveMode.thinking) return '\u{1F914}';
+    if (m == LiveMode.speaking) {
+      const List<String> e = <String>['\u{1F604}', '\u{1F62E}', '\u{1F3B5}', '\u{1F970}'];
+      return e[(DateTime.now().millisecondsSinceEpoch ~/ 2200) % e.length];
+    }
+    return '\u{1F642}';
+  }
+
+  void _pushOverlay() {
+    final LiveMode m = _live.mode.value;
+    final String caption = _live.caption.value;
+    if (m == LiveMode.listening && caption.isNotEmpty) _lastYou = caption;
+    _overlay.push(<String, Object?>{
+      'mode': m == LiveMode.thinking ? 'thinking' : (m == LiveMode.speaking ? 'speaking' : 'listening'),
+      'level': _live.level.value,
+      'emoji': _emoji(m),
+      'micOff': _micOff,
+      'muted': _muted,
+      'subs': _subs,
+      'lang': initialLang,
+      'you': _lastYou,
+      'ai': m == LiveMode.speaking ? caption : '',
+    });
+  }
+
+  void _onOverlayAction(String action) {
+    switch (action) {
+      case 'close':
+        _live.active.value = false;
+        stopLive();
+        break;
+      case 'mic':
+        _micOff = !_micOff; // TODO: really mute the microphone
+        _pushOverlay();
+        break;
+      case 'mute':
+        _muted = !_muted; // TODO: really mute the assistant's voice
+        _pushOverlay();
+        break;
+      case 'subs':
+        _subs = !_subs;
+        _pushOverlay();
+        break;
+      default:
+        break; // translate / guide / tray_open: later
+    }
   }
 
   @override
