@@ -5,6 +5,7 @@ import 'dart:math' as math;
 
 import 'package:file_picker/file_picker.dart';
 import 'package:flutter/foundation.dart';
+import 'package:flutter/material.dart' show Icons, Theme;
 import 'package:flutter/widgets.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:permission_handler/permission_handler.dart';
@@ -14,8 +15,11 @@ import '../core/ai/ai_message.dart';
 import '../core/live_mode/live_mode_providers.dart';
 import '../core/live_mode/live_mode_state.dart';
 import '../core/localization/locale_provider.dart';
+import '../core/theme/app_theme.dart';
+import '../core/voice/voice_service_provider.dart';
 import '../domain/services/ai_service.dart';
 import '../presentation/providers/app_providers.dart';
+import '../presentation/screens/vision_screen.dart';
 import '../ui/texo_ui.dart';
 import 'live_camera.dart';
 import 'overlay_controller.dart';
@@ -33,6 +37,11 @@ class RiverpodBackend implements TexoBackend {
   bool _muted = false;
   bool _subs = false;
   String _lastYou = '';
+  String _lastAi = '';
+  StreamSubscription<double>? _ttsSub;
+  double _ttsLevel = 0;
+  int _ttsAt = 0;
+  bool _muteStopped = false;
 
   String? _convId;
   Timer? _levelTimer;
@@ -50,6 +59,17 @@ class RiverpodBackend implements TexoBackend {
   }
 
   // ---- identity ---------------------------------------------------------------
+
+  @override
+  List<UiExtraEntry> get extraEntries => <UiExtraEntry>[
+        UiExtraEntry(
+          titleKu: 'بینین',
+          titleEn: 'Vision',
+          icon: Icons.visibility_outlined,
+          builder: (BuildContext context) =>
+              Theme(data: AppTheme.dark(), child: VisionScreen()),
+        ),
+      ];
 
   @override
   String get userName {
@@ -198,7 +218,7 @@ class RiverpodBackend implements TexoBackend {
 
   @override
   Future<void> speak(String text) async {
-    // TODO: connect to the TTS service (VoiceServiceImpl.speak).
+    await _c.read(voiceServiceImplProvider).speak(text);
   }
 
   @override
@@ -292,6 +312,11 @@ class RiverpodBackend implements TexoBackend {
         ? LiveMode.thinking
         : (s == LiveModeState.speaking ? LiveMode.speaking : LiveMode.listening);
     _cam.capturing = _live.mode.value == LiveMode.listening;
+    if (_muted && _live.mode.value == LiveMode.speaking && !_muteStopped) {
+      _muteStopped = true;
+      _c.read(voiceServiceImplProvider).stopSpeaking();
+    }
+    if (_live.mode.value != LiveMode.speaking) _muteStopped = false;
     _pushOverlay();
   }
 
@@ -311,8 +336,31 @@ class RiverpodBackend implements TexoBackend {
     _levelTimer?.cancel();
     _levelTimer = Timer.periodic(const Duration(milliseconds: 16), (Timer _) => _tickLevel());
     _live.active.value = true;
+    _lastYou = '';
+    _lastAi = '';
+    _live.caption.value = '';
+    _ttsSub?.cancel();
+    _ttsSub = _c.read(voiceServiceImplProvider).speakingLevelStream.listen((double v) {
+      _ttsLevel = v.clamp(0.0, 1.0).toDouble();
+      _ttsAt = DateTime.now().millisecondsSinceEpoch;
+    });
     await _overlay.start();
-    await _c.read(liveModeOrchestratorProvider).startSession();
+    final orchestrator = _c.read(liveModeOrchestratorProvider);
+    orchestrator.onUserRecognized = (String text) {
+      _lastYou = text;
+      _live.caption.value = text;
+      _pushOverlay();
+    };
+    orchestrator.onAIResponse = (String text) {
+      final String clean = text.split('```').first.trim();
+      _lastAi = clean;
+      _live.caption.value = clean;
+      _pushOverlay();
+    };
+    orchestrator.onSessionEnded = (String reason) {
+      _live.active.value = false;
+    };
+    await orchestrator.startSession();
   }
 
   /// Until real microphone / TTS levels are connected, the level is a gentle
@@ -324,7 +372,8 @@ class RiverpodBackend implements TexoBackend {
     final double syl = 0.5 + 0.5 * math.sin(t * 6.3 + math.sin(t * 1.7) * 2);
     double v;
     if (m == LiveMode.speaking) {
-      v = 0.12 + 0.75 * phr * (0.40 + 0.60 * syl);
+      final bool real = DateTime.now().millisecondsSinceEpoch - _ttsAt < 300;
+      v = real ? 0.10 + 0.85 * _ttsLevel : 0.12 + 0.75 * phr * (0.40 + 0.60 * syl);
     } else if (m == LiveMode.thinking) {
       v = 0.10 + 0.04 * math.sin(t * 2);
     } else {
@@ -343,6 +392,8 @@ class RiverpodBackend implements TexoBackend {
     _live.level.value = 0;
     await _cam.stop();
     await _overlay.stop();
+    await _ttsSub?.cancel();
+    _ttsSub = null;
     try {
       await _c.read(liveModeOrchestratorProvider).stopSession();
     } catch (_) {}
@@ -359,8 +410,6 @@ class RiverpodBackend implements TexoBackend {
 
   void _pushOverlay() {
     final LiveMode m = _live.mode.value;
-    final String caption = _live.caption.value;
-    if (m == LiveMode.listening && caption.isNotEmpty) _lastYou = caption;
     _overlay.push(<String, Object?>{
       'mode': m == LiveMode.thinking ? 'thinking' : (m == LiveMode.speaking ? 'speaking' : 'listening'),
       'level': _live.level.value,
@@ -370,7 +419,7 @@ class RiverpodBackend implements TexoBackend {
       'subs': _subs,
       'lang': initialLang,
       'you': _lastYou,
-      'ai': m == LiveMode.speaking ? caption : '',
+      'ai': _lastAi,
     });
   }
 
@@ -385,7 +434,8 @@ class RiverpodBackend implements TexoBackend {
         _pushOverlay();
         break;
       case 'mute':
-        _muted = !_muted; // TODO: really mute the assistant's voice
+        _muted = !_muted; // best effort: speech is stopped whenever the assistant starts talking
+        if (_muted) _c.read(voiceServiceImplProvider).stopSpeaking();
         _pushOverlay();
         break;
       case 'subs':

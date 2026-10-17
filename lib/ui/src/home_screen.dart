@@ -328,6 +328,28 @@ class TexoDrawer extends StatelessWidget {
                   },
                 ),
               ),
+              for (final UiExtraEntry e in scope.backend.extraEntries)
+                GestureDetector(
+                  behavior: HitTestBehavior.opaque,
+                  onTap: () {
+                    Navigator.of(context).pop();
+                    Navigator.of(context).push(MaterialPageRoute<void>(builder: e.builder));
+                  },
+                  child: Container(
+                    height: 52,
+                    padding: const EdgeInsets.symmetric(horizontal: 12),
+                    child: Row(
+                      children: <Widget>[
+                        Icon(e.icon, size: 22),
+                        const SizedBox(width: 12),
+                        Text(
+                          s.isKu ? e.titleKu : e.titleEn,
+                          style: const TextStyle(fontSize: 16, fontWeight: FontWeight.w500),
+                        ),
+                      ],
+                    ),
+                  ),
+                ),
               GestureDetector(
                 behavior: HitTestBehavior.opaque,
                 onTap: () {

@@ -11,13 +11,13 @@ import 'package:flutter_secure_storage/flutter_secure_storage.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
 import 'l10n/app_localizations.dart';
+import 'bridge/texo_ui_host.dart';
 import 'core/localization/locale_provider.dart';
 import 'core/theme/app_theme.dart';
 import 'core/ai/ai_connection_storage.dart';
 import 'core/ai/openai_provider.dart' show OpenAIProvider;
 import 'core/ai/gemini_provider.dart' show GeminiProvider;
 import 'presentation/providers/app_providers.dart';
-import 'presentation/screens/main_shell.dart';
 import 'services/notifications/alarm_notification_service.dart';
 import 'presentation/providers/alarm_providers.dart';
 import 'core/alarm/wake_verification_service.dart';
@@ -153,28 +153,12 @@ class _AuraAppState extends ConsumerState<AuraApp>
     final themeMode = ref.watch(overriddenThemeProvider);
     final locale = ref.watch(overriddenLocaleProvider);
 
-    return MaterialApp(
+    return TexoUiHost(
       navigatorKey: navigatorKey,
-      title: 'TEXO',
-      debugShowCheckedModeBanner: false,
-      theme: AppTheme.light(),
-      darkTheme: AppTheme.dark(),
-      themeMode: themeMode.toThemeMode(),
-      locale: locale.toLocale(),
-      supportedLocales: AuraLocale.values.map((l) => l.toLocale()),
-      localizationsDelegates: S.localizationsDelegates,
-      // Kurdish (Sorani, 'ku') is NOT in Flutter's built-in RTL language
-      // table, so GlobalWidgetsLocalizations resolves it to LTR. Wrapping
-      // only `home` in a Directionality left every *pushed* route, dialog,
-      // bottom sheet and SnackBar rendering LTR while the home screen was
-      // RTL. Applying the app-locale direction through MaterialApp.builder
-      // forces the correct direction for the ENTIRE navigator subtree
-      // (all routes + overlays), fixing the mixed-direction breakage.
-      builder: (context, child) => Directionality(
-        textDirection: locale.textDirection,
-        child: child ?? const SizedBox.shrink(),
-      ),
-      home: const MainShell(),
+      initialLang: locale.code,
+      onLangChanged: (String lang) => ref
+          .read(overriddenLocaleProvider.notifier)
+          .setLocale(lang == 'en' ? AuraLocale.en : AuraLocale.ku),
     );
   }
 }

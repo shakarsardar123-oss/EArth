@@ -2,7 +2,7 @@ import 'dart:typed_data';
 import 'dart:ui' as ui;
 
 import 'package:flutter/foundation.dart';
-import 'package:flutter/widgets.dart' show Widget;
+import 'package:flutter/widgets.dart' show IconData, Widget, WidgetBuilder;
 
 enum LiveMode { listening, thinking, speaking }
 
@@ -20,6 +20,22 @@ class UiAttachment {
   final String name;
   final String mime;
   final Uint8List bytes;
+}
+
+/// An extra screen the app keeps (for example the Vision screen) that the
+/// drawer lists below Settings.
+class UiExtraEntry {
+  const UiExtraEntry({
+    required this.titleKu,
+    required this.titleEn,
+    required this.icon,
+    required this.builder,
+  });
+
+  final String titleKu;
+  final String titleEn;
+  final IconData icon;
+  final WidgetBuilder builder;
 }
 
 class UiConversation {
@@ -75,6 +91,9 @@ class LiveVoiceSource {
 /// dependency on providers: the app supplies one implementation of this.
 abstract class TexoBackend {
   String get userName;
+
+  /// Extra screens listed in the drawer (may be empty).
+  List<UiExtraEntry> get extraEntries;
 
   LiveVoiceSource get liveSource;
 
