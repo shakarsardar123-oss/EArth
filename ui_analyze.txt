@@ -47,6 +47,8 @@ Downloading packages...
   petitparser 7.0.2 (7.1.0 available)
   riverpod 2.6.1 (3.4.3 available)
   shared_preferences 2.5.5 (2.5.6 available)
+  shared_preferences_android 2.4.28 (2.5.0 available)
+  shared_preferences_foundation 2.5.7 (2.6.0 available)
   sqflite 2.4.4 (2.4.4+2 available)
   sqflite_android 2.4.4 (2.4.4+1 available)
   sqflite_common 2.5.12 (2.5.14 available)
@@ -60,7 +62,7 @@ Downloading packages...
   win32_registry 1.1.5 (3.0.3 available)
   xml 7.0.1 (7.1.0 available)
 Got dependencies!
-55 packages have newer versions incompatible with dependency constraints.
+57 packages have newer versions incompatible with dependency constraints.
 Try `flutter pub outdated` for more information.
 /home/runner/work/EArth/EArth/l10n.yaml: The argument "synthetic-package" no longer has any effect and should be removed. See http://flutter.dev/to/flutter-gen-deprecation
 ----- analyze (new UI + bridge) -----
@@ -109,6 +111,8 @@ Downloading packages...
   petitparser 7.0.2 (7.1.0 available)
   riverpod 2.6.1 (3.4.3 available)
   shared_preferences 2.5.5 (2.5.6 available)
+  shared_preferences_android 2.4.28 (2.5.0 available)
+  shared_preferences_foundation 2.5.7 (2.6.0 available)
   sqflite 2.4.4 (2.4.4+2 available)
   sqflite_android 2.4.4 (2.4.4+1 available)
   sqflite_common 2.5.12 (2.5.14 available)
@@ -122,7 +126,7 @@ Downloading packages...
   win32_registry 1.1.5 (3.0.3 available)
   xml 7.0.1 (7.1.0 available)
 Got dependencies!
-55 packages have newer versions incompatible with dependency constraints.
+57 packages have newer versions incompatible with dependency constraints.
 Try `flutter pub outdated` for more information.
 Analyzing 4 items...                                            
 
@@ -143,8 +147,8 @@ warning • The left operand can't be null, so the right operand is never execut
    info • Missing a required trailing comma. Try adding a trailing comma • lib/core/ai/gemini_provider.dart:1000:10 • require_trailing_commas
    info • Missing a required trailing comma. Try adding a trailing comma • lib/ui/overlay_test_main.dart:20:4 • require_trailing_commas
    info • The import of 'dart:typed_data' is unnecessary because all of the used elements are also provided by the import of 'package:flutter/foundation.dart'. Try removing the import directive • lib/ui/src/backend.dart:1:8 • unnecessary_import
-   info • The private field _ku could be 'final'. Try making the field 'final' • lib/ui/src/demo_backend.dart:71:8 • prefer_final_fields
-  error • Undefined class 'ValueListenable'. Try changing the name to the name of an existing class, or creating a class with the name 'ValueListenable' • lib/ui/src/demo_backend.dart:76:3 • undefined_class
+   info • The import of 'dart:typed_data' is unnecessary because all of the used elements are also provided by the import of 'package:flutter/foundation.dart'. Try removing the import directive • lib/ui/src/demo_backend.dart:3:8 • unnecessary_import
+   info • The private field _ku could be 'final'. Try making the field 'final' • lib/ui/src/demo_backend.dart:72:8 • prefer_final_fields
    info • Missing a required trailing comma. Try adding a trailing comma • lib/ui/src/history_screen.dart:119:114 • require_trailing_commas
    info • Missing a required trailing comma. Try adding a trailing comma • lib/ui/src/history_screen.dart:160:24 • require_trailing_commas
    info • Missing a required trailing comma. Try adding a trailing comma • lib/ui/src/history_screen.dart:221:26 • require_trailing_commas
@@ -158,32 +162,31 @@ warning • The left operand can't be null, so the right operand is never execut
    info • Missing a required trailing comma. Try adding a trailing comma • lib/ui/src/settings_screen.dart:321:63 • require_trailing_commas
 
 30 issues found. (ran in 12.8s)
-analyze exit code: 1
+analyze exit code: 0
 ----- whole app compile (flutter build bundle) -----
-bundle exit code: 1
-62:lib/ui/src/demo_backend.dart:76:3: Error: Type 'ValueListenable' not found.
-<asynchronous suspension>
-#10     BuildBundleCommand.runCommand (package:flutter_tools/src/commands/build_bundle.dart:146:5)
-<asynchronous suspension>
-#11     FlutterCommand.run.<anonymous closure> (package:flutter_tools/src/runner/flutter_command.dart:1663:27)
-<asynchronous suspension>
-#12     AppContext.run.<anonymous closure> (package:flutter_tools/src/base/context.dart:154:19)
-<asynchronous suspension>
-#13     CommandRunner.runCommand (package:args/command_runner.dart:212:13)
-<asynchronous suspension>
-#14     FlutterCommandRunner.runCommand.<anonymous closure> (package:flutter_tools/src/runner/flutter_command_runner.dart:496:9)
-<asynchronous suspension>
-#15     AppContext.run.<anonymous closure> (package:flutter_tools/src/base/context.dart:154:19)
-<asynchronous suspension>
-#16     FlutterCommandRunner.runCommand (package:flutter_tools/src/runner/flutter_command_runner.dart:431:5)
-<asynchronous suspension>
-#17     FlutterCommandRunner.run.<anonymous closure> (package:flutter_tools/src/runner/flutter_command_runner.dart:307:33)
-<asynchronous suspension>
-#18     run.<anonymous closure>.<anonymous closure> (package:flutter_tools/runner.dart:104:11)
-<asynchronous suspension>
-#19     AppContext.run.<anonymous closure> (package:flutter_tools/src/base/context.dart:154:19)
-<asynchronous suspension>
-#20     main (package:flutter_tools/executable.dart:103:3)
-<asynchronous suspension>
-
-Failed to build bundle.
+bundle exit code: 0
+  objective_c 9.6.0 (9.6.2 available)
+  permission_handler 11.4.0 (13.0.2 available)
+  permission_handler_android 12.1.0 (14.1.0 available)
+  permission_handler_apple 9.6.1 (9.6.2 available)
+  petitparser 7.0.2 (7.1.0 available)
+  riverpod 2.6.1 (3.4.3 available)
+  shared_preferences 2.5.5 (2.5.6 available)
+  shared_preferences_android 2.4.28 (2.5.0 available)
+  shared_preferences_foundation 2.5.7 (2.6.0 available)
+  sqflite 2.4.4 (2.4.4+2 available)
+  sqflite_android 2.4.4 (2.4.4+1 available)
+  sqflite_common 2.5.12 (2.5.14 available)
+  sqflite_darwin 2.4.4 (2.4.4+1 available)
+  synchronized 3.4.2 (3.5.0 available)
+  test_api 0.7.12 (0.7.15 available)
+  timezone 0.9.4 (0.11.2 available)
+  vector_math 2.4.2 (2.4.3 available)
+  vm_service 15.3.0 (15.4.0 available)
+  win32 5.15.0 (6.4.0 available)
+  win32_registry 1.1.5 (3.0.3 available)
+  xml 7.0.1 (7.1.0 available)
+Got dependencies!
+57 packages have newer versions incompatible with dependency constraints.
+Try `flutter pub outdated` for more information.
+/home/runner/work/EArth/EArth/l10n.yaml: The argument "synthetic-package" no longer has any effect and should be removed. See http://flutter.dev/to/flutter-gen-deprecation
