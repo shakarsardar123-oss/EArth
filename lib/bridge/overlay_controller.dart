@@ -13,7 +13,8 @@ class OverlayController with WidgetsBindingObserver {
 
   static const MethodChannel _ch = MethodChannel('com.texo.texo/floating_texo_overlay');
 
-  /// Called with: close, mic, mute, subs, translate, guide, tray_open.
+  /// Called with: close, hide, show, tray_open, tray_close and name=1 / name=0
+  /// for the toggles (mic, mute, subs, translate, guide).
   final void Function(String action) onAction;
 
   bool _active = false;
@@ -54,6 +55,24 @@ class OverlayController with WidgetsBindingObserver {
     return null;
   }
 
+  /// Another part of the app may register its own handler on the same native
+  /// channel (only the last one gets the overlay's button events). Call this
+  /// to take it back.
+  void rebind() {
+    if (_active) _ch.setMethodCallHandler(_onCall);
+  }
+
+  /// Puts the pill in the right state for the current app state (visible only
+  /// while the app is in the background).
+  Future<void> syncVisibility() async {
+    if (!_active) return;
+    final AppLifecycleState? s = WidgetsBinding.instance.lifecycleState;
+    final bool want =
+        s != null && s != AppLifecycleState.resumed && s != AppLifecycleState.inactive;
+    _visible = !want; // force the native call
+    await _setVisible(want);
+  }
+
   /// Merge [state] (mode, level, emoji, micOff, muted, subs, lang, you, ai).
   void push(Map<String, Object?> state) {
     _last.addAll(state);
@@ -66,6 +85,7 @@ class OverlayController with WidgetsBindingObserver {
     if (_visible == v) return;
     _visible = v;
     try {
+      _ch.setMethodCallHandler(_onCall);
       await _ch.invokeMethod<Object?>('setOverlayVisible', <String, Object?>{'visible': v});
       if (v) {
         await _ch.invokeMethod<Object?>('overlayState', Map<String, Object?>.of(_last));

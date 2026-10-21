@@ -47,7 +47,7 @@ class FloatingTexoOverlayService : Service() {
 
         private const val NOTIFICATION_CHANNEL_ID = "texo_floating_overlay_v3"
         private const val NOTIFICATION_ID = 4201
-        private const val OVERLAY_WIDTH_DP = 356f
+        private const val OVERLAY_WIDTH_DP = 290f
     }
 
     override fun onBind(intent: Intent?): IBinder = binder

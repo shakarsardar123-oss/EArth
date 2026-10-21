@@ -135,3 +135,16 @@ abstract class TexoBackend {
   Future<bool> hasApiKey();
   Future<void> setApiKey(String key);
 }
+
+/// Optional camera extras (flash, front/back). The real app implements this
+/// next to [TexoBackend]; the demo backend does not have to.
+abstract class TexoCameraExtras {
+  /// True while the flash (torch, or the screen fill light on the front
+  /// camera) is on.
+  ValueListenable<bool> get torchOn;
+
+  /// True while the front camera is the active one.
+  ValueListenable<bool> get cameraIsFront;
+
+  Future<void> toggleTorch();
+}

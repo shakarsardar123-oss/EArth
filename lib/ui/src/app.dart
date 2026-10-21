@@ -1,9 +1,44 @@
+import 'package:flutter/cupertino.dart' show CupertinoLocalizations;
 import 'package:flutter/material.dart';
+import 'package:flutter_localizations/flutter_localizations.dart';
 
 import 'backend.dart';
 import 'colors.dart';
 import 'home_screen.dart';
 import 'scope.dart';
+
+/// Flutter ships Material strings for many languages but not for Kurdish. When
+/// the app locale is Kurdish this delegate hands out the English Material
+/// strings instead, so Material widgets (text fields, drawer, dialogs, ...)
+/// keep working. It is listed AFTER the real delegates, so it is only used
+/// when they do not support the locale.
+class _MaterialFallbackDelegate extends LocalizationsDelegate<MaterialLocalizations> {
+  const _MaterialFallbackDelegate();
+
+  @override
+  bool isSupported(Locale locale) => true;
+
+  @override
+  Future<MaterialLocalizations> load(Locale locale) =>
+      GlobalMaterialLocalizations.delegate.load(const Locale('en'));
+
+  @override
+  bool shouldReload(covariant LocalizationsDelegate<MaterialLocalizations> old) => false;
+}
+
+class _CupertinoFallbackDelegate extends LocalizationsDelegate<CupertinoLocalizations> {
+  const _CupertinoFallbackDelegate();
+
+  @override
+  bool isSupported(Locale locale) => true;
+
+  @override
+  Future<CupertinoLocalizations> load(Locale locale) =>
+      GlobalCupertinoLocalizations.delegate.load(const Locale('en'));
+
+  @override
+  bool shouldReload(covariant LocalizationsDelegate<CupertinoLocalizations> old) => false;
+}
 
 /// The whole TEXO UI. Put it where the old MaterialApp was and pass a
 /// [TexoBackend] that connects it to the app logic.
@@ -78,6 +113,13 @@ class _TexoUiAppState extends State<TexoUiApp> {
           final TextDirection dir =
               _settings.lang == 'ku' ? TextDirection.rtl : TextDirection.ltr;
           final bool localized = widget.localizationsDelegates != null;
+          final List<LocalizationsDelegate<dynamic>>? delegates = localized
+              ? <LocalizationsDelegate<dynamic>>[
+                  ...widget.localizationsDelegates!,
+                  const _MaterialFallbackDelegate(),
+                  const _CupertinoFallbackDelegate(),
+                ]
+              : null;
           return MaterialApp(
             navigatorKey: widget.navigatorKey,
             debugShowCheckedModeBanner: false,
@@ -88,7 +130,7 @@ class _TexoUiAppState extends State<TexoUiApp> {
               scaffoldBackgroundColor: UiColors.lightTop,
             ),
             locale: localized ? Locale(_settings.lang) : null,
-            localizationsDelegates: widget.localizationsDelegates,
+            localizationsDelegates: delegates,
             supportedLocales: widget.supportedLocales ?? const <Locale>[Locale('en', 'US')],
             builder: (BuildContext context, Widget? child) {
               final Widget inner = Directionality(

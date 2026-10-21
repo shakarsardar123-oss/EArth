@@ -1,3 +1,5 @@
+import 'dart:math' as math;
+
 import 'package:flutter/material.dart';
 
 import 'backend.dart';
@@ -14,8 +16,16 @@ void _push(BuildContext context, Widget page) {
   Navigator.of(context).push(MaterialPageRoute<void>(builder: (BuildContext _) => page));
 }
 
-class HomeScreen extends StatelessWidget {
+class HomeScreen extends StatefulWidget {
   const HomeScreen({super.key});
+
+  @override
+  State<HomeScreen> createState() => _HomeScreenState();
+}
+
+class _HomeScreenState extends State<HomeScreen> {
+  /// A new opening line every time the home screen is created.
+  final int _greetSeed = math.Random().nextInt(1000);
 
   @override
   Widget build(BuildContext context) {
@@ -58,29 +68,7 @@ class HomeScreen extends StatelessWidget {
                       onTap: () => _push(context, const ChatScreen()),
                     ),
                     const SizedBox(width: 6),
-                    Container(
-                      width: 42,
-                      height: 42,
-                      alignment: Alignment.center,
-                      decoration: const BoxDecoration(
-                        shape: BoxShape.circle,
-                        gradient: LinearGradient(
-                          begin: Alignment.topLeft,
-                          end: Alignment.bottomRight,
-                          colors: <Color>[Color(0xFFA78BFA), Color(0xFF38BDF8)],
-                        ),
-                      ),
-                      child: Text(
-                        scope.backend.userName.isEmpty
-                            ? '?'
-                            : String.fromCharCode(scope.backend.userName.runes.first),
-                        style: const TextStyle(
-                          fontSize: 18,
-                          fontWeight: FontWeight.w700,
-                          color: Color(0xFF10102A),
-                        ),
-                      ),
-                    ),
+                    const TexoLogo(size: 42, radius: 12, shadow: false),
                   ],
                 ),
               ),
@@ -95,7 +83,7 @@ class HomeScreen extends StatelessWidget {
                       child: Padding(
                         padding: const EdgeInsets.symmetric(horizontal: 20),
                         child: Text(
-                          s.greeting(scope.backend.userName),
+                          s.greetingAt(_greetSeed),
                           textAlign: TextAlign.center,
                           style: const TextStyle(
                             fontSize: 31,

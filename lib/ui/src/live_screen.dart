@@ -68,6 +68,54 @@ class _LiveScreenState extends State<LiveScreen> with SingleTickerProviderStateM
                 child: CustomPaint(painter: _painter),
               ),
             ),
+            ValueListenableBuilder<bool>(
+              valueListenable: scope.backend.cameraActive,
+              builder: (BuildContext c, bool on, Widget? _) {
+                if (!on) return const SizedBox.shrink();
+                final Widget? view = scope.backend.buildCameraPreview();
+                if (view == null) return const SizedBox.shrink();
+                final Object ob = scope.backend;
+                final TexoCameraExtras? ex = ob is TexoCameraExtras ? ob : null;
+                return Positioned.fill(
+                  child: Stack(
+                    fit: StackFit.expand,
+                    children: <Widget>[
+                      ClipRect(child: view),
+                      // Front camera "flash": a bright screen light.
+                      if (ex != null)
+                        AnimatedBuilder(
+                          animation: Listenable.merge(<Listenable>[ex.torchOn, ex.cameraIsFront]),
+                          builder: (BuildContext c2, Widget? _) {
+                            final bool light = ex.torchOn.value && ex.cameraIsFront.value;
+                            return IgnorePointer(
+                              child: ColoredBox(
+                                color: light ? const Color(0xB3FFFFFF) : const Color(0x00FFFFFF),
+                              ),
+                            );
+                          },
+                        ),
+                      // A soft shade at the bottom keeps the buttons readable.
+                      const Align(
+                        alignment: Alignment.bottomCenter,
+                        child: SizedBox(
+                          height: 260,
+                          width: double.infinity,
+                          child: DecoratedBox(
+                            decoration: BoxDecoration(
+                              gradient: LinearGradient(
+                                begin: Alignment.topCenter,
+                                end: Alignment.bottomCenter,
+                                colors: <Color>[Color(0x00000000), Color(0x99000000)],
+                              ),
+                            ),
+                          ),
+                        ),
+                      ),
+                    ],
+                  ),
+                );
+              },
+            ),
             SafeArea(
               child: Column(
                 children: <Widget>[
@@ -202,32 +250,33 @@ class _LiveScreenState extends State<LiveScreen> with SingleTickerProviderStateM
               valueListenable: scope.backend.cameraActive,
               builder: (BuildContext c, bool on, Widget? _) {
                 if (!on) return const SizedBox.shrink();
-                final Widget? view = scope.backend.buildCameraPreview();
-                if (view == null) return const SizedBox.shrink();
+                final Object ob = scope.backend;
+                final TexoCameraExtras? ex = ob is TexoCameraExtras ? ob : null;
                 return PositionedDirectional(
-                  top: top + 84,
+                  top: top + 72,
                   end: 20,
-                  child: Semantics(
-                    button: true,
-                    label: s.t('cameraFlip'),
-                    child: GestureDetector(
-                      onTap: () => scope.backend.switchCamera(),
-                      child: Container(
-                        width: 112,
-                        height: 150,
-                        decoration: BoxDecoration(
-                          borderRadius: BorderRadius.circular(18),
-                          border: Border.all(color: const Color(0x66FFFFFF)),
-                          boxShadow: const <BoxShadow>[
-                            BoxShadow(color: Color(0x668B5CF6), blurRadius: 24),
-                          ],
-                        ),
-                        child: ClipRRect(
-                          borderRadius: BorderRadius.circular(17),
-                          child: view,
-                        ),
+                  child: Column(
+                    children: <Widget>[
+                      GlassCircle(
+                        icon: Icons.cameraswitch_outlined,
+                        label: s.t('cameraFlip'),
+                        size: 40,
+                        onTap: () => scope.backend.switchCamera(),
                       ),
-                    ),
+                      if (ex != null) ...<Widget>[
+                        const SizedBox(height: 12),
+                        ValueListenableBuilder<bool>(
+                          valueListenable: ex.torchOn,
+                          builder: (BuildContext c2, bool lit, Widget? _) => GlassCircle(
+                            icon: lit ? Icons.flash_on : Icons.flash_off,
+                            label: s.t('flash'),
+                            size: 40,
+                            active: lit,
+                            onTap: () => ex.toggleTorch(),
+                          ),
+                        ),
+                      ],
+                    ],
                   ),
                 );
               },

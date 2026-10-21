@@ -29,6 +29,28 @@ final GlobalKey<NavigatorState> navigatorKey = GlobalKey<NavigatorState>();
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
 
+  // In release builds a widget that throws is drawn as a plain grey box and
+  // the reason is lost. Show the error text instead so it can be read.
+  ErrorWidget.builder = (FlutterErrorDetails details) {
+    return Directionality(
+      textDirection: TextDirection.ltr,
+      child: Container(
+        color: const Color(0xFFFFE9E9),
+        padding: const EdgeInsets.all(6),
+        child: Text(
+          'ERR: ${details.exceptionAsString()}',
+          maxLines: 8,
+          overflow: TextOverflow.ellipsis,
+          style: const TextStyle(
+            fontSize: 10,
+            color: Color(0xFF8A0000),
+            decoration: TextDecoration.none,
+          ),
+        ),
+      ),
+    );
+  };
+
   final prefs = await SharedPreferences.getInstance();
   final secureStorage = const FlutterSecureStorage();
 

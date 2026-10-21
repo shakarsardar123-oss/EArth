@@ -23,6 +23,8 @@ object FloatingTexoBridge {
     private var methodChannel: MethodChannel? = null
     private var bound = false
     private var activityRef: MainActivity? = null
+    // True once the new TEXO UI drives the overlay (it passes `hidden`).
+    private var managed = false
 
     private val mainHandler = Handler(Looper.getMainLooper())
 
@@ -123,6 +125,16 @@ object FloatingTexoBridge {
                     return
                 }
 
+                val hiddenArg = call.argument<Boolean>("hidden")
+                if (hiddenArg != null) managed = true
+                if (managed && hiddenArg == null) {
+                    // The new UI controls the pill itself: ignore the old
+                    // live-mode code that also asks to show it.
+                    debugToast(activity, "TEXO: legacy showOverlay ignored")
+                    result.success(mapOf("shown" to true))
+                    return
+                }
+
                 val x = (call.argument<Number>("x") ?: 16).toInt()
                 val y = (call.argument<Number>("y") ?: 100).toInt()
 
@@ -139,6 +151,7 @@ object FloatingTexoBridge {
 
             "hideOverlay" -> {
                 debugToast(activity, "TEXO: hideOverlay called from Dart")
+                managed = false
                 service?.onOverlayAction = null
                 service?.hide()
 
@@ -193,6 +206,7 @@ object FloatingTexoBridge {
     }
 
     private fun closeFromOverlay() {
+        managed = false
         service?.onOverlayAction = null
         service?.hide()
 

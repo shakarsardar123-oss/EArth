@@ -61,6 +61,9 @@ class TexoOverlayView(context: Context) : View(context) {
     private var youText = ""
     private var aiText = ""
     private var trayOpen = false
+    private var pillHidden = false
+    private var downX = 0f
+    private var downY = 0f
 
     private var pressedKey: String? = null
     private var holding = false
@@ -83,6 +86,9 @@ class TexoOverlayView(context: Context) : View(context) {
     private val trayRect = RectF()
     private val subsRect = RectF()
 
+    private var captionLayout: StaticLayout? = null
+    private var captionBuilt = ""
+    private val capPaint = TextPaint(Paint.ANTI_ALIAS_FLAG).apply { color = Color.WHITE }
     private var youLayout: StaticLayout? = null
     private var aiLayout: StaticLayout? = null
     private var layoutWidth = -1
@@ -139,12 +145,13 @@ class TexoOverlayView(context: Context) : View(context) {
     )
 
     companion object {
-        private const val PILL_H = 70f
-        private const val TRAY_H = 76f
-        private const val GAP = 8f
+        private const val PILL_H = 52f
+        private const val TRAY_H = 58f
+        private const val GAP = 6f
         private const val PAD = 3f
         private const val HOLD_MS = 2000L
-        private const val TRAY_IDLE_MS = 7000L
+        private const val TRAY_IDLE_MS = 15000L
+        private const val SWIPE_DP = 36f
     }
 
     // ---- public API -------------------------------------------------------------------
@@ -208,27 +215,47 @@ class TexoOverlayView(context: Context) : View(context) {
 
     override fun onMeasure(widthMeasureSpec: Int, heightMeasureSpec: Int) {
         val w = MeasureSpec.getSize(widthMeasureSpec)
-        var h = dp(PILL_H) + 2f * dp(PAD)
-        if (trayOpen) h += dp(GAP + TRAY_H)
-        if (subsOn) h += dp(GAP) + subsHeight(w)
-        setMeasuredDimension(w, ceil(h).toInt())
+        var h = 0f
+        if (!pillHidden) {
+            h = dp(PILL_H) + 2f * dp(PAD)
+            if (trayOpen) h += dp(GAP + TRAY_H)
+        }
+        if (subsOn) {
+            val sh = subsHeight(w)
+            if (sh > 0f) h += (if (pillHidden) 0f else dp(GAP)) + sh
+        }
+        setMeasuredDimension(w, max(1, ceil(h).toInt()))
+    }
+
+    /** What the caption shows: the assistant while it speaks, the user otherwise. */
+    private fun captionText(): String = when {
+        mode == 2 && aiText.isNotBlank() -> aiText
+        mode != 2 && youText.isNotBlank() -> youText
+        aiText.isNotBlank() -> aiText
+        else -> youText
     }
 
     private fun ensureLayouts(w: Int) {
-        if (!layoutDirty && layoutWidth == w) return
+        val text = captionText()
+        if (!layoutDirty && layoutWidth == w && text == captionBuilt) return
         layoutWidth = w
         layoutDirty = false
-        val inner = max(40, (w - 2f * dp(PAD) - dp(32f)).toInt())
-        youPaint.textSize = dp(13f)
-        aiPaint.textSize = dp(13.5f)
-        val you = if (youText.isNotBlank()) youText else if (ku) "قسە بکە..." else "Speak..."
-        youLayout = buildLayout(you, youPaint, inner)
-        aiLayout = if (aiText.isNotBlank()) buildLayout(aiText, aiPaint, inner) else null
+        captionBuilt = text
+        val inner = max(40, (w - 2f * dp(PAD) - dp(28f)).toInt())
+        capPaint.textSize = dp(14f)
+        captionLayout =
+            if (text.isBlank()) null
+            else buildLayout(text, capPaint, inner, Layout.Alignment.ALIGN_CENTER)
     }
 
-    private fun buildLayout(text: String, paint: TextPaint, width: Int): StaticLayout {
+    private fun buildLayout(
+        text: String,
+        paint: TextPaint,
+        width: Int,
+        align: Layout.Alignment = Layout.Alignment.ALIGN_NORMAL,
+    ): StaticLayout {
         return StaticLayout.Builder.obtain(text, 0, text.length, paint, width)
-            .setAlignment(Layout.Alignment.ALIGN_NORMAL)
+            .setAlignment(align)
             .setTextDirection(TextDirectionHeuristics.FIRSTSTRONG_LTR)
             .setLineSpacing(0f, 1.25f)
             .setMaxLines(4)
@@ -238,29 +265,27 @@ class TexoOverlayView(context: Context) : View(context) {
 
     private fun subsHeight(w: Int): Float {
         ensureLayouts(w)
-        var h = dp(24f)
-        youLayout?.let { h += dp(15f) + it.height }
-        aiLayout?.let { h += dp(8f) + dp(15f) + it.height }
-        return h
+        val l = captionLayout ?: return 0f
+        return l.height + dp(16f)
     }
 
     private fun layoutGeo(w: Float) {
         val pad = dp(PAD)
         pillRect.set(pad, pad, w - pad, pad + dp(PILL_H))
         val cy = pillRect.centerY()
-        emojiR = dp(23f)
-        emojiC.set(pillRect.left + dp(10f) + emojiR, cy)
-        btnR = dp(19f)
-        closeC.set(pillRect.right - dp(10f) - btnR, cy)
-        spkC.set(closeC.x - 2f * btnR - dp(8f), cy)
-        micC.set(spkC.x - 2f * btnR - dp(8f), cy)
+        emojiR = dp(17f)
+        emojiC.set(pillRect.left + dp(8f) + emojiR, cy)
+        btnR = dp(14f)
+        closeC.set(pillRect.right - dp(8f) - btnR, cy)
+        spkC.set(closeC.x - 2f * btnR - dp(6f), cy)
+        micC.set(spkC.x - 2f * btnR - dp(6f), cy)
         holdRect.set(emojiC.x - emojiR, pillRect.top, micC.x - btnR - dp(4f), pillRect.bottom)
         if (trayOpen) {
             val top = pillRect.bottom + dp(GAP)
             trayRect.set(pad, top, w - pad, top + dp(TRAY_H))
             val slot = trayRect.width() / 3f
-            val bw = dp(104f)
-            val bh = dp(60f)
+            val bw = dp(88f)
+            val bh = dp(46f)
             for (i in 0..2) {
                 val cx = trayRect.left + slot * (i + 0.5f)
                 trayRects[i].set(cx - bw / 2f, trayRect.centerY() - bh / 2f, cx + bw / 2f, trayRect.centerY() + bh / 2f)
@@ -271,6 +296,7 @@ class TexoOverlayView(context: Context) : View(context) {
     // ---- touch -----------------------------------------------------------------------------
 
     private fun hit(x: Float, y: Float): String? {
+        if (pillHidden) return null
         val slop = btnR + dp(5f)
         if (hypot(x - micC.x, y - micC.y) <= slop) return "mic"
         if (hypot(x - spkC.x, y - spkC.y) <= slop) return "mute"
@@ -286,8 +312,13 @@ class TexoOverlayView(context: Context) : View(context) {
         holding = false
         pressedKey = null
         performHapticFeedback(HapticFeedbackConstants.LONG_PRESS)
-        setTray(true)
-        listener?.onAction("tray_open")
+        if (trayOpen) {
+            setTray(false)
+            listener?.onAction("tray_close")
+        } else {
+            setTray(true)
+            listener?.onAction("tray_open")
+        }
     }
     private val trayHideRunnable = Runnable { setTray(false) }
 
@@ -308,32 +339,50 @@ class TexoOverlayView(context: Context) : View(context) {
         holding = false
     }
 
+    private fun hidePill() {
+        cancelHold()
+        pressedKey = null
+        removeCallbacks(trayHideRunnable)
+        trayOpen = false
+        pillHidden = true
+        requestLayout()
+        invalidate()
+        listener?.onAction("hide")
+    }
+
+    private fun showPill() {
+        pillHidden = false
+        requestLayout()
+        invalidate()
+        listener?.onAction("show")
+    }
+
     private fun fire(key: String) {
         when (key) {
             "mic" -> {
                 micOff = !micOff
-                listener?.onAction("mic")
+                listener?.onAction("mic=" + (if (micOff) "1" else "0"))
             }
             "mute" -> {
                 muted = !muted
-                listener?.onAction("mute")
+                listener?.onAction("mute=" + (if (muted) "1" else "0"))
             }
             "close" -> listener?.onAction("close")
             "subs" -> {
                 subsOn = !subsOn
                 layoutDirty = true
                 requestLayout()
-                listener?.onAction("subs")
+                listener?.onAction("subs=" + (if (subsOn) "1" else "0"))
                 setTray(true)
             }
             "trans" -> {
                 transOn = !transOn
-                listener?.onAction("translate")
+                listener?.onAction("translate=" + (if (transOn) "1" else "0"))
                 setTray(true)
             }
             "guide" -> {
                 guideOn = !guideOn
-                listener?.onAction("guide")
+                listener?.onAction("guide=" + (if (guideOn) "1" else "0"))
                 setTray(true)
             }
         }
@@ -345,17 +394,28 @@ class TexoOverlayView(context: Context) : View(context) {
             MotionEvent.ACTION_DOWN -> {
                 val k = hit(e.x, e.y)
                 pressedKey = k
-                if (k == "hold" && !trayOpen) {
+                downX = e.x
+                downY = e.y
+                if (k == "hold") {
                     holding = true
                     holdStartAt = SystemClock.uptimeMillis()
                     postDelayed(holdRunnable, HOLD_MS)
-                } else if (k == "hold" && trayOpen) {
+                } else if (trayOpen) {
                     setTray(true)
                 }
                 invalidate()
                 return true
             }
             MotionEvent.ACTION_MOVE -> {
+                val dy = e.y - downY
+                if (!pillHidden && dy < -dp(SWIPE_DP)) {
+                    hidePill()
+                    return true
+                }
+                if (pillHidden && dy > dp(SWIPE_DP)) {
+                    showPill()
+                    return true
+                }
                 val k = hit(e.x, e.y)
                 if (k != pressedKey) {
                     cancelHold()
@@ -413,10 +473,14 @@ class TexoOverlayView(context: Context) : View(context) {
 
         val w = width.toFloat()
         layoutGeo(w)
-        drawPill(canvas, t, now)
-        if (trayOpen) drawTray(canvas)
+        if (!pillHidden) {
+            drawPill(canvas, t, now)
+            if (trayOpen) drawTray(canvas)
+        }
         if (subsOn) drawSubs(canvas, w)
-        postInvalidateOnAnimation()
+        // 30 frames per second is plenty for this small overlay; when only the
+        // caption is on screen nothing animates, so no redraw loop at all.
+        if (!pillHidden) postInvalidateDelayed(33L)
     }
 
     private fun gradientFill(r: RectF, top: Int, bottom: Int) {
@@ -434,7 +498,7 @@ class TexoOverlayView(context: Context) : View(context) {
         tmpRect.inset(-dp(1.5f), -dp(1.5f))
         c.drawRoundRect(tmpRect, r + dp(1.5f), r + dp(1.5f), stroke)
 
-        gradientFill(pillRect, Color.parseColor("#F01E1E4E"), Color.parseColor("#F0121434"))
+        gradientFill(pillRect, Color.parseColor("#FF0B0B0E"), Color.parseColor("#FF000000"))
         c.drawRoundRect(pillRect, r, r, fill)
         fill.shader = null
         stroke.color = withAlpha(Color.WHITE, 0.14f)
@@ -467,15 +531,15 @@ class TexoOverlayView(context: Context) : View(context) {
         val micBg = if (micOff) Color.parseColor("#33FF5A6E") else Color.parseColor("#295DD6FF")
         val micBorder = if (micOff) Color.parseColor("#80FF788C") else Color.parseColor("#735DD6FF")
         drawButton(c, micC, micBg, micBorder, pressedKey == "mic")
-        drawMic(c, micC.x, micC.y, dp(19f), Color.WHITE, micOff)
+        drawMic(c, micC.x, micC.y, dp(15f), Color.WHITE, micOff)
 
         val spkBg = if (muted) Color.parseColor("#33FFB454") else Color.parseColor("#1AFFFFFF")
         val spkBorder = if (muted) Color.parseColor("#8CFFC46B") else Color.parseColor("#29FFFFFF")
         drawButton(c, spkC, spkBg, spkBorder, pressedKey == "mute")
-        drawSpeaker(c, spkC.x, spkC.y, dp(19f), Color.WHITE, muted)
+        drawSpeaker(c, spkC.x, spkC.y, dp(15f), Color.WHITE, muted)
 
         drawButton(c, closeC, Color.parseColor("#33FF5A6E"), Color.parseColor("#80FF788C"), pressedKey == "close")
-        drawClose(c, closeC.x, closeC.y, dp(17f), Color.parseColor("#FFD3DA"))
+        drawClose(c, closeC.x, closeC.y, dp(13f), Color.parseColor("#FFD3DA"))
     }
 
     private fun drawEmoji(c: Canvas, v: Int, now: Long) {
@@ -489,7 +553,7 @@ class TexoOverlayView(context: Context) : View(context) {
         fill.shader = null
         stroke.shader = null
         stroke.color = withAlpha(ringColors[v], 0.22f)
-        stroke.strokeWidth = dp(6f)
+        stroke.strokeWidth = dp(4f)
         c.drawCircle(cx, cy, emojiR, stroke)
         stroke.color = ringColors[v]
         stroke.strokeWidth = dp(2f)
@@ -500,7 +564,7 @@ class TexoOverlayView(context: Context) : View(context) {
         val s = if (p >= 1f) 1f else 0.3f + 0.7f * (tt * tt * (3.5f * tt + 2.5f) + 1f)
         c.save()
         c.scale(s, s, cx, cy)
-        emojiPaint.textSize = dp(25f)
+        emojiPaint.textSize = dp(19f)
         val fm = emojiPaint.fontMetrics
         c.drawText(emoji, cx, cy - (fm.ascent + fm.descent) / 2f, emojiPaint)
         c.restore()
@@ -509,10 +573,10 @@ class TexoOverlayView(context: Context) : View(context) {
             val bx = cx + emojiR * 0.72f
             val by = cy + emojiR * 0.72f
             fill.color = Color.parseColor("#FFB454")
-            c.drawCircle(bx, by, dp(9f), fill)
+            c.drawCircle(bx, by, dp(7f), fill)
             ip.color = Color.parseColor("#3A2300")
             ip.strokeWidth = dp(2f)
-            c.drawLine(bx - dp(3.5f), by - dp(3.5f), bx + dp(3.5f), by + dp(3.5f), ip)
+            c.drawLine(bx - dp(2.8f), by - dp(2.8f), bx + dp(2.8f), by + dp(2.8f), ip)
             ip.strokeWidth = 1.9f
         }
     }
@@ -522,13 +586,13 @@ class TexoOverlayView(context: Context) : View(context) {
         val wR = micC.x - btnR - dp(8f)
         val wW = wR - wL
         if (wW < dp(30f)) return
-        val cy = pillRect.centerY() - dp(7f)
+        val cy = pillRect.centerY() - dp(5f)
         val eff = when {
             v == 3 -> 0.02f
             v == 1 -> 0.16f + 0.05f * sin(t * 2.4f)
             else -> level
         } * (if (muted && mode == 2) 0.35f else 1f)
-        val amp = dp(15.8f)
+        val amp = dp(11f)
         val wDp = wW / density
 
         stroke.shader = LinearGradient(wL, 0f, wR, 0f, waveColors[v], null, Shader.TileMode.CLAMP)
@@ -572,8 +636,8 @@ class TexoOverlayView(context: Context) : View(context) {
             }
         }
 
-        labelPaint.textSize = dp(11.5f)
-        c.drawText(label(), (wL + wR) / 2f, pillRect.centerY() + dp(21f), labelPaint)
+        labelPaint.textSize = dp(10f)
+        c.drawText(label(), (wL + wR) / 2f, pillRect.centerY() + dp(15f), labelPaint)
     }
 
     private fun drawButton(c: Canvas, p: PointF, bg: Int, border: Int, pressed: Boolean) {
@@ -645,8 +709,8 @@ class TexoOverlayView(context: Context) : View(context) {
     }
 
     private fun drawTray(c: Canvas) {
-        val rad = dp(26f)
-        gradientFill(trayRect, Color.parseColor("#F01E1E4E"), Color.parseColor("#F0121434"))
+        val rad = dp(20f)
+        gradientFill(trayRect, Color.parseColor("#FF0B0B0E"), Color.parseColor("#FF000000"))
         c.drawRoundRect(trayRect, rad, rad, fill)
         fill.shader = null
         stroke.shader = null
@@ -656,7 +720,7 @@ class TexoOverlayView(context: Context) : View(context) {
 
         val active = booleanArrayOf(subsOn, transOn, guideOn)
         val names = if (ku) arrayOf("ژێرنووس", "تەرجومەی شاشە", "ڕێنمایی") else arrayOf("Subtitles", "Translate screen", "Guide me")
-        labelPaint.textSize = dp(11.5f)
+        labelPaint.textSize = dp(10f)
         labelPaint.isFakeBoldText = true
         for (i in 0..2) {
             val r = trayRects[i]
@@ -672,21 +736,21 @@ class TexoOverlayView(context: Context) : View(context) {
             } else {
                 fill.color = Color.parseColor("#12FFFFFF")
             }
-            c.drawRoundRect(tmpRect, dp(18f), dp(18f), fill)
+            c.drawRoundRect(tmpRect, dp(14f), dp(14f), fill)
             fill.shader = null
             stroke.color = if (on) Color.parseColor("#E6A78BFA") else withAlpha(Color.WHITE, 0.14f)
-            c.drawRoundRect(tmpRect, dp(18f), dp(18f), stroke)
+            c.drawRoundRect(tmpRect, dp(14f), dp(14f), stroke)
 
             val fg = if (on) Color.WHITE else Color.parseColor("#D5D0F2")
             val ix = r.centerX()
-            val iy = r.top + dp(19f)
+            val iy = r.top + dp(15f)
             when (i) {
-                0 -> drawSubsIcon(c, ix, iy, dp(22f), fg)
-                1 -> drawTransIcon(c, ix, iy, dp(22f), fg)
-                else -> drawGuideIcon(c, ix, iy, dp(22f), fg)
+                0 -> drawSubsIcon(c, ix, iy, dp(18f), fg)
+                1 -> drawTransIcon(c, ix, iy, dp(18f), fg)
+                else -> drawGuideIcon(c, ix, iy, dp(18f), fg)
             }
             labelPaint.color = fg
-            c.drawText(names[i], r.centerX(), r.bottom - dp(11f), labelPaint)
+            c.drawText(names[i], r.centerX(), r.bottom - dp(8f), labelPaint)
         }
         labelPaint.isFakeBoldText = false
         labelPaint.color = Color.parseColor("#C4BEE4")
@@ -729,41 +793,23 @@ class TexoOverlayView(context: Context) : View(context) {
 
     private fun drawSubs(c: Canvas, w: Float) {
         ensureLayouts(w.toInt())
-        var top = pillRect.bottom + dp(GAP)
-        if (trayOpen) top = trayRect.bottom + dp(GAP)
-        val h = subsHeight(w.toInt())
-        subsRect.set(dp(PAD), top, w - dp(PAD), top + h)
-        val rad = dp(22f)
+        val l = captionLayout ?: return
+        var top = if (pillHidden) 0f else pillRect.bottom + dp(GAP)
+        if (!pillHidden && trayOpen) top = trayRect.bottom + dp(GAP)
+        val h = l.height + dp(16f)
+        // The plate is only as wide as the text, so it reads like a caption.
+        var tw = 0f
+        for (i in 0 until l.lineCount) tw = max(tw, l.getLineWidth(i))
+        val plateW = min(w - 2f * dp(PAD), tw + dp(28f))
+        val left = (w - plateW) / 2f
+        subsRect.set(left, top, left + plateW, top + h)
+        val rad = dp(14f)
         fill.shader = null
-        fill.color = Color.parseColor("#E6121434")
+        fill.color = Color.parseColor("#E6000000")
         c.drawRoundRect(subsRect, rad, rad, fill)
-        stroke.shader = null
-        stroke.color = withAlpha(Color.WHITE, 0.12f)
-        stroke.strokeWidth = dp(1f)
-        c.drawRoundRect(subsRect, rad, rad, stroke)
-
-        var y = subsRect.top + dp(12f)
-        val x = subsRect.left + dp(16f)
-        tagPaint.textSize = dp(11f)
-        youLayout?.let {
-            tagPaint.color = Color.parseColor("#9FD8FF")
-            c.drawText(if (ku) "تۆ" else "You", x, y + dp(11f), tagPaint)
-            y += dp(15f)
-            c.save()
-            c.translate(x, y)
-            it.draw(c)
-            c.restore()
-            y += it.height
-        }
-        aiLayout?.let {
-            y += dp(8f)
-            tagPaint.color = Color.parseColor("#FFC46B")
-            c.drawText(if (ku) "تێکسۆ" else "TEXO", x, y + dp(11f), tagPaint)
-            y += dp(15f)
-            c.save()
-            c.translate(x, y)
-            it.draw(c)
-            c.restore()
-        }
+        c.save()
+        c.translate(subsRect.centerX() - l.width / 2f, top + dp(8f))
+        l.draw(c)
+        c.restore()
     }
 }

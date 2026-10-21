@@ -14,6 +14,37 @@ class UiStrings {
   String greeting(String name) =>
       isKu ? 'با دەست پێ بکەین، $name' : 'Let\u2019s jump in, $name';
 
+  /// Formal opening lines for the home screen (no name, no emoji). The home
+  /// screen picks a different one every time it is opened.
+  static const List<String> _greetKu = <String>[
+    'ئەمڕۆ چیت پێویستە؟',
+    'ئەمڕۆ چۆن یارمەتیت بدەم؟',
+    'چۆن یارمەتیت بدەم؟',
+    'لە چیدا پێویستت بە من هەیە؟',
+    'فەرموو، چۆن خزمەتت بکەم؟',
+    'ئامادەم بۆ یارمەتیدانت. چیت دەوێت؟',
+    'چی لە دەستم دێت بۆت بیکەم؟',
+    'بەخێربێیت. چیت پێویستە؟',
+    'ئەمڕۆ چی بکەین؟',
+    'پێم بڵێ چیت دەوێت.',
+  ];
+
+  static const List<String> _greetEn = <String>[
+    'What do you need today?',
+    'How can I help you today?',
+    'How can I help?',
+    'What can I do for you?',
+    'Welcome. What do you need?',
+    'Ready when you are. What would you like to do?',
+    'Tell me what you need.',
+    'What shall we do today?',
+  ];
+
+  String greetingAt(int index) {
+    final List<String> list = isKu ? _greetKu : _greetEn;
+    return list[index % list.length];
+  }
+
   /// Western digits -> Arabic-Indic digits when the UI is Kurdish.
   String digits(String input) {
     if (!isKu) return input;
@@ -96,6 +127,7 @@ class UiStrings {
     'attachRemove': 'لابردن',
     'camera': 'کامێرا',
     'cameraFlip': 'گۆڕینی کامێرا',
+    'flash': 'فلاش',
   };
 
   static const Map<String, String> _en = <String, String>{
@@ -166,5 +198,6 @@ class UiStrings {
     'attachRemove': 'Remove',
     'camera': 'Camera',
     'cameraFlip': 'Switch camera',
+    'flash': 'Flash',
   };
 }

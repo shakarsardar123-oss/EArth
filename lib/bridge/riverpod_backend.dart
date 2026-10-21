@@ -21,11 +21,12 @@ import '../domain/services/ai_service.dart';
 import '../presentation/providers/app_providers.dart';
 import '../presentation/screens/vision_screen.dart';
 import '../ui/texo_ui.dart';
+import '../ui/src/backend.dart' show TexoCameraExtras;
 import 'live_camera.dart';
 import 'overlay_controller.dart';
 
 /// Connects the new UI ([TexoBackend]) to the existing app logic (Riverpod).
-class RiverpodBackend implements TexoBackend {
+class RiverpodBackend implements TexoBackend, TexoCameraExtras {
   RiverpodBackend(this._c);
 
   final ProviderContainer _c;
@@ -42,6 +43,18 @@ class RiverpodBackend implements TexoBackend {
   double _ttsLevel = 0;
   int _ttsAt = 0;
   bool _muteStopped = false;
+  bool _liveRunning = false;
+  Future<void> _tail = Future<void>.value();
+  String _lastPushKey = '';
+  int _lastPushAt = 0;
+
+  /// Start / stop of Live Mode run one after another, so quick taps can never
+  /// start and stop it at the same time.
+  Future<void> _serial(Future<void> Function() job) {
+    final Future<void> next = _tail.then((_) => job()).catchError((Object _) {});
+    _tail = next;
+    return next;
+  }
 
   String? _convId;
   Timer? _levelTimer;
@@ -321,9 +334,15 @@ class RiverpodBackend implements TexoBackend {
   }
 
   @override
-  Future<void> startLive() async {
+  Future<void> startLive() => _serial(_startLive);
+
+  Future<void> _startLive() async {
+    if (_liveRunning) return;
     final PermissionStatus st = await Permission.microphone.request();
     if (!st.isGranted) return;
+    _liveRunning = true;
+    _micOff = false;
+    _muted = false;
     _liveSub?.close();
     _liveSub = _c.listen<LiveModeState>(
       liveModeStateProvider,
@@ -345,6 +364,7 @@ class RiverpodBackend implements TexoBackend {
       _ttsAt = DateTime.now().millisecondsSinceEpoch;
     });
     await _overlay.start();
+    _pushFlags();
     final orchestrator = _c.read(liveModeOrchestratorProvider);
     orchestrator.onUserRecognized = (String text) {
       _lastYou = text;
@@ -361,6 +381,10 @@ class RiverpodBackend implements TexoBackend {
       _live.active.value = false;
     };
     await orchestrator.startSession();
+    // The old live-mode code may have registered its own overlay handler or
+    // shown the pill while the app is visible: take both back.
+    _overlay.rebind();
+    await _overlay.syncVisibility();
   }
 
   /// Until real microphone / TTS levels are connected, the level is a gentle
@@ -384,7 +408,10 @@ class RiverpodBackend implements TexoBackend {
   }
 
   @override
-  Future<void> stopLive() async {
+  Future<void> stopLive() => _serial(_stopLive);
+
+  Future<void> _stopLive() async {
+    _liveRunning = false;
     _levelTimer?.cancel();
     _levelTimer = null;
     _liveSub?.close();
@@ -410,40 +437,59 @@ class RiverpodBackend implements TexoBackend {
 
   void _pushOverlay() {
     final LiveMode m = _live.mode.value;
+    final double level = (_live.level.value * 20).round() / 20.0;
+    final String emoji = _emoji(m);
+    final int now = DateTime.now().millisecondsSinceEpoch;
+    final String key = '$m|$level|$emoji|$initialLang|$_lastYou|$_lastAi';
+    // Only talk to the native overlay when something changed (plus a
+    // keep-alive once a second): far fewer platform-channel calls.
+    if (key == _lastPushKey && now - _lastPushAt < 1000) return;
+    _lastPushKey = key;
+    _lastPushAt = now;
     _overlay.push(<String, Object?>{
       'mode': m == LiveMode.thinking ? 'thinking' : (m == LiveMode.speaking ? 'speaking' : 'listening'),
-      'level': _live.level.value,
-      'emoji': _emoji(m),
-      'micOff': _micOff,
-      'muted': _muted,
-      'subs': _subs,
+      'level': level,
+      'emoji': emoji,
       'lang': initialLang,
       'you': _lastYou,
       'ai': _lastAi,
     });
   }
 
+  /// The toggles (mic, mute, subtitles) are only sent when they change: the
+  /// native overlay owns them while the user taps its buttons.
+  void _pushFlags() {
+    _overlay.push(<String, Object?>{
+      'micOff': _micOff,
+      'muted': _muted,
+      'subs': _subs,
+    });
+  }
+
   void _onOverlayAction(String action) {
-    switch (action) {
+    final int eq = action.indexOf('=');
+    final String name = eq >= 0 ? action.substring(0, eq) : action;
+    final bool? value = eq >= 0 ? action.substring(eq + 1) == '1' : null;
+    switch (name) {
       case 'close':
         _live.active.value = false;
         stopLive();
         break;
       case 'mic':
-        _micOff = !_micOff; // TODO: really mute the microphone
-        _pushOverlay();
+        _micOff = value ?? !_micOff; // TODO: really mute the microphone
+        _pushFlags();
         break;
       case 'mute':
-        _muted = !_muted; // best effort: speech is stopped whenever the assistant starts talking
+        _muted = value ?? !_muted; // best effort: speech is stopped whenever the assistant starts talking
         if (_muted) _c.read(voiceServiceImplProvider).stopSpeaking();
-        _pushOverlay();
+        _pushFlags();
         break;
       case 'subs':
-        _subs = !_subs;
-        _pushOverlay();
+        _subs = value ?? !_subs;
+        _pushFlags();
         break;
       default:
-        break; // translate / guide / tray_open: later
+        break; // translate / guide / tray_open / tray_close / hide / show: later
     }
   }
 
@@ -458,6 +504,15 @@ class RiverpodBackend implements TexoBackend {
 
   @override
   Widget? buildCameraPreview() => _cam.preview();
+
+  @override
+  ValueListenable<bool> get torchOn => _cam.torchOn;
+
+  @override
+  ValueListenable<bool> get cameraIsFront => _cam.isFront;
+
+  @override
+  Future<void> toggleTorch() => _cam.toggleTorch();
 
   @override
   Future<void> toggleMic() async {
