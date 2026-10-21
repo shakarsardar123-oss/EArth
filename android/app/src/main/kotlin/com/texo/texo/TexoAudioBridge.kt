@@ -230,6 +230,15 @@ class TexoAudioBridge(
     private val sttMinSpeechMs = 250L
     private val sttMaxSpeechMs = 20000L
 
+    // Adaptive thresholds: they follow the background noise of the room, so a
+    // noisy place (people talking, TV, street) does not keep the recording open.
+    private var sttNoiseFloor = 0.004
+    private var sttSmoothRms = 0.0
+    private var sttCalibMs = 500L
+    private var sttWinMin = 1.0
+    private var sttWinFrames = 0
+    private var sttOnsetFrames = 0
+
     /** Debug: save each utterance fed to the model as a WAV in Download/texo_utterances. */
     @android.annotation.SuppressLint("NewApi")
     private fun saveUtteranceWav(pcm: ShortArray) {
@@ -281,6 +290,8 @@ class TexoAudioBridge(
             sttSpeechStarted = false
             sttSilenceMs = 0L
             sttSpeechMs = 0L
+            sttOnsetFrames = 0
+            sttSmoothRms = 0.0
         }
 
         val ok = ensureCapture()
@@ -324,8 +335,27 @@ class TexoAudioBridge(
         synchronized(sttLock) {
             if (!sttEnabled) return
 
+            sttSmoothRms += (rms - sttSmoothRms) * 0.35
+            val startThr = maxOf(sttSilenceThreshold, sttNoiseFloor * 2.8)
+            val endThr = maxOf(sttSilenceThreshold, sttNoiseFloor * 1.9)
+
+            // The first half second ever: just listen to the room.
+            if (sttCalibMs > 0L) {
+                sttNoiseFloor += (rms - sttNoiseFloor) * 0.25
+                sttCalibMs -= frameMs
+            }
+
             if (!sttSpeechStarted) {
-                if (rms >= sttSilenceThreshold) {
+                // Learn the room noise while nobody speaks: slowly up, quickly down.
+                if (rms < startThr) {
+                    sttNoiseFloor += (rms - sttNoiseFloor) * (if (rms < sttNoiseFloor) 0.15 else 0.02)
+                }
+                // Speech needs two loud frames in a row (one click is not speech).
+                sttOnsetFrames = if (sttCalibMs <= 0L && rms >= startThr) sttOnsetFrames + 1 else 0
+                if (sttOnsetFrames >= 2) {
+                    sttOnsetFrames = 0
+                    sttWinMin = 1.0
+                    sttWinFrames = 0
                     sttSpeechStarted = true
                     sttSilenceMs = 0L
                     sttSpeechMs = frameMs
@@ -371,10 +401,28 @@ class TexoAudioBridge(
             }
             sttSpeechMs += frameMs
 
-            if (rms < sttSilenceThreshold) {
+            // Noise that stays high even between words is not speech: follow the
+            // quietest moment of every second.
+            if (rms < sttNoiseFloor) {
+                sttNoiseFloor += (rms - sttNoiseFloor) * 0.15
+            }
+            if (sttSmoothRms < sttWinMin) sttWinMin = sttSmoothRms
+            sttWinFrames++
+            if (sttWinFrames >= 31) {
+                if (sttWinMin > sttNoiseFloor * 1.5) {
+                    sttNoiseFloor += (sttWinMin - sttNoiseFloor) * 0.5
+                }
+                sttWinMin = 1.0
+                sttWinFrames = 0
+            }
+
+            if (sttSmoothRms < endThr) {
                 sttSilenceMs += frameMs
-            } else {
+            } else if (sttSmoothRms > endThr * 1.3) {
                 sttSilenceMs = 0L
+                sttVoicedMs += frameMs
+            } else {
+                // between the two limits: keep the silence timer, count as voice
                 sttVoicedMs += frameMs
             }
 
