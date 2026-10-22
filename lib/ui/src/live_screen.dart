@@ -3,6 +3,7 @@ import 'package:flutter/material.dart';
 import 'backend.dart';
 import 'chat_screen.dart';
 import 'colors.dart';
+import 'dark.dart';
 import 'live_painter.dart';
 import 'scope.dart';
 import 'settings_screen.dart';
@@ -57,7 +58,8 @@ class _LiveScreenState extends State<LiveScreen> with SingleTickerProviderStateM
     final UiStrings s = scope.s;
     final LiveVoiceSource src = scope.backend.liveSource;
     final double top = MediaQuery.of(context).padding.top;
-    return Scaffold(
+    return UiUnfilter(
+        child: Scaffold(
       backgroundColor: UiColors.liveTop,
       body: UiBackground(
         kind: 2,
@@ -284,6 +286,6 @@ class _LiveScreenState extends State<LiveScreen> with SingleTickerProviderStateM
           ],
         ),
       ),
-    );
+    ));
   }
 }

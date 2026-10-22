@@ -6,7 +6,9 @@ import 'backend.dart';
 import 'chat_screen.dart';
 import 'colors.dart';
 import 'history_screen.dart';
+import 'dark.dart';
 import 'live_screen.dart';
+import 'permissions_flow.dart';
 import 'scope.dart';
 import 'settings_screen.dart';
 import 'strings.dart';
@@ -26,6 +28,30 @@ class HomeScreen extends StatefulWidget {
 class _HomeScreenState extends State<HomeScreen> {
   /// A new opening line every time the home screen is created.
   final int _greetSeed = math.Random().nextInt(1000);
+
+  @override
+  void initState() {
+    super.initState();
+    WidgetsBinding.instance.addPostFrameCallback((_) => _maybeOnboard());
+  }
+
+  /// First start: ask for every permission, one screen at a time.
+  Future<void> _maybeOnboard() async {
+    if (!mounted) return;
+    final Object backend = UiScope.of(context).backend;
+    if (backend is! TexoPermissionsExtras) return;
+    bool needs = false;
+    try {
+      needs = await backend.needsOnboarding();
+    } catch (_) {}
+    if (!needs || !mounted) return;
+    await Navigator.of(context).push(
+      MaterialPageRoute<void>(
+        fullscreenDialog: true,
+        builder: (BuildContext _) => PermissionsFlowScreen(extras: backend),
+      ),
+    );
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -321,7 +347,9 @@ class TexoDrawer extends StatelessWidget {
                   behavior: HitTestBehavior.opaque,
                   onTap: () {
                     Navigator.of(context).pop();
-                    Navigator.of(context).push(MaterialPageRoute<void>(builder: e.builder));
+                    Navigator.of(context).push(
+                      MaterialPageRoute<void>(builder: (BuildContext c) => UiUnfilter(child: e.builder(c))),
+                    );
                   },
                   child: Container(
                     height: 52,

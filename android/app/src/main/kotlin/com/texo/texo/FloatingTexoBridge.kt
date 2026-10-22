@@ -61,6 +61,16 @@ object FloatingTexoBridge {
         )
         methodChannel = channel
         activityRef = activity
+        CrashReporter.install(activity)
+        MethodChannel(flutterEngine.dartExecutor.binaryMessenger, "com.texo.texo/crashlog")
+            .setMethodCallHandler { call, result ->
+                if (call.method == "log") {
+                    CrashReporter.dart(activity, call.arguments?.toString() ?: "")
+                    result.success(null)
+                } else {
+                    result.notImplemented()
+                }
+            }
         channel.setMethodCallHandler { call, result ->
             handle(activity, call, result)
         }
@@ -108,6 +118,21 @@ object FloatingTexoBridge {
 
             "openOverlaySettings" -> {
                 openOverlaySettingsIntent(activity)
+                result.success(null)
+            }
+
+            "isAccessibilityEnabled" -> {
+                result.success(isAccessibilityEnabled(activity))
+            }
+
+            "openAccessibilitySettings" -> {
+                try {
+                    activity.startActivity(
+                        Intent(Settings.ACTION_ACCESSIBILITY_SETTINGS)
+                            .addFlags(Intent.FLAG_ACTIVITY_NEW_TASK),
+                    )
+                } catch (_: Throwable) {
+                }
                 result.success(null)
             }
 
@@ -305,6 +330,14 @@ object FloatingTexoBridge {
 
     private fun debugToast(ctx: Context, msg: String) {
         TexoLog.log(ctx, msg)
+    }
+
+    private fun isAccessibilityEnabled(activity: MainActivity): Boolean {
+        val enabled = Settings.Secure.getString(
+            activity.contentResolver,
+            Settings.Secure.ENABLED_ACCESSIBILITY_SERVICES,
+        ) ?: return false
+        return enabled.contains("TexoAccessibilityService")
     }
 
     private fun canDrawOverlays(activity: MainActivity): Boolean {

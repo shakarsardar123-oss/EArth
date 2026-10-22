@@ -1,9 +1,11 @@
 import 'package:flutter/cupertino.dart' show CupertinoLocalizations;
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart' show SystemUiOverlayStyle;
 import 'package:flutter_localizations/flutter_localizations.dart';
 
 import 'backend.dart';
 import 'colors.dart';
+import 'dark.dart';
 import 'home_screen.dart';
 import 'scope.dart';
 
@@ -138,7 +140,22 @@ class _TexoUiAppState extends State<TexoUiApp> {
                 child: child ?? const SizedBox.shrink(),
               );
               final Widget Function(BuildContext, Widget)? wrap = widget.wrap;
-              return wrap == null ? inner : wrap(context, inner);
+              final Widget wrapped = wrap == null ? inner : wrap(context, inner);
+              final String mode = _settings.theme;
+              final bool dark = mode == 'dark' ||
+                  (mode == 'system' &&
+                      MediaQuery.platformBrightnessOf(context) == Brightness.dark);
+              if (!dark) return UiDarkScope(dark: false, child: wrapped);
+              return UiDarkScope(
+                dark: true,
+                child: AnnotatedRegion<SystemUiOverlayStyle>(
+                  value: SystemUiOverlayStyle.light,
+                  child: ColorFiltered(
+                    colorFilter: ColorFilter.matrix(kUiDarkMatrix),
+                    child: wrapped,
+                  ),
+                ),
+              );
             },
             home: widget.homeWrap == null ? const HomeScreen() : widget.homeWrap!(const HomeScreen()),
           );

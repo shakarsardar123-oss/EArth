@@ -148,3 +148,37 @@ abstract class TexoCameraExtras {
 
   Future<void> toggleTorch();
 }
+
+/// One permission shown by the first-run flow.
+class UiPermissionItem {
+  const UiPermissionItem({
+    required this.id,
+    required this.icon,
+    required this.titleKu,
+    required this.titleEn,
+    required this.bodyKu,
+    required this.bodyEn,
+  });
+
+  final String id;
+  final IconData icon;
+  final String titleKu;
+  final String titleEn;
+  final String bodyKu;
+  final String bodyEn;
+}
+
+/// Optional: the first-run permissions flow. The real app implements this
+/// next to [TexoBackend]; the demo backend does not have to.
+abstract class TexoPermissionsExtras {
+  List<UiPermissionItem> get permissionItems;
+
+  Future<bool> permissionGranted(String id);
+
+  /// Shows the system dialog, or opens the right settings page.
+  Future<void> requestPermission(String id);
+
+  Future<bool> needsOnboarding();
+
+  Future<void> finishOnboarding();
+}

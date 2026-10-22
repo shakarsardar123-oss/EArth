@@ -6,6 +6,7 @@
 /// - Overrides both geminiProviderProvider and openaiProviderProvider.
 /// - Gemini is the default (user can switch in settings).
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_secure_storage/flutter_secure_storage.dart';
 import 'package:shared_preferences/shared_preferences.dart';
@@ -26,8 +27,31 @@ import 'presentation/screens/wake_alarm_screen.dart';
 /// Global navigator key for alarm notification tap navigation.
 final GlobalKey<NavigatorState> navigatorKey = GlobalKey<NavigatorState>();
 
+const MethodChannel _crashLog = MethodChannel('com.texo.texo/crashlog');
+final Set<String> _reportedErrors = <String>{};
+
+/// Dart errors are saved to Download/texo_logs (readable from Termux).
+void _reportError(Object error, StackTrace? stack) {
+  try {
+    final String text = '$error\n${stack ?? ''}';
+    final String key = text.length > 200 ? text.substring(0, 200) : text;
+    if (!_reportedErrors.add(key)) return;
+    _crashLog.invokeMethod<void>('log', text);
+  } catch (_) {}
+}
+
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
+
+  final FlutterExceptionHandler? previousOnError = FlutterError.onError;
+  FlutterError.onError = (FlutterErrorDetails details) {
+    previousOnError?.call(details);
+    _reportError(details.exception, details.stack);
+  };
+  WidgetsBinding.instance.platformDispatcher.onError = (Object error, StackTrace stack) {
+    _reportError(error, stack);
+    return true;
+  };
 
   // In release builds a widget that throws is drawn as a plain grey box and
   // the reason is lost. Show the error text instead so it can be read.

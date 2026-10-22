@@ -5,6 +5,7 @@ import 'dart:ui' as ui;
 import 'package:flutter/material.dart';
 
 import 'colors.dart';
+import 'dark.dart';
 
 /// Light (0), soft light (1) or dark Live (2) screen background.
 class UiBackground extends StatelessWidget {
@@ -59,7 +60,9 @@ class TexoLogo extends StatelessWidget {
   final bool shadow;
 
   @override
-  Widget build(BuildContext context) {
+  Widget build(BuildContext context) => UiUnfilter(child: _logo());
+
+  Widget _logo() {
     return Container(
       width: size,
       height: size,

@@ -5,7 +5,8 @@ import 'dart:math' as math;
 
 import 'package:file_picker/file_picker.dart';
 import 'package:flutter/foundation.dart';
-import 'package:flutter/material.dart' show Icons, Theme;
+import 'package:flutter/material.dart' show AppBar, Icons, Scaffold, Theme;
+import 'package:flutter/services.dart' show MethodChannel;
 import 'package:flutter/widgets.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:permission_handler/permission_handler.dart';
@@ -20,13 +21,15 @@ import '../core/voice/voice_service_provider.dart';
 import '../domain/services/ai_service.dart';
 import '../presentation/providers/app_providers.dart';
 import '../presentation/screens/vision_screen.dart';
+import '../presentation/widgets/api_key_settings_section.dart';
+import '../presentation/widgets/permissions_section.dart';
 import '../ui/texo_ui.dart';
-import '../ui/src/backend.dart' show TexoCameraExtras;
+import '../ui/src/backend.dart' show TexoCameraExtras, TexoPermissionsExtras, UiPermissionItem;
 import 'live_camera.dart';
 import 'overlay_controller.dart';
 
 /// Connects the new UI ([TexoBackend]) to the existing app logic (Riverpod).
-class RiverpodBackend implements TexoBackend, TexoCameraExtras {
+class RiverpodBackend implements TexoBackend, TexoCameraExtras, TexoPermissionsExtras {
   RiverpodBackend(this._c);
 
   final ProviderContainer _c;
@@ -81,6 +84,24 @@ class RiverpodBackend implements TexoBackend, TexoCameraExtras {
           icon: Icons.visibility_outlined,
           builder: (BuildContext context) =>
               Theme(data: AppTheme.dark(), child: VisionScreen()),
+        ),
+        UiExtraEntry(
+          titleKu: 'ئەی ئای (دابینکەر و مۆدێل)',
+          titleEn: 'AI provider and model',
+          icon: Icons.smart_toy_outlined,
+          builder: (BuildContext context) => Theme(
+            data: AppTheme.dark(),
+            child: const TexoExtraPage(title: 'AI', child: ApiKeySettingsSection()),
+          ),
+        ),
+        UiExtraEntry(
+          titleKu: 'ڕێگەپێدانەکان',
+          titleEn: 'Permissions',
+          icon: Icons.verified_user_outlined,
+          builder: (BuildContext context) => Theme(
+            data: AppTheme.dark(),
+            child: const TexoExtraPage(title: 'Permissions', child: PermissionsSection()),
+          ),
         ),
       ];
 
@@ -505,6 +526,103 @@ class RiverpodBackend implements TexoBackend, TexoCameraExtras {
   @override
   Widget? buildCameraPreview() => _cam.preview();
 
+  // ---- first-run permissions ---------------------------------------------------
+
+  static const MethodChannel _sysCh = MethodChannel('com.texo.texo/floating_texo_overlay');
+
+  @override
+  List<UiPermissionItem> get permissionItems => const <UiPermissionItem>[
+        UiPermissionItem(
+          id: 'mic',
+          icon: Icons.mic_none,
+          titleKu: 'مایکرۆفۆن',
+          titleEn: 'Microphone',
+          bodyKu: 'بۆ ئەوەی گوێم لە دەنگت بێت و لێت تێبگەم.',
+          bodyEn: 'So I can hear you and understand you.',
+        ),
+        UiPermissionItem(
+          id: 'notifications',
+          icon: Icons.notifications_none,
+          titleKu: 'ئاگادارکردنەوە',
+          titleEn: 'Notifications',
+          bodyKu: 'بۆ ئەلارم و ئاگادارکردنەوەکان، و بۆ ئەوەی ئۆڤەرلای TEXO بتوانێت کار بکات.',
+          bodyEn: 'For alarms and reminders, and so the TEXO overlay can run.',
+        ),
+        UiPermissionItem(
+          id: 'camera',
+          icon: Icons.photo_camera_outlined,
+          titleKu: 'کامێرا',
+          titleEn: 'Camera',
+          bodyKu: 'بۆ ئەوەی ئەوەی دەیبینیت ببینم و ڕوونی بکەمەوە.',
+          bodyEn: 'So I can see what you show me and explain it.',
+        ),
+        UiPermissionItem(
+          id: 'overlay',
+          icon: Icons.layers_outlined,
+          titleKu: 'پەنجەرەی سەر ئەپەکان',
+          titleEn: 'Display over other apps',
+          bodyKu: 'بۆ ئەوەی کاتێک لە ئەپێکی تر دەبیت، TEXO بەسەر شاشەکەتەوە دەربکەوێت. لە لیستەکەدا TEXO هەڵبژێرە و چالاکی بکە.',
+          bodyEn: 'So TEXO can appear on top of other apps. Pick TEXO in the list and switch it on.',
+        ),
+        UiPermissionItem(
+          id: 'accessibility',
+          icon: Icons.touch_app_outlined,
+          titleKu: 'دەستڕاگەیشتن بە شاشە',
+          titleEn: 'Screen access',
+          bodyKu: 'بۆ ئەوەی ئەپەکان بکەمەوە، شاشە بخوێنمەوە و لێدانەکان بۆت بکەم. لە لیستەکەدا TEXO هەڵبژێرە و چالاکی بکە. ئەگەر خۆڵەمێشی بوو: زانیاری ئەپ ← سێ خاڵ ← Allow restricted settings.',
+          bodyEn: 'So I can open apps, read the screen and tap for you. Pick TEXO in the list and switch it on. If it is greyed out: App info > three dots > Allow restricted settings.',
+        ),
+      ];
+
+  @override
+  Future<bool> permissionGranted(String id) async {
+    switch (id) {
+      case 'mic':
+        return Permission.microphone.isGranted;
+      case 'notifications':
+        return Permission.notification.isGranted;
+      case 'camera':
+        return Permission.camera.isGranted;
+      case 'overlay':
+        final Object? ro = await _sysCh.invokeMethod<Object?>('hasPermission');
+        return ro is Map && ro['granted'] == true;
+      case 'accessibility':
+        final Object? ra = await _sysCh.invokeMethod<Object?>('isAccessibilityEnabled');
+        return ra == true;
+    }
+    return false;
+  }
+
+  @override
+  Future<void> requestPermission(String id) async {
+    switch (id) {
+      case 'mic':
+        await Permission.microphone.request();
+        break;
+      case 'notifications':
+        await Permission.notification.request();
+        break;
+      case 'camera':
+        await Permission.camera.request();
+        break;
+      case 'overlay':
+        await _sysCh.invokeMethod<Object?>('requestPermission');
+        break;
+      case 'accessibility':
+        await _sysCh.invokeMethod<Object?>('openAccessibilitySettings');
+        break;
+    }
+  }
+
+  @override
+  Future<bool> needsOnboarding() async =>
+      _c.read(sharedPreferencesProvider).getBool('texo_onboarded') != true;
+
+  @override
+  Future<void> finishOnboarding() async {
+    await _c.read(sharedPreferencesProvider).setBool('texo_onboarded', true);
+  }
+
   @override
   ValueListenable<bool> get torchOn => _cam.torchOn;
 
@@ -517,5 +635,26 @@ class RiverpodBackend implements TexoBackend, TexoCameraExtras {
   @override
   Future<void> toggleMic() async {
     // TODO: mute / unmute the microphone.
+  }
+}
+
+/// A plain page that hosts one of the old settings sections.
+class TexoExtraPage extends StatelessWidget {
+  const TexoExtraPage({super.key, required this.title, required this.child});
+
+  final String title;
+  final Widget child;
+
+  @override
+  Widget build(BuildContext context) {
+    return Scaffold(
+      appBar: AppBar(title: Text(title)),
+      body: SafeArea(
+        child: SingleChildScrollView(
+          padding: const EdgeInsets.all(16),
+          child: child,
+        ),
+      ),
+    );
   }
 }

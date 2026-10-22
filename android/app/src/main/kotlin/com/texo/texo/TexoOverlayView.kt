@@ -149,7 +149,7 @@ class TexoOverlayView(context: Context) : View(context) {
         private const val TRAY_H = 58f
         private const val GAP = 6f
         private const val PAD = 3f
-        private const val HOLD_MS = 2000L
+        private const val HOLD_MS = 1000L
         private const val TRAY_IDLE_MS = 15000L
         private const val SWIPE_DP = 36f
     }
@@ -484,6 +484,8 @@ class TexoOverlayView(context: Context) : View(context) {
     }
 
     private fun gradientFill(r: RectF, top: Int, bottom: Int) {
+        // An old, faded colour on this paint would fade the gradient too.
+        fill.color = Color.BLACK
         fill.shader = LinearGradient(0f, r.top, 0f, r.bottom, top, bottom, Shader.TileMode.CLAMP)
     }
 
