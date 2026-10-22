@@ -497,7 +497,9 @@ class RiverpodBackend implements TexoBackend, TexoCameraExtras, TexoPermissionsE
         stopLive();
         break;
       case 'mic':
-        _micOff = value ?? !_micOff; // TODO: really mute the microphone
+        // The overlay mic button works as "I am done"; it does not stay switched off.
+        _finishUtterance();
+        _micOff = false;
         _pushFlags();
         break;
       case 'mute':
@@ -529,6 +531,14 @@ class RiverpodBackend implements TexoBackend, TexoCameraExtras, TexoPermissionsE
   // ---- first-run permissions ---------------------------------------------------
 
   static const MethodChannel _sysCh = MethodChannel('com.texo.texo/floating_texo_overlay');
+  static const MethodChannel _sttCh = MethodChannel('com.texo.texo/stt');
+
+  /// Ends the running recording now (the user finished speaking).
+  Future<void> _finishUtterance() async {
+    try {
+      await _sttCh.invokeMethod<Object?>('finish');
+    } catch (_) {}
+  }
 
   @override
   List<UiPermissionItem> get permissionItems => const <UiPermissionItem>[
@@ -633,9 +643,7 @@ class RiverpodBackend implements TexoBackend, TexoCameraExtras, TexoPermissionsE
   Future<void> toggleTorch() => _cam.toggleTorch();
 
   @override
-  Future<void> toggleMic() async {
-    // TODO: mute / unmute the microphone.
-  }
+  Future<void> toggleMic() => _finishUtterance();
 }
 
 /// A plain page that hosts one of the old settings sections.

@@ -136,6 +136,11 @@ class TexoAudioBridge(
                 when (call.method) {
                     "start" -> result.success(startStt())
                     "stop" -> { stopStt(); result.success(true) }
+                    "finish" -> {
+                        // The user says "I am done": end the running utterance now.
+                        synchronized(sttLock) { if (sttSpeechStarted) sttForceEnd = true }
+                        result.success(true)
+                    }
                     else -> result.notImplemented()
                 }
             }
@@ -228,7 +233,7 @@ class TexoAudioBridge(
     private val sttSilenceThreshold = 0.012
     private val sttEndSilenceMs = 1000L
     private val sttMinSpeechMs = 250L
-    private val sttMaxSpeechMs = 20000L
+    private val sttMaxSpeechMs = 10000L
 
     // Adaptive thresholds: they follow the background noise of the room, so a
     // noisy place (people talking, TV, street) does not keep the recording open.
@@ -238,6 +243,7 @@ class TexoAudioBridge(
     private var sttWinMin = 1.0
     private var sttWinFrames = 0
     private var sttOnsetFrames = 0
+    @Volatile private var sttForceEnd = false
 
     /** Debug: save each utterance fed to the model as a WAV in Download/texo_utterances. */
     @android.annotation.SuppressLint("NewApi")
@@ -292,6 +298,7 @@ class TexoAudioBridge(
             sttSpeechMs = 0L
             sttOnsetFrames = 0
             sttSmoothRms = 0.0
+            sttForceEnd = false
         }
 
         val ok = ensureCapture()
@@ -428,8 +435,10 @@ class TexoAudioBridge(
 
             val reachedSilence = sttSilenceMs >= sttEndSilenceMs
             val reachedMaximum = sttSpeechMs >= sttMaxSpeechMs
+            val reachedForced = sttForceEnd
 
-            if (reachedSilence || reachedMaximum) {
+            if (reachedSilence || reachedMaximum || reachedForced) {
+                sttForceEnd = false
                 val sampleCount = sttPcmSize
                 val durationMs =
                     (sampleCount * 1000L) / sttSampleRate
