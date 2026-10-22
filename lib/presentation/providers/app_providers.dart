@@ -8,6 +8,7 @@
 /// - Default AgentConfig modelId changed to gemini-3.6-flash.
 library;
 
+import '../../core/tools/device/youtube_play_tool.dart';
 import '../../services/ai/retrying_ai_provider.dart';
 import '../../core/phone_agent/phone_control_hook.dart';
 import '../../core/phone_agent/phone_control_processor.dart';
@@ -340,6 +341,7 @@ final toolRegistryProvider = Provider<ToolRegistry>((ref) {
   registry.register(AppLaunchTool(deviceChannel));
   registry.register(SystemSettingsTool(deviceChannel));
   registry.register(UrlLaunchTool(deviceChannel));
+  registry.register(YoutubePlayTool());
   // ── Phase 6 capability tools (production tool path) ──
   // All route through Agent → ToolSecurityGate → ConfirmationGuard →
   // executor → verified result, exactly like the existing device tools.
