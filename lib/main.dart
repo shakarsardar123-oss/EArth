@@ -43,7 +43,7 @@ void _reportError(Object error, StackTrace? stack) {
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
 
-  final FlutterExceptionHandler? previousOnError = FlutterError.onError;
+  final void Function(FlutterErrorDetails)? previousOnError = FlutterError.onError;
   FlutterError.onError = (FlutterErrorDetails details) {
     previousOnError?.call(details);
     _reportError(details.exception, details.stack);
