@@ -5,6 +5,9 @@
 /// (the hook already ran inside it), so nothing is classified twice.
 library;
 
+import 'dart:convert';
+import 'dart:io';
+
 import 'package:flutter/services.dart';
 
 import '../../domain/entities/agent_config.dart';
@@ -41,7 +44,9 @@ class PhoneControlProcessor implements AgentProcessor {
     r'(بکەرەوە|بکەوە|بکەنەوە|هەڵکە|هەڵبکە|دابنێ|دایبنێ|بدۆزەوە|بگەڕێ|بچۆ|بنێرە|بنووسە|'
     r'دایبگرە|بگۆڕە|بکوژێنەوە|ئەلارم|ئەلەرم|ئەپ|یوتوب|فەیسبووک|ئینستاگرام|تیکتۆک|'
     r'واتسئەپ|تێلێگرام|سناپ|گۆرانی|وای ?فای|بلوتوس|open|launch|play|search|go to|'
-    r'alarm|turn on|turn off|send|call|youtube|facebook|instagram|whatsapp)',
+    r'alarm|turn on|turn off|send|call|youtube|facebook|instagram|whatsapp|'
+    r'پەخش|لێبدە|ڤیدیۆ|مەسێنجەر|ڤایبەر|سپۆتیفای|گووگڵ|کرۆم|نەخشە|ڕێکخستن|'
+    r'spotify|chrome|maps|settings|message|telegram|snapchat|tiktok)',
     caseSensitive: false,
   );
 
@@ -99,6 +104,8 @@ class PhoneControlProcessor implements AgentProcessor {
     'لە', 'یوتوب', 'یوتیوب', 'youtube', 'play', 'گۆرانییەک', 'گۆرانی',
     'موزیک', 'میوزیک', 'مۆزیک', 'مۆسیقا', 'بکەوە', 'بکەرەوە', 'بکەنەوە',
     'لێبدە', 'دابنێ', 'بدۆزەوە', 'بگەڕێ', 'بۆم', 'تکایە', 'ئەپی', 'ئەپ',
+    'هەڵکە', 'هەڵبکە', 'بکە', 'بکەن', 'بیکە', 'پەخش', 'پەخشی', 'بخەرە', 'بخە',
+    'و', 'ئەو', 'ئەم',
   };
   static const Set<String> _openWords = {'بکەرەوە', 'بکەنەوە', 'بکەوە'};
   static const Map<String, String> _appNames = {
@@ -128,6 +135,35 @@ class PhoneControlProcessor implements AgentProcessor {
         .trim();
     if (q.split(' ').where((w) => w.isNotEmpty).length > 4) return null;
     return q;
+  }
+
+  /// Id of the first video that YouTube finds for [query] (null if not found).
+  Future<String?> _firstYoutubeId(String query) async {
+    final client = HttpClient()..connectionTimeout = const Duration(seconds: 8);
+    try {
+      final uri = Uri.https('www.youtube.com', '/results', {'search_query': query});
+      final req = await client.getUrl(uri);
+      req.headers.set(
+        HttpHeaders.userAgentHeader,
+        'Mozilla/5.0 (Linux; Android 14) AppleWebKit/537.36 (KHTML, like Gecko) '
+        'Chrome/124.0 Mobile Safari/537.36',
+      );
+      req.headers.set(HttpHeaders.acceptLanguageHeader, 'en-US,en;q=0.9');
+      req.cookies.add(Cookie('CONSENT', 'YES+1'));
+      final res = await req.close().timeout(const Duration(seconds: 12));
+      if (res.statusCode != 200) return null;
+      final body = await res
+          .transform(const Utf8Decoder(allowMalformed: true))
+          .join()
+          .timeout(const Duration(seconds: 12));
+      final m = RegExp(r'"videoRenderer":\{"videoId":"([A-Za-z0-9_-]{11})"').firstMatch(body) ??
+          RegExp(r'"videoId":"([A-Za-z0-9_-]{11})"').firstMatch(body);
+      return m?.group(1);
+    } catch (_) {
+      return null;
+    } finally {
+      client.close(force: true);
+    }
   }
 
   static const String _pkgYtMusic = 'com.google.android.apps.youtube.music';
@@ -194,10 +230,15 @@ class PhoneControlProcessor implements AgentProcessor {
         }
       }
       if (q.isNotEmpty) {
-        final url = 'https://www.youtube.com/results?search_query=${Uri.encodeQueryComponent(q)}';
-        final r = await _fastCall(_dev, 'launchUrl', {'url': url});
-        if (r['ok'] != false && r['error'] == null) {
-          return 'لە یوتوب گەڕام بۆ $q.';
+        // Play the first match directly. If it cannot be found, hand the task
+        // to the agent: it opens the search and taps the first video itself.
+        final id = await _firstYoutubeId(q);
+        if (id != null) {
+          final r = await _fastCall(
+              _dev, 'launchUrl', {'url': 'https://www.youtube.com/watch?v=$id'});
+          if (r['ok'] != false && r['error'] == null) {
+            return 'لە یوتوب «$q»م پەخش کرد.';
+          }
         }
       }
       return null;
