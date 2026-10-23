@@ -194,6 +194,10 @@ class ToolSecurityGate {
   final ConfirmationGuard confirmationGuard;
   final SecurityMessages _messages;
 
+  /// Phone control is asked once; after a yes it stays allowed for a few
+  /// minutes so a multi-step task (open an app, tap, type, scroll) can finish.
+  DateTime? _screenControlUntil;
+
   /// Whether we are currently running on Android.
   bool get isAndroid {
     if (kIsWeb) return false;
@@ -250,7 +254,10 @@ class ToolSecurityGate {
         _computeEffectiveRisk(tool, argsMap);
 
     // ── Step 5: Confirmation check ──
-    if (effectiveRisk.requiresConfirmation) {
+    final bool screenSessionOpen = definition.name == 'screen_target_bridge' &&
+        _screenControlUntil != null &&
+        DateTime.now().isBefore(_screenControlUntil!);
+    if (effectiveRisk.requiresConfirmation && !screenSessionOpen) {
       // Check if there's a recent accepted confirmation for this exact action.
       if (confirmationGuard.verifyConfirmation(
         toolName: definition.name,
@@ -299,6 +306,9 @@ class ToolSecurityGate {
       toolName: toolName,
       arguments: arguments,
     )) {
+      if (toolName == 'screen_target_bridge') {
+        _screenControlUntil = DateTime.now().add(const Duration(minutes: 5));
+      }
       return SecurityGateResult.allowed();
     }
     return SecurityGateResult.confirmationDenied(

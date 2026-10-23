@@ -293,8 +293,8 @@ class LiveModeOrchestrator {
       debugToast('TEXO overlay error: $e');
     }
 
-    await _startScreenUnderstanding();
-
+    // Screen capture (the "Start recording or casting?" system dialog) is no
+    // longer started with Live Mode: it is only asked for when a feature needs it.
     await _startListening(gen);
 
     return LiveModeSession(
