@@ -83,13 +83,28 @@ class PhoneControlProcessor implements AgentProcessor {
   }
 
   static final RegExp _questionLike = RegExp(
-    r'(^|\s)(چی|چۆن|بۆچی|کێ|کەی|لەکوێ|what|how|why|who|when|where)(\s|$)|[؟?]\s*$',
+    r'(^|\s)(چی|چیە|چییە|چین|چۆن|چۆنە|بۆچی|کێ|کێیە|کەی|کەیە|لەکوێ|لەکوێیە|کامە|کامەیە|کام|چەند|چەندە|ئایا|what|how|why|who|when|where)(\s|$)|[؟?]\s*$',
+    caseSensitive: false,
+  );
+
+  /// Information requests (news, weather, prices, sports ...) are answered inside
+  /// the app. The phone agent is only for ACTIONS on the phone.
+  static final RegExp _infoLike = RegExp(
+    r'(هەواڵ|کەش و هەوا|کەشوهەوا|پلەی گەرمی|نرخ|بەهای|دراو|دۆلار|ئەنجامی یاری|وەرزش|news|weather|price|score)',
+    caseSensitive: false,
+  );
+
+  /// Words that mean "do something on the phone / open an app".
+  static final RegExp _actionLike = RegExp(
+    r'(بکەرەوە|بکەوە|بکەنەوە|ئەپ|یوتوب|یوتیوب|فەیسبووک|ئینستاگرام|تیکتۆک|واتسئەپ|تێلێگرام|سناپ|open|launch)',
     caseSensitive: false,
   );
 
   /// Local PHONE/CHAT decision: no LLM call (saves one request per command).
   bool _isPhoneTaskLocal(String text) {
-    final isPhone = !_questionLike.hasMatch(text.trim());
+    final t = text.trim();
+    final isPhone = !_questionLike.hasMatch(t) &&
+        !(_infoLike.hasMatch(t) && !_actionLike.hasMatch(t));
     _toast('TEXO: local classifier -> ${isPhone ? 'PHONE' : 'CHAT'}');
     return isPhone;
   }
