@@ -1,10 +1,12 @@
 import 'dart:async';
+import 'dart:typed_data';
 
 import 'package:audioplayers/audioplayers.dart';
 
 import '../../services/voice/voice_service.dart';
 import '../../core/voice/speech_recognition_impl.dart';
 import '../../core/voice/text_to_speech_impl.dart';
+import '../../core/tts/vekol_tts_service.dart';
 
 /// Real [VoiceService] implementation coordinating STT and TTS.
 class VoiceServiceImpl implements VoiceService {
@@ -17,6 +19,9 @@ class VoiceServiceImpl implements VoiceService {
   final SpeechRecognitionServiceImpl _speechRecognition;
   final TextToSpeechServiceImpl _textToSpeech;
   final AudioPlayer _micBeepPlayer = AudioPlayer();
+  final AudioPlayer _ttsPlayer = AudioPlayer();
+  bool _stopRequested = false;
+  Completer<void>? _playDone;
 
   VoiceState _state = VoiceState.idle;
   final _stateController = StreamController<VoiceState>.broadcast();
@@ -132,6 +137,13 @@ class VoiceServiceImpl implements VoiceService {
   Future<void> speak(String text, {String locale = 'ku'}) async {
     _setState(VoiceState.speaking);
     try {
+      final lc = locale.toLowerCase();
+      if (lc.startsWith('ku') || lc.startsWith('ckb')) {
+        if (await _speakKurdish(text)) {
+          _setState(VoiceState.idle);
+          return;
+        }
+      }
       await _textToSpeech.speak(text, locale: locale);
     } catch (e) {
       _setState(VoiceState.error);
@@ -140,8 +152,57 @@ class VoiceServiceImpl implements VoiceService {
     _setState(VoiceState.idle);
   }
 
+  /// Speaks Kurdish text with the offline Vekol model, sentence by sentence.
+  /// Returns false only if nothing could be spoken (caller falls back).
+  Future<bool> _speakKurdish(String text) async {
+    _stopRequested = false;
+    final sentences = text
+        .split(RegExp(r'(?<=[.!?؟\n])\s*'))
+        .map((s) => s.trim())
+        .where((s) => s.isNotEmpty)
+        .toList();
+    if (sentences.isEmpty) return false;
+
+    var spokeAny = false;
+    try {
+      for (final sentence in sentences) {
+        if (_stopRequested) break;
+        final waveform =
+            await VekolTtsService.instance.synthesizeText(sentence);
+        if (_stopRequested) break;
+        final wav = VekolTtsService.instance.waveformToWav(waveform);
+        await _playWav(wav);
+        spokeAny = true;
+      }
+      return true;
+    } catch (_) {
+      return spokeAny;
+    }
+  }
+
+  Future<void> _playWav(Uint8List wav) async {
+    final done = Completer<void>();
+    _playDone = done;
+    final sub = _ttsPlayer.onPlayerComplete.listen((_) {
+      if (!done.isCompleted) done.complete();
+    });
+    try {
+      await _ttsPlayer.play(BytesSource(wav));
+      await done.future.timeout(const Duration(minutes: 2), onTimeout: () {});
+    } finally {
+      await sub.cancel();
+      _playDone = null;
+    }
+  }
+
   @override
   Future<void> stopSpeaking() async {
+    _stopRequested = true;
+    try {
+      await _ttsPlayer.stop();
+    } catch (_) {}
+    final pd = _playDone;
+    if (pd != null && !pd.isCompleted) pd.complete();
     try {
       await _textToSpeech.stop();
     } finally {
@@ -154,6 +215,7 @@ class VoiceServiceImpl implements VoiceService {
   /// Dispose resources.
   void dispose() {
     _micBeepPlayer.dispose();
+    _ttsPlayer.dispose();
     _stateController.close();
     _resultController.close();
     _soundLevelController.close();
