@@ -2,6 +2,7 @@ package com.texo.texo
 
 import android.content.Context
 import ai.onnxruntime.OnnxTensor
+import ai.onnxruntime.OnnxValue
 import ai.onnxruntime.OrtEnvironment
 import ai.onnxruntime.OrtSession
 import java.util.concurrent.ExecutorService
@@ -61,12 +62,12 @@ class VekolSttEngine(
         // copies) on the Java heap and can throw OutOfMemoryError.
         encoderSession = ortEnvironment.createSession(
             materializeAsset(ENCODER_PATH),
-            OrtSession.SessionOptions(),
+            sessionOptions(),
         )
 
         decoderSession = ortEnvironment.createSession(
             materializeAsset(DECODER_PATH),
-            OrtSession.SessionOptions(),
+            sessionOptions(),
         )
     }
 
@@ -158,6 +159,16 @@ class VekolSttEngine(
             )
 
             encoderSession.run(inputs).use { result ->
+                // Fast path: decode with the KV cache, reading the encoder output
+                // in place (no copy). The slow path below is the fallback.
+                val encoderTensor = result[0] as? OnnxTensor
+                if (encoderTensor != null) {
+                    try {
+                        return decodeCached(encoderTensor)
+                    } catch (t: Throwable) {
+                        TexoLog.log(context, "STT: cached decoder failed (" + t.javaClass.simpleName + ": " + t.message + "), using the slow path")
+                    }
+                }
                 val hidden = result[0].value
 
                 if (hidden !is Array<*>) {
@@ -529,6 +540,171 @@ class VekolSttEngine(
             outI[k] = si
         }
         for (k in 0..200) { real[k] = outR[k]; imag[k] = outI[k] }
+    }
+
+
+    /**
+     * Greedy decoding WITH the KV cache of the merged decoder. The first pass
+     * (the 4 prompt tokens) also produces the encoder keys/values ONCE; every
+     * next step feeds a single token and reuses the cache. The old no-cache
+     * loop recomputed the encoder keys/values for every token (about 9 GFLOP
+     * per token), which is why a 3 s clip needed 19 s.
+     */
+    private fun decodeCached(encoderTensor: OnnxTensor): String {
+        val t0 = System.nanoTime()
+        val tokenIds = mutableListOf(
+            50258L, // <|startoftranscript|>
+            50300L, // <|fa|>
+            50359L, // <|transcribe|>
+            50363L, // <|notimestamps|>
+        )
+        val maxTokens = 4 + maxNewTokens
+        val eosToken = 50257L
+        val layers = 6
+
+        val decoderKv = arrayOfNulls<OnnxValue>(layers * 2)
+        val encoderKv = arrayOfNulls<OnnxValue>(layers * 2)
+        var encoderHolder: OrtSession.Result? = null
+        var previous: OrtSession.Result? = null
+
+        try {
+            while (tokenIds.size < maxTokens) {
+                val first = encoderHolder == null
+                val ids =
+                    if (first) LongArray(tokenIds.size) { tokenIds[it] }
+                    else longArrayOf(tokenIds[tokenIds.size - 1])
+                val pos =
+                    if (first) LongArray(tokenIds.size) { it.toLong() }
+                    else longArrayOf((tokenIds.size - 1).toLong())
+
+                val created = ArrayList<OnnxTensor>()
+                val inputs = HashMap<String, OnnxTensor>()
+                try {
+                    val idsTensor = OnnxTensor.createTensor(ortEnvironment, arrayOf(ids))
+                    created.add(idsTensor)
+                    inputs["input_ids"] = idsTensor
+                    inputs["encoder_hidden_states"] = encoderTensor
+
+                    val cacheFlag = OnnxTensor.createTensor(ortEnvironment, booleanArrayOf(!first))
+                    created.add(cacheFlag)
+                    inputs["use_cache_branch"] = cacheFlag
+
+                    val posTensor = OnnxTensor.createTensor(ortEnvironment, pos)
+                    created.add(posTensor)
+                    inputs["cache_position"] = posTensor
+
+                    for (layer in 0 until layers) {
+                        if (first) {
+                            for (name in listOf("decoder.key", "decoder.value", "encoder.key", "encoder.value")) {
+                                val t = placeholderKvTensor()
+                                created.add(t)
+                                inputs["past_key_values.$layer.$name"] = t
+                            }
+                        } else {
+                            inputs["past_key_values.$layer.decoder.key"] = decoderKv[layer * 2] as OnnxTensor
+                            inputs["past_key_values.$layer.decoder.value"] = decoderKv[layer * 2 + 1] as OnnxTensor
+                            inputs["past_key_values.$layer.encoder.key"] = encoderKv[layer * 2] as OnnxTensor
+                            inputs["past_key_values.$layer.encoder.value"] = encoderKv[layer * 2 + 1] as OnnxTensor
+                        }
+                    }
+
+                    val result = decoderSession.run(inputs)
+
+                    val outs = HashMap<String, OnnxValue>()
+                    for (e in result) outs[e.key] = e.value
+
+                    for (layer in 0 until layers) {
+                        decoderKv[layer * 2] = outs["present.$layer.decoder.key"]
+                        decoderKv[layer * 2 + 1] = outs["present.$layer.decoder.value"]
+                        if (first) {
+                            encoderKv[layer * 2] = outs["present.$layer.encoder.key"]
+                            encoderKv[layer * 2 + 1] = outs["present.$layer.encoder.value"]
+                        }
+                    }
+
+                    // Keep the first result (it owns the encoder cache) until the
+                    // end; free the older decoder-cache owner.
+                    if (first) {
+                        encoderHolder = result
+                    } else {
+                        val old = previous
+                        if (old != null && old !== encoderHolder) {
+                            try { old.close() } catch (_: Throwable) {}
+                        }
+                    }
+                    previous = result
+
+                    val logitsTensor = (outs["logits"] ?: result[0]) as OnnxTensor
+                    @Suppress("UNCHECKED_CAST")
+                    val logits = logitsTensor.value as Array<Array<FloatArray>>
+                    val lastLogits = logits[0][logits[0].size - 1]
+
+                    if (tokenIds.size == 4) {
+                        var mx = Float.NEGATIVE_INFINITY
+                        for (v in lastLogits) if (v > mx) mx = v
+                        var sum = 0.0
+                        for (v in lastLogits) sum += Math.exp((v - mx).toDouble())
+                        val pNoSpeech = Math.exp((lastLogits[50362] - mx).toDouble()) / sum
+                        if (pNoSpeech > 0.8) return ""
+                        lastLogits[220] = Float.NEGATIVE_INFINITY
+                        lastLogits[50257] = Float.NEGATIVE_INFINITY
+                    }
+                    for (i in 50258 until lastLogits.size) lastLogits[i] = Float.NEGATIVE_INFINITY
+
+                    var bestId = 0
+                    var bestValue = Float.NEGATIVE_INFINITY
+                    for (i in lastLogits.indices) {
+                        if (lastLogits[i] > bestValue) {
+                            bestValue = lastLogits[i]
+                            bestId = i
+                        }
+                    }
+
+                    val nextToken = bestId.toLong()
+                    if (nextToken == eosToken) break
+                    tokenIds.add(nextToken)
+
+                    if (tokenIds.size >= 12) {
+                        val tail = tokenIds.subList(tokenIds.size - 8, tokenIds.size)
+                        if (tail.toSet().size <= 2) {
+                            val text = decodeTokens(tokenIds.subList(0, tokenIds.size - 6))
+                            TexoLog.log(context, "STT: cached decode " + (tokenIds.size - 4) + " tokens, " + ((System.nanoTime() - t0) / 1_000_000) + " ms")
+                            return text
+                        }
+                    }
+                } finally {
+                    for (t in created) {
+                        try { t.close() } catch (_: Throwable) {}
+                    }
+                }
+            }
+            val text = decodeTokens(tokenIds)
+            TexoLog.log(context, "STT: cached decode " + (tokenIds.size - 4) + " tokens, " + ((System.nanoTime() - t0) / 1_000_000) + " ms")
+            return text
+        } finally {
+            val prev = previous
+            if (prev != null) {
+                try { prev.close() } catch (_: Throwable) {}
+            }
+            val holder = encoderHolder
+            if (holder != null && holder !== prev) {
+                try { holder.close() } catch (_: Throwable) {}
+            }
+        }
+    }
+
+    private fun sessionOptions(): OrtSession.SessionOptions {
+        val options = OrtSession.SessionOptions()
+        try {
+            val cores = Runtime.getRuntime().availableProcessors()
+            options.setIntraOpNumThreads((cores / 2).coerceIn(2, 4))
+        } catch (_: Throwable) {
+        }
+        try {
+            options.setOptimizationLevel(OrtSession.SessionOptions.OptLevel.ALL_OPT)
+        } catch (_: Throwable) {
+        }
+        return options
     }
 
     private fun decodeNoCache(

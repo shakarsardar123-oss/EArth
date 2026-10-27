@@ -254,7 +254,7 @@ class ToolSecurityGate {
         _computeEffectiveRisk(tool, argsMap);
 
     // ── Step 5: Confirmation check ──
-    final bool screenSessionOpen = definition.name == 'screen_target_bridge' &&
+    final bool screenSessionOpen = definition.name == 'screen_target' &&
         _screenControlUntil != null &&
         DateTime.now().isBefore(_screenControlUntil!);
     if (effectiveRisk.requiresConfirmation && !screenSessionOpen) {
@@ -306,7 +306,7 @@ class ToolSecurityGate {
       toolName: toolName,
       arguments: arguments,
     )) {
-      if (toolName == 'screen_target_bridge') {
+      if (toolName == 'screen_target') {
         _screenControlUntil = DateTime.now().add(const Duration(minutes: 5));
       }
       return SecurityGateResult.allowed();
