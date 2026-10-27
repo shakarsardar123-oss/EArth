@@ -403,6 +403,33 @@ class GeminiProvider implements AIProvider, ModelDiscovery {
     return node;
   }
 
+  /// Removes fields Gemini rejects and fills in required ones.
+  dynamic _cleanSchema(dynamic node, [String? nameHint]) {
+    if (node is Map) {
+      final out = <String, dynamic>{};
+      node.forEach((key, value) {
+        if (key == 'default' || key == 'example') return;
+        if (key == 'properties' && value is Map) {
+          final props = <String, dynamic>{};
+          value.forEach((k, v) {
+            props[k.toString()] = _cleanSchema(v, k.toString());
+          });
+          out[key.toString()] = props;
+        } else if (key == 'items') {
+          out[key.toString()] = _cleanSchema(value);
+        } else {
+          out[key.toString()] = value;
+        }
+      });
+      if (out['type'] == 'ARRAY' && out['items'] == null) {
+        final isNumeric = nameHint != null && nameHint.endsWith('_days');
+        out['items'] = {'type': isNumeric ? 'INTEGER' : 'STRING'};
+      }
+      return out;
+    }
+    return node;
+  }
+
   /// Build tool declarations in Gemini functionDeclarations format.
   List<Map<String, dynamic>>? _buildToolDeclarations(
     List<Map<String, dynamic>>? toolDefinitions,
@@ -414,13 +441,16 @@ class GeminiProvider implements AIProvider, ModelDiscovery {
       final rawParameters =
           function['parameters'] ?? tool['parameters'] ?? {};
       final normalizedParameters =
-          _normalizeSchemaTypes(rawParameters) as Map<String, dynamic>;
+          _cleanSchema(_normalizeSchemaTypes(rawParameters))
+              as Map<String, dynamic>;
 
       return <String, dynamic>{
         'name': function['name'] ?? tool['name'] ?? '',
         'description':
             function['description'] ?? tool['description'] ?? '',
-        'parameters': normalizedParameters,
+        if ((normalizedParameters['properties'] as Map?)?.isNotEmpty ??
+            false)
+          'parameters': normalizedParameters,
       };
     }).toList();
 
@@ -444,14 +474,22 @@ class GeminiProvider implements AIProvider, ModelDiscovery {
       );
     }
 
-    final baseUrl =
-        EndpointValidator.normalizeTrailingSlash(await getBaseUrl());
+    final rawBaseUrl = await getBaseUrl();
+    final cleanedBase = RegExp(r'https://[A-Za-z0-9._~:/?#@!$&*+,;=%-]+')
+            .firstMatch(rawBaseUrl)
+            ?.group(0) ??
+        _defaultGeminiBaseUrl;
+    final baseUrl = EndpointValidator.normalizeTrailingSlash(cleanedBase);
 
     // Use user-configured model from AIConnectionStorage if available,
     // otherwise fall back to the agent config modelId, then default.
-    final model = connectionStorage?.getModel() ??
+    final rawModel = connectionStorage?.getModel() ??
         request.agentConfig.modelId ??
         kDefaultGeminiChatModel;
+    var model = rawModel
+        .replaceFirst(RegExp(r'^models/'), '')
+        .replaceAll(RegExp(r'[^A-Za-z0-9._-]'), '');
+    if (model.isEmpty) model = kDefaultGeminiChatModel;
 
     final temperature =
         request.temperature ?? request.agentConfig.temperature;
@@ -680,12 +718,20 @@ class GeminiProvider implements AIProvider, ModelDiscovery {
       );
     }
 
-    final baseUrl =
-        EndpointValidator.normalizeTrailingSlash(await getBaseUrl());
+    final rawBaseUrl = await getBaseUrl();
+    final cleanedBase = RegExp(r'https://[A-Za-z0-9._~:/?#@!$&*+,;=%-]+')
+            .firstMatch(rawBaseUrl)
+            ?.group(0) ??
+        _defaultGeminiBaseUrl;
+    final baseUrl = EndpointValidator.normalizeTrailingSlash(cleanedBase);
 
-    final model = connectionStorage?.getModel() ??
+    final rawModel = connectionStorage?.getModel() ??
         request.agentConfig.modelId ??
         kDefaultGeminiChatModel;
+    var model = rawModel
+        .replaceFirst(RegExp(r'^models/'), '')
+        .replaceAll(RegExp(r'[^A-Za-z0-9._-]'), '');
+    if (model.isEmpty) model = kDefaultGeminiChatModel;
 
     final temperature =
         request.temperature ?? request.agentConfig.temperature;
