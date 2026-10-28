@@ -8,6 +8,10 @@ import android.app.Service
 import android.content.Context
 import android.content.Intent
 import android.graphics.PixelFormat
+import android.graphics.Color
+import android.graphics.drawable.GradientDrawable
+import android.view.View
+import android.widget.TextView
 import android.os.Binder
 import android.os.Build
 import android.os.IBinder
@@ -31,6 +35,7 @@ class FloatingTexoOverlayService : Service() {
     private lateinit var windowManager: WindowManager
 
     private var overlayView: TexoOverlayView? = null
+    private var translatedSubtitleView: TextView? = null
     private var layoutParams: WindowManager.LayoutParams? = null
 
     private var isShowing = false
@@ -150,8 +155,12 @@ class FloatingTexoOverlayService : Service() {
 
     /** State pushed from Dart: mode, level, emoji, flags, subtitle texts. */
     fun applyState(state: Map<*, *>) {
-        pendingState = state
-        overlayView?.applyState(state)
+        val merged = HashMap<Any?, Any?>()
+        pendingState?.forEach { (key, value) -> merged[key] = value }
+        state.forEach { (key, value) -> merged[key] = value }
+        pendingState = merged
+        overlayView?.applyState(merged)
+        updateTranslatedSubtitle(merged)
     }
 
     // ---- window ------------------------------------------------------------------------------
@@ -208,7 +217,10 @@ class FloatingTexoOverlayService : Service() {
             windowManager.addView(view, params)
             isShowing = true
             lastOverlayError = null
-            pendingState?.let { view.applyState(it) }
+            pendingState?.let {
+                view.applyState(it)
+                updateTranslatedSubtitle(it)
+            }
             debugLog("TEXO: overlay view added OK")
         } catch (error: Throwable) {
             isShowing = false
@@ -230,15 +242,92 @@ class FloatingTexoOverlayService : Service() {
     }
 
     private fun removeOverlayInternal() {
-        val view = overlayView ?: return
-        try {
-            windowManager.removeView(view)
-        } catch (_: Throwable) {
+        removeTranslatedSubtitleInternal()
+
+        val view = overlayView
+        if (view != null) {
+            try {
+                windowManager.removeView(view)
+            } catch (_: Throwable) {
+            }
         }
+
         overlayView = null
         layoutParams = null
         isShowing = false
         lastOverlayError = null
+    }
+
+    private fun updateTranslatedSubtitle(state: Map<*, *>?) {
+        val enabled = state?.get("trans") as? Boolean ?: false
+        val subtitleText = (state?.get("translatedSubtitle") as? String)
+            ?.trim().orEmpty()
+
+        if (!wantVisible || !isShowing || !enabled || subtitleText.isBlank()) {
+            removeTranslatedSubtitleInternal()
+            return
+        }
+
+        val existing = translatedSubtitleView
+        if (existing != null) {
+            if (existing.text.toString() != subtitleText) existing.text = subtitleText
+            return
+        }
+
+        val density = resources.displayMetrics.density
+        fun dp(value: Int) = (value * density).toInt()
+
+        val subtitle = TextView(this).apply {
+            setTextColor(Color.WHITE)
+            textSize = 18f
+            gravity = Gravity.CENTER
+            textAlignment = View.TEXT_ALIGNMENT_CENTER
+            textDirection = View.TEXT_DIRECTION_RTL
+            layoutDirection = View.LAYOUT_DIRECTION_RTL
+            maxLines = 3
+            setPadding(dp(16), dp(10), dp(16), dp(10))
+            background = GradientDrawable().apply {
+                setColor(Color.argb(232, 12, 16, 28))
+                cornerRadius = dp(14).toFloat()
+                setStroke(
+                    dp(1).coerceAtLeast(1),
+                    Color.argb(170, 70, 200, 255)
+                )
+            }
+            text = subtitleText
+        }
+
+        val params = WindowManager.LayoutParams(
+            (resources.displayMetrics.widthPixels - dp(32)).coerceAtLeast(dp(200)),
+            WindowManager.LayoutParams.WRAP_CONTENT,
+            overlayType(),
+            WindowManager.LayoutParams.FLAG_NOT_FOCUSABLE or
+                WindowManager.LayoutParams.FLAG_NOT_TOUCHABLE or
+                WindowManager.LayoutParams.FLAG_LAYOUT_IN_SCREEN,
+            PixelFormat.TRANSLUCENT
+        ).apply {
+            gravity = Gravity.BOTTOM or Gravity.CENTER_HORIZONTAL
+            x = 0
+            y = dp(76)
+        }
+
+        try {
+            windowManager.addView(subtitle, params)
+            translatedSubtitleView = subtitle
+            debugLog("TEXO: translated subtitle added")
+        } catch (error: Throwable) {
+            translatedSubtitleView = null
+            debugLog("TEXO: translated subtitle failed: ${error.message}")
+        }
+    }
+
+    private fun removeTranslatedSubtitleInternal() {
+        val subtitle = translatedSubtitleView ?: return
+        try {
+            windowManager.removeView(subtitle)
+        } catch (_: Throwable) {
+        }
+        translatedSubtitleView = null
     }
 
     // ---- notification ----------------------------------------------------------------------

@@ -30,6 +30,7 @@ import '../floating_aura/floating_aura_service.dart';
 import '../screen_capture/screen_capture_result.dart';
 import '../screen_capture/screen_capture_service.dart';
 import '../screen_understanding/screen_understanding_service.dart';
+import '../screen_understanding/screen_understanding_result.dart';
 
 /// Callback for Live Mode state changes (for UI updates).
 typedef LiveModeStateCallback = void Function(LiveModeState state);
@@ -39,6 +40,7 @@ typedef LiveModeRecognizedCallback = void Function(String text);
 
 /// Callback for AI response text (for chat display).
 typedef LiveModeResponseCallback = void Function(String text);
+typedef LiveModeScreenCaptionCallback = void Function(String text);
 
 /// Orchestrates the continuous Live Mode voice cycle.
 ///
@@ -81,6 +83,7 @@ class LiveModeOrchestrator {
   final FloatingAuraService _floatingAuraService;
   final ScreenCaptureService _screenCaptureService;
   final ScreenUnderstandingService _screenUnderstandingService;
+  LiveModeScreenCaptionCallback? onScreenCaption;
 
   StreamSubscription<CapturedFrame>? _screenFrameSub;
   bool _screenAnalysisInFlight = false;
@@ -452,7 +455,23 @@ class LiveModeOrchestrator {
 
         _screenAnalysisInFlight = true;
 
-        _screenUnderstandingService.analyzeFrame(frame).whenComplete(() {
+        _screenUnderstandingService.analyzeFrame(frame).then((result) {
+          if (!result.isSuccess) return;
+          final representation = result.value;
+          if (representation == null) return;
+
+          final captions = representation.textItems
+              .where((item) =>
+                  item.textType == TextType.caption &&
+                  item.confidence >= 0.35)
+              .map((item) => item.text.trim())
+              .where((text) => text.isNotEmpty)
+              .toList();
+
+          if (captions.isNotEmpty) {
+            onScreenCaption?.call(captions.join(' '));
+          }
+        }).catchError((Object _) {}).whenComplete(() {
           _screenAnalysisInFlight = false;
         });
       },

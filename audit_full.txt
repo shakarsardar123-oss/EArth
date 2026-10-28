@@ -1,0 +1,581 @@
+=== 1. REACHABILITY FROM lib/main.dart
+lib dart files: 791 | reachable: 370 | NOT reachable: 421
+
+--- groups with ZERO reachable files (never part of the app): 21
+   features/advanced_agent                  56 files
+   features/tool_execution                  50 files
+   features/tool_registry                   32 files
+   features/agent_recovery                  24 files
+   features/integrity_audit                 21 files
+   features/api_reliability                 17 files
+   features/continuous_listening            17 files
+   features/device_connectivity             16 files
+   features/resource_optimization           16 files
+   features/real_time_translation           14 files
+   features/subtitle_overlay                14 files
+   features/assistant_integration           11 files
+   core/audio                               8 files
+   core/voice_screen                        5 files
+   core/voice_session                       2 files
+   core/wakeword                            2 files
+   core/tts                                 1 files
+   features/(root)                          1 files
+   services/device                          1 files
+   services/security                        1 files
+   services/storage                         1 files
+--- groups only PARTLY reachable (reachable/total, outside importers): 26
+   core/localization                        1/4  importers:3
+   features/central_permissions             8/24  importers:3
+   core/utils                               2/5  importers:5
+   features/semantic_memory                 17/38  importers:2
+   (lib root)                               1/2  importers:0
+   services/camera                          2/4  importers:5
+   services/memory                          1/2  importers:5
+   services/notifications                   1/2  importers:3
+   features/trigger_integration             16/29  importers:1
+   features/screen_target                   13/22  importers:2
+   core/errors                              2/3  importers:114
+   services/ai                              2/3  importers:9
+   features/security                        25/37  importers:2
+   presentation/screens                     5/7  importers:1
+   core/memory                              3/4  importers:1
+   features/orchestration                   39/49  importers:2
+   presentation/providers                   4/5  importers:15
+   core/theme                               5/6  importers:27
+   core/screen_capture                      6/7  importers:10
+   core/ai                                  14/16  importers:11
+   core/floating_aura                       7/8  importers:3
+   features/globe                           7/8  importers:1
+   features/device_integration              16/18  importers:10
+   presentation/widgets                     25/27  importers:6
+   core/tools                               31/33  importers:17
+   core/agent                               16/17  importers:32
+--- groups fully reachable: 22
+   core/alarm                               4 files  importers:3
+   core/constants                           1 files  importers:4
+   core/device                              7 files  importers:17
+   core/live_mode                           4 files  importers:4
+   core/permissions                         4 files  importers:8
+   core/phone_agent                         4 files  importers:6
+   core/providers                           2 files  importers:6
+   core/reaction                            26 files  importers:2
+   core/screen_search                       5 files  importers:3
+   core/screen_understanding                5 files  importers:11
+   core/security                            6 files  importers:9
+   core/system_control                      1 files  importers:2
+   core/voice                               4 files  importers:6
+   data/datasources                         1 files  importers:3
+   data/models                              2 files  importers:2
+   data/repositories                        2 files  importers:1
+   domain/entities                          10 files  importers:31
+   domain/repositories                      2 files  importers:3
+   domain/services                          1 files  importers:9
+   l10n                                     3 files  importers:14
+   services/vision                          4 files  importers:7
+   services/voice                           3 files  importers:9
+
+--- every unreachable file:
+   lib/aura_step_27.dart
+   lib/core/agent/agent_observation.dart
+   lib/core/ai/ai_stream.dart
+   lib/core/ai/api_key_masker.dart
+   lib/core/audio/acoustic_wake_word_engine.dart
+   lib/core/audio/audio_providers.dart
+   lib/core/audio/audio_signal_math.dart
+   lib/core/audio/barge_in_controller.dart
+   lib/core/audio/echo_safe_mic_monitor.dart
+   lib/core/audio/output_level_monitor.dart
+   lib/core/audio/voice_activity_detector.dart
+   lib/core/audio/wake_word_debouncer.dart
+   lib/core/errors/network_error.dart
+   lib/core/floating_aura/aura_overlay_host_widget.dart
+   lib/core/localization/s_strings.dart
+   lib/core/localization/s_strings_en.dart
+   lib/core/localization/s_strings_ku.dart
+   lib/core/memory/conversation_provider.dart
+   lib/core/screen_capture/screen_capture_stub_channel.dart
+   lib/core/theme/app_text_styles.dart
+   lib/core/tools/screen_target_tool.dart
+   lib/core/tools/tool_error.dart
+   lib/core/tts/vekol_tts_service.dart
+   lib/core/utils/extensions.dart
+   lib/core/utils/input_validator.dart
+   lib/core/utils/logger.dart
+   lib/core/voice_screen/voice_screen_constants.dart
+   lib/core/voice_screen/voice_screen_engine.dart
+   lib/core/voice_screen/voice_screen_failure.dart
+   lib/core/voice_screen/voice_screen_service.dart
+   lib/core/voice_screen/voice_screen_state.dart
+   lib/core/voice_session/voice_session_coordinator.dart
+   lib/core/voice_session/voice_session_providers.dart
+   lib/core/wakeword/wakeword_provider.dart
+   lib/core/wakeword/wakeword_service.dart
+   lib/features/advanced_agent/advanced_agent.dart
+   lib/features/advanced_agent/application/application.dart
+   lib/features/advanced_agent/application/providers.dart
+   lib/features/advanced_agent/application/task_execution_coordinator.dart
+   lib/features/advanced_agent/domain/domain.dart
+   lib/features/advanced_agent/domain/models/advanced_agent_failure.dart
+   lib/features/advanced_agent/domain/models/advanced_agent_result.dart
+   lib/features/advanced_agent/domain/models/advanced_task_plan.dart
+   lib/features/advanced_agent/domain/models/agent_goal.dart
+   lib/features/advanced_agent/domain/models/context_aware_config.dart
+   lib/features/advanced_agent/domain/models/goal_progress.dart
+   lib/features/advanced_agent/domain/models/goal_status.dart
+   lib/features/advanced_agent/domain/models/models.dart
+   lib/features/advanced_agent/domain/models/natural_language_correction.dart
+   lib/features/advanced_agent/domain/models/pause_resume_state.dart
+   lib/features/advanced_agent/domain/models/safety_verdict.dart
+   lib/features/advanced_agent/domain/models/task_dependency.dart
+   lib/features/advanced_agent/domain/models/task_progress_state.dart
+   lib/features/advanced_agent/domain/models/task_step.dart
+   lib/features/advanced_agent/domain/models/task_step_status.dart
+   lib/features/advanced_agent/domain/models/tool_selection_score.dart
+   lib/features/advanced_agent/domain/models/verification_result.dart
+   lib/features/advanced_agent/domain/models/verification_status.dart
+   lib/features/advanced_agent/domain/repositories/agent_engine_repository.dart
+   lib/features/advanced_agent/domain/repositories/audit_repository.dart
+   lib/features/advanced_agent/domain/repositories/confirmation_repository.dart
+   lib/features/advanced_agent/domain/repositories/connectivity_repository.dart
+   lib/features/advanced_agent/domain/repositories/memory_repository.dart
+   lib/features/advanced_agent/domain/repositories/permission_repository.dart
+   lib/features/advanced_agent/domain/repositories/recovery_repository.dart
+   lib/features/advanced_agent/domain/repositories/repositories.dart
+   lib/features/advanced_agent/domain/repositories/security_repository.dart
+   lib/features/advanced_agent/domain/repositories/tool_execution_repository.dart
+   lib/features/advanced_agent/domain/repositories/tool_registry_repository.dart
+   lib/features/advanced_agent/domain/repositories/trigger_repository.dart
+   lib/features/advanced_agent/domain/services/context_aware_execution_service.dart
+   lib/features/advanced_agent/domain/services/goal_tracker_service.dart
+   lib/features/advanced_agent/domain/services/natural_language_correction_service.dart
+   lib/features/advanced_agent/domain/services/pause_resume_cancel_service.dart
+   lib/features/advanced_agent/domain/services/replanner_service.dart
+   lib/features/advanced_agent/domain/services/result_verifier_service.dart
+   lib/features/advanced_agent/domain/services/safety_gate_service.dart
+   lib/features/advanced_agent/domain/services/services.dart
+   lib/features/advanced_agent/domain/services/task_planner_service.dart
+   lib/features/advanced_agent/domain/services/task_progress_service.dart
+   lib/features/advanced_agent/domain/services/tool_selection_service.dart
+   lib/features/advanced_agent/infrastructure/infrastructure.dart
+   lib/features/advanced_agent/infrastructure/step17_memory_adapter.dart
+   lib/features/advanced_agent/infrastructure/step18_recovery_adapter.dart
+   lib/features/advanced_agent/infrastructure/step19_security_adapter.dart
+   lib/features/advanced_agent/infrastructure/step20_tool_registry_adapter.dart
+   lib/features/advanced_agent/infrastructure/step22_execution_adapter.dart
+   lib/features/advanced_agent/infrastructure/step23_orchestration_adapter.dart
+   lib/features/advanced_agent/infrastructure/step24_trigger_adapter.dart
+   lib/features/advanced_agent/presentation/presentation.dart
+   lib/features/advanced_agent/presentation/task_progress_ui_state.dart
+   lib/features/agent_recovery/adapters/adapters.dart
+   lib/features/agent_recovery/adapters/agent_execution_adapter.dart
+   lib/features/agent_recovery/agent_recovery.dart
+   lib/features/agent_recovery/application/application.dart
+   lib/features/agent_recovery/application/recovery_coordinator.dart
+   lib/features/agent_recovery/domain/models/agent_plan.dart
+   lib/features/agent_recovery/domain/models/models.dart
+   lib/features/agent_recovery/domain/models/recovery_context.dart
+   lib/features/agent_recovery/domain/models/recovery_failure.dart
+   lib/features/agent_recovery/domain/models/recovery_failure_phase.dart
+   lib/features/agent_recovery/domain/models/recovery_phase.dart
+   lib/features/agent_recovery/domain/models/recovery_state.dart
+   lib/features/agent_recovery/domain/models/recovery_strategy.dart
+   lib/features/agent_recovery/domain/models/retry_policy.dart
+   lib/features/agent_recovery/domain/services/recovery_executor.dart
+   lib/features/agent_recovery/domain/services/recovery_failure_classifier.dart
+   lib/features/agent_recovery/domain/services/replanning_engine.dart
+   lib/features/agent_recovery/domain/services/services.dart
+   lib/features/agent_recovery/infrastructure/default_recovery_executor.dart
+   lib/features/agent_recovery/infrastructure/default_recovery_failure_classifier.dart
+   lib/features/agent_recovery/infrastructure/default_replanning_engine.dart
+   lib/features/agent_recovery/infrastructure/infrastructure.dart
+   lib/features/agent_recovery/presentation/presentation.dart
+   lib/features/agent_recovery/presentation/recovery_providers.dart
+   lib/features/api_reliability/api_reliability.dart
+   lib/features/api_reliability/application/api_reliability_orchestrator.dart
+   lib/features/api_reliability/application/application.dart
+   lib/features/api_reliability/application/providers.dart
+   lib/features/api_reliability/domain/domain.dart
+   lib/features/api_reliability/domain/models/api_cost_profile.dart
+   lib/features/api_reliability/domain/models/api_request.dart
+   lib/features/api_reliability/domain/models/models.dart
+   lib/features/api_reliability/domain/models/reliability_config.dart
+   lib/features/api_reliability/domain/repositories/api_gateway_repository.dart
+   lib/features/api_reliability/domain/repositories/repositories.dart
+   lib/features/api_reliability/domain/services/api_reliability_service.dart
+   lib/features/api_reliability/domain/services/services.dart
+   lib/features/api_reliability/domain/value_objects/api_request_id.dart
+   lib/features/api_reliability/domain/value_objects/value_objects.dart
+   lib/features/api_reliability/infrastructure/infrastructure.dart
+   lib/features/api_reliability/infrastructure/stub_api_gateway_repository.dart
+   lib/features/assistant_integration/application/assistant_controller.dart
+   lib/features/assistant_integration/application/assistant_providers.dart
+   lib/features/assistant_integration/assistant_integration.dart
+   lib/features/assistant_integration/domain/assistant_service.dart
+   lib/features/assistant_integration/domain/entities/assistant_invocation.dart
+   lib/features/assistant_integration/domain/entities/assistant_status.dart
+   lib/features/assistant_integration/domain/models/assistant_failure.dart
+   lib/features/assistant_integration/domain/models/assistant_state.dart
+   lib/features/assistant_integration/infrastructure/assistant_method_channel.dart
+   lib/features/assistant_integration/infrastructure/stub_assistant_service.dart
+   lib/features/assistant_integration/presentation/assistant_providers.dart
+   lib/features/central_permissions/adapters/adapters.dart
+   lib/features/central_permissions/adapters/assistant_integration_adapter.dart
+   lib/features/central_permissions/adapters/device_integration_adapter.dart
+   lib/features/central_permissions/adapters/exact_alarm_adapter.dart
+   lib/features/central_permissions/adapters/feature_permission_adapter.dart
+   lib/features/central_permissions/adapters/file_storage_adapter.dart
+   lib/features/central_permissions/adapters/floating_overlay_adapter.dart
+   lib/features/central_permissions/adapters/foreground_service_adapter.dart
+   lib/features/central_permissions/adapters/location_services_adapter.dart
+   lib/features/central_permissions/adapters/notifications_adapter.dart
+   lib/features/central_permissions/adapters/screen_capture_adapter.dart
+   lib/features/central_permissions/adapters/vision_adapter.dart
+   lib/features/central_permissions/adapters/voice_screen_adapter.dart
+   lib/features/central_permissions/infrastructure/stub_central_permission_manager.dart
+   lib/features/central_permissions/presentation/permission_explanation_sheet.dart
+   lib/features/central_permissions/presentation/permission_request_page.dart
+   lib/features/continuous_listening/application/application.dart
+   lib/features/continuous_listening/application/continuous_listening_orchestrator.dart
+   lib/features/continuous_listening/application/providers.dart
+   lib/features/continuous_listening/continuous_listening.dart
+   lib/features/continuous_listening/domain/domain.dart
+   lib/features/continuous_listening/domain/models/audio_segment.dart
+   lib/features/continuous_listening/domain/models/listening_session.dart
+   lib/features/continuous_listening/domain/models/models.dart
+   lib/features/continuous_listening/domain/models/segmentation_config.dart
+   lib/features/continuous_listening/domain/repositories/audio_input_repository.dart
+   lib/features/continuous_listening/domain/repositories/repositories.dart
+   lib/features/continuous_listening/domain/services/continuous_listening_service.dart
+   lib/features/continuous_listening/domain/services/services.dart
+   lib/features/continuous_listening/infrastructure/infrastructure.dart
+   lib/features/continuous_listening/infrastructure/live_continuous_listening_service.dart
+   lib/features/continuous_listening/infrastructure/stt_audio_input_repository.dart
+   lib/features/continuous_listening/infrastructure/stub_audio_input_repository.dart
+   lib/features/device_connectivity/application/application.dart
+   lib/features/device_connectivity/application/device_connection_orchestrator.dart
+   lib/features/device_connectivity/application/providers.dart
+   lib/features/device_connectivity/device_connectivity.dart
+   lib/features/device_connectivity/domain/domain.dart
+   lib/features/device_connectivity/domain/models/device_command.dart
+   lib/features/device_connectivity/domain/models/device_connection_state.dart
+   lib/features/device_connectivity/domain/models/models.dart
+   lib/features/device_connectivity/domain/repositories/device_transport_repository.dart
+   lib/features/device_connectivity/domain/repositories/repositories.dart
+   lib/features/device_connectivity/domain/services/device_connection_service.dart
+   lib/features/device_connectivity/domain/services/services.dart
+   lib/features/device_connectivity/domain/value_objects/device_id.dart
+   lib/features/device_connectivity/domain/value_objects/value_objects.dart
+   lib/features/device_connectivity/infrastructure/infrastructure.dart
+   lib/features/device_connectivity/infrastructure/stub_device_transport_repository.dart
+   lib/features/device_integration/application/device_integration_state.dart
+   lib/features/device_integration/infrastructure/permission_manager_impl.dart
+   lib/features/features.dart
+   lib/features/globe/data/geo_continents.dart
+   lib/features/integrity_audit/application/application.dart
+   lib/features/integrity_audit/application/cross_adapter_checker.dart
+   lib/features/integrity_audit/application/fail_closed_regression_checker.dart
+   lib/features/integrity_audit/application/integrity_audit_orchestrator.dart
+   lib/features/integrity_audit/domain/models/audit_finding.dart
+   lib/features/integrity_audit/domain/models/compatibility_report.dart
+   lib/features/integrity_audit/domain/models/fail_closed_invariant.dart
+   lib/features/integrity_audit/domain/models/integrity_verdict.dart
+   lib/features/integrity_audit/domain/models/localization_gap.dart
+   lib/features/integrity_audit/domain/models/models.dart
+   lib/features/integrity_audit/domain/repositories/repositories.dart
+   lib/features/integrity_audit/domain/repositories/step_22_introspection_repository.dart
+   lib/features/integrity_audit/domain/repositories/step_23_introspection_repository.dart
+   lib/features/integrity_audit/domain/repositories/step_24_introspection_repository.dart
+   lib/features/integrity_audit/domain/repositories/step_25_introspection_repository.dart
+   lib/features/integrity_audit/domain/services/fail_closed_audit_service.dart
+   lib/features/integrity_audit/domain/services/integrity_verification_service.dart
+   lib/features/integrity_audit/domain/services/localization_completeness_service.dart
+   lib/features/integrity_audit/domain/services/services.dart
+   lib/features/integrity_audit/domain/services/step_compatibility_service.dart
+   lib/features/integrity_audit/integrity_audit.dart
+   lib/features/orchestration/application/application.dart
+   lib/features/orchestration/application/providers/providers.dart
+   lib/features/orchestration/application/usecases/usecases.dart
+   lib/features/orchestration/infrastructure/infrastructure.dart
+   lib/features/orchestration/orchestration.dart
+   lib/features/orchestration/presentation/presentation.dart
+   lib/features/orchestration/presentation/providers/orchestration_ui_providers.dart
+   lib/features/orchestration/presentation/providers/ui_providers.dart
+   lib/features/orchestration/presentation/state/orchestration_state.dart
+   lib/features/orchestration/presentation/state/state.dart
+   lib/features/real_time_translation/application/application.dart
+   lib/features/real_time_translation/application/providers.dart
+   lib/features/real_time_translation/application/translation_orchestrator.dart
+   lib/features/real_time_translation/domain/domain.dart
+   lib/features/real_time_translation/domain/models/models.dart
+   lib/features/real_time_translation/domain/models/translation_request.dart
+   lib/features/real_time_translation/domain/models/translation_result.dart
+   lib/features/real_time_translation/domain/repositories/repositories.dart
+   lib/features/real_time_translation/domain/repositories/translation_engine_repository.dart
+   lib/features/real_time_translation/domain/services/services.dart
+   lib/features/real_time_translation/domain/services/translation_service.dart
+   lib/features/real_time_translation/infrastructure/infrastructure.dart
+   lib/features/real_time_translation/infrastructure/stub_translation_engine_repository.dart
+   lib/features/real_time_translation/real_time_translation.dart
+   lib/features/resource_optimization/application/application.dart
+   lib/features/resource_optimization/application/providers.dart
+   lib/features/resource_optimization/application/resource_optimization_orchestrator.dart
+   lib/features/resource_optimization/domain/domain.dart
+   lib/features/resource_optimization/domain/models/battery_optimization_profile.dart
+   lib/features/resource_optimization/domain/models/models.dart
+   lib/features/resource_optimization/domain/models/resource_state.dart
+   lib/features/resource_optimization/domain/repositories/repositories.dart
+   lib/features/resource_optimization/domain/repositories/system_resource_repository.dart
+   lib/features/resource_optimization/domain/services/resource_optimization_service.dart
+   lib/features/resource_optimization/domain/services/services.dart
+   lib/features/resource_optimization/domain/value_objects/resource_profile_id.dart
+   lib/features/resource_optimization/domain/value_objects/value_objects.dart
+   lib/features/resource_optimization/infrastructure/infrastructure.dart
+   lib/features/resource_optimization/infrastructure/stub_system_resource_repository.dart
+   lib/features/resource_optimization/resource_optimization.dart
+   lib/features/screen_target/application/application.dart
+   lib/features/screen_target/domain/domain.dart
+   lib/features/screen_target/domain/models/models.dart
+   lib/features/screen_target/domain/repositories/repositories.dart
+   lib/features/screen_target/domain/services/services.dart
+   lib/features/screen_target/infrastructure/infrastructure.dart
+   lib/features/screen_target/infrastructure/stub_screen_action_repository.dart
+   lib/features/screen_target/infrastructure/stub_vision_repository.dart
+   lib/features/screen_target/screen_target.dart
+   lib/features/security/adapters/security_adapters.dart
+   lib/features/security/adapters/security_memory_adapter.dart
+   lib/features/security/adapters/security_permission_adapter.dart
+   lib/features/security/adapters/security_recovery_adapter.dart
+   lib/features/security/application/security_application.dart
+   lib/features/security/domain/models/security.dart
+   lib/features/security/domain/models/sensitive_data_category.dart
+   lib/features/security/domain/services/security_services.dart
+   lib/features/security/infrastructure/security_infrastructure.dart
+   lib/features/security/l10n/security_l10n_keys.dart
+   lib/features/security/presentation/security_presentation.dart
+   lib/features/security/security.dart
+   lib/features/semantic_memory/adapters/adapters.dart
+   lib/features/semantic_memory/adapters/memory_action_adapter.dart
+   lib/features/semantic_memory/adapters/memory_persistence_adapter.dart
+   lib/features/semantic_memory/adapters/memory_retrieval_adapter.dart
+   lib/features/semantic_memory/adapters/memory_security_adapter.dart
+   lib/features/semantic_memory/adapters/semantic_memory_adapter.dart
+   lib/features/semantic_memory/application/application.dart
+   lib/features/semantic_memory/application/services/semantic_memory_service.dart
+   lib/features/semantic_memory/domain/models/memory_query.dart
+   lib/features/semantic_memory/domain/models/memory_search_result.dart
+   lib/features/semantic_memory/domain/models/models.dart
+   lib/features/semantic_memory/domain/models/sensitive_data_category.dart
+   lib/features/semantic_memory/domain/repositories/repositories.dart
+   lib/features/semantic_memory/domain/services/services.dart
+   lib/features/semantic_memory/infrastructure/infrastructure.dart
+   lib/features/semantic_memory/infrastructure/semantic_memory_in_memory_repository.dart
+   lib/features/semantic_memory/infrastructure/stub_memory_embedding_service.dart
+   lib/features/semantic_memory/l10n/memory_strings.dart
+   lib/features/semantic_memory/presentation/memory_management_page.dart
+   lib/features/semantic_memory/presentation/presentation.dart
+   lib/features/semantic_memory/semantic_memory.dart
+   lib/features/subtitle_overlay/application/application.dart
+   lib/features/subtitle_overlay/application/providers.dart
+   lib/features/subtitle_overlay/application/subtitle_overlay_orchestrator.dart
+   lib/features/subtitle_overlay/domain/domain.dart
+   lib/features/subtitle_overlay/domain/models/models.dart
+   lib/features/subtitle_overlay/domain/models/subtitle_entry.dart
+   lib/features/subtitle_overlay/domain/models/subtitle_overlay_state.dart
+   lib/features/subtitle_overlay/domain/repositories/overlay_renderer_repository.dart
+   lib/features/subtitle_overlay/domain/repositories/repositories.dart
+   lib/features/subtitle_overlay/domain/services/services.dart
+   lib/features/subtitle_overlay/domain/services/subtitle_overlay_service.dart
+   lib/features/subtitle_overlay/infrastructure/infrastructure.dart
+   lib/features/subtitle_overlay/infrastructure/stub_overlay_renderer_repository.dart
+   lib/features/subtitle_overlay/subtitle_overlay.dart
+   lib/features/tool_execution/application/application.dart
+   lib/features/tool_execution/application/background_execution.dart
+   lib/features/tool_execution/application/cancellation_token.dart
+   lib/features/tool_execution/application/offline_capability.dart
+   lib/features/tool_execution/application/tool_composition.dart
+   lib/features/tool_execution/application/tool_execution_engine.dart
+   lib/features/tool_execution/application/tool_input_validator.dart
+   lib/features/tool_execution/application/tool_output_normalizer.dart
+   lib/features/tool_execution/application/tool_selection.dart
+   lib/features/tool_execution/application/voice_first_execution.dart
+   lib/features/tool_execution/domain/models/exceptions.dart
+   lib/features/tool_execution/domain/models/models.dart
+   lib/features/tool_execution/domain/models/tool_execution_context.dart
+   lib/features/tool_execution/domain/models/tool_execution_metadata.dart
+   lib/features/tool_execution/domain/models/tool_input.dart
+   lib/features/tool_execution/domain/models/tool_output.dart
+   lib/features/tool_execution/domain/services/recovery_tool.dart
+   lib/features/tool_execution/domain/services/services.dart
+   lib/features/tool_execution/domain/services/tool_interface.dart
+   lib/features/tool_execution/infrastructure/adapters/adapters.dart
+   lib/features/tool_execution/infrastructure/adapters/step18_retry_bridge.dart
+   lib/features/tool_execution/infrastructure/adapters/step19_security_bridge.dart
+   lib/features/tool_execution/infrastructure/adapters/step20_confirmation_adapter.dart
+   lib/features/tool_execution/infrastructure/adapters/step20_discovery_adapter.dart
+   lib/features/tool_execution/infrastructure/adapters/step20_gate_adapter.dart
+   lib/features/tool_execution/infrastructure/audit_logger.dart
+   lib/features/tool_execution/infrastructure/cancellation_token.dart
+   lib/features/tool_execution/infrastructure/executors/assistant_tool.dart
+   lib/features/tool_execution/infrastructure/executors/communication_tool.dart
+   lib/features/tool_execution/infrastructure/executors/device_tool.dart
+   lib/features/tool_execution/infrastructure/executors/executors.dart
+   lib/features/tool_execution/infrastructure/executors/media_tool.dart
+   lib/features/tool_execution/infrastructure/executors/memory_tool.dart
+   lib/features/tool_execution/infrastructure/executors/navigation_tool.dart
+   lib/features/tool_execution/infrastructure/executors/recovery_tool.dart
+   lib/features/tool_execution/infrastructure/executors/screen_target_tool.dart
+   lib/features/tool_execution/infrastructure/executors/screen_tool.dart
+   lib/features/tool_execution/infrastructure/executors/system_tool.dart
+   lib/features/tool_execution/infrastructure/executors/tool_executor_registry.dart
+   lib/features/tool_execution/infrastructure/executors/unknown_tool_handler.dart
+   lib/features/tool_execution/infrastructure/executors/vision_tool.dart
+   lib/features/tool_execution/infrastructure/executors/voice_tool.dart
+   lib/features/tool_execution/infrastructure/infrastructure.dart
+   lib/features/tool_execution/infrastructure/tool_execution_engine.dart
+   lib/features/tool_execution/infrastructure/tool_input_validator.dart
+   lib/features/tool_execution/infrastructure/tool_output_normalizer.dart
+   lib/features/tool_execution/infrastructure/tool_providers.dart
+   lib/features/tool_execution/presentation/presentation.dart
+   lib/features/tool_execution/presentation/tool_providers.dart
+   lib/features/tool_execution/tool_execution.dart
+   lib/features/tool_registry/application/application.dart
+   lib/features/tool_registry/application/contracts/tool_memory_adapter.dart
+   lib/features/tool_registry/application/contracts/tool_permission_adapter.dart
+   lib/features/tool_registry/application/contracts/tool_recovery_adapter.dart
+   lib/features/tool_registry/application/contracts/tool_security_adapter.dart
+   lib/features/tool_registry/application/tool_discovery_api.dart
+   lib/features/tool_registry/application/tool_execution_gate.dart
+   lib/features/tool_registry/domain/models/confirmation_policy.dart
+   lib/features/tool_registry/domain/models/models.dart
+   lib/features/tool_registry/domain/models/tool_allowlist_entry.dart
+   lib/features/tool_registry/domain/models/tool_category.dart
+   lib/features/tool_registry/domain/models/tool_definition.dart
+   lib/features/tool_registry/domain/models/tool_execution_result.dart
+   lib/features/tool_registry/domain/models/tool_failure.dart
+   lib/features/tool_registry/domain/models/tool_state.dart
+   lib/features/tool_registry/domain/services/services.dart
+   lib/features/tool_registry/domain/services/tool_confirmation_service.dart
+   lib/features/tool_registry/domain/services/tool_registry_service.dart
+   lib/features/tool_registry/infrastructure/adapters/adapters.dart
+   lib/features/tool_registry/infrastructure/adapters/existing_tool_adapters.dart
+   lib/features/tool_registry/infrastructure/adapters/tool_memory_adapter.dart
+   lib/features/tool_registry/infrastructure/adapters/tool_permission_adapter.dart
+   lib/features/tool_registry/infrastructure/adapters/tool_recovery_adapter.dart
+   lib/features/tool_registry/infrastructure/adapters/tool_security_adapter.dart
+   lib/features/tool_registry/infrastructure/default_tool_confirmation_service.dart
+   lib/features/tool_registry/infrastructure/default_tool_discovery_api.dart
+   lib/features/tool_registry/infrastructure/default_tool_execution_gate.dart
+   lib/features/tool_registry/infrastructure/default_tool_registry_service.dart
+   lib/features/tool_registry/infrastructure/infrastructure.dart
+   lib/features/tool_registry/presentation/presentation.dart
+   lib/features/tool_registry/presentation/tool_registry_provider_names.dart
+   lib/features/tool_registry/presentation/tool_registry_state_notifier.dart
+   lib/features/trigger_integration/application/trigger_integration_application.dart
+   lib/features/trigger_integration/domain/entities/entities.dart
+   lib/features/trigger_integration/domain/repositories/repositories.dart
+   lib/features/trigger_integration/domain/trigger_integration_domain.dart
+   lib/features/trigger_integration/domain/value_objects/trigger_result_vo.dart
+   lib/features/trigger_integration/domain/value_objects/value_objects.dart
+   lib/features/trigger_integration/infrastructure/adapters/permission_bridge_adapter.dart
+   lib/features/trigger_integration/infrastructure/trigger_integration_infrastructure.dart
+   lib/features/trigger_integration/localization/trigger_localization_keys.dart
+   lib/features/trigger_integration/presentation/providers/trigger_ui_providers.dart
+   lib/features/trigger_integration/presentation/state/trigger_ui_state.dart
+   lib/features/trigger_integration/presentation/trigger_integration_presentation.dart
+   lib/features/trigger_integration/trigger_integration.dart
+   lib/presentation/providers/vision_providers.dart
+   lib/presentation/screens/dashboard_screen.dart
+   lib/presentation/screens/vision_screen.dart
+   lib/presentation/widgets/aura_assistant_pill.dart
+   lib/presentation/widgets/aura_assistant_pill_host.dart
+   lib/services/ai/ai_provider_manager.dart
+   lib/services/camera/camera_service.dart
+   lib/services/camera/camera_service_impl.dart
+   lib/services/device/device_service.dart
+   lib/services/memory/memory_repository.dart
+   lib/services/notifications/notification_service.dart
+   lib/services/security/security_service.dart
+   lib/services/storage/storage_service.dart
+
+=== 2. PROVIDERS THAT THROW UnimplementedError (must be overridden)
+overridden OK: 5
+NOT overridden AND used by reachable code (WILL THROW at runtime): 0
+NOT overridden and unused (dead): 12
+   localeProvider (lib/core/localization/locale_provider.dart)
+   themeProvider (lib/core/theme/theme_provider.dart)
+   apiReliabilityServiceProvider (lib/features/api_reliability/application/providers.dart)
+   apiGatewayRepositoryProvider (lib/features/api_reliability/application/providers.dart)
+   deviceConnectionServiceProvider (lib/features/device_connectivity/application/providers.dart)
+   deviceTransportRepositoryProvider (lib/features/device_connectivity/application/providers.dart)
+   translationServiceProvider (lib/features/real_time_translation/application/providers.dart)
+   translationEngineRepositoryProvider (lib/features/real_time_translation/application/providers.dart)
+   resourceOptimizationServiceProvider (lib/features/resource_optimization/application/providers.dart)
+   systemResourceRepositoryProvider (lib/features/resource_optimization/application/providers.dart)
+   subtitleOverlayServiceProvider (lib/features/subtitle_overlay/application/providers.dart)
+   overlayRendererRepositoryProvider (lib/features/subtitle_overlay/application/providers.dart)
+
+=== 3. STUB / FAKE CLASSES THAT THE REACHABLE APP CONSTRUCTS (feature runs on a stub)
+count: 2
+   StubDeviceChannel  used in: app_providers.dart
+   StubSystemControlChannel  used in: system_control_provider.dart
+
+=== 4. AGENT TOOLS (classes extending Tool)
+constructed by reachable code: 23
+   AnalyzeVisionTool
+   AppLaunchTool
+   BatteryTool
+   BluetoothControlTool
+   CreateAlarmTool
+   DeleteAlarmTool
+   DeviceInfoTool
+   FindObjectTool
+   ListAlarmsTool
+   LocateTargetTool
+   NetworkTool
+   OpenCameraTool
+   ReadTextTool
+   ResourceOptimizationTool
+   ScreenGestureTool
+   ScreenTargetCoreTool
+   SetAlarmTool
+   SystemSettingsTool
+   TranslateTextTool
+   UpdateAlarmTool
+   UrlLaunchTool
+   VisionTool
+   WifiControlTool
+NEVER constructed (the agent can not use these): 12
+   AssistantTool  (lib/features/tool_execution/infrastructure/executors/assistant_tool.dart)
+   CommunicationTool  (lib/features/tool_execution/infrastructure/executors/communication_tool.dart)
+   DeviceTool  (lib/features/tool_execution/infrastructure/executors/device_tool.dart)
+   MediaTool  (lib/features/tool_execution/infrastructure/executors/media_tool.dart)
+   MemoryTool  (lib/features/tool_execution/infrastructure/executors/memory_tool.dart)
+   NavigationTool  (lib/features/tool_execution/infrastructure/executors/navigation_tool.dart)
+   RecoveryTool  (lib/features/tool_execution/infrastructure/executors/recovery_tool.dart)
+   ScreenTargetTool  (lib/features/tool_execution/infrastructure/executors/screen_target_tool.dart)
+   ScreenTool  (lib/features/tool_execution/infrastructure/executors/screen_tool.dart)
+   SystemTool  (lib/features/tool_execution/infrastructure/executors/system_tool.dart)
+   UnknownToolHandler  (lib/features/tool_execution/infrastructure/executors/unknown_tool_handler.dart)
+   VoiceTool  (lib/features/tool_execution/infrastructure/executors/voice_tool.dart)
+
+=== 5. DART -> NATIVE: channels and methods missing in Kotlin
+Dart channels with no matching string in Kotlin: 0
+Dart method names with no matching string in Kotlin: 16  (native->Dart event names may appear here too)
+   agent  (lib/core/reaction/reaction_constants.dart)
+   clearReaction  (lib/core/reaction/reaction_constants.dart)
+   confirmation  (lib/core/reaction/reaction_constants.dart)
+   feedback  (lib/core/reaction/reaction_constants.dart)
+   getReactionState  (lib/core/reaction/reaction_constants.dart)
+   idle  (lib/core/reaction/reaction_constants.dart)
+   idle_hint  (lib/core/reaction/reaction_constants.dart)
+   isSupported  (lib/core/screen_capture/screen_capture_constants.dart)
+   onOverlayPanelToggled  (lib/core/floating_aura/floating_aura_constants.dart)
+   onOverlayPositionChanged  (lib/core/floating_aura/floating_aura_constants.dart)
+   onOverlayVisibilityChanged  (lib/core/floating_aura/floating_aura_constants.dart)
+   personality  (lib/core/reaction/reaction_constants.dart)
+   progress  (lib/core/reaction/reaction_constants.dart)
+   tool  (lib/core/reaction/reaction_constants.dart)
+   updateReaction  (lib/core/reaction/reaction_constants.dart)
+   voice  (lib/core/reaction/reaction_constants.dart)
+
+=== NOTE: static analysis only. "wired" = referenced from the app, not "works".

@@ -19,6 +19,7 @@ import '../core/localization/locale_provider.dart';
 import '../core/theme/app_theme.dart';
 import '../core/voice/voice_service_provider.dart';
 import '../domain/services/ai_service.dart';
+import '../domain/entities/agent_config.dart';
 import '../presentation/providers/app_providers.dart';
 import '../presentation/screens/vision_screen.dart';
 import '../presentation/widgets/api_key_settings_section.dart';
@@ -42,6 +43,11 @@ class RiverpodBackend implements TexoBackend, TexoCameraExtras, TexoPermissionsE
   bool _subs = false;
   String _lastYou = '';
   String _lastAi = '';
+  bool _translateOn = false;
+  String _translatedSubtitle = '';
+  String _lastCaptionSource = '';
+  int _translationGeneration = 0;
+  Timer? _subtitleClearTimer;
   StreamSubscription<double>? _ttsSub;
   double _ttsLevel = 0;
   int _ttsAt = 0;
@@ -387,6 +393,7 @@ class RiverpodBackend implements TexoBackend, TexoCameraExtras, TexoPermissionsE
     await _overlay.start();
     _pushFlags();
     final orchestrator = _c.read(liveModeOrchestratorProvider);
+    orchestrator.onScreenCaption = _handleScreenCaption;
     orchestrator.onUserRecognized = (String text) {
       _lastYou = text;
       _live.caption.value = text;
@@ -406,6 +413,65 @@ class RiverpodBackend implements TexoBackend, TexoCameraExtras, TexoPermissionsE
     // shown the pill while the app is visible: take both back.
     _overlay.rebind();
     await _overlay.syncVisibility();
+  }
+
+  Future<void> _handleScreenCaption(String rawText) async {
+    if (!_translateOn) return;
+
+    final String source = rawText.trim();
+    if (source.isEmpty || source == _lastCaptionSource) return;
+    _lastCaptionSource = source;
+    final int requestId = ++_translationGeneration;
+
+    try {
+      final provider = _c.read(selectedAIProviderProvider);
+      final String modelId = provider.supportedModels.isNotEmpty
+          ? provider.supportedModels.first
+          : 'default';
+      final response = await provider.complete(
+        AIRequest(
+          prompt: 'Translate this visible video subtitle into natural '
+              'Sorani Kurdish (Central Kurdish). Preserve the meaning and '
+              'tone. Output only the translation, with no explanation.\n\n'
+              'Subtitle: $source',
+          agentConfig: AgentConfig.defaultConfig.copyWith(
+            id: 'subtitle_translation',
+            name: 'Subtitle Translation',
+            description: 'Translate visible video captions into Sorani.',
+            systemPrompt: 'You are a subtitle translation engine. Translate '
+                'into natural Sorani Kurdish (Central Kurdish), using Kurdish '
+                'Arabic script. Output only the translated text.',
+            modelId: modelId,
+            temperature: 0.2,
+            maxTokens: 256,
+          ),
+          temperature: 0.2,
+          maxTokens: 256,
+        ),
+      );
+
+      if (!_translateOn || requestId != _translationGeneration) return;
+      final String translated = response.text.trim();
+      if (translated.isEmpty) return;
+
+      _translatedSubtitle = translated;
+      _pushTranslationOverlay();
+      _subtitleClearTimer?.cancel();
+      _subtitleClearTimer = Timer(const Duration(seconds: 5), () {
+        if (requestId != _translationGeneration) return;
+        _translatedSubtitle = '';
+        _pushTranslationOverlay();
+      });
+    } catch (_) {
+      // Translation failures must not interrupt Live Mode.
+    }
+  }
+
+  void _pushTranslationOverlay() {
+    _overlay.push(<String, Object?>{
+      'trans': _translateOn,
+      'translatedSubtitle': _translatedSubtitle,
+    });
   }
 
   /// Until real microphone / TTS levels are connected, the level is a gentle
@@ -432,6 +498,9 @@ class RiverpodBackend implements TexoBackend, TexoCameraExtras, TexoPermissionsE
   Future<void> stopLive() => _serial(_stopLive);
 
   Future<void> _stopLive() async {
+    ++_translationGeneration;
+    _subtitleClearTimer?.cancel();
+    _translatedSubtitle = '';
     _liveRunning = false;
     _levelTimer?.cancel();
     _levelTimer = null;
@@ -461,7 +530,8 @@ class RiverpodBackend implements TexoBackend, TexoCameraExtras, TexoPermissionsE
     final double level = (_live.level.value * 20).round() / 20.0;
     final String emoji = _emoji(m);
     final int now = DateTime.now().millisecondsSinceEpoch;
-    final String key = '$m|$level|$emoji|$initialLang|$_lastYou|$_lastAi';
+    final String key = '$m|$level|$emoji|$initialLang|$_lastYou|$_lastAi|'
+        '$_translateOn|$_translatedSubtitle';
     // Only talk to the native overlay when something changed (plus a
     // keep-alive once a second): far fewer platform-channel calls.
     if (key == _lastPushKey && now - _lastPushAt < 1000) return;
@@ -474,6 +544,8 @@ class RiverpodBackend implements TexoBackend, TexoCameraExtras, TexoPermissionsE
       'lang': initialLang,
       'you': _lastYou,
       'ai': _lastAi,
+      'trans': _translateOn,
+      'translatedSubtitle': _translatedSubtitle,
     });
   }
 
@@ -484,6 +556,8 @@ class RiverpodBackend implements TexoBackend, TexoCameraExtras, TexoPermissionsE
       'micOff': _micOff,
       'muted': _muted,
       'subs': _subs,
+      'trans': _translateOn,
+      'translatedSubtitle': _translatedSubtitle,
     });
   }
 
@@ -510,6 +584,15 @@ class RiverpodBackend implements TexoBackend, TexoCameraExtras, TexoPermissionsE
       case 'subs':
         _subs = value ?? !_subs;
         _pushFlags();
+        break;
+      case 'translate':
+        _translateOn = value ?? !_translateOn;
+        ++_translationGeneration;
+        _lastCaptionSource = '';
+        _subtitleClearTimer?.cancel();
+        if (!_translateOn) _translatedSubtitle = '';
+        _pushFlags();
+        _pushOverlay();
         break;
       default:
         break; // translate / guide / tray_open / tray_close / hide / show: later

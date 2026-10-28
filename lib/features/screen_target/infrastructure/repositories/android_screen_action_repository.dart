@@ -127,8 +127,88 @@ class AndroidScreenActionRepository implements ScreenActionRepository {
     required ScreenTarget target,
     required String direction,
   }) async {
-    // Current SystemControlChannel has no dedicated scroll contract.
-    return ScreenActionResult.unavailable;
+    if (!_isVerifiedTarget(target)) {
+      return ScreenActionResult.deniedUnverified;
+    }
+
+    final normalizedDirection = direction.trim().toLowerCase();
+    if (!{'up', 'down', 'left', 'right'}.contains(normalizedDirection)) {
+      return ScreenActionResult.deniedSafety;
+    }
+
+    final accessibility =
+        await _systemControl.isAccessibilityServiceEnabled();
+
+    if (!accessibility.isSuccess ||
+        accessibility.data?['enabled'] != true) {
+      return ScreenActionResult.deniedPermission;
+    }
+
+    final sizeResult = await _systemControl.getScreenSize();
+    if (!sizeResult.isSuccess) {
+      return ScreenActionResult.unavailable;
+    }
+
+    final width = _intValue(sizeResult.data?['width']);
+    final height = _intValue(sizeResult.data?['height']);
+    if (width == null || height == null || width <= 0 || height <= 0) {
+      return ScreenActionResult.error;
+    }
+
+    final bounds = _bounds(target);
+    if (bounds == null) {
+      return ScreenActionResult.deniedUnverified;
+    }
+
+    final left = bounds.x * width;
+    final top = bounds.y * height;
+    final right = bounds.right * width;
+    final bottom = bounds.bottom * height;
+
+    // Keep both gesture endpoints inside the verified target.
+    final center = _center(bounds);
+    final startX = center.dx * width;
+    final startY = center.dy * height;
+    final dx = (right - left) * 0.3;
+    final dy = (bottom - top) * 0.3;
+
+    double endX = startX;
+    double endY = startY;
+
+    switch (normalizedDirection) {
+      case 'up':
+        endY = startY - dy;
+        break;
+      case 'down':
+        endY = startY + dy;
+        break;
+      case 'left':
+        endX = startX - dx;
+        break;
+      case 'right':
+        endX = startX + dx;
+        break;
+    }
+
+    if (!_insideScreen(startX, startY, width, height) ||
+        !_insideScreen(endX, endY, width, height) ||
+        startX < left || startX > right ||
+        endX < left || endX > right ||
+        startY < top || startY > bottom ||
+        endY < top || endY > bottom) {
+      return ScreenActionResult.deniedSafety;
+    }
+
+    final result = await _systemControl.dispatchGesture(
+      gesture: 'swipe',
+      x: startX,
+      y: startY,
+      x2: endX,
+      y2: endY,
+      durationMs: 350,
+    );
+
+    return _mapDispatchResult(result);
   }
 
   Future<ScreenActionResult> _dispatchPointGesture({
