@@ -23,6 +23,12 @@ class VekolTtsBridge(
         private const val MODEL_PATH = "vekol/model.onnx"
         private const val CONFIG_PATH = "vekol/model.onnx.json"
         private const val SAMPLE_RATE = 22050
+        // Voice character. noise_w low = flat, robotic rhythm; 0.8 is Piper's default.
+        private const val NOISE_SCALE = 0.667f
+        private const val LENGTH_SCALE = 1.0f
+        private const val NOISE_W = 0.8f
+        private const val MAX_CHUNK = 70
+        private const val GAP_SECONDS = 0.13f
     }
 
     private val ortEnvironment = OrtEnvironment.getEnvironment()
@@ -130,35 +136,73 @@ class VekolTtsBridge(
     }
 
     private fun speakBlocking(text: String) {
+        val chunks = splitChunks(replaceNumbers(normalize(text.trim())))
+        if (chunks.isEmpty()) return
+
+        val track = openTrack()
+        synchronized(this) { audioTrack = track }
+
+        try {
+            track.play()
+            var written = 0L
+            for ((i, chunk) in chunks.withIndex()) {
+                if (stopped) break
+                val audio = synthesize(chunk)
+                if (audio.isEmpty()) {
+                    toast("TTS: empty audio for a chunk")
+                    continue
+                }
+                written += writePcm(track, toPcm(audio))
+                if (i < chunks.size - 1 && !stopped) {
+                    written += writePcm(track, ShortArray((SAMPLE_RATE * GAP_SECONDS).toInt()))
+                }
+            }
+            if (!stopped) {
+                var waited = 0
+                while (!stopped && waited < 60000) {
+                    val pos = try {
+                        track.playbackHeadPosition.toLong()
+                    } catch (_: Throwable) {
+                        break
+                    }
+                    if (pos >= written) break
+                    Thread.sleep(10)
+                    waited += 10
+                }
+            }
+        } finally {
+            try { track.stop() } catch (_: Throwable) {}
+            try { track.release() } catch (_: Throwable) {}
+            synchronized(this) {
+                if (audioTrack === track) audioTrack = null
+            }
+        }
+    }
+
+    private fun synthesize(text: String): FloatArray {
         val ids = buildIds(text)
-        if (ids.size <= 4) toast("TTS: no known letters in text (${ids.size} ids)")
+        if (ids.size <= 4) {
+            toast("TTS: no known letters in text")
+            return FloatArray(0)
+        }
 
         val input = OnnxTensor.createTensor(
-            ortEnvironment,
-            LongBuffer.wrap(ids),
-            longArrayOf(1, ids.size.toLong())
+            ortEnvironment, LongBuffer.wrap(ids), longArrayOf(1, ids.size.toLong())
         )
-
         val inputLengths = OnnxTensor.createTensor(
-            ortEnvironment,
-            LongBuffer.wrap(longArrayOf(ids.size.toLong())),
-            longArrayOf(1)
+            ortEnvironment, LongBuffer.wrap(longArrayOf(ids.size.toLong())), longArrayOf(1)
         )
-
         val scales = OnnxTensor.createTensor(
             ortEnvironment,
-            FloatBuffer.wrap(floatArrayOf(0.667f, 1.0f, 0.35f)),
+            FloatBuffer.wrap(floatArrayOf(NOISE_SCALE, LENGTH_SCALE, NOISE_W)),
             longArrayOf(3)
         )
-
         val sid = OnnxTensor.createTensor(
-            ortEnvironment,
-            LongBuffer.wrap(longArrayOf(0L)),
-            longArrayOf(1)
+            ortEnvironment, LongBuffer.wrap(longArrayOf(0L)), longArrayOf(1)
         )
 
         try {
-            session.run(
+            val audio = session.run(
                 mapOf(
                     "input" to input,
                     "input_lengths" to inputLengths,
@@ -166,23 +210,100 @@ class VekolTtsBridge(
                     "sid" to sid
                 )
             ).use { result ->
-
-                if (stopped) return
-
-                val output = result[0].value
-                val audio = extractAudio(output)
-                if (audio.isEmpty()) toast("TTS: model returned EMPTY audio")
-
-                if (audio.isNotEmpty()) {
-                    play(audio)
-                }
+                if (stopped) FloatArray(0) else extractAudio(result[0].value)
             }
+            return audio
         } finally {
             input.close()
             inputLengths.close()
             scales.close()
             sid.close()
         }
+    }
+
+    // ---- text preparation -----------------------------------------------------
+
+    private val onesWords = arrayOf("سفر", "یەک", "دوو", "سێ", "چوار", "پێنج", "شەش", "حەوت", "هەشت", "نۆ")
+    private val teenWords = arrayOf("دە", "یازدە", "دوازدە", "سیازدە", "چواردە", "پازدە", "شازدە", "حەڤدە", "هەژدە", "نۆزدە")
+    private val tensWords = arrayOf("", "", "بیست", "سی", "چل", "پەنجا", "شەست", "حەفتا", "هەشتا", "نەوەد")
+
+    private fun numberToKurdish(n: Int): String {
+        if (n < 10) return onesWords[n]
+        if (n < 20) return teenWords[n - 10]
+        if (n < 100) {
+            val t = n / 10
+            val o = n % 10
+            return if (o == 0) tensWords[t] else tensWords[t] + " و " + onesWords[o]
+        }
+        if (n < 1000) {
+            val h = n / 100
+            val r = n % 100
+            val word = if (h == 1) "سەد" else onesWords[h] + " سەد"
+            return if (r == 0) word else word + " و " + numberToKurdish(r)
+        }
+        if (n < 1000000) {
+            val th = n / 1000
+            val r = n % 1000
+            val word = if (th == 1) "هەزار" else numberToKurdish(th) + " هەزار"
+            return if (r == 0) word else word + " و " + numberToKurdish(r)
+        }
+        return n.toString()
+    }
+
+    private fun replaceNumbers(text: String): String =
+        Regex("[0-9]+").replace(text) { m ->
+            val v = m.value.toIntOrNull()
+            if (v == null || v >= 1000000) m.value else numberToKurdish(v)
+        }
+
+    /** Short pieces sound natural; one long run-on sentence turns robotic. */
+    private fun splitChunks(text: String): List<String> {
+        val out = ArrayList<String>()
+        val sentences = text.split(Regex("(?<=[.!?؟])\\s+|\\n+"))
+            .map { it.trim() }
+            .filter { it.isNotEmpty() }
+
+        for (sentence in sentences) {
+            val last = sentence.last()
+            val ending = if (last == '!' || last == '؟' || last == '?') (if (last == '?') '؟' else last) else '.'
+            val pieces = ArrayList<String>()
+            if (sentence.length <= MAX_CHUNK) {
+                pieces.add(sentence)
+            } else {
+                var buf = ""
+                val parts = sentence.split(Regex("(?<=[،؛,;:])\\s+"))
+                for (part in parts) {
+                    val sub = if (part.length > MAX_CHUNK + 20) {
+                        val words = part.split(" ")
+                        val acc = ArrayList<String>()
+                        var cur = ""
+                        for (w in words) {
+                            if (cur.isNotEmpty() && cur.length + w.length + 1 > MAX_CHUNK) {
+                                acc.add(cur); cur = w
+                            } else {
+                                cur = if (cur.isEmpty()) w else "$cur $w"
+                            }
+                        }
+                        if (cur.isNotEmpty()) acc.add(cur)
+                        acc
+                    } else listOf(part)
+                    for (piece in sub) {
+                        if (buf.isNotEmpty() && buf.length + piece.length + 1 > MAX_CHUNK) {
+                            pieces.add(buf); buf = piece
+                        } else {
+                            buf = if (buf.isEmpty()) piece else "$buf $piece"
+                        }
+                    }
+                }
+                if (buf.isNotBlank()) pieces.add(buf)
+            }
+            for ((i, piece) in pieces.withIndex()) {
+                val clean = piece.trim().trimEnd('.', '!', '?', '؟', '،', '؛', ',', ';', ':').trim()
+                if (clean.isEmpty()) continue
+                out.add(clean + if (i == pieces.size - 1) ending else '.')
+            }
+        }
+        return out
     }
 
     private fun buildIds(text: String): LongArray {
@@ -293,16 +414,15 @@ class VekolTtsBridge(
         }
     }
 
-    private fun play(samples: FloatArray) {
+    private fun openTrack(): AudioTrack {
         val minBuffer = AudioTrack.getMinBufferSize(
             SAMPLE_RATE,
             AudioFormat.CHANNEL_OUT_MONO,
             AudioFormat.ENCODING_PCM_16BIT
         )
+        val bufferSize = max(minBuffer * 2, SAMPLE_RATE) // about 1 second
 
-        val bufferSize = max(minBuffer, samples.size * 2)
-
-        val track = AudioTrack.Builder()
+        return AudioTrack.Builder()
             .setAudioAttributes(
                 AudioAttributes.Builder()
                     .setUsage(AudioAttributes.USAGE_MEDIA)
@@ -319,57 +439,29 @@ class VekolTtsBridge(
             .setBufferSizeInBytes(bufferSize)
             .setTransferMode(AudioTrack.MODE_STREAM)
             .build()
+    }
 
-        synchronized(this) {
-            audioTrack = track
+    /** Float samples to 16-bit PCM with a 6 ms fade at both ends (no clicks). */
+    private fun toPcm(samples: FloatArray): ShortArray {
+        val pcm = ShortArray(samples.size)
+        val fade = (SAMPLE_RATE * 0.006f).toInt().coerceAtMost(samples.size / 2)
+        for (i in samples.indices) {
+            var v = samples[i].coerceIn(-1f, 1f)
+            if (i < fade) v *= i / fade.toFloat()
+            else if (i >= samples.size - fade) v *= (samples.size - 1 - i) / fade.toFloat()
+            pcm[i] = (v * 32767f).roundToInt().toShort()
         }
+        return pcm
+    }
 
-        try {
-            track.play()
-
-            val pcm = ShortArray(samples.size)
-
-            for (i in samples.indices) {
-                val v = samples[i].coerceIn(-1f, 1f)
-                pcm[i] = (v * 32767f).roundToInt().toShort()
-            }
-
-            var offset = 0
-
-            while (offset < pcm.size && !stopped) {
-                val written = track.write(
-                    pcm,
-                    offset,
-                    pcm.size - offset
-                )
-
-                if (written <= 0) break
-
-                offset += written
-            }
-
-            if (!stopped) {
-                while (track.playbackHeadPosition.toLong() < pcm.size.toLong()) {
-                    Thread.sleep(10)
-                }
-            }
-        } finally {
-            try {
-                track.stop()
-            } catch (_: Throwable) {
-            }
-
-            try {
-                track.release()
-            } catch (_: Throwable) {
-            }
-
-            synchronized(this) {
-                if (audioTrack === track) {
-                    audioTrack = null
-                }
-            }
+    private fun writePcm(track: AudioTrack, pcm: ShortArray): Long {
+        var offset = 0
+        while (offset < pcm.size && !stopped) {
+            val n = track.write(pcm, offset, pcm.size - offset)
+            if (n <= 0) break
+            offset += n
         }
+        return offset.toLong()
     }
 
     fun dispose() {

@@ -121,15 +121,15 @@ class FloatingTexoOverlayService : Service() {
 
     fun hide() {
         debugLog("TEXO: hide() called")
-        removeOverlayInternal()
-
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.N) {
-            stopForeground(STOP_FOREGROUND_REMOVE)
-        } else {
-            @Suppress("DEPRECATION")
-            stopForeground(true)
+        removeOverlayInternal(animated = true) {
+            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.N) {
+                stopForeground(STOP_FOREGROUND_REMOVE)
+            } else {
+                @Suppress("DEPRECATION")
+                stopForeground(true)
+            }
+            stopSelf()
         }
-        stopSelf()
     }
 
     /**
@@ -142,7 +142,7 @@ class FloatingTexoOverlayService : Service() {
         if (visible) {
             if (overlayView == null) showOverlayInternal()
         } else {
-            removeOverlayInternal()
+            removeOverlayInternal(animated = true)
         }
     }
 
@@ -241,21 +241,27 @@ class FloatingTexoOverlayService : Service() {
         }
     }
 
-    private fun removeOverlayInternal() {
+    private fun removeOverlayInternal(animated: Boolean = false, after: (() -> Unit)? = null) {
         removeTranslatedSubtitleInternal()
 
         val view = overlayView
-        if (view != null) {
-            try {
-                windowManager.removeView(view)
-            } catch (_: Throwable) {
-            }
-        }
-
         overlayView = null
         layoutParams = null
         isShowing = false
         lastOverlayError = null
+
+        if (view == null) {
+            after?.invoke()
+            return
+        }
+        val doRemove = {
+            try {
+                windowManager.removeView(view)
+            } catch (_: Throwable) {
+            }
+            after?.invoke()
+        }
+        if (animated) view.animateOut(doRemove) else doRemove()
     }
 
     private fun updateTranslatedSubtitle(state: Map<*, *>?) {

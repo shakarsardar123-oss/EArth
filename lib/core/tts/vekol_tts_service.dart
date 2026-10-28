@@ -212,7 +212,8 @@ class VekolTtsService {
   }
 
   List<int> _textToIds(String text) {
-    final normalized = _normalize(_replaceNumbers(text));
+    final normalized = _normalize(_replaceNumbers(text))
+        .replaceAll('\u0626', '\u064A\u0654');
     final ids = <int>[1, 0];
 
     for (final rune in normalized.runes) {
@@ -380,7 +381,7 @@ class VekolTtsService {
     );
 
     final scales = await OrtValue.fromList(
-      Float32List.fromList([0.667, 1.0, 0.35]),
+      Float32List.fromList([0.667, 1.0, 0.8]),
       [3],
     );
 

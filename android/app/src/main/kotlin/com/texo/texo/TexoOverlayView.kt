@@ -1,5 +1,9 @@
 package com.texo.texo
 
+import android.animation.Animator
+import android.animation.AnimatorListenerAdapter
+import android.animation.TimeInterpolator
+import android.animation.ValueAnimator
 import android.content.Context
 import android.graphics.Canvas
 import android.graphics.Color
@@ -18,6 +22,7 @@ import android.text.TextDirectionHeuristics
 import android.text.TextPaint
 import android.view.HapticFeedbackConstants
 import android.view.MotionEvent
+import android.view.animation.PathInterpolator
 import android.view.View
 import kotlin.math.PI
 import kotlin.math.ceil
@@ -71,6 +76,46 @@ class TexoOverlayView(context: Context) : View(context) {
 
     private val t0 = SystemClock.uptimeMillis()
     private var lastFrame = t0
+
+    // ---- open / close animation (grows out of the camera, shrinks back) ------
+    private var appear = 0f // 0 = tucked into the camera, 1 = fully open
+    private var appearAnim: ValueAnimator? = null
+    private var closing = false
+    private val openEase = PathInterpolator(0.16f, 1f, 0.3f, 1f)
+    private val closeEase = PathInterpolator(0.5f, 0f, 0.75f, 0f)
+
+    private fun runAppear(to: Float, ms: Long, ease: TimeInterpolator, onEnd: (() -> Unit)?) {
+        appearAnim?.cancel()
+        val a = ValueAnimator.ofFloat(appear, to)
+        a.duration = ms
+        a.interpolator = ease
+        a.addUpdateListener {
+            appear = it.animatedValue as Float
+            postInvalidateOnAnimation()
+        }
+        a.addListener(object : AnimatorListenerAdapter() {
+            private var cancelled = false
+            override fun onAnimationCancel(animation: Animator) { cancelled = true }
+            override fun onAnimationEnd(animation: Animator) {
+                if (!cancelled) onEnd?.invoke()
+            }
+        })
+        appearAnim = a
+        a.start()
+    }
+
+    fun animateOut(onEnd: () -> Unit) {
+        if (closing) { onEnd(); return }
+        closing = true
+        runAppear(0f, 380L, closeEase, onEnd)
+    }
+
+    override fun onAttachedToWindow() {
+        super.onAttachedToWindow()
+        appear = 0f
+        closing = false
+        runAppear(1f, 700L, openEase, null)
+    }
 
     // ---- geometry (filled by layoutGeo) -------------------------------------------
     private val pillRect = RectF()
@@ -443,6 +488,7 @@ class TexoOverlayView(context: Context) : View(context) {
     }
 
     override fun onDetachedFromWindow() {
+        appearAnim?.cancel()
         removeCallbacks(holdRunnable)
         removeCallbacks(trayHideRunnable)
         super.onDetachedFromWindow()
@@ -474,8 +520,21 @@ class TexoOverlayView(context: Context) : View(context) {
         val w = width.toFloat()
         layoutGeo(w)
         if (!pillHidden) {
-            drawPill(canvas, t, now)
-            if (trayOpen) drawTray(canvas)
+            val e = appear.coerceIn(0f, 1f)
+            if (e < 0.999f) {
+                val layer = canvas.saveLayerAlpha(
+                    0f, 0f, w, height.toFloat(),
+                    (min(1f, e * 2.2f) * 255f).toInt(),
+                )
+                canvas.translate(0f, -(1f - e) * dp(16f))
+                canvas.scale(0.12f + 0.88f * e, 0.30f + 0.70f * e, w / 2f, pillRect.top)
+                drawPill(canvas, t, now)
+                if (trayOpen) drawTray(canvas)
+                canvas.restoreToCount(layer)
+            } else {
+                drawPill(canvas, t, now)
+                if (trayOpen) drawTray(canvas)
+            }
         }
         if (subsOn) drawSubs(canvas, w)
         // 30 frames per second is plenty for this small overlay; when only the
