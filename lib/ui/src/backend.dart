@@ -182,3 +182,9 @@ abstract class TexoPermissionsExtras {
 
   Future<void> finishOnboarding();
 }
+
+/// Optional: pick an attachment of a given kind
+/// ('image', 'camera', 'video', 'pdf', 'audio', 'file').
+abstract class TexoPickExtras {
+  Future<UiAttachment?> pickKind(String kind);
+}

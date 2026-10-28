@@ -18,6 +18,25 @@ class _Msg {
   final List<String> files;
 }
 
+class _AttachOpt {
+  const _AttachOpt(this.kind, this.icon, this.color, this.ku, this.en);
+
+  final String kind;
+  final IconData icon;
+  final Color color;
+  final String ku;
+  final String en;
+}
+
+const List<_AttachOpt> _attachOpts = <_AttachOpt>[
+  _AttachOpt('image', Icons.image_outlined, Color(0xFF3B82F6), 'وێنە', 'Photo'),
+  _AttachOpt('camera', Icons.photo_camera_outlined, Color(0xFFEC4899), 'کامێرا', 'Camera'),
+  _AttachOpt('video', Icons.movie_outlined, Color(0xFFEF4444), 'ڤیدیۆ', 'Video'),
+  _AttachOpt('pdf', Icons.picture_as_pdf_outlined, Color(0xFFF97316), 'PDF', 'PDF'),
+  _AttachOpt('audio', Icons.audiotrack_outlined, Color(0xFF8B5CF6), 'دەنگ', 'Audio'),
+  _AttachOpt('file', Icons.insert_drive_file_outlined, Color(0xFF14B8A6), 'فایل', 'File'),
+];
+
 IconData _fileIcon(String mime) {
   if (mime.startsWith('audio/')) return Icons.audiotrack_outlined;
   if (mime.startsWith('image/')) return Icons.image_outlined;
@@ -27,10 +46,11 @@ IconData _fileIcon(String mime) {
 }
 
 class ChatScreen extends StatefulWidget {
-  const ChatScreen({super.key, this.conversationId, this.initialPrompt});
+  const ChatScreen({super.key, this.conversationId, this.initialPrompt, this.startWithAttach = false});
 
   final String? conversationId;
   final String? initialPrompt;
+  final bool startWithAttach;
 
   @override
   State<ChatScreen> createState() => _ChatScreenState();
@@ -43,6 +63,8 @@ class _ChatScreenState extends State<ChatScreen> {
   final List<UiAttachment> _pending = <UiAttachment>[];
   bool _thinking = false;
   bool _started = false;
+  int _reqId = 0;
+  int _lastSubmitMs = 0;
 
   @override
   void didChangeDependencies() {
@@ -65,6 +87,11 @@ class _ChatScreenState extends State<ChatScreen> {
         }
       });
       _toBottom();
+    }
+    if (widget.startWithAttach) {
+      WidgetsBinding.instance.addPostFrameCallback((Duration _) {
+        if (mounted) _pick(backend);
+      });
     }
     final String? prompt = widget.initialPrompt;
     if (prompt != null && prompt.isNotEmpty) {
@@ -100,6 +127,7 @@ class _ChatScreenState extends State<ChatScreen> {
       _msgs.add(_Msg(true, text, files: attachments.map((UiAttachment a) => a.name).toList()));
       _thinking = true;
     });
+    final int myReq = ++_reqId;
     _toBottom();
     String reply;
     try {
@@ -111,7 +139,8 @@ class _ChatScreenState extends State<ChatScreen> {
     } catch (e) {
       reply = '$e';
     }
-    if (!mounted) return;
+    // Cancelled with the stop button (or a newer request started): drop the answer.
+    if (!mounted || myReq != _reqId) return;
     setState(() {
       _msgs.add(_Msg(false, reply, fresh: true));
       _thinking = false;
@@ -119,9 +148,19 @@ class _ChatScreenState extends State<ChatScreen> {
     _toBottom();
   }
 
+  /// Stop button: forget the running request (its answer is ignored).
+  void _cancel() {
+    if (!_thinking) return;
+    ++_reqId;
+    setState(() => _thinking = false);
+  }
+
   void _submit(TexoBackend backend) {
     final String text = _ctl.text.trim();
     if ((text.isEmpty && _pending.isEmpty) || _thinking) return;
+    final int nowMs = DateTime.now().millisecondsSinceEpoch;
+    if (nowMs - _lastSubmitMs < 400) return; // double tap
+    _lastSubmitMs = nowMs;
     final UiStrings s = UiScope.of(context).s;
     final List<UiAttachment> files = List<UiAttachment>.of(_pending);
     _ctl.clear();
@@ -129,10 +168,81 @@ class _ChatScreenState extends State<ChatScreen> {
     _send(backend, text.isEmpty ? s.t('attachPrompt') : text, attachments: files);
   }
 
+  Future<String?> _attachSheet(UiStrings s) {
+    return showModalBottomSheet<String>(
+      context: context,
+      backgroundColor: Colors.transparent,
+      builder: (BuildContext ctx) {
+        final double w = (MediaQuery.of(ctx).size.width - 40) / 3;
+        return Container(
+          padding: EdgeInsets.fromLTRB(20, 12, 20, 20 + MediaQuery.of(ctx).padding.bottom),
+          decoration: const BoxDecoration(
+            color: UiColors.white,
+            borderRadius: BorderRadius.vertical(top: Radius.circular(28)),
+          ),
+          child: Column(
+            mainAxisSize: MainAxisSize.min,
+            children: <Widget>[
+              Container(
+                width: 40,
+                height: 4,
+                decoration: BoxDecoration(
+                  color: UiColors.inkFaint,
+                  borderRadius: BorderRadius.circular(2),
+                ),
+              ),
+              const SizedBox(height: 20),
+              Wrap(
+                runSpacing: 20,
+                children: <Widget>[
+                  for (final _AttachOpt o in _attachOpts)
+                    SizedBox(
+                      width: w,
+                      child: GestureDetector(
+                        behavior: HitTestBehavior.opaque,
+                        onTap: () => Navigator.of(ctx).pop(o.kind),
+                        child: Column(
+                          children: <Widget>[
+                            Container(
+                              width: 60,
+                              height: 60,
+                              decoration: BoxDecoration(
+                                shape: BoxShape.circle,
+                                color: o.color.withAlpha(36),
+                              ),
+                              child: Icon(o.icon, size: 28, color: o.color),
+                            ),
+                            const SizedBox(height: 8),
+                            Text(
+                              s.isKu ? o.ku : o.en,
+                              style: const TextStyle(fontSize: 14, fontWeight: FontWeight.w500),
+                            ),
+                          ],
+                        ),
+                      ),
+                    ),
+                ],
+              ),
+            ],
+          ),
+        );
+      },
+    );
+  }
+
   Future<void> _pick(TexoBackend backend) async {
-    final UiAttachment? a = await backend.pickAttachment();
-    if (a == null || !mounted) return;
-    setState(() => _pending.add(a));
+    final UiStrings s = UiScope.of(context).s;
+    final String? kind = await _attachSheet(s);
+    if (kind == null || !mounted) return;
+    try {
+      final UiAttachment? a =
+          backend is TexoPickExtras ? await backend.pickKind(kind) : await backend.pickAttachment();
+      if (a == null || !mounted) return;
+      setState(() => _pending.add(a));
+    } catch (e) {
+      if (!mounted) return;
+      ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text('$e')));
+    }
   }
 
   Widget _pendingRow(UiStrings s) {
@@ -385,12 +495,12 @@ class _ChatScreenState extends State<ChatScreen> {
                       ),
                     ),
                     UiIconButton(
-                      icon: Icons.arrow_upward,
-                      label: s.t('send'),
+                      icon: _thinking ? Icons.stop_rounded : Icons.arrow_upward,
+                      label: _thinking ? (s.isKu ? 'وەستان' : 'Stop') : s.t('send'),
                       size: 20,
                       color: Colors.white,
-                      background: UiColors.violet,
-                      onTap: () => _submit(backend),
+                      background: _thinking ? UiColors.ink : UiColors.violet,
+                      onTap: _thinking ? _cancel : () => _submit(backend),
                     ),
                     const SizedBox(width: 6),
                     GestureDetector(

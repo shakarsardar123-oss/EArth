@@ -167,7 +167,7 @@ class _HomeScreenState extends State<HomeScreen> {
                       icon: Icons.add,
                       label: s.t('attach'),
                       size: 30,
-                      onTap: () {},
+                      onTap: () => _push(context, const ChatScreen(startWithAttach: true)),
                     ),
                     const SizedBox(width: 4),
                     Expanded(

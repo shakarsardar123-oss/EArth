@@ -4,6 +4,7 @@ import 'dart:io' show File;
 import 'dart:math' as math;
 
 import 'package:file_picker/file_picker.dart';
+import 'package:image_picker/image_picker.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart' show AppBar, Icons, Scaffold, Theme;
 import 'package:flutter/services.dart' show MethodChannel;
@@ -25,12 +26,14 @@ import '../presentation/screens/vision_screen.dart';
 import '../presentation/widgets/api_key_settings_section.dart';
 import '../presentation/widgets/permissions_section.dart';
 import '../ui/texo_ui.dart';
-import '../ui/src/backend.dart' show TexoCameraExtras, TexoPermissionsExtras, UiPermissionItem;
+import '../ui/src/backend.dart'
+    show TexoCameraExtras, TexoPermissionsExtras, TexoPickExtras, UiPermissionItem;
 import 'live_camera.dart';
 import 'overlay_controller.dart';
 
 /// Connects the new UI ([TexoBackend]) to the existing app logic (Riverpod).
-class RiverpodBackend implements TexoBackend, TexoCameraExtras, TexoPermissionsExtras {
+class RiverpodBackend
+    implements TexoBackend, TexoCameraExtras, TexoPermissionsExtras, TexoPickExtras {
   RiverpodBackend(this._c);
 
   final ProviderContainer _c;
@@ -164,6 +167,49 @@ class RiverpodBackend implements TexoBackend, TexoCameraExtras, TexoPermissionsE
     );
     if (r == null || r.files.isEmpty) return null;
     final PlatformFile f = r.files.first;
+    var bytes = f.bytes;
+    if (bytes == null && f.path != null) {
+      bytes = await File(f.path!).readAsBytes();
+    }
+    if (bytes == null) return null;
+    return UiAttachment(name: f.name, mime: _mimeFor(f.name, f.extension), bytes: bytes);
+  }
+
+  @override
+  Future<UiAttachment?> pickKind(String kind) async {
+    const int maxBytes = 15 * 1024 * 1024;
+    const String tooBig = 'فایلەکە زۆر گەورەیە (زۆرترین ١٥ مێگابایت)';
+    if (kind == 'camera') {
+      final XFile? x = await ImagePicker().pickImage(
+        source: ImageSource.camera,
+        imageQuality: 85,
+        maxWidth: 2048,
+      );
+      if (x == null) return null;
+      if (await x.length() > maxBytes) throw tooBig;
+      return UiAttachment(name: x.name, mime: _mimeFor(x.name, null), bytes: await x.readAsBytes());
+    }
+    FileType type = FileType.any;
+    List<String>? exts;
+    if (kind == 'image') {
+      type = FileType.image;
+    } else if (kind == 'video') {
+      type = FileType.video;
+    } else if (kind == 'audio') {
+      type = FileType.audio;
+    } else if (kind == 'pdf') {
+      type = FileType.custom;
+      exts = <String>['pdf'];
+    }
+    final FilePickerResult? r = await FilePicker.platform.pickFiles(
+      type: type,
+      allowedExtensions: exts,
+      allowMultiple: false,
+      withData: false,
+    );
+    if (r == null || r.files.isEmpty) return null;
+    final PlatformFile f = r.files.first;
+    if (f.size > maxBytes) throw tooBig;
     var bytes = f.bytes;
     if (bytes == null && f.path != null) {
       bytes = await File(f.path!).readAsBytes();
@@ -333,13 +379,15 @@ class RiverpodBackend implements TexoBackend, TexoCameraExtras, TexoPermissionsE
 
   @override
   Future<bool> hasApiKey() async {
-    final String? k = await _c.read(geminiProviderProvider).getApiKey();
-    return k != null && k.trim().isNotEmpty;
+    // The key of the provider that is actually selected (Gemini OR OpenAI),
+    // the same one the "AI provider and model" page edits.
+    final Object? k = await _c.read(selectedAIProviderProvider).getApiKey();
+    return k is String && k.trim().isNotEmpty;
   }
 
   @override
   Future<void> setApiKey(String key) async {
-    await _c.read(geminiProviderProvider).setApiKey(key.trim());
+    await _c.read(selectedAIProviderProvider).setApiKey(key.trim());
   }
 
   // ---- live ---------------------------------------------------------------------

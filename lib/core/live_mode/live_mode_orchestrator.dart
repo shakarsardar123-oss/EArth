@@ -22,6 +22,7 @@ import 'agent_processor.dart';
 import '../agent/agent_context.dart';
 
 import '../../domain/entities/agent_config.dart';
+import '../tts/vekol_tts_service.dart';
 import '../../services/memory/memory_service.dart';
 import 'live_mode_state.dart';
 import '../../core/errors/result.dart';
@@ -278,6 +279,9 @@ class LiveModeOrchestrator {
     }
 
     _setState(LiveModeState.listening);
+
+    // Load the voice model now so the first answer does not wait for it.
+    unawaited(VekolTtsService.instance.initialize().catchError((Object _) {}));
 
     // Show the floating overlay for wake-word/live sessions.
     // Overlay failure must never prevent Live Mode from starting.
@@ -704,15 +708,25 @@ class LiveModeOrchestrator {
     return out.isEmpty ? [text] : out;
   }
 
+  /// No code blocks, links or markdown symbols in the spoken text.
+  String _cleanForSpeech(String t) => t
+      .replaceAll(RegExp(r'```[\s\S]*?```'), ' ')
+      .replaceAll(RegExp(r'https?://\S+'), ' ')
+      .replaceAll(RegExp(r'[*#`_~>|]+'), ' ')
+      .replaceAll(RegExp(r'\s+'), ' ')
+      .trim();
+
   Future<void> _speakThenRestartListening(int gen, String text) async {
     if (!_isCurrentGeneration(gen)) return;
 
     try {
       // VoiceServiceImpl.speak() awaits _tts.speak() which resolves
       // only after speech completes (because awaitSpeakCompletion(true)).
-      for (final part in _splitForTts(text)) {
-        if (!_isCurrentGeneration(gen)) return;
-        await _voiceService.speak(part, locale: 'ku');
+      // ONE speak() call: the voice service prepares sentence N+1 while it is
+      // playing sentence N, so there is no gap between sentences.
+      final String spoken = _cleanForSpeech(text);
+      if (spoken.isNotEmpty) {
+        await _voiceService.speak(spoken, locale: 'ku');
       }
     } catch (e) {
       if (!_isCurrentGeneration(gen)) return;

@@ -163,20 +163,30 @@ class VoiceServiceImpl implements VoiceService {
         .toList();
     if (sentences.isEmpty) return false;
 
+    Future<Uint8List> synth(String sentence) async {
+      final waveform = await VekolTtsService.instance.synthesizeText(sentence);
+      return VekolTtsService.instance.waveformToWav(waveform);
+    }
+
     var spokeAny = false;
+    Future<Uint8List>? next = synth(sentences.first);
     try {
-      for (final sentence in sentences) {
+      for (var i = 0; i < sentences.length; i++) {
         if (_stopRequested) break;
-        final waveform =
-            await VekolTtsService.instance.synthesizeText(sentence);
+        final wav = await next!;
+        // Start preparing the NEXT sentence while this one is playing.
+        next = (i + 1 < sentences.length && !_stopRequested)
+            ? synth(sentences[i + 1])
+            : null;
         if (_stopRequested) break;
-        final wav = VekolTtsService.instance.waveformToWav(waveform);
         await _playWav(wav);
         spokeAny = true;
       }
       return true;
     } catch (_) {
       return spokeAny;
+    } finally {
+      next?.ignore();
     }
   }
 
