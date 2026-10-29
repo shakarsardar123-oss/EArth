@@ -231,7 +231,8 @@ class TexoAudioBridge(
     private val sttSampleRate = 16000
     private val sttFrameMs = 32L
     private val sttSilenceThreshold = 0.012
-    private val sttEndSilenceMs = 700L
+    // Wait for the whole sentence: a short breath between words must not end the turn.
+    private val sttEndSilenceMs = 1200L
     private val sttMinSpeechMs = 250L
     private val sttMaxSpeechMs = 15000L
 
@@ -434,7 +435,7 @@ class TexoAudioBridge(
             }
 
             // Quick answer after a normal sentence; a little more patience after a very short start.
-            val needSilence = if (sttSpeechMs < 1200L) 900L else sttEndSilenceMs
+            val needSilence = if (sttSpeechMs < 1200L) 1500L else sttEndSilenceMs
             val reachedSilence = sttSilenceMs >= needSilence
             val reachedMaximum = sttSpeechMs >= sttMaxSpeechMs
             val reachedForced = sttForceEnd

@@ -36,6 +36,9 @@ class FloatingTexoOverlayService : Service() {
 
     private var overlayView: TexoOverlayView? = null
     private var translatedSubtitleView: TextView? = null
+    private var captionView: TextView? = null
+    private var captionParams: WindowManager.LayoutParams? = null
+    private var captionMode = -1
     private var layoutParams: WindowManager.LayoutParams? = null
 
     private var isShowing = false
@@ -198,6 +201,7 @@ class FloatingTexoOverlayService : Service() {
         pendingState = merged
         overlayView?.applyState(merged)
         updateTranslatedSubtitle(merged)
+        refreshCaption()
     }
 
     // ---- window ------------------------------------------------------------------------------
@@ -223,6 +227,13 @@ class FloatingTexoOverlayService : Service() {
         val view = TexoOverlayView(this)
         view.listener = object : TexoOverlayView.Listener {
             override fun onAction(action: String) {
+                if (action.startsWith("subsmode=")) {
+                    action.substringAfter('=').toIntOrNull()?.let {
+                        getSharedPreferences("texo_overlay", Context.MODE_PRIVATE)
+                            .edit().putInt("subs_mode", it).apply()
+                    }
+                }
+                if (action.startsWith("subs")) refreshCaption()
                 val cb = onOverlayAction
                 if (cb != null) {
                     cb(action)
@@ -233,6 +244,9 @@ class FloatingTexoOverlayService : Service() {
             }
         }
         overlayView = view
+        view.setSubsMode(
+            getSharedPreferences("texo_overlay", Context.MODE_PRIVATE).getInt("subs_mode", 0),
+        )
 
         val metrics = resources.displayMetrics
         val widthPx = min(
@@ -266,6 +280,7 @@ class FloatingTexoOverlayService : Service() {
                 view.applyState(it)
                 updateTranslatedSubtitle(it)
             }
+            refreshCaption()
             debugLog("TEXO: overlay view added OK")
         } catch (error: Throwable) {
             isShowing = false
@@ -288,6 +303,7 @@ class FloatingTexoOverlayService : Service() {
 
     private fun removeOverlayInternal(animated: Boolean = false, after: (() -> Unit)? = null) {
         removeTranslatedSubtitleInternal()
+        removeCaptionInternal()
 
         val view = overlayView
         overlayView = null
@@ -369,6 +385,125 @@ class FloatingTexoOverlayService : Service() {
         } catch (error: Throwable) {
             translatedSubtitleView = null
             debugLog("TEXO: translated subtitle failed: ${error.message}")
+        }
+    }
+
+    // ---- caption window (subtitle modes 1 = bottom bar, 2 = free / draggable) ---------
+
+    private fun removeCaptionInternal() {
+        val v = captionView ?: return
+        try {
+            windowManager.removeView(v)
+        } catch (_: Throwable) {
+        }
+        captionView = null
+        captionParams = null
+        captionMode = -1
+    }
+
+    private fun refreshCaption() {
+        val view = overlayView
+        val mode = view?.subsModeValue() ?: 0
+        val text = view?.captionNow()?.trim().orEmpty()
+        if (view == null || !wantVisible || !isShowing || !view.subsEnabled() || mode == 0 || text.isBlank()) {
+            removeCaptionInternal()
+            return
+        }
+        // Switching between modes needs a different window (touchable or not).
+        if (captionView != null && captionMode != mode) removeCaptionInternal()
+        val existing = captionView
+        if (existing != null) {
+            if (existing.text.toString() != text) existing.text = text
+            return
+        }
+
+        val density = resources.displayMetrics.density
+        fun dp(v: Int) = (v * density).toInt()
+        val screenW = resources.displayMetrics.widthPixels
+        val screenH = resources.displayMetrics.heightPixels
+        val free = mode == 2
+
+        val tv = TextView(this).apply {
+            setTextColor(Color.WHITE)
+            textSize = 17f
+            gravity = Gravity.CENTER
+            textAlignment = View.TEXT_ALIGNMENT_CENTER
+            textDirection = View.TEXT_DIRECTION_FIRST_STRONG
+            maxLines = 4
+            setPadding(dp(16), dp(10), dp(16), dp(10))
+            background = GradientDrawable().apply {
+                setColor(Color.argb(if (free) 235 else 220, 10, 12, 20))
+                cornerRadius = dp(14).toFloat()
+                if (free) setStroke(dp(1).coerceAtLeast(1), Color.argb(190, 167, 139, 250))
+            }
+            this.text = text
+        }
+
+        val flags = WindowManager.LayoutParams.FLAG_NOT_FOCUSABLE or
+            WindowManager.LayoutParams.FLAG_LAYOUT_IN_SCREEN or
+            WindowManager.LayoutParams.FLAG_HARDWARE_ACCELERATED or
+            (if (free) WindowManager.LayoutParams.FLAG_NOT_TOUCH_MODAL
+            else WindowManager.LayoutParams.FLAG_NOT_TOUCHABLE)
+        val width = (screenW - dp(if (free) 48 else 32)).coerceAtLeast(dp(200))
+        val params = WindowManager.LayoutParams(
+            width,
+            WindowManager.LayoutParams.WRAP_CONTENT,
+            overlayType(),
+            flags,
+            PixelFormat.TRANSLUCENT,
+        )
+        if (free) {
+            val prefs = getSharedPreferences("texo_overlay", Context.MODE_PRIVATE)
+            params.gravity = Gravity.TOP or Gravity.START
+            params.x = prefs.getInt("subs_free_x", (screenW - width) / 2)
+            params.y = prefs.getInt("subs_free_y", (screenH * 0.55f).toInt())
+            var downRawX = 0f
+            var downRawY = 0f
+            var startX = 0
+            var startY = 0
+            tv.setOnTouchListener { _, e ->
+                when (e.actionMasked) {
+                    android.view.MotionEvent.ACTION_DOWN -> {
+                        downRawX = e.rawX
+                        downRawY = e.rawY
+                        startX = params.x
+                        startY = params.y
+                        true
+                    }
+                    android.view.MotionEvent.ACTION_MOVE -> {
+                        params.x = (startX + (e.rawX - downRawX)).toInt().coerceIn(0, max(0, screenW - width))
+                        params.y = (startY + (e.rawY - downRawY)).toInt().coerceIn(0, max(0, screenH - dp(60)))
+                        try {
+                            windowManager.updateViewLayout(tv, params)
+                        } catch (_: Throwable) {
+                        }
+                        true
+                    }
+                    android.view.MotionEvent.ACTION_UP -> {
+                        getSharedPreferences("texo_overlay", Context.MODE_PRIVATE).edit()
+                            .putInt("subs_free_x", params.x).putInt("subs_free_y", params.y).apply()
+                        true
+                    }
+                    else -> false
+                }
+            }
+        } else {
+            // Like the phone's own live caption: a bar above the navigation buttons.
+            params.gravity = Gravity.BOTTOM or Gravity.CENTER_HORIZONTAL
+            params.x = 0
+            params.y = dp(150)
+        }
+
+        try {
+            windowManager.addView(tv, params)
+            captionView = tv
+            captionParams = params
+            captionMode = mode
+        } catch (error: Throwable) {
+            captionView = null
+            captionParams = null
+            captionMode = -1
+            debugLog("TEXO: caption failed: ${error.message}")
         }
     }
 

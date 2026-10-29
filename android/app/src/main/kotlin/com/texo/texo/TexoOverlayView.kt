@@ -60,6 +60,10 @@ class TexoOverlayView(context: Context) : View(context) {
     private var micOff = false
     private var muted = false
     private var subsOn = false
+    // 0 = under the pill (top), 1 = caption bar at the bottom, 2 = free (drag anywhere)
+    private var subsMode = 0
+    private var subsLong = false
+    private fun topSubs(): Boolean = subsOn && subsMode == 0
     private var transOn = false
     private var guideOn = false
     private var ku = true
@@ -248,8 +252,21 @@ class TexoOverlayView(context: Context) : View(context) {
         }
         if (texts) {
             layoutDirty = true
-            if (subsOn) requestLayout()
+            if (topSubs()) requestLayout()
         }
+        invalidate()
+    }
+
+    fun subsEnabled(): Boolean = subsOn
+    fun subsModeValue(): Int = subsMode
+    fun captionNow(): String = captionText()
+
+    fun setSubsMode(m: Int) {
+        val v = ((m % 3) + 3) % 3
+        if (v == subsMode) return
+        subsMode = v
+        layoutDirty = true
+        requestLayout()
         invalidate()
     }
 
@@ -269,7 +286,7 @@ class TexoOverlayView(context: Context) : View(context) {
         } else {
             h = dp(HANDLE_H)
         }
-        if (subsOn) {
+        if (topSubs()) {
             val sh = subsHeight(w)
             if (sh > 0f) h += dp(GAP) + sh
         }
@@ -370,6 +387,19 @@ class TexoOverlayView(context: Context) : View(context) {
         }
     }
     private val trayHideRunnable = Runnable { setTray(false) }
+    private val subsHoldRunnable = Runnable {
+        subsLong = true
+        pressedKey = null
+        performHapticFeedback(HapticFeedbackConstants.LONG_PRESS)
+        subsMode = (subsMode + 1) % 3
+        if (!subsOn) subsOn = true
+        layoutDirty = true
+        requestLayout()
+        invalidate()
+        listener?.onAction("subsmode=" + subsMode)
+        listener?.onAction("subs=1")
+        setTray(true)
+    }
 
     private fun setTray(open: Boolean) {
         removeCallbacks(trayHideRunnable)
@@ -385,6 +415,7 @@ class TexoOverlayView(context: Context) : View(context) {
 
     private fun cancelHold() {
         removeCallbacks(holdRunnable)
+        removeCallbacks(subsHoldRunnable)
         holding = false
     }
 
@@ -455,10 +486,14 @@ class TexoOverlayView(context: Context) : View(context) {
                 pressedKey = k
                 downX = e.x
                 downY = e.y
+                subsLong = false
                 if (k == "hold") {
                     holding = true
                     holdStartAt = SystemClock.uptimeMillis()
                     postDelayed(holdRunnable, HOLD_MS)
+                } else if (k == "subs") {
+                    postDelayed(subsHoldRunnable, 450L)
+                    setTray(true)
                 } else if (trayOpen) {
                     setTray(true)
                 }
@@ -490,9 +525,10 @@ class TexoOverlayView(context: Context) : View(context) {
                 if (pillHidden) {
                     // A tap on the handle brings the pill back.
                     if (hypot(e.x - downX, e.y - downY) < dp(10f)) showPill()
-                } else if (!hiding && k != null && k != "hold") {
+                } else if (!hiding && !subsLong && k != null && k != "hold") {
                     fire(k)
                 }
+                subsLong = false
                 invalidate()
                 return true
             }
@@ -556,7 +592,7 @@ class TexoOverlayView(context: Context) : View(context) {
             }
         }
         if (pillHidden) drawHandle(canvas, w)
-        if (subsOn) drawSubs(canvas, w)
+        if (topSubs()) drawSubs(canvas, w)
         // ~60 frames per second while the pill is on screen; when only the
         // handle / caption is shown nothing animates, so no redraw loop at all.
         if (!pillHidden) postInvalidateDelayed(16L)
@@ -844,6 +880,13 @@ class TexoOverlayView(context: Context) : View(context) {
                 0 -> drawSubsIcon(c, ix, iy, dp(18f), fg)
                 1 -> drawTransIcon(c, ix, iy, dp(18f), fg)
                 else -> drawGuideIcon(c, ix, iy, dp(18f), fg)
+            }
+            if (i == 0) {
+                for (d in 0..2) {
+                    fill.shader = null
+                    fill.color = withAlpha(Color.WHITE, if (d == subsMode) 0.95f else 0.28f)
+                    c.drawCircle(r.right - dp(22f) + d * dp(6f), r.top + dp(8f), dp(1.8f), fill)
+                }
             }
             labelPaint.color = fg
             c.drawText(names[i], r.centerX(), r.bottom - dp(8f), labelPaint)
