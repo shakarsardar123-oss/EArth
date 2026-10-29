@@ -36,6 +36,6 @@ Installing CMake 3.22.1 in /usr/local/lib/android/sdk/cmake/3.22.1
 Note: /home/runner/.pub-cache/hosted/pub.dev/google_mlkit_face_detection-0.11.1/android/src/main/java/com/google_mlkit_face_detection/FaceDetector.java uses unchecked or unsafe operations.
 Note: Recompile with -Xlint:unchecked for details.
 Caught exception: Already watching path: /home/runner/work/EArth/EArth/android
-Running Gradle task 'assembleRelease'...                          453.6s
+Running Gradle task 'assembleRelease'...                          480.4s
 ✓ Built build/app/outputs/flutter-apk/app-release.apk (401.4MB)
 exit code: 0
