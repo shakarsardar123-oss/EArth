@@ -77,7 +77,7 @@ class TexoAudioBridge(
     private val sttMaxSamples = 16000 * 20
     private var sttPcmBuffer = ShortArray(sttMaxSamples)
     private var sttPcmSize = 0
-    private val sttPreMax = 16000 * 4 / 10 // ~400 ms pre-roll
+    private val sttPreMax = 16000 * 6 / 10 // ~600 ms pre-roll
     private val sttPre = ShortArray(sttPreMax)
     private var sttPreSize = 0
     private var sttVoicedMs = 0L
@@ -231,9 +231,9 @@ class TexoAudioBridge(
     private val sttSampleRate = 16000
     private val sttFrameMs = 32L
     private val sttSilenceThreshold = 0.012
-    private val sttEndSilenceMs = 1000L
+    private val sttEndSilenceMs = 700L
     private val sttMinSpeechMs = 250L
-    private val sttMaxSpeechMs = 10000L
+    private val sttMaxSpeechMs = 15000L
 
     // Adaptive thresholds: they follow the background noise of the room, so a
     // noisy place (people talking, TV, street) does not keep the recording open.
@@ -359,7 +359,7 @@ class TexoAudioBridge(
                 }
                 // Speech needs two loud frames in a row (one click is not speech).
                 sttOnsetFrames = if (sttCalibMs <= 0L && rms >= startThr) sttOnsetFrames + 1 else 0
-                if (sttOnsetFrames >= 2) {
+                if (sttOnsetFrames >= 3) {
                     sttOnsetFrames = 0
                     sttWinMin = 1.0
                     sttWinFrames = 0
@@ -433,7 +433,9 @@ class TexoAudioBridge(
                 sttVoicedMs += frameMs
             }
 
-            val reachedSilence = sttSilenceMs >= sttEndSilenceMs
+            // Quick answer after a normal sentence; a little more patience after a very short start.
+            val needSilence = if (sttSpeechMs < 1200L) 900L else sttEndSilenceMs
+            val reachedSilence = sttSilenceMs >= needSilence
             val reachedMaximum = sttSpeechMs >= sttMaxSpeechMs
             val reachedForced = sttForceEnd
 
@@ -663,8 +665,17 @@ class TexoAudioBridge(
     // ────────────────────── wake: Vosk acoustic KWS ─────────────────
 
     private val modelAssetDir = "vosk-model-small-en-us-0.15"
-    private val wakePhrase = "aura"
-    private val wakeGrammar = "[\"aura\", \"hey aura\", \"[unk]\"]"
+    // The bundled model is ENGLISH, so "texo" is matched through English-sounding
+    // spellings of it. "aura" stays as a fallback.
+    private val wakePhrases = listOf(
+        "texo", "tecso", "tesco", "tex oh", "tex so", "tech so", "tek so",
+        "hey texo", "hey tex oh", "hey tech so",
+    )
+    private val wakeGrammar = "[" +
+        wakePhrases.joinToString(", ") { "\"$it\"" } +
+        ", \"aura\", \"hey aura\", \"[unk]\"]"
+    private val wakeAccept = wakePhrases + listOf("aura")
+    private val wakeWords = wakeAccept.flatMap { it.split(" ") }.toSet() - setOf("hey")
     // Native pre-gate. The Dart WakeWordDebouncer applies a second (0.5)
     // threshold + cooldown on top of this.
     private val minConfidence = 0.55
@@ -769,14 +780,14 @@ class TexoAudioBridge(
         return try {
             val obj = JSONObject(json)
             val text = obj.optString("text", "").trim().lowercase()
-            if (!text.contains(wakePhrase)) return null
+            if (wakeAccept.none { text.contains(it) }) return null
             val words = obj.optJSONArray("result") ?: return 1.0
             var sum = 0.0
             var count = 0
             for (i in 0 until words.length()) {
                 val w = words.optJSONObject(i) ?: continue
                 val word = w.optString("word", "").lowercase()
-                if (word == "aura") {
+                if (wakeWords.contains(word)) {
                     sum += w.optDouble("conf", 1.0)
                     count++
                 }

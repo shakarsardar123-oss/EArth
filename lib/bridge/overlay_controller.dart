@@ -18,6 +18,9 @@ class OverlayController with WidgetsBindingObserver {
   final void Function(String action) onAction;
 
   bool _active = false;
+
+  /// True while a wake-word session runs: show the pill even if the app is open.
+  bool forceVisible = false;
   bool _visible = false;
   final Map<String, Object?> _last = <String, Object?>{};
 
@@ -39,7 +42,8 @@ class OverlayController with WidgetsBindingObserver {
       _active = true;
       _visible = false;
       final AppLifecycleState? s = WidgetsBinding.instance.lifecycleState;
-      if (s != null && s != AppLifecycleState.resumed && s != AppLifecycleState.inactive) {
+      if (forceVisible ||
+          (s != null && s != AppLifecycleState.resumed && s != AppLifecycleState.inactive)) {
         await _setVisible(true);
       }
       return true;
@@ -67,8 +71,8 @@ class OverlayController with WidgetsBindingObserver {
   Future<void> syncVisibility() async {
     if (!_active) return;
     final AppLifecycleState? s = WidgetsBinding.instance.lifecycleState;
-    final bool want =
-        s != null && s != AppLifecycleState.resumed && s != AppLifecycleState.inactive;
+    final bool want = forceVisible ||
+        (s != null && s != AppLifecycleState.resumed && s != AppLifecycleState.inactive);
     _visible = !want; // force the native call
     await _setVisible(want);
   }
@@ -99,7 +103,7 @@ class OverlayController with WidgetsBindingObserver {
     if (state == AppLifecycleState.paused || state == AppLifecycleState.hidden) {
       _setVisible(true);
     } else if (state == AppLifecycleState.resumed) {
-      _setVisible(false);
+      _setVisible(forceVisible);
     }
   }
 

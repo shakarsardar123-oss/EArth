@@ -120,6 +120,7 @@ class MainActivity : FlutterActivity() {
         // echo-safe mic + AEC/VAD, acoustic wake-word scaffold). Registers its
         // own Method/Event channels on the same messenger.
         audioBridge = TexoAudioBridge(applicationContext, flutterEngine.dartExecutor.binaryMessenger)
+        AssistBus.attach(flutterEngine.dartExecutor.binaryMessenger, this)
 
         // Native MediaProjection + VirtualDisplay + ImageReader bridge.
         screenCaptureBridge =
@@ -242,6 +243,7 @@ class MainActivity : FlutterActivity() {
         try { screenCaptureBridge?.dispose() } catch (_: Throwable) {}
         try { vekolTtsBridge?.dispose() } catch (_: Throwable) {}
         FloatingTexoBridge.detach(this)
+        AssistBus.detach(this)
         audioBridge = null
         screenCaptureBridge = null
         vekolTtsBridge = null

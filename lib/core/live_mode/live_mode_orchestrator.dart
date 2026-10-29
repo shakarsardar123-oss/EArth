@@ -126,6 +126,35 @@ class LiveModeOrchestrator {
   Timer? _inactivityTimer;
   bool _rePromptGiven = false;
 
+  bool _micPaused = false;
+
+  /// True = answers are shown as text only, nothing is spoken.
+  bool speechMuted = false;
+
+  /// Overlay mic button: really stops / resumes listening.
+  Future<void> setMicPaused(bool paused) async {
+    _micPaused = paused;
+    if (paused) {
+      _cancelInactivityTimer();
+      try {
+        await _voiceService.stopListening();
+      } catch (_) {}
+    } else if (_state == LiveModeState.listening && !_isProcessingRequest) {
+      await _startListening(_generation);
+    }
+  }
+
+  /// Overlay translate button: starts / stops reading the screen captions.
+  Future<void> setScreenTranslation(bool on) async {
+    try {
+      if (on) {
+        await _startScreenUnderstanding();
+      } else {
+        await _stopScreenUnderstanding();
+      }
+    } catch (_) {}
+  }
+
   LiveModeState _state = LiveModeState.idle;
   int _generation = 0;
   String? _currentSessionId;
@@ -263,6 +292,8 @@ class LiveModeOrchestrator {
     _generation++;
     final gen = _generation;
     _currentSessionId = 'live_${DateTime.now().millisecondsSinceEpoch}_$gen';
+    _micPaused = false;
+    speechMuted = false;
     _consecutiveErrors = 0;
     _isProcessingRequest = false;
 
@@ -500,6 +531,7 @@ class LiveModeOrchestrator {
   /// Start listening with generation guard.
   Future<void> _startListening(int gen) async {
     if (!_isCurrentGeneration(gen)) return;
+    if (_micPaused) return;
 
     try {
       await _voiceService.startListening(
@@ -534,8 +566,8 @@ class LiveModeOrchestrator {
     _cancelInactivityTimer();
     _rePromptGiven = false;
 
-    if (text.trim().isEmpty) {
-      // Empty recognition — go back to listening.
+    if (text.trim().length < 2) {
+      // Empty / one-letter recognition (noise) — go back to listening.
       _isProcessingRequest = false;
       _restartListening(gen);
       return;
@@ -725,7 +757,7 @@ class LiveModeOrchestrator {
       // ONE speak() call: the voice service prepares sentence N+1 while it is
       // playing sentence N, so there is no gap between sentences.
       final String spoken = _cleanForSpeech(text);
-      if (spoken.isNotEmpty) {
+      if (spoken.isNotEmpty && !speechMuted) {
         await _voiceService.speak(spoken, locale: 'ku');
       }
     } catch (e) {

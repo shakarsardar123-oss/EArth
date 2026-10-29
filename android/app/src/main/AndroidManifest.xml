@@ -166,10 +166,7 @@
               />
             <!-- ── P3 FIX: Assistant intent filters ── -->
             <!-- ACTION_ASSIST: long-press home button / assistant gesture → AURA -->
-            <intent-filter>
-                <action android:name="android.intent.action.ASSIST"/>
-                <category android:name="android.intent.category.DEFAULT"/>
-            </intent-filter>
+            <!-- (ACTION_ASSIST now goes to TexoAssistActivity: screen flash + overlay) -->
             <!-- ACTION_PROCESS_TEXT: long-press selected text → AURA in context menu -->
             <intent-filter>
                 <action android:name="android.intent.action.PROCESS_TEXT"/>
@@ -182,6 +179,21 @@
                 <category android:name="android.intent.category.LAUNCHER"/>
             </intent-filter>
         </activity>
+
+    <!-- Assistant gesture (long press on Home): invisible, plays the screen flash. -->
+    <activity
+        android:name=".TexoAssistActivity"
+        android:exported="true"
+        android:theme="@style/TexoAssistTheme"
+        android:excludeFromRecents="true"
+        android:noHistory="true"
+        android:taskAffinity=""
+        android:launchMode="singleInstance">
+        <intent-filter>
+            <action android:name="android.intent.action.ASSIST"/>
+            <category android:name="android.intent.category.DEFAULT"/>
+        </intent-filter>
+    </activity>
 
     <!-- ── Phase 6: Accessibility service for screen gestures ── -->
     <!-- Guarded by BIND_ACCESSIBILITY_SERVICE; performs dispatchGesture on

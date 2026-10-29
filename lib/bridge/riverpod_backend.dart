@@ -34,7 +34,9 @@ import 'overlay_controller.dart';
 /// Connects the new UI ([TexoBackend]) to the existing app logic (Riverpod).
 class RiverpodBackend
     implements TexoBackend, TexoCameraExtras, TexoPermissionsExtras, TexoPickExtras {
-  RiverpodBackend(this._c);
+  RiverpodBackend(this._c) {
+    Future<void>.microtask(_initWake);
+  }
 
   final ProviderContainer _c;
   final LiveVoiceSource _live = LiveVoiceSource();
@@ -355,6 +357,13 @@ class RiverpodBackend
   @override
   Future<void> setToggle(String key, bool value) async {
     await _c.read(sharedPreferencesProvider).setBool('ui.toggle.$key', value);
+    if (key == 'wake') {
+      if (value) {
+        unawaited(_tryStartWake());
+      } else {
+        await _stopWake();
+      }
+    }
   }
 
   @override
@@ -408,13 +417,64 @@ class RiverpodBackend
     _pushOverlay();
   }
 
+  // ---- wake word ("texo") -----------------------------------------------------
+
+  static const MethodChannel _wakeCh = MethodChannel('com.texo.texo/wake');
+  static const EventChannel _wakeEv = EventChannel('com.texo.texo/wake.events');
+  StreamSubscription<dynamic>? _wakeSub;
+  Timer? _wakeRetry;
+  bool _wakeOn = false; // the native listener is running
+  bool _overlayOnly = false; // this live session was started by the wake word
+
+  bool get _wakeWanted =>
+      _c.read(sharedPreferencesProvider).getBool('ui.toggle.wake') ?? true;
+
+  Future<void> _initWake() async {
+    _wakeRetry ??= Timer.periodic(const Duration(seconds: 20), (Timer _) => _tryStartWake());
+    await _tryStartWake();
+  }
+
+  Future<void> _tryStartWake() async {
+    if (_wakeOn || _liveRunning || !_wakeWanted) return;
+    try {
+      if (!await Permission.microphone.isGranted) return;
+      _wakeSub ??= _wakeEv.receiveBroadcastStream().listen(
+        (dynamic _) => _onWake(),
+        onError: (Object _) {},
+      );
+      final Object? ok = await _wakeCh.invokeMethod<Object?>('start');
+      _wakeOn = ok == true;
+    } catch (_) {}
+  }
+
+  Future<void> _stopWake() async {
+    if (!_wakeOn) return;
+    _wakeOn = false;
+    try {
+      await _wakeCh.invokeMethod<Object?>('stop');
+    } catch (_) {}
+  }
+
+  /// "texo" was heard: only the overlay appears and the live conversation starts.
+  Future<void> _onWake() async {
+    if (_liveRunning || !_wakeWanted) return;
+    _overlayOnly = true;
+    _overlay.forceVisible = true;
+    await _serial(_startLive);
+  }
+
   @override
-  Future<void> startLive() => _serial(_startLive);
+  Future<void> startLive() {
+    _overlayOnly = false;
+    _overlay.forceVisible = false;
+    return _serial(_startLive);
+  }
 
   Future<void> _startLive() async {
     if (_liveRunning) return;
     final PermissionStatus st = await Permission.microphone.request();
     if (!st.isGranted) return;
+    await _stopWake();
     _liveRunning = true;
     _micOff = false;
     _muted = false;
@@ -455,6 +515,8 @@ class RiverpodBackend
     };
     orchestrator.onSessionEnded = (String reason) {
       _live.active.value = false;
+      // No Live screen is open (wake-word session): close the overlay too.
+      if (_overlayOnly) stopLive();
     };
     await orchestrator.startSession();
     // The old live-mode code may have registered its own overlay handler or
@@ -562,6 +624,10 @@ class RiverpodBackend
     try {
       await _c.read(liveModeOrchestratorProvider).stopSession();
     } catch (_) {}
+    _overlayOnly = false;
+    _overlay.forceVisible = false;
+    // Back to waiting for "texo" once the microphone is free.
+    Future<void>.delayed(const Duration(milliseconds: 900), _tryStartWake);
   }
 
   String _emoji(LiveMode m) {
@@ -619,13 +685,14 @@ class RiverpodBackend
         stopLive();
         break;
       case 'mic':
-        // The overlay mic button works as "I am done"; it does not stay switched off.
-        _finishUtterance();
-        _micOff = false;
+        // Real switch: off = the assistant does not listen at all.
+        _micOff = value ?? !_micOff;
+        unawaited(_c.read(liveModeOrchestratorProvider).setMicPaused(_micOff));
         _pushFlags();
         break;
       case 'mute':
         _muted = value ?? !_muted; // best effort: speech is stopped whenever the assistant starts talking
+        _c.read(liveModeOrchestratorProvider).speechMuted = _muted;
         if (_muted) _c.read(voiceServiceImplProvider).stopSpeaking();
         _pushFlags();
         break;
@@ -639,6 +706,7 @@ class RiverpodBackend
         _lastCaptionSource = '';
         _subtitleClearTimer?.cancel();
         if (!_translateOn) _translatedSubtitle = '';
+        unawaited(_c.read(liveModeOrchestratorProvider).setScreenTranslation(_translateOn));
         _pushFlags();
         _pushOverlay();
         break;
