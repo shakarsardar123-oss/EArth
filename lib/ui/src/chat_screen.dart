@@ -236,7 +236,7 @@ class _ChatScreenState extends State<ChatScreen> {
     if (kind == null || !mounted) return;
     try {
       final UiAttachment? a =
-          backend is TexoPickExtras ? await backend.pickKind(kind) : await backend.pickAttachment();
+          backend is TexoPickExtras ? await (backend as TexoPickExtras).pickKind(kind) : await backend.pickAttachment();
       if (a == null || !mounted) return;
       setState(() => _pending.add(a));
     } catch (e) {
