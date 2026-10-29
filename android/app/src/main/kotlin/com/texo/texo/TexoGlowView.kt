@@ -10,8 +10,10 @@ import android.graphics.Matrix
 import android.graphics.Paint
 import android.graphics.PixelFormat
 import android.graphics.RectF
+import android.graphics.Point
 import android.graphics.SweepGradient
 import android.os.Build
+import android.view.Gravity
 import android.provider.Settings
 import android.view.View
 import android.view.WindowManager
@@ -111,6 +113,23 @@ class TexoGlowView(context: Context) : View(context) {
 object TexoGlow {
     fun canShow(context: Context): Boolean = Settings.canDrawOverlays(context)
 
+    @Suppress("DEPRECATION")
+    private fun realScreenSize(context: Context, wm: WindowManager): Point {
+        return try {
+            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.R) {
+                val b = wm.maximumWindowMetrics.bounds
+                Point(b.width(), b.height())
+            } else {
+                val p = Point()
+                wm.defaultDisplay.getRealSize(p)
+                p
+            }
+        } catch (_: Throwable) {
+            val m = context.resources.displayMetrics
+            Point(m.widthPixels, m.heightPixels)
+        }
+    }
+
     /** Plays the flash; [onDone] runs when it has fully faded out (or could not be shown). */
     fun play(context: Context, onDone: () -> Unit) {
         val app = context.applicationContext
@@ -126,18 +145,28 @@ object TexoGlow {
         } else {
             WindowManager.LayoutParams.TYPE_PHONE
         }
+        // MATCH_PARENT stops at the navigation bar on many phones, so use the
+        // real display size (status bar + navigation bar included).
+        val size = realScreenSize(app, wm)
         val lp = WindowManager.LayoutParams(
-            WindowManager.LayoutParams.MATCH_PARENT,
-            WindowManager.LayoutParams.MATCH_PARENT,
+            size.x,
+            size.y,
             type,
             WindowManager.LayoutParams.FLAG_NOT_FOCUSABLE or
                 WindowManager.LayoutParams.FLAG_NOT_TOUCHABLE or
                 WindowManager.LayoutParams.FLAG_NOT_TOUCH_MODAL or
                 WindowManager.LayoutParams.FLAG_LAYOUT_IN_SCREEN or
-                WindowManager.LayoutParams.FLAG_LAYOUT_NO_LIMITS,
+                WindowManager.LayoutParams.FLAG_LAYOUT_NO_LIMITS or
+                WindowManager.LayoutParams.FLAG_HARDWARE_ACCELERATED,
             PixelFormat.TRANSLUCENT,
         )
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.P) {
+        lp.gravity = Gravity.TOP or Gravity.START
+        lp.x = 0
+        lp.y = 0
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.R) {
+            lp.layoutInDisplayCutoutMode =
+                WindowManager.LayoutParams.LAYOUT_IN_DISPLAY_CUTOUT_MODE_ALWAYS
+        } else if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.P) {
             lp.layoutInDisplayCutoutMode =
                 WindowManager.LayoutParams.LAYOUT_IN_DISPLAY_CUTOUT_MODE_SHORT_EDGES
         }

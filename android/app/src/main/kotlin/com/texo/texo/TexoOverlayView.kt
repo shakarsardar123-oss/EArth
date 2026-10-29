@@ -67,6 +67,7 @@ class TexoOverlayView(context: Context) : View(context) {
     private var aiText = ""
     private var trayOpen = false
     private var pillHidden = false
+    private var hiding = false
     private var downX = 0f
     private var downY = 0f
 
@@ -197,6 +198,7 @@ class TexoOverlayView(context: Context) : View(context) {
         private const val HOLD_MS = 1000L
         private const val TRAY_IDLE_MS = 15000L
         private const val SWIPE_DP = 36f
+        private const val HANDLE_H = 22f
     }
 
     // ---- public API -------------------------------------------------------------------
@@ -264,10 +266,12 @@ class TexoOverlayView(context: Context) : View(context) {
         if (!pillHidden) {
             h = dp(PILL_H) + 2f * dp(PAD)
             if (trayOpen) h += dp(GAP + TRAY_H)
+        } else {
+            h = dp(HANDLE_H)
         }
         if (subsOn) {
             val sh = subsHeight(w)
-            if (sh > 0f) h += (if (pillHidden) 0f else dp(GAP)) + sh
+            if (sh > 0f) h += dp(GAP) + sh
         }
         setMeasuredDimension(w, max(1, ceil(h).toInt()))
     }
@@ -385,20 +389,30 @@ class TexoOverlayView(context: Context) : View(context) {
     }
 
     private fun hidePill() {
+        if (hiding || pillHidden) return
+        hiding = true
         cancelHold()
         pressedKey = null
         removeCallbacks(trayHideRunnable)
         trayOpen = false
-        pillHidden = true
         requestLayout()
-        invalidate()
         listener?.onAction("hide")
+        // Shrinks back into the camera, then only a small handle stays so the
+        // pill can always be pulled back down (or tapped).
+        runAppear(0f, 320L, closeEase) {
+            pillHidden = true
+            hiding = false
+            requestLayout()
+            invalidate()
+        }
     }
 
     private fun showPill() {
+        hiding = false
         pillHidden = false
         requestLayout()
         invalidate()
+        runAppear(1f, 520L, openEase, null)
         listener?.onAction("show")
     }
 
@@ -453,7 +467,7 @@ class TexoOverlayView(context: Context) : View(context) {
             }
             MotionEvent.ACTION_MOVE -> {
                 val dy = e.y - downY
-                if (!pillHidden && dy < -dp(SWIPE_DP)) {
+                if (!pillHidden && !hiding && dy < -dp(SWIPE_DP)) {
                     hidePill()
                     return true
                 }
@@ -473,7 +487,12 @@ class TexoOverlayView(context: Context) : View(context) {
                 val k = pressedKey
                 cancelHold()
                 pressedKey = null
-                if (k != null && k != "hold") fire(k)
+                if (pillHidden) {
+                    // A tap on the handle brings the pill back.
+                    if (hypot(e.x - downX, e.y - downY) < dp(10f)) showPill()
+                } else if (!hiding && k != null && k != "hold") {
+                    fire(k)
+                }
                 invalidate()
                 return true
             }
@@ -536,10 +555,26 @@ class TexoOverlayView(context: Context) : View(context) {
                 if (trayOpen) drawTray(canvas)
             }
         }
+        if (pillHidden) drawHandle(canvas, w)
         if (subsOn) drawSubs(canvas, w)
-        // 30 frames per second is plenty for this small overlay; when only the
-        // caption is on screen nothing animates, so no redraw loop at all.
-        if (!pillHidden) postInvalidateDelayed(33L)
+        // ~60 frames per second while the pill is on screen; when only the
+        // handle / caption is shown nothing animates, so no redraw loop at all.
+        if (!pillHidden) postInvalidateDelayed(16L)
+    }
+
+    private fun drawHandle(c: Canvas, w: Float) {
+        val barW = dp(44f)
+        val barH = dp(6f)
+        val cx = w / 2f
+        val top = dp(6f)
+        tmpRect.set(cx - barW / 2f, top, cx + barW / 2f, top + barH)
+        tmpRect.inset(-dp(6f), -dp(3f))
+        fill.shader = null
+        fill.color = Color.parseColor("#E6000000")
+        c.drawRoundRect(tmpRect, dp(9f), dp(9f), fill)
+        tmpRect.set(cx - barW / 2f, top, cx + barW / 2f, top + barH)
+        fill.color = withAlpha(Color.WHITE, 0.6f)
+        c.drawRoundRect(tmpRect, barH / 2f, barH / 2f, fill)
     }
 
     private fun gradientFill(r: RectF, top: Int, bottom: Int) {
@@ -855,7 +890,7 @@ class TexoOverlayView(context: Context) : View(context) {
     private fun drawSubs(c: Canvas, w: Float) {
         ensureLayouts(w.toInt())
         val l = captionLayout ?: return
-        var top = if (pillHidden) 0f else pillRect.bottom + dp(GAP)
+        var top = if (pillHidden) dp(HANDLE_H) + dp(GAP) else pillRect.bottom + dp(GAP)
         if (!pillHidden && trayOpen) top = trayRect.bottom + dp(GAP)
         val h = l.height + dp(16f)
         // The plate is only as wide as the text, so it reads like a caption.

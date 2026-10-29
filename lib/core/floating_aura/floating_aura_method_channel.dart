@@ -242,13 +242,6 @@ class FloatingAuraMethodChannel implements FloatingAuraService {
   @override
   Future<Result<FloatingAuraState, FloatingAuraOverlayFailure>>
       hideOverlay() async {
-    // ignore: discarded_futures
-    const MethodChannel('com.texo.texo/system_control')
-        .invokeMethod<dynamic>('agentToast', {
-      'message':
-          'hideOverlay <- ${StackTrace.current.toString().split("\n").skip(1).take(3).join(" | ")}',
-    }).catchError((_) {});
-
     if (_state.status == FloatingAuraOverlayStatus.idle) {
       return Result.success(_state);
     }

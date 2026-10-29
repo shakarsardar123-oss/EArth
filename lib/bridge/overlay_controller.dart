@@ -28,13 +28,14 @@ class OverlayController with WidgetsBindingObserver {
 
   /// Returns false if the "display over other apps" permission is missing.
   Future<bool> start() async {
-    if (_active) return true;
     try {
       final Object? has = await _ch.invokeMethod<Object?>('hasPermission');
       final bool granted = has is Map && has['granted'] == true;
       if (!granted) return false;
       _ch.setMethodCallHandler(_onCall);
-      WidgetsBinding.instance.addObserver(this);
+      // Always (re)start the native service: another part of the app (the
+      // old live-mode code) may have stopped it while we still think we are active.
+      if (!_active) WidgetsBinding.instance.addObserver(this);
       await _ch.invokeMethod<Object?>(
         'showOverlay',
         <String, Object?>{'x': 16, 'y': 100, 'hidden': true},

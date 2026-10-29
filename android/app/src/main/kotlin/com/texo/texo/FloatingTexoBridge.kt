@@ -25,6 +25,8 @@ object FloatingTexoBridge {
     private var activityRef: MainActivity? = null
     // True once the new TEXO UI drives the overlay (it passes `hidden`).
     private var managed = false
+    // Once the new UI has driven the pill, old live-mode show calls are never honoured again.
+    private var everManaged = false
 
     private val mainHandler = Handler(Looper.getMainLooper())
 
@@ -151,8 +153,11 @@ object FloatingTexoBridge {
                 }
 
                 val hiddenArg = call.argument<Boolean>("hidden")
-                if (hiddenArg != null) managed = true
-                if (managed && hiddenArg == null) {
+                if (hiddenArg != null) {
+                    managed = true
+                    everManaged = true
+                }
+                if ((managed || everManaged) && hiddenArg == null) {
                     // The new UI controls the pill itself: ignore the old
                     // live-mode code that also asks to show it.
                     debugToast(activity, "TEXO: legacy showOverlay ignored")
@@ -209,7 +214,15 @@ object FloatingTexoBridge {
             }
 
             "setOverlayVisible" -> {
-                service?.setVisible(call.argument<Boolean>("visible") ?: true)
+                val visible = call.argument<Boolean>("visible") ?: true
+                val s = service
+                if (s != null) {
+                    s.setVisible(visible)
+                } else if (visible && everManaged) {
+                    // The pill was closed/stopped natively; bring the service back.
+                    managed = true
+                    startAndBind(activity, 16, 100, false)
+                }
                 result.success(null)
             }
 

@@ -42,6 +42,8 @@ class FloatingTexoOverlayService : Service() {
     private var lastOverlayError: String? = null
     private var pendingState: Map<*, *>? = null
     private var wantVisible = true
+    // Bumped on every (re)start so a hide() that is still animating cannot stop a newer start.
+    private var stopToken = 0
 
     var onOverlayAction: ((String) -> Unit)? = null
 
@@ -93,6 +95,17 @@ class FloatingTexoOverlayService : Service() {
             return START_NOT_STICKY
         }
         debugLog("TEXO: service started (foreground OK)")
+        stopToken++
+
+        if (intent == null) {
+            // The system restarted us after the app process died: nobody drives
+            // the pill any more (its buttons would do nothing), so do not show it.
+            debugLog("TEXO: restarted without app, stopping")
+            removeOverlayInternal()
+            stopForegroundCompat()
+            stopSelf()
+            return START_NOT_STICKY
+        }
 
         if (intent != null && intent.hasExtra(EXTRA_HIDDEN)) {
             wantVisible = !intent.getBooleanExtra(EXTRA_HIDDEN, false)
@@ -100,7 +113,32 @@ class FloatingTexoOverlayService : Service() {
         if (overlayView == null && wantVisible) {
             showOverlayInternal()
         }
-        return START_STICKY
+        return START_NOT_STICKY
+    }
+
+    private fun stopForegroundCompat() {
+        try {
+            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.N) {
+                stopForeground(STOP_FOREGROUND_REMOVE)
+            } else {
+                @Suppress("DEPRECATION")
+                stopForeground(true)
+            }
+        } catch (_: Throwable) {
+        }
+    }
+
+    /**
+     * The app was swiped away from Recents: stop everything so the assistant
+     * does not keep working (and answering) in the background.
+     */
+    override fun onTaskRemoved(rootIntent: Intent?) {
+        debugLog("TEXO: task removed, shutting down")
+        removeOverlayInternal()
+        stopForegroundCompat()
+        stopSelf()
+        super.onTaskRemoved(rootIntent)
+        android.os.Process.killProcess(android.os.Process.myPid())
     }
 
     override fun onDestroy() {
@@ -121,14 +159,13 @@ class FloatingTexoOverlayService : Service() {
 
     fun hide() {
         debugLog("TEXO: hide() called")
+        val token = ++stopToken
         removeOverlayInternal(animated = true) {
-            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.N) {
-                stopForeground(STOP_FOREGROUND_REMOVE)
-            } else {
-                @Suppress("DEPRECATION")
-                stopForeground(true)
+            // A newer start/show arrived while the close animation ran: keep the service.
+            if (token == stopToken) {
+                stopForegroundCompat()
+                stopSelf()
             }
-            stopSelf()
         }
     }
 
@@ -179,13 +216,20 @@ class FloatingTexoOverlayService : Service() {
     }
 
     private fun showOverlayInternal() {
+        stopToken++
         lastOverlayError = null
         isShowing = false
 
         val view = TexoOverlayView(this)
         view.listener = object : TexoOverlayView.Listener {
             override fun onAction(action: String) {
-                onOverlayAction?.invoke(action)
+                val cb = onOverlayAction
+                if (cb != null) {
+                    cb(action)
+                } else if (action == "close") {
+                    // No app side is listening: the close button must still work.
+                    hide()
+                }
             }
         }
         overlayView = view
@@ -204,7 +248,8 @@ class FloatingTexoOverlayService : Service() {
             WindowManager.LayoutParams.FLAG_NOT_FOCUSABLE or
                 WindowManager.LayoutParams.FLAG_NOT_TOUCH_MODAL or
                 WindowManager.LayoutParams.FLAG_LAYOUT_IN_SCREEN or
-                WindowManager.LayoutParams.FLAG_LAYOUT_NO_LIMITS,
+                WindowManager.LayoutParams.FLAG_LAYOUT_NO_LIMITS or
+                WindowManager.LayoutParams.FLAG_HARDWARE_ACCELERATED,
             PixelFormat.TRANSLUCENT,
         ).apply {
             gravity = Gravity.TOP or Gravity.CENTER_HORIZONTAL
