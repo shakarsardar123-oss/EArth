@@ -162,7 +162,6 @@ warning • The left operand can't be null, so the right operand is never execut
    info • Missing a required trailing comma. Try adding a trailing comma • lib/ui/overlay_test_main.dart:20:4 • require_trailing_commas
    info • Use 'const' with the constructor to improve performance. Try adding the 'const' keyword to the constructor invocation • lib/ui/src/app.dart:154:34 • prefer_const_constructors
    info • The import of 'dart:typed_data' is unnecessary because all of the used elements are also provided by the import of 'package:flutter/foundation.dart'. Try removing the import directive • lib/ui/src/backend.dart:1:8 • unnecessary_import
-  error • The method 'pickKind' isn't defined for the type 'TexoBackend'. Try correcting the name to the name of an existing method, or defining a method named 'pickKind' • lib/ui/src/chat_screen.dart:239:53 • undefined_method
    info • Use 'const' with the constructor to improve performance. Try adding the 'const' keyword to the constructor invocation • lib/ui/src/dark.dart:37:20 • prefer_const_constructors
    info • The import of 'dart:typed_data' is unnecessary because all of the used elements are also provided by the import of 'package:flutter/foundation.dart'. Try removing the import directive • lib/ui/src/demo_backend.dart:3:8 • unnecessary_import
    info • The private field _ku could be 'final'. Try making the field 'final' • lib/ui/src/demo_backend.dart:72:8 • prefer_final_fields
@@ -179,14 +178,13 @@ warning • The left operand can't be null, so the right operand is never execut
    info • Missing a required trailing comma. Try adding a trailing comma • lib/ui/src/settings_screen.dart:319:64 • require_trailing_commas
    info • Missing a required trailing comma. Try adding a trailing comma • lib/ui/src/settings_screen.dart:321:63 • require_trailing_commas
 
-38 issues found. (ran in 10.9s)
+37 issues found. (ran in 13.5s)
 analyze exit code: 1
 ----- whole app compile (flutter build bundle) -----
 bundle exit code: 1
 69:lib/bridge/riverpod_backend.dart:423:16: Error: Type 'EventChannel' not found.
 72:lib/bridge/riverpod_backend.dart:423:39: Error: Method not found: 'EventChannel'.
 75:lib/bridge/riverpod_backend.dart:423:16: Error: 'EventChannel' isn't a type.
-78:lib/ui/src/chat_screen.dart:239:53: Error: The method 'pickKind' isn't defined for the type 'TexoBackend'.
 <asynchronous suspension>
 #10     BuildBundleCommand.runCommand (package:flutter_tools/src/commands/build_bundle.dart:146:5)
 <asynchronous suspension>
