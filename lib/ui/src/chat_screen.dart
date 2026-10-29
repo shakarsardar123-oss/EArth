@@ -498,8 +498,9 @@ class _ChatScreenState extends State<ChatScreen> {
                       icon: _thinking ? Icons.stop_rounded : Icons.arrow_upward,
                       label: _thinking ? (s.isKu ? 'وەستان' : 'Stop') : s.t('send'),
                       size: 20,
-                      color: Colors.white,
-                      background: _thinking ? UiColors.ink : UiColors.violet,
+                      // Stop = soft white button with a softened black square.
+                      color: _thinking ? const Color(0xFF3A3C48) : Colors.white,
+                      background: _thinking ? const Color(0xFFEFF0F5) : UiColors.violet,
                       onTap: _thinking ? _cancel : () => _submit(backend),
                     ),
                     const SizedBox(width: 6),

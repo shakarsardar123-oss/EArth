@@ -7,7 +7,7 @@ import 'package:file_picker/file_picker.dart';
 import 'package:image_picker/image_picker.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart' show AppBar, Icons, Scaffold, Theme;
-import 'package:flutter/services.dart' show EventChannel, MethodChannel;
+import 'package:flutter/services.dart' show EventChannel, MethodCall, MethodChannel;
 import 'package:flutter/widgets.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:permission_handler/permission_handler.dart';
@@ -36,6 +36,8 @@ class RiverpodBackend
     implements TexoBackend, TexoCameraExtras, TexoPermissionsExtras, TexoPickExtras {
   RiverpodBackend(this._c) {
     Future<void>.microtask(_initWake);
+    Future<void>.microtask(_initAssist);
+    Future<void>.delayed(const Duration(seconds: 6), _ensureBackgroundAllowed);
   }
 
   final ProviderContainer _c;
@@ -455,6 +457,61 @@ class RiverpodBackend
     } catch (_) {}
   }
 
+  // ---- assistant gesture (long press on Home) ------------------------------
+
+  static const MethodChannel _assistCh = MethodChannel('com.texo.texo/assist');
+  bool _assistBusy = false;
+
+  Future<void> _initAssist() async {
+    _assistCh.setMethodCallHandler((MethodCall call) async {
+      if (call.method == 'assist') await _consumeAssist();
+      return null;
+    });
+    // Cold start: the gesture may already have fired before this handler existed.
+    await _consumeAssist();
+  }
+
+  Future<void> _consumeAssist() async {
+    if (_assistBusy) return;
+    _assistBusy = true;
+    try {
+      final Object? r = await _assistCh.invokeMethod<Object?>('consume');
+      if (r is! Map || r['ready'] != true) return;
+      final bool cold = r['cold'] == true;
+      await _onAssist();
+      // The app only started to serve the gesture: go back to what the user was doing.
+      if (cold) await _assistCh.invokeMethod<Object?>('moveToBack');
+    } catch (_) {
+    } finally {
+      _assistBusy = false;
+    }
+  }
+
+  /// The flash is over: only the overlay appears and the live conversation starts.
+  Future<void> _onAssist() async {
+    if (_liveRunning) return;
+    _overlayOnly = true;
+    _overlay.forceVisible = true;
+    await _serial(_startLive);
+  }
+
+  // ---- keep working in the background -------------------------------------
+
+  /// Asks (at most every 3 days) to be exempt from battery optimisation, so the
+  /// app does not have to be set to "Unrestricted" by hand in Settings.
+  Future<void> _ensureBackgroundAllowed() async {
+    try {
+      if (await needsOnboarding()) return; // the first-run screen asks instead
+      if (await Permission.ignoreBatteryOptimizations.isGranted) return;
+      final prefs = _c.read(sharedPreferencesProvider);
+      final int last = prefs.getInt('texo_battery_asked_ms') ?? 0;
+      final int now = DateTime.now().millisecondsSinceEpoch;
+      if (now - last < 3 * 24 * 3600 * 1000) return;
+      await prefs.setInt('texo_battery_asked_ms', now);
+      await Permission.ignoreBatteryOptimizations.request();
+    } catch (_) {}
+  }
+
   /// "texo" was heard: only the overlay appears and the live conversation starts.
   Future<void> _onWake() async {
     if (_liveRunning || !_wakeWanted) return;
@@ -781,6 +838,14 @@ class RiverpodBackend
           bodyKu: 'بۆ ئەوەی ئەپەکان بکەمەوە، شاشە بخوێنمەوە و لێدانەکان بۆت بکەم. لە لیستەکەدا TEXO هەڵبژێرە و چالاکی بکە. ئەگەر خۆڵەمێشی بوو: زانیاری ئەپ ← سێ خاڵ ← Allow restricted settings.',
           bodyEn: 'So I can open apps, read the screen and tap for you. Pick TEXO in the list and switch it on. If it is greyed out: App info > three dots > Allow restricted settings.',
         ),
+        UiPermissionItem(
+          id: 'battery',
+          icon: Icons.battery_charging_full,
+          titleKu: 'کارکردن لە پاشبنەما',
+          titleEn: 'Keep running',
+          bodyKu: 'بۆ ئەوەی سیستەم TEXO دانەخات کاتێک ئەپەکە نایەتە سەر شاشە. ئەگەر پرسیاری کرد: ڕێگەپێدان (Allow).',
+          bodyEn: 'So the system does not stop TEXO while it is in the background. Tap Allow when asked.',
+        ),
       ];
 
   @override
@@ -798,6 +863,8 @@ class RiverpodBackend
       case 'accessibility':
         final Object? ra = await _sysCh.invokeMethod<Object?>('isAccessibilityEnabled');
         return ra == true;
+      case 'battery':
+        return Permission.ignoreBatteryOptimizations.isGranted;
     }
     return false;
   }
@@ -819,6 +886,9 @@ class RiverpodBackend
         break;
       case 'accessibility':
         await _sysCh.invokeMethod<Object?>('openAccessibilitySettings');
+        break;
+      case 'battery':
+        await Permission.ignoreBatteryOptimizations.request();
         break;
     }
   }

@@ -282,7 +282,11 @@ class VekolSttEngine(
         )
         val mel = DoubleArray(N_MELS)
 
-        for (frame in 0 until N_FRAMES) {
+        // Whisper pads the clip with silence up to 30 s. Frames that only see that
+        // padding are all the same (log-mel of zero = -1.5), so compute just the
+        // frames that touch real audio: about 7x less work for a 4 s clip.
+        val activeFrames = min(N_FRAMES, (copyCount + pad) / HOP_LENGTH + 2)
+        for (frame in 0 until activeFrames) {
             val start = frame * HOP_LENGTH
 
             for (i in 0 until N_FFT) {
@@ -339,6 +343,12 @@ class VekolSttEngine(
 
                 output[m * N_FRAMES + frame] =
                     ((clipped + 4.0) / 4.0).toFloat()
+            }
+        }
+
+        if (activeFrames < N_FRAMES) {
+            for (m in 0 until N_MELS) {
+                java.util.Arrays.fill(output, m * N_FRAMES + activeFrames, (m + 1) * N_FRAMES, -1.5f)
             }
         }
 
