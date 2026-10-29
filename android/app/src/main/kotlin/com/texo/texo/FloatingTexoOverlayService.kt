@@ -254,7 +254,7 @@ class FloatingTexoOverlayService : Service() {
             after?.invoke()
             return
         }
-        val doRemove = {
+        val doRemove: () -> Unit = {
             try {
                 windowManager.removeView(view)
             } catch (_: Throwable) {
