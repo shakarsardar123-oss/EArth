@@ -100,11 +100,19 @@ class PhoneControlProcessor implements AgentProcessor {
     caseSensitive: false,
   );
 
+  /// Clear "do it" verbs: a sentence that has one is a phone task even if it
+  /// also contains a question word (e.g. "open TikTok, how many ...").
+  static final RegExp _doVerb = RegExp(
+    r'(بکەرەوە|بکەوە|بکەنەوە|بدۆزەوە|بخوێنەرەوە|بیخوێنەرەوە|بگەڕێ|سێرچ|بنێرە|بنووسە|لێبدە|open|launch|search|read|play|send)',
+    caseSensitive: false,
+  );
+
   /// Local PHONE/CHAT decision: no LLM call (saves one request per command).
   bool _isPhoneTaskLocal(String text) {
     final t = text.trim();
-    final isPhone = !_questionLike.hasMatch(t) &&
-        !(_infoLike.hasMatch(t) && !_actionLike.hasMatch(t));
+    final isPhone = (_doVerb.hasMatch(t) && _actionLike.hasMatch(t)) ||
+        (!_questionLike.hasMatch(t) &&
+            !(_infoLike.hasMatch(t) && !_actionLike.hasMatch(t)));
     _toast('TEXO: local classifier -> ${isPhone ? 'PHONE' : 'CHAT'}');
     return isPhone;
   }

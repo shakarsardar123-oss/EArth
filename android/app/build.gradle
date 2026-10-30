@@ -48,9 +48,21 @@ android {
         versionName flutterVersionName
     }
 
+    // One fixed key for every build, so a new APK installs OVER the old app
+    // (the debug key changed on every CI run, which forced an uninstall).
+    signingConfigs {
+        release {
+            storeFile file("texo-release.p12")
+            storeType "pkcs12"
+            storePassword System.getenv("TEXO_KS_PASSWORD") ?: "texo-release-2026"
+            keyAlias "texo"
+            keyPassword System.getenv("TEXO_KS_PASSWORD") ?: "texo-release-2026"
+        }
+    }
+
     buildTypes {
         release {
-            signingConfig signingConfigs.debug
+            signingConfig signingConfigs.release
             minifyEnabled false
             shrinkResources false
         }

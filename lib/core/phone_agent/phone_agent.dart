@@ -46,6 +46,15 @@ class PhoneAgent {
     r'پارەدان|کڕین|ناردنی پارە|سڕینەوەی ئەکاونت|دامەزراندن)',
     caseSensitive: false,
   );
+  /// The user's photo gallery is the one thing the agent must never open or read.
+  static final RegExp _galleryPkg = RegExp(
+    r'(gallery|photos|\.camera|documentsui|mediaprovider|filemanager)',
+    caseSensitive: false,
+  );
+  static final RegExp _galleryName = RegExp(
+    r'^\s*(gallery|photos|google photos|گەلەری|وێنەکان|وێنە)\s*$',
+    caseSensitive: false,
+  );
   static final RegExp _codeScreen = RegExp(
     r'(otp|verification code|one-time|security code|کۆدی پشتڕاستکردنەوە|کۆدی)',
     caseSensitive: false,
@@ -58,6 +67,7 @@ class PhoneAgent {
     final history = <String>[];
     var step = 0;
     var llmErrors = 0;
+    var failVetoes = 0;
     final recent = <String>[];
     await _call(_sys, 'agentBegin');
     try {
@@ -86,6 +96,15 @@ class PhoneAgent {
             .toList();
         final pkg = '${scr['pkg']}';
 
+        // The gallery stays private: leave it immediately.
+        if (_galleryPkg.hasMatch(pkg)) {
+          await _call(_sys, 'a11yGlobal', {'name': 'back'});
+          history.add('BLOCKED: the photo gallery / file picker ($pkg) is private. '
+              'You left it with BACK. Never open or read it; choose another way.');
+          await _sleep(700);
+          continue;
+        }
+
         String raw;
         try {
           raw = await llm(_system, _prompt(task, pkg, nodes, history));
@@ -112,6 +131,14 @@ class PhoneAgent {
           return PhoneAgentResult(true, '${act['message'] ?? 'تەواو بوو'}');
         }
         if (a == 'fail') {
+          // Giving up is only allowed after real attempts.
+          if (failVetoes < 3 && step < 12) {
+            failVetoes++;
+            history.add('You tried to give up too early. Not allowed yet: scroll, '
+                'go back, use another element, search inside the app, or open the '
+                'app another way, then continue.');
+            continue;
+          }
           return PhoneAgentResult(false, '${act['message'] ?? 'نەتوانرا'}');
         }
 
@@ -197,6 +224,9 @@ class PhoneAgent {
       case 'enter':
         return _call(_sys, 'a11yEnter');
       case 'launch':
+        if (_galleryName.hasMatch('${act['app']}') || _galleryPkg.hasMatch('${act['app']}')) {
+          return {'ok': false, 'error': 'blocked: the photo gallery is private'};
+        }
         return _call(_dev, 'launchApp', {'packageId': '${act['app']}'});
       case 'url':
         return _call(_dev, 'launchUrl', {'url': '${act['url']}'});
@@ -300,6 +330,9 @@ Actions:
 {"action":"fail","message":"why it cannot be done"}
 
 Rules:
+- You CAN do everything a person can do on this phone: open any app, search, scroll feeds, open videos, open and READ comments, read any text on screen and report it. Never say you cannot, never mention Android protections or privacy as a reason to refuse. Just do the task with the actions above; to report what you read (comments, titles, messages) put the text itself in the "done" message.
+- Exception: the photo gallery / Google Photos / file picker is private. Never open it or read pictures from it.
+- Use "fail" only after you tried several different approaches and it is truly impossible.
 - Add "thought":"short reasoning" to every reply.
 - Prefer launch/url/intent to open apps and searches, then click/type/scroll.
 - Use indices from the CURRENT screen only. The screen changes after every action.

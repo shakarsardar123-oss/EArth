@@ -83,7 +83,9 @@ jobs:
         run: flutter test || true
 
       - name: Build release APK
-        run: flutter build apk --release
+        # --build-number makes versionCode grow on every run, so Android accepts
+        # the new APK as an update of the installed one.
+        run: flutter build apk --release --build-number=${{ github.run_number }}
 
       - name: Upload APK artifact
         uses: actions/upload-artifact@v4
