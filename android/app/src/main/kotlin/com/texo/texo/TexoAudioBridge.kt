@@ -91,6 +91,12 @@ class TexoAudioBridge(
     // Offline Sorani Vekol STT engine.
     private var sttEngine: VekolSttEngine? = null
 
+    // Cloud STT: when on, the finished utterance is handed to Dart (as WAV) instead of
+    // running the slow on-device model. Dart asks for "local" if the cloud fails.
+    @Volatile private var sttCloud = false
+    @Volatile private var lastUtterance: ShortArray? = null
+    @Volatile private var utteranceSeq = 0
+
     // ── wake (Vosk acoustic KWS) ──
     private val wakeLock = Any()
     private var voskModel: Model? = null
@@ -136,6 +142,17 @@ class TexoAudioBridge(
                 when (call.method) {
                     "start" -> result.success(startStt())
                     "stop" -> { stopStt(); result.success(true) }
+                    "setCloud" -> {
+                        sttCloud = (call.arguments as? Boolean) ?: false
+                        result.success(true)
+                    }
+                    "local" -> {
+                        // Cloud failed or timed out: transcribe the stored utterance on-device.
+                        val id = call.argument<Int>("id")
+                        val pcm = lastUtterance
+                        if (pcm != null && id == utteranceSeq) runLocalStt(pcm)
+                        result.success(true)
+                    }
                     "finish" -> {
                         // The user says "I am done": end the running utterance now.
                         synchronized(sttLock) { if (sttSpeechStarted) sttForceEnd = true }
@@ -248,6 +265,81 @@ class TexoAudioBridge(
 
     /** Debug: save each utterance fed to the model as a WAV in Download/texo_utterances. */
     @android.annotation.SuppressLint("NewApi")
+    private fun runLocalStt(utterance: ShortArray) {
+        Thread {
+            try {
+                val engine = sttEngine ?: synchronized(sttLock) {
+                    sttEngine ?: VekolSttEngine(context).also {
+                        sttEngine = it
+                    }
+                }
+
+                engine.transcribe(
+                    utterance,
+                    onResult = { text ->
+                        main.post {
+                            sttSink?.success(
+                                mapOf(
+                                    "type" to "result",
+                                    "text" to text,
+                                )
+                            )
+                        }
+                    },
+                    onError = { error ->
+                        main.post {
+                            sttSink?.success(
+                                mapOf(
+                                    "type" to "error",
+                                    "message" to (
+                                        error.message
+                                            ?: "Vekol STT inference failed"
+                                    ),
+                                )
+                            )
+                        }
+                    },
+                )
+            } catch (t: Throwable) {
+                main.post {
+                    sttSink?.success(
+                        mapOf(
+                            "type" to "error",
+                            "message" to (
+                                t.message
+                                    ?: "Vekol STT inference failed"
+                            ),
+                        )
+                    )
+                }
+            }
+        }.also {
+            it.isDaemon = true
+            it.name = "texo-vekol-stt"
+            it.start()
+        }
+    }
+
+    private fun pcmToWavBase64(pcm: ShortArray): String {
+        val dataLen = pcm.size * 2
+        val bb = java.nio.ByteBuffer.allocate(44 + dataLen).order(java.nio.ByteOrder.LITTLE_ENDIAN)
+        bb.put("RIFF".toByteArray())
+        bb.putInt(36 + dataLen)
+        bb.put("WAVE".toByteArray())
+        bb.put("fmt ".toByteArray())
+        bb.putInt(16)
+        bb.putShort(1)
+        bb.putShort(1)
+        bb.putInt(sttSampleRate)
+        bb.putInt(sttSampleRate * 2)
+        bb.putShort(2)
+        bb.putShort(16)
+        bb.put("data".toByteArray())
+        bb.putInt(dataLen)
+        for (v in pcm) bb.putShort(v)
+        return android.util.Base64.encodeToString(bb.array(), android.util.Base64.NO_WRAP)
+    }
+
     private fun saveUtteranceWav(pcm: ShortArray) {
         if (android.os.Build.VERSION.SDK_INT < 29) return
         val copy = pcm.copyOf()
@@ -463,7 +555,6 @@ class TexoAudioBridge(
                 sttSpeechMs = 0L
 
                 if (utterance != null) {
-                    saveUtteranceWav(utterance)
                     main.post {
                         sttSink?.success(
                             mapOf(
@@ -473,58 +564,18 @@ class TexoAudioBridge(
                             )
                         )
                     }
-
-                    Thread {
-                        try {
-                            val engine = sttEngine ?: synchronized(sttLock) {
-                                sttEngine ?: VekolSttEngine(context).also {
-                                    sttEngine = it
-                                }
-                            }
-
-                            engine.transcribe(
-                                utterance,
-                                onResult = { text ->
-                                    main.post {
-                                        sttSink?.success(
-                                            mapOf(
-                                                "type" to "result",
-                                                "text" to text,
-                                            )
-                                        )
-                                    }
-                                },
-                                onError = { error ->
-                                    main.post {
-                                        sttSink?.success(
-                                            mapOf(
-                                                "type" to "error",
-                                                "message" to (
-                                                    error.message
-                                                        ?: "Vekol STT inference failed"
-                                                ),
-                                            )
-                                        )
-                                    }
-                                },
+                    lastUtterance = utterance
+                    val id = ++utteranceSeq
+                    if (sttCloud) {
+                        val wav = pcmToWavBase64(utterance)
+                        main.post {
+                            sttSink?.success(
+                                mapOf("type" to "utterance", "id" to id, "wav" to wav,
+                                      "durationMs" to durationMs)
                             )
-                        } catch (t: Throwable) {
-                            main.post {
-                                sttSink?.success(
-                                    mapOf(
-                                        "type" to "error",
-                                        "message" to (
-                                            t.message
-                                                ?: "Vekol STT inference failed"
-                                        ),
-                                    )
-                                )
-                            }
                         }
-                    }.also {
-                        it.isDaemon = true
-                        it.name = "texo-vekol-stt"
-                        it.start()
+                    } else {
+                        runLocalStt(utterance)
                     }
                 }
             }

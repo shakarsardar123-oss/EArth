@@ -10,6 +10,7 @@
 library;
 
 import '../phone_agent/debug_toast.dart';
+import 'cloud_stt.dart';
 import 'dart:async';
 
 import 'package:flutter/services.dart';
@@ -71,6 +72,15 @@ class SpeechRecognitionServiceImpl {
             // Vekol inference is running.
             break;
 
+          case 'utterance':
+            // Cloud mode: the native side hands over the finished sentence as WAV.
+            final id = event['id'];
+            final wav = event['wav'];
+            if (id is int && wav is String) {
+              unawaited(_transcribeInCloud(id, wav));
+            }
+            break;
+
           case 'result':
             debugToast('STT result: "${event['text']}"');
             final text = event['text'];
@@ -93,6 +103,13 @@ class SpeechRecognitionServiceImpl {
       cancelOnError: false,
     );
 
+    try {
+      await _channel.invokeMethod<bool>(
+        'setCloud',
+        await CloudStt.instance.available(),
+      );
+    } catch (_) {}
+
     final started = await _channel.invokeMethod<bool>('start');
 
     if (started != true) {
@@ -103,6 +120,19 @@ class SpeechRecognitionServiceImpl {
     }
 
     _listening = true;
+  }
+
+  Future<void> _transcribeInCloud(int id, String wav) async {
+    final String? text = await CloudStt.instance.transcribe(wav);
+    if (!_listening) return;
+    if (text == null) {
+      // No internet / key / timeout: use the on-device model instead.
+      try {
+        await _channel.invokeMethod<bool>('local', <String, Object?>{'id': id});
+      } catch (_) {}
+      return;
+    }
+    if (text.isNotEmpty) _onResult?.call(text);
   }
 
   Future<void> stopListening() async {
