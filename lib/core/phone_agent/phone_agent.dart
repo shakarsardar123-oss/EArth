@@ -32,6 +32,7 @@ class PhoneAgent {
 
   static const MethodChannel _sys = MethodChannel('com.texo.texo/system_control');
   static const MethodChannel _dev = MethodChannel('com.texo.texo/device');
+  static const MethodChannel _ov = MethodChannel('com.texo.texo/floating_texo_overlay');
 
   bool _stop = false;
   bool get isRunning => _running;
@@ -83,8 +84,14 @@ class PhoneAgent {
             return const PhoneAgentResult(false, 'وەستێنرا', killed: true);
           }
           if (err == 'accessibility_off') {
+            // Take the user straight to the switch instead of only reporting it.
+            try {
+              await _ov.invokeMethod<dynamic>('openAccessibilitySettings');
+            } catch (_) {}
             return const PhoneAgentResult(
-                false, 'خزمەتگوزاری Accessibility ی ئەورا ناچالاکە.');
+                false,
+                'Accessibility کوژاوەتەوە. ڕێکخستنەکەم بۆ کردیتەوە: TEXO هەڵبژێرە و دایبگیرسێنە، '
+                'پاشان فەرمانەکە دووبارە بدە. ئەگەر خاکستەرییە: App info ← سێ خاڵ ← Allow restricted settings.');
           }
           history.add('screen read failed: $err');
           await _sleep(1000);

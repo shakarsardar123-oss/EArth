@@ -27,6 +27,11 @@ object PhoneAgentBridge {
     private const val MAX_NODES = 220
 
     @Volatile private var killRequested = false
+
+    /** Stops a running agent at its next step (the next run resets it). */
+    fun requestKill() {
+        killRequested = true
+    }
     private var killReceiver: BroadcastReceiver? = null
     private var wakeLock: PowerManager.WakeLock? = null
 

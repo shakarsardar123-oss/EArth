@@ -511,16 +511,15 @@ class TexoOverlayView(context: Context) : View(context) {
                 }
                 // Swipe right / left on the subtitles button: next / previous mode.
                 if (pressedKey == "subs" || subsSwiping) {
+                    if (subsSwiping) return true // one step per swipe: lift the finger first
                     val dx = e.x - subsBaseX
                     if (kotlin.math.abs(dx) > dp(26f)) {
                         subsSwiping = true
                         subsLong = true
                         pressedKey = "subs"
                         cycleSubsMode(if (dx > 0f) 1 else -1)
-                        subsBaseX = e.x
                         return true
                     }
-                    if (subsSwiping) return true
                 }
                 val k = hit(e.x, e.y)
                 if (k != pressedKey) {

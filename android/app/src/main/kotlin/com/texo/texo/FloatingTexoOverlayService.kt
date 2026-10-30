@@ -137,11 +137,21 @@ class FloatingTexoOverlayService : Service() {
      */
     override fun onTaskRemoved(rootIntent: Intent?) {
         debugLog("TEXO: task removed, shutting down")
+        // Stop a running phone task at its next step and end the conversation.
+        // The process is NOT killed: on some phones that switches the
+        // accessibility service off.
+        try {
+            PhoneAgentBridge.requestKill()
+        } catch (_: Throwable) {
+        }
+        try {
+            onOverlayAction?.invoke("close")
+        } catch (_: Throwable) {
+        }
         removeOverlayInternal()
         stopForegroundCompat()
         stopSelf()
         super.onTaskRemoved(rootIntent)
-        android.os.Process.killProcess(android.os.Process.myPid())
     }
 
     override fun onDestroy() {
@@ -444,7 +454,7 @@ class FloatingTexoOverlayService : Service() {
             WindowManager.LayoutParams.FLAG_HARDWARE_ACCELERATED or
             (if (free) WindowManager.LayoutParams.FLAG_NOT_TOUCH_MODAL
             else WindowManager.LayoutParams.FLAG_NOT_TOUCHABLE)
-        val width = (screenW - dp(if (free) 48 else 32)).coerceAtLeast(dp(200))
+        val width = (screenW - dp(if (free) 48 else 32)).coerceIn(dp(200), dp(560))
         val params = WindowManager.LayoutParams(
             width,
             WindowManager.LayoutParams.WRAP_CONTENT,
@@ -491,7 +501,7 @@ class FloatingTexoOverlayService : Service() {
             // Like the phone's own live caption: a bar above the navigation buttons.
             params.gravity = Gravity.BOTTOM or Gravity.CENTER_HORIZONTAL
             params.x = 0
-            params.y = dp(150)
+            params.y = dp(28)
         }
 
         try {

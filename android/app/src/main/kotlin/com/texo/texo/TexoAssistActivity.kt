@@ -5,6 +5,7 @@ import android.content.Intent
 import android.os.Bundle
 import android.os.Handler
 import android.os.Looper
+import android.os.SystemClock
 
 /**
  * Receives the system assistant gesture (long press on Home). It is invisible:
@@ -13,8 +14,22 @@ import android.os.Looper
  * case it starts behind the flash and goes back to the background).
  */
 class TexoAssistActivity : Activity() {
+    companion object {
+        @Volatile private var lastAt = 0L
+    }
+
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
+
+        // A second long-press while the first is still starting must not
+        // launch the app: ignore it.
+        val now = SystemClock.elapsedRealtime()
+        if (now - lastAt < 3000L) {
+            finish()
+            overridePendingTransition(0, 0)
+            return
+        }
+        lastAt = now
 
         val canOverlay = TexoGlow.canShow(applicationContext)
         val cold = !AssistBus.alive
