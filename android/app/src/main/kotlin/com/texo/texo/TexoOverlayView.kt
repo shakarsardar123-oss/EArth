@@ -63,6 +63,8 @@ class TexoOverlayView(context: Context) : View(context) {
     // 0 = under the pill (top), 1 = caption bar at the bottom, 2 = free (drag anywhere)
     private var subsMode = 0
     private var subsLong = false
+    private var subsSwiping = false
+    private var subsBaseX = 0f
     private fun topSubs(): Boolean = subsOn && subsMode == 0
     private var transOn = false
     private var guideOn = false
@@ -387,18 +389,15 @@ class TexoOverlayView(context: Context) : View(context) {
         }
     }
     private val trayHideRunnable = Runnable { setTray(false) }
-    private val subsHoldRunnable = Runnable {
-        subsLong = true
-        pressedKey = null
-        performHapticFeedback(HapticFeedbackConstants.LONG_PRESS)
-        subsMode = (subsMode + 1) % 3
+    private fun cycleSubsMode(dir: Int) {
+        subsMode = ((subsMode + dir) % 3 + 3) % 3
         if (!subsOn) subsOn = true
+        performHapticFeedback(HapticFeedbackConstants.CLOCK_TICK)
         layoutDirty = true
         requestLayout()
         invalidate()
         listener?.onAction("subsmode=" + subsMode)
         listener?.onAction("subs=1")
-        setTray(true)
     }
 
     private fun setTray(open: Boolean) {
@@ -415,7 +414,6 @@ class TexoOverlayView(context: Context) : View(context) {
 
     private fun cancelHold() {
         removeCallbacks(holdRunnable)
-        removeCallbacks(subsHoldRunnable)
         holding = false
     }
 
@@ -492,7 +490,8 @@ class TexoOverlayView(context: Context) : View(context) {
                     holdStartAt = SystemClock.uptimeMillis()
                     postDelayed(holdRunnable, HOLD_MS)
                 } else if (k == "subs") {
-                    postDelayed(subsHoldRunnable, 450L)
+                    subsSwiping = false
+                    subsBaseX = e.x
                     setTray(true)
                 } else if (trayOpen) {
                     setTray(true)
@@ -509,6 +508,19 @@ class TexoOverlayView(context: Context) : View(context) {
                 if (pillHidden && dy > dp(SWIPE_DP)) {
                     showPill()
                     return true
+                }
+                // Swipe right / left on the subtitles button: next / previous mode.
+                if (pressedKey == "subs" || subsSwiping) {
+                    val dx = e.x - subsBaseX
+                    if (kotlin.math.abs(dx) > dp(26f)) {
+                        subsSwiping = true
+                        subsLong = true
+                        pressedKey = "subs"
+                        cycleSubsMode(if (dx > 0f) 1 else -1)
+                        subsBaseX = e.x
+                        return true
+                    }
+                    if (subsSwiping) return true
                 }
                 val k = hit(e.x, e.y)
                 if (k != pressedKey) {
@@ -529,6 +541,7 @@ class TexoOverlayView(context: Context) : View(context) {
                     fire(k)
                 }
                 subsLong = false
+                subsSwiping = false
                 invalidate()
                 return true
             }
@@ -851,7 +864,10 @@ class TexoOverlayView(context: Context) : View(context) {
         c.drawRoundRect(trayRect, rad, rad, stroke)
 
         val active = booleanArrayOf(subsOn, transOn, guideOn)
-        val names = if (ku) arrayOf("ژێرنووس", "تەرجومەی شاشە", "ڕێنمایی") else arrayOf("Subtitles", "Translate screen", "Guide me")
+        val subsNamesKu = arrayOf("ژێرنووس: سەرەوە", "ژێرنووس: کاپشن", "ژێرنووس: ئازاد")
+        val subsNamesEn = arrayOf("Subs: top", "Subs: caption", "Subs: free")
+        val names = if (ku) arrayOf(subsNamesKu[subsMode], "تەرجومەی شاشە", "ڕێنمایی")
+        else arrayOf(subsNamesEn[subsMode], "Translate screen", "Guide me")
         labelPaint.textSize = dp(10f)
         labelPaint.isFakeBoldText = true
         for (i in 0..2) {
@@ -877,7 +893,7 @@ class TexoOverlayView(context: Context) : View(context) {
             val ix = r.centerX()
             val iy = r.top + dp(15f)
             when (i) {
-                0 -> drawSubsIcon(c, ix, iy, dp(18f), fg)
+                0 -> drawSubsModeIcon(c, ix, iy, dp(18f), fg)
                 1 -> drawTransIcon(c, ix, iy, dp(18f), fg)
                 else -> drawGuideIcon(c, ix, iy, dp(18f), fg)
             }
@@ -893,6 +909,39 @@ class TexoOverlayView(context: Context) : View(context) {
         }
         labelPaint.isFakeBoldText = false
         labelPaint.color = Color.parseColor("#C4BEE4")
+    }
+
+    // One icon per subtitle mode, so the button itself tells where the text will be.
+    private fun drawSubsModeIcon(c: Canvas, cx: Float, cy: Float, size: Float, color: Int) {
+        icon(c, cx, cy, size, color) {
+            when (subsMode) {
+                0 -> { // text under the pill, at the top
+                    tmpRect.set(6f, 3f, 18f, 8f)
+                    c.drawRoundRect(tmpRect, 2.5f, 2.5f, ip)
+                    c.drawLine(5f, 13f, 19f, 13f, ip)
+                    c.drawLine(8f, 18f, 16f, 18f, ip)
+                }
+                1 -> { // caption bar at the bottom
+                    tmpRect.set(3f, 12f, 21f, 21f)
+                    c.drawRoundRect(tmpRect, 3f, 3f, ip)
+                    c.drawLine(7f, 16.5f, 11f, 16.5f, ip)
+                    c.drawLine(13f, 16.5f, 17f, 16.5f, ip)
+                    c.drawLine(8f, 5f, 16f, 5f, ip)
+                }
+                else -> { // free: drag anywhere
+                    c.drawLine(12f, 3f, 12f, 21f, ip)
+                    c.drawLine(3f, 12f, 21f, 12f, ip)
+                    c.drawLine(12f, 3f, 9.5f, 5.8f, ip)
+                    c.drawLine(12f, 3f, 14.5f, 5.8f, ip)
+                    c.drawLine(12f, 21f, 9.5f, 18.2f, ip)
+                    c.drawLine(12f, 21f, 14.5f, 18.2f, ip)
+                    c.drawLine(3f, 12f, 5.8f, 9.5f, ip)
+                    c.drawLine(3f, 12f, 5.8f, 14.5f, ip)
+                    c.drawLine(21f, 12f, 18.2f, 9.5f, ip)
+                    c.drawLine(21f, 12f, 18.2f, 14.5f, ip)
+                }
+            }
+        }
     }
 
     private fun drawSubsIcon(c: Canvas, cx: Float, cy: Float, size: Float, color: Int) {

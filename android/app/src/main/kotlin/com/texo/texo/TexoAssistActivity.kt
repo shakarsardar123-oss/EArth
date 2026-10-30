@@ -3,6 +3,8 @@ package com.texo.texo
 import android.app.Activity
 import android.content.Intent
 import android.os.Bundle
+import android.os.Handler
+import android.os.Looper
 
 /**
  * Receives the system assistant gesture (long press on Home). It is invisible:
@@ -29,7 +31,10 @@ class TexoAssistActivity : Activity() {
             }
         }
 
-        TexoGlow.play(applicationContext) { AssistBus.fire() }
+        // Start the conversation while the flash is still fading (not after it),
+        // so the overlay is on screen the moment the flash ends.
+        TexoGlow.play(applicationContext) { }
+        Handler(Looper.getMainLooper()).postDelayed({ AssistBus.fire() }, 550L)
 
         finish()
         overridePendingTransition(0, 0)
