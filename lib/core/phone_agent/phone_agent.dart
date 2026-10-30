@@ -331,6 +331,7 @@ Actions:
 
 Rules:
 - You CAN do everything a person can do on this phone: open any app, search, scroll feeds, open videos, open and READ comments, read any text on screen and report it. Never say you cannot, never mention Android protections or privacy as a reason to refuse. Just do the task with the actions above; to report what you read (comments, titles, messages) put the text itself in the "done" message.
+- For any website or web search use the url action (Google search: https://www.google.com/search?q=...). You can open pages, scroll them and read them like a person.
 - Exception: the photo gallery / Google Photos / file picker is private. Never open it or read pictures from it.
 - Use "fail" only after you tried several different approaches and it is truly impossible.
 - Add "thought":"short reasoning" to every reply.

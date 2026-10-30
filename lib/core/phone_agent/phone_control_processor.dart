@@ -46,7 +46,11 @@ class PhoneControlProcessor implements AgentProcessor {
     r'واتسئەپ|تێلێگرام|سناپ|گۆرانی|وای ?فای|بلوتوس|open|launch|play|search|go to|'
     r'alarm|turn on|turn off|send|call|youtube|facebook|instagram|whatsapp|'
     r'پەخش|لێبدە|ڤیدیۆ|مەسێنجەر|ڤایبەر|سپۆتیفای|گووگڵ|کرۆم|نەخشە|ڕێکخستن|'
-    r'spotify|chrome|maps|settings|message|telegram|snapchat|tiktok)',
+    r'spotify|chrome|maps|settings|message|telegram|snapchat|tiktok|'
+    r'website|browser|google|wifi|bluetooth|volume|brightness|flashlight|camera|'
+    r'contacts|call|sms|gmail|twitter|http|www|'
+    r'کۆمێنت|مالپەڕ|وێبسایت|گووگڵ|براوزەر|ڕووناکی|دەنگ|فلاش|کامێرا|پەیام|'
+    r'پەیوەندی|تەلەفۆن|جیمەیل|ئێکس|تویتەر|ئینتەرنێت)',
     caseSensitive: false,
   );
 
@@ -96,7 +100,8 @@ class PhoneControlProcessor implements AgentProcessor {
 
   /// Words that mean "do something on the phone / open an app".
   static final RegExp _actionLike = RegExp(
-    r'(بکەرەوە|بکەوە|بکەنەوە|ئەپ|یوتوب|یوتیوب|فەیسبووک|ئینستاگرام|تیکتۆک|واتسئەپ|تێلێگرام|سناپ|open|launch)',
+    r'(بکەرەوە|بکەوە|بکەنەوە|ئەپ|یوتوب|یوتیوب|فەیسبووک|ئینستاگرام|تیکتۆک|واتسئەپ|تێلێگرام|سناپ|'
+    r'وێبسایت|مالپەڕ|گووگڵ|کرۆم|براوزەر|website|browser|google|chrome|open|launch)',
     caseSensitive: false,
   );
 

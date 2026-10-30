@@ -654,7 +654,11 @@ class LiveModeOrchestrator {
         try {
           final messages =
               await _memoryService.getMessages(_currentConversationId!);
-          history = messages
+          // Only the latest turns: a long history makes every answer slower.
+          final recent = messages.length > 10
+              ? messages.sublist(messages.length - 10)
+              : messages;
+          history = recent
               .map((m) => {
                     'role': m.role,
                     'content': m.content,
@@ -838,10 +842,17 @@ class LiveModeOrchestrator {
       name: 'TEXO',
       description: 'یاریدەدەری تایبەتی تۆ',
       systemPrompt:
-          'من تێکسۆی تایبەتی تۆم. وەڵامی کوردی سۆرانی بدەرەوە.',
+          'You are TEXO, the user\'s personal voice assistant (من تێکسۆی تایبەتی تۆم). '
+          'Reply in Central Kurdish (Sorani) unless the user clearly speaks another language. '
+          'This is a spoken conversation: answer in 1 to 3 short, natural sentences, '
+          'with no markdown, lists, emoji or links; give more detail only when asked. '
+          'The user\'s words come from speech recognition and may contain wrong, split or '
+          'misheard words: work out what they most likely meant from the context and from '
+          'similar-sounding words, and answer that. Ask them to repeat only when it is '
+          'truly impossible to guess.',
       modelId: 'gemini-3.6-flash',
-      temperature: 0.7,
-      maxTokens: 2048,
+      temperature: 0.5,
+      maxTokens: 1024,
       isDefault: true,
       isActive: true,
     );
