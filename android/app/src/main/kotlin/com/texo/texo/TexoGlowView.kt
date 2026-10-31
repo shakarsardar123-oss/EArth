@@ -17,8 +17,8 @@ import android.view.Gravity
 import android.provider.Settings
 import android.view.View
 import android.view.WindowManager
-import android.view.animation.LinearInterpolator
-import kotlin.math.pow
+import android.view.animation.AccelerateDecelerateInterpolator
+import android.view.animation.DecelerateInterpolator
 
 /**
  * The screen-edge flash that plays when the assistant gesture (long press on
@@ -33,11 +33,7 @@ class TexoGlowView(context: Context) : View(context) {
 
     private val paint = Paint(Paint.ANTI_ALIAS_FLAG).apply { style = Paint.Style.STROKE }
     private val rect = RectF()
-    private val matrix = Matrix()
     private var shader: SweepGradient? = null
-    private var level = 0f
-    private var spin = 0f
-    private var animator: ValueAnimator? = null
     private var ended = false
 
     private val colors = intArrayOf(
@@ -50,8 +46,16 @@ class TexoGlowView(context: Context) : View(context) {
     )
 
     // Wide, faint layers first, thin bright layer last = a soft glow.
-    private val widths = floatArrayOf(72f, 50f, 34f, 21f, 12f, 5f)
-    private val alphas = floatArrayOf(0.10f, 0.14f, 0.20f, 0.32f, 0.55f, 0.95f)
+    private val widths = floatArrayOf(60f, 38f, 22f, 11f, 4f)
+    private val alphas = floatArrayOf(0.12f, 0.20f, 0.36f, 0.62f, 0.95f)
+
+    init {
+        // The glow is painted ONCE into a GPU texture. After that only its
+        // opacity / scale change, which the GPU does without redrawing the
+        // gradient strokes every frame: smooth and cheap even on slow phones.
+        setLayerType(LAYER_TYPE_HARDWARE, null)
+        alpha = 0f
+    }
 
     override fun onSizeChanged(w: Int, h: Int, oldw: Int, oldh: Int) {
         shader = SweepGradient(w / 2f, h / 2f, colors, null)
@@ -59,53 +63,45 @@ class TexoGlowView(context: Context) : View(context) {
 
     override fun onDraw(canvas: Canvas) {
         val sh = shader ?: return
-        if (level <= 0.001f) return
-        val w = width.toFloat()
-        val h = height.toFloat()
-        matrix.setRotate(spin, w / 2f, h / 2f)
-        sh.setLocalMatrix(matrix)
         paint.shader = sh
         val corner = dp(46f)
-        rect.set(0f, 0f, w, h)
+        rect.set(0f, 0f, width.toFloat(), height.toFloat())
         for (i in widths.indices) {
-            paint.strokeWidth = dp(widths[i]) * (0.55f + 0.45f * level)
-            paint.alpha = (alphas[i] * level * 255f).toInt().coerceIn(0, 255)
+            paint.strokeWidth = dp(widths[i])
+            paint.alpha = (alphas[i] * 255f).toInt().coerceIn(0, 255)
             canvas.drawRoundRect(rect, corner, corner, paint)
         }
     }
 
     fun start(onEnd: () -> Unit) {
-        val a = ValueAnimator.ofFloat(0f, 1f)
-        a.duration = 1600L
-        a.interpolator = LinearInterpolator()
-        a.addUpdateListener {
-            val t = it.animatedValue as Float
-            level = when {
-                t < 0.25f -> 1f - (1f - t / 0.25f).pow(3)
-                t < 0.55f -> 1f
-                else -> {
-                    val x = (t - 0.55f) / 0.45f
-                    1f - x * x * (3f - 2f * x)
-                }
+        scaleX = 1.06f
+        scaleY = 1.06f
+        animate()
+            .alpha(1f)
+            .scaleX(1f)
+            .scaleY(1f)
+            .setDuration(420L)
+            .setInterpolator(DecelerateInterpolator(2f))
+            .withEndAction {
+                animate()
+                    .alpha(0f)
+                    .setStartDelay(850L)
+                    .setDuration(560L)
+                    .setInterpolator(AccelerateDecelerateInterpolator())
+                    .withEndAction {
+                        if (!ended) {
+                            ended = true
+                            onEnd()
+                        }
+                    }
+                    .start()
             }
-            spin = t * 480f
-            invalidate()
-        }
-        a.addListener(object : AnimatorListenerAdapter() {
-            override fun onAnimationEnd(animation: Animator) {
-                if (!ended) {
-                    ended = true
-                    onEnd()
-                }
-            }
-        })
-        animator = a
-        a.start()
+            .start()
     }
 
     override fun onDetachedFromWindow() {
         ended = true
-        animator?.cancel()
+        animate().cancel()
         super.onDetachedFromWindow()
     }
 }

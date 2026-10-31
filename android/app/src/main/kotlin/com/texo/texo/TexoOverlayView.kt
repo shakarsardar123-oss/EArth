@@ -167,6 +167,29 @@ class TexoOverlayView(context: Context) : View(context) {
     private val ipText = Paint(Paint.ANTI_ALIAS_FLAG).apply { textAlign = Paint.Align.CENTER }
     private val tmpRect = RectF()
     private val tmpPath = Path()
+    private val segPath = Path()
+    private val arcA = RectF()
+    private val arcB = RectF()
+
+    // Shaders are expensive to create: keep the ones that only change when the
+    // geometry or colours change (creating them every frame caused jank).
+    private var waveEnv = FloatArray(0)
+    private var waveEnvW = -1f
+    private var waveShader: LinearGradient? = null
+    private var waveShaderV = -1
+    private var waveShaderL = 0f
+    private var waveShaderR = 0f
+    private var gfShader: LinearGradient? = null
+    private var gfTop = 0f
+    private var gfBottom = 0f
+    private var gfC1 = 0
+    private var gfC2 = 0
+    private var emojiShader: RadialGradient? = null
+    private var emojiShaderX = 0f
+    private var emojiShaderY = 0f
+    private var emojiShaderR = 0f
+    private val trayShaders = arrayOfNulls<LinearGradient>(3)
+    private val trayShaderRects = arrayOf(RectF(), RectF(), RectF())
 
     private val youPaint = TextPaint(Paint.ANTI_ALIAS_FLAG).apply { color = Color.parseColor("#CCEDEAF8") }
     private val aiPaint = TextPaint(Paint.ANTI_ALIAS_FLAG).apply { color = Color.WHITE }
@@ -607,7 +630,7 @@ class TexoOverlayView(context: Context) : View(context) {
         if (topSubs()) drawSubs(canvas, w)
         // ~60 frames per second while the pill is on screen; when only the
         // handle / caption is shown nothing animates, so no redraw loop at all.
-        if (!pillHidden) postInvalidateDelayed(16L)
+        if (!pillHidden) postInvalidateOnAnimation()
     }
 
     private fun drawHandle(c: Canvas, w: Float) {
@@ -628,7 +651,16 @@ class TexoOverlayView(context: Context) : View(context) {
     private fun gradientFill(r: RectF, top: Int, bottom: Int) {
         // An old, faded colour on this paint would fade the gradient too.
         fill.color = Color.BLACK
-        fill.shader = LinearGradient(0f, r.top, 0f, r.bottom, top, bottom, Shader.TileMode.CLAMP)
+        var sh = gfShader
+        if (sh == null || gfTop != r.top || gfBottom != r.bottom || gfC1 != top || gfC2 != bottom) {
+            sh = LinearGradient(0f, r.top, 0f, r.bottom, top, bottom, Shader.TileMode.CLAMP)
+            gfShader = sh
+            gfTop = r.top
+            gfBottom = r.bottom
+            gfC1 = top
+            gfC2 = bottom
+        }
+        fill.shader = sh
     }
 
     private fun drawPill(c: Canvas, t: Float, now: Long) {
@@ -657,16 +689,18 @@ class TexoOverlayView(context: Context) : View(context) {
             tmpPath.reset()
             tmpPath.moveTo(tmpRect.centerX(), tmpRect.top)
             tmpPath.lineTo(tmpRect.right - rr, tmpRect.top)
-            tmpPath.arcTo(RectF(tmpRect.right - 2f * rr, tmpRect.top, tmpRect.right, tmpRect.bottom), -90f, 180f)
+            arcA.set(tmpRect.right - 2f * rr, tmpRect.top, tmpRect.right, tmpRect.bottom)
+            tmpPath.arcTo(arcA, -90f, 180f)
             tmpPath.lineTo(tmpRect.left + rr, tmpRect.bottom)
-            tmpPath.arcTo(RectF(tmpRect.left, tmpRect.top, tmpRect.left + 2f * rr, tmpRect.bottom), 90f, 180f)
+            arcB.set(tmpRect.left, tmpRect.top, tmpRect.left + 2f * rr, tmpRect.bottom)
+            tmpPath.arcTo(arcB, 90f, 180f)
             tmpPath.lineTo(tmpRect.centerX(), tmpRect.top)
             val pm = PathMeasure(tmpPath, false)
-            val seg = Path()
-            pm.getSegment(0f, pm.length * prog, seg, true)
+            segPath.reset()
+            pm.getSegment(0f, pm.length * prog, segPath, true)
             stroke.color = Color.parseColor("#A78BFA")
             stroke.strokeWidth = dp(3f)
-            c.drawPath(seg, stroke)
+            c.drawPath(segPath, stroke)
         }
 
         drawEmoji(c, v, now)
@@ -689,10 +723,18 @@ class TexoOverlayView(context: Context) : View(context) {
     private fun drawEmoji(c: Canvas, v: Int, now: Long) {
         val cx = emojiC.x
         val cy = emojiC.y
-        fill.shader = RadialGradient(
-            cx - emojiR * 0.3f, cy - emojiR * 0.4f, emojiR * 1.3f,
-            withAlpha(Color.WHITE, 0.16f), withAlpha(Color.WHITE, 0.05f), Shader.TileMode.CLAMP,
-        )
+        var es = emojiShader
+        if (es == null || emojiShaderX != cx || emojiShaderY != cy || emojiShaderR != emojiR) {
+            es = RadialGradient(
+                cx - emojiR * 0.3f, cy - emojiR * 0.4f, emojiR * 1.3f,
+                withAlpha(Color.WHITE, 0.16f), withAlpha(Color.WHITE, 0.05f), Shader.TileMode.CLAMP,
+            )
+            emojiShader = es
+            emojiShaderX = cx
+            emojiShaderY = cy
+            emojiShaderR = emojiR
+        }
+        fill.shader = es
         c.drawCircle(cx, cy, emojiR, fill)
         fill.shader = null
         stroke.shader = null
@@ -739,27 +781,40 @@ class TexoOverlayView(context: Context) : View(context) {
         val amp = dp(11f)
         val wDp = wW / density
 
-        stroke.shader = LinearGradient(wL, 0f, wR, 0f, waveColors[v], null, Shader.TileMode.CLAMP)
-        for (L in layers) {
-            for (pass in 0..1) {
-                tmpPath.reset()
-                var x = 0f
-                var first = true
-                while (x <= wDp) {
-                    val env = sin(PI.toFloat() * x / wDp).coerceAtLeast(0f).pow(1.1f)
-                    val y = cy + sin(x * L[0] + t * L[1] + L[2]) * amp * L[3] * env * (0.10f + 0.90f * eff)
-                    if (first) {
-                        tmpPath.moveTo(wL + x * density, y)
-                        first = false
-                    } else {
-                        tmpPath.lineTo(wL + x * density, y)
-                    }
-                    x += 2f
-                }
-                stroke.strokeWidth = if (pass == 0) dp(6f) else dp(L[4])
-                stroke.alpha = ((if (pass == 0) 0.14f else 0.95f) * L[5] * 255f).toInt()
-                c.drawPath(tmpPath, stroke)
+        var ws = waveShader
+        if (ws == null || waveShaderV != v || waveShaderL != wL || waveShaderR != wR) {
+            ws = LinearGradient(wL, 0f, wR, 0f, waveColors[v], null, Shader.TileMode.CLAMP)
+            waveShader = ws
+            waveShaderV = v
+            waveShaderL = wL
+            waveShaderR = wR
+        }
+        stroke.shader = ws
+
+        // The bell-shaped envelope only depends on the width: compute it once.
+        val n = (wDp / 2f).toInt() + 1
+        if (waveEnvW != wDp || waveEnv.size != n) {
+            waveEnv = FloatArray(n) { i ->
+                sin(PI.toFloat() * (i * 2f) / wDp).coerceAtLeast(0f).pow(1.1f)
             }
+            waveEnvW = wDp
+        }
+        val gain = 0.10f + 0.90f * eff
+        for (L in layers) {
+            // One path per layer, drawn twice (soft halo + bright line).
+            tmpPath.reset()
+            for (i in 0 until n) {
+                val x = i * 2f
+                val y = cy + sin(x * L[0] + t * L[1] + L[2]) * amp * L[3] * waveEnv[i] * gain
+                if (i == 0) tmpPath.moveTo(wL + x * density, y)
+                else tmpPath.lineTo(wL + x * density, y)
+            }
+            stroke.strokeWidth = dp(6f)
+            stroke.alpha = (0.14f * L[5] * 255f).toInt()
+            c.drawPath(tmpPath, stroke)
+            stroke.strokeWidth = dp(L[4])
+            stroke.alpha = (0.95f * L[5] * 255f).toInt()
+            c.drawPath(tmpPath, stroke)
         }
         stroke.shader = null
         stroke.alpha = 255
@@ -876,10 +931,16 @@ class TexoOverlayView(context: Context) : View(context) {
             tmpRect.set(r)
             if (pressed) tmpRect.inset(dp(2f), dp(2f))
             if (on) {
-                fill.shader = LinearGradient(
-                    tmpRect.left, tmpRect.top, tmpRect.right, tmpRect.bottom,
-                    Color.parseColor("#8C8B5CF6"), Color.parseColor("#4DA78BFA"), Shader.TileMode.CLAMP,
-                )
+                var ts = trayShaders[i]
+                if (ts == null || trayShaderRects[i] != tmpRect) {
+                    ts = LinearGradient(
+                        tmpRect.left, tmpRect.top, tmpRect.right, tmpRect.bottom,
+                        Color.parseColor("#8C8B5CF6"), Color.parseColor("#4DA78BFA"), Shader.TileMode.CLAMP,
+                    )
+                    trayShaders[i] = ts
+                    trayShaderRects[i].set(tmpRect)
+                }
+                fill.shader = ts
             } else {
                 fill.color = Color.parseColor("#12FFFFFF")
             }
