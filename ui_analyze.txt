@@ -142,11 +142,11 @@ Analyzing 4 items...
 
    info • The import of 'dart:typed_data' is unnecessary because all of the used elements are also provided by the import of 'package:flutter/foundation.dart'. Try removing the import directive • lib/bridge/live_camera.dart:3:8 • unnecessary_import
    info • Missing a required trailing comma. Try adding a trailing comma • lib/bridge/live_camera.dart:115:82 • require_trailing_commas
+warning • Unused import: '../presentation/screens/vision_screen.dart'. Try removing the import directive • lib/bridge/riverpod_backend.dart:25:8 • unused_import
    info • The import of '../ui/src/backend.dart' is unnecessary because all of the used elements are also provided by the import of '../ui/texo_ui.dart'. Try removing the import directive • lib/bridge/riverpod_backend.dart:29:8 • unnecessary_import
-   info • Use 'const' with the constructor to improve performance. Try adding the 'const' keyword to the constructor invocation • lib/bridge/riverpod_backend.dart:99:51 • prefer_const_constructors
-   info • Missing a required trailing comma. Try adding a trailing comma • lib/bridge/riverpod_backend.dart:248:12 • require_trailing_commas
-   info • Missing a required trailing comma. Try adding a trailing comma • lib/bridge/riverpod_backend.dart:279:10 • require_trailing_commas
-   info • Missing a required trailing comma. Try adding a trailing comma • lib/bridge/riverpod_backend.dart:329:8 • require_trailing_commas
+   info • Missing a required trailing comma. Try adding a trailing comma • lib/bridge/riverpod_backend.dart:241:12 • require_trailing_commas
+   info • Missing a required trailing comma. Try adding a trailing comma • lib/bridge/riverpod_backend.dart:272:10 • require_trailing_commas
+   info • Missing a required trailing comma. Try adding a trailing comma • lib/bridge/riverpod_backend.dart:322:8 • require_trailing_commas
 warning • Unused import: '../errors/result.dart'. Try removing the import directive • lib/core/ai/gemini_provider.dart:31:8 • unused_import
    info • The member 'getApiKey' overrides an inherited member but isn't annotated with '@override'. Try adding the '@override' annotation • lib/core/ai/gemini_provider.dart:154:19 • annotate_overrides
    info • The member 'setApiKey' overrides an inherited member but isn't annotated with '@override'. Try adding the '@override' annotation • lib/core/ai/gemini_provider.dart:158:16 • annotate_overrides
@@ -171,12 +171,12 @@ warning • The left operand can't be null, so the right operand is never execut
    info • Missing a required trailing comma. Try adding a trailing comma • lib/ui/src/live_painter.dart:223:101 • require_trailing_commas
    info • Missing a required trailing comma. Try adding a trailing comma • lib/ui/src/live_painter.dart:231:12 • require_trailing_commas
    info • Missing a required trailing comma. Try adding a trailing comma • lib/ui/src/live_painter.dart:233:53 • require_trailing_commas
-   info • Missing a required trailing comma. Try adding a trailing comma • lib/ui/src/live_screen.dart:289:6 • require_trailing_commas
+   info • Missing a required trailing comma. Try adding a trailing comma • lib/ui/src/live_screen.dart:282:6 • require_trailing_commas
    info • Parameters ''key' and 'child'' could be super parameters. Trying converting ''key' and 'child'' to super parameters • lib/ui/src/scope.dart:29:9 • use_super_parameters
    info • Missing a required trailing comma. Try adding a trailing comma • lib/ui/src/settings_screen.dart:319:64 • require_trailing_commas
    info • Missing a required trailing comma. Try adding a trailing comma • lib/ui/src/settings_screen.dart:321:63 • require_trailing_commas
 
-35 issues found. (ran in 10.7s)
+35 issues found. (ran in 13.5s)
 analyze exit code: 0
 ----- whole app compile (flutter build bundle) -----
 bundle exit code: 0
