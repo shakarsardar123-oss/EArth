@@ -6,7 +6,6 @@ import 'colors.dart';
 import 'dark.dart';
 import 'live_painter.dart';
 import 'scope.dart';
-import 'settings_screen.dart';
 import 'strings.dart';
 import 'widgets.dart';
 
@@ -162,14 +161,8 @@ class _LiveScreenState extends State<LiveScreen> with SingleTickerProviderStateM
                             ],
                           ),
                         ),
-                        GlassCircle(
-                          icon: Icons.more_vert,
-                          label: s.t('settings'),
-                          size: 44,
-                          onTap: () => Navigator.of(context).push(
-                            MaterialPageRoute<void>(builder: (BuildContext _) => const SettingsScreen()),
-                          ),
-                        ),
+                        // Same width as the back button, so the title stays centred.
+                        const SizedBox(width: 44, height: 44),
                       ],
                     ),
                   ),

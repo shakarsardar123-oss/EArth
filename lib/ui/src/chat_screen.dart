@@ -463,7 +463,7 @@ class _ChatScreenState extends State<ChatScreen> {
               ),
               if (_pending.isNotEmpty) _pendingRow(s),
               Container(
-                height: 64,
+                constraints: const BoxConstraints(minHeight: 64),
                 margin: const EdgeInsets.fromLTRB(16, 0, 16, 16),
                 padding: const EdgeInsets.symmetric(horizontal: 8),
                 decoration: BoxDecoration(
@@ -486,8 +486,13 @@ class _ChatScreenState extends State<ChatScreen> {
                         controller: _ctl,
                         onSubmitted: (String _) => _submit(backend),
                         textInputAction: TextInputAction.send,
-                        style: const TextStyle(fontSize: 17, color: UiColors.ink),
+                        keyboardType: TextInputType.multiline,
+                        minLines: 1,
+                        maxLines: 5,
+                        style: const TextStyle(fontSize: 17, height: 1.5, color: UiColors.ink),
                         decoration: InputDecoration(
+                          isDense: true,
+                          contentPadding: const EdgeInsets.symmetric(vertical: 12),
                           border: InputBorder.none,
                           hintText: s.t('ask'),
                           hintStyle: const TextStyle(color: UiColors.inkFaint),

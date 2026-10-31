@@ -92,13 +92,6 @@ class RiverpodBackend
   @override
   List<UiExtraEntry> get extraEntries => <UiExtraEntry>[
         UiExtraEntry(
-          titleKu: 'بینین',
-          titleEn: 'Vision',
-          icon: Icons.visibility_outlined,
-          builder: (BuildContext context) =>
-              Theme(data: AppTheme.dark(), child: VisionScreen()),
-        ),
-        UiExtraEntry(
           titleKu: 'ئەی ئای (دابینکەر و مۆدێل)',
           titleEn: 'AI provider and model',
           icon: Icons.smart_toy_outlined,
