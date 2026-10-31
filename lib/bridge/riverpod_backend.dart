@@ -434,7 +434,7 @@ class RiverpodBackend
     try {
       if (!await Permission.microphone.isGranted) return;
       _wakeSub ??= _wakeEv.receiveBroadcastStream().listen(
-        (dynamic _) => _onWake(),
+        (dynamic ev) => unawaited(_onWakeEvent(ev)),
         onError: (Object _) {},
       );
       final Object? ok = await _wakeCh.invokeMethod<Object?>('start');
@@ -503,6 +503,63 @@ class RiverpodBackend
       await prefs.setInt('texo_battery_asked_ms', now);
       await Permission.ignoreBatteryOptimizations.request();
     } catch (_) {}
+  }
+
+  // ---- spoken commands without a conversation: quiet / sleep / wake up ----------
+
+  bool _sleeping = false;
+  Timer? _reactTimer;
+
+  /// Shows the pill with one emoji and no conversation. [hold] = how long it stays.
+  Future<void> _showReaction(String emoji, {Duration? hold}) async {
+    _reactTimer?.cancel();
+    _overlayOnly = true;
+    _overlay.forceVisible = true;
+    await _overlay.start();
+    _overlay.push(<String, Object?>{
+      'mode': 'listening',
+      'level': 0.06,
+      'emoji': emoji,
+      'lang': initialLang,
+      'you': '',
+      'ai': '',
+    });
+    await _overlay.syncVisibility();
+    if (hold != null) {
+      _reactTimer = Timer(hold, () async {
+        if (_liveRunning) return;
+        _overlayOnly = false;
+        _overlay.forceVisible = false;
+        await _overlay.stop();
+      });
+    }
+  }
+
+  Future<void> _onWakeEvent(dynamic ev) async {
+    if (!_wakeWanted || _liveRunning) return;
+    final String kind = ev is Map ? '${ev['kind']}' : 'wake';
+    switch (kind) {
+      case 'quiet':
+        // "texo quiet": a short shush, then the pill goes away.
+        _sleeping = false;
+        await _showReaction('\u{1F92B}', hold: const Duration(seconds: 3));
+        return;
+      case 'sleep':
+        // "texo sleep" / "you slept": sleeping face until woken up.
+        _sleeping = true;
+        await _showReaction('\u{1F634}', hold: const Duration(minutes: 10));
+        return;
+      case 'wakeup':
+        // "wake up texo": wakes with a bright face, then the conversation starts.
+        _sleeping = false;
+        await _showReaction('\u{1F929}');
+        await Future<void>.delayed(const Duration(milliseconds: 700));
+        await _onWake();
+        return;
+      default:
+        _sleeping = false;
+        await _onWake();
+    }
   }
 
   /// "texo" was heard: only the overlay appears and the live conversation starts.
@@ -660,6 +717,8 @@ class RiverpodBackend
   Future<void> _stopLive() async {
     ++_translationGeneration;
     _subtitleClearTimer?.cancel();
+    _reactTimer?.cancel();
+    _sleeping = false;
     _translatedSubtitle = '';
     _liveRunning = false;
     _levelTimer?.cancel();

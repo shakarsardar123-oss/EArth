@@ -9,16 +9,32 @@ conditional imports) starting from lib/main.dart and reports:
   * references to files that do not exist (what is missing)
   * packages that are imported but not declared in pubspec.yaml
 
-Usage (in the project folder):   python3 texo_deadcheck.py [project_dir] [report_file]
-Nothing is changed or moved.
+Usage (in the project folder):
+    python3 texo_deadcheck.py [project_dir] [report_file]
+        -> report only, nothing is changed
+
+    python3 texo_deadcheck.py . report.txt --quarantine features/advanced_agent,features/tool_registry
+        -> shows which DEAD files of those folders would be moved to archive/
+           (reachable files are never touched). Add --yes to really move them.
 """
 import os
 import re
 import sys
 from collections import defaultdict
 
-ROOT = os.path.abspath(sys.argv[1]) if len(sys.argv) > 1 else os.getcwd()
-REPORT = sys.argv[2] if len(sys.argv) > 2 else None
+import argparse
+import shutil
+import subprocess
+
+_ap = argparse.ArgumentParser()
+_ap.add_argument("root", nargs="?", default=".")
+_ap.add_argument("report", nargs="?")
+_ap.add_argument("--quarantine", default="")
+_ap.add_argument("--yes", action="store_true")
+_args = _ap.parse_args()
+
+ROOT = os.path.abspath(_args.root)
+REPORT = _args.report
 LIB = os.path.join(ROOT, "lib")
 
 DIRECTIVE = re.compile(r"(?m)^[ \t]*(import|export|part)[ \t]+((?!of\b)[^;]+);")
@@ -186,3 +202,25 @@ if REPORT:
     with open(REPORT, "w", encoding="utf-8") as fh:
         fh.write(text + "\n")
     print(f"\nFull report written to: {REPORT}")
+
+# ---------------------------------------------------------------- quarantine
+if _args.quarantine:
+    prefixes = [("lib/" + p.strip().strip("/") + "/") for p in _args.quarantine.split(",") if p.strip()]
+    todo = [f for f in dead if any(rel(f).replace(os.sep, "/").startswith(pre) for pre in prefixes)]
+    print(f"\nQuarantine: {len(todo)} dead files match {', '.join(prefixes)}")
+    if not _args.yes:
+        for f in todo[:25]:
+            print("  would move:", rel(f))
+        if len(todo) > 25:
+            print(f"  ... and {len(todo) - 25} more")
+        print("Nothing moved. Add --yes to move them to archive/ (git mv).")
+    else:
+        moved = 0
+        for f in todo:
+            dest = os.path.join(ROOT, "archive", rel(f))
+            os.makedirs(os.path.dirname(dest), exist_ok=True)
+            r = subprocess.run(["git", "mv", f, dest], cwd=ROOT, capture_output=True)
+            if r.returncode != 0:
+                shutil.move(f, dest)
+            moved += 1
+        print(f"Moved {moved} files to archive/. Undo with: git mv archive/lib/... lib/...")

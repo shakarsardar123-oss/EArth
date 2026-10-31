@@ -723,10 +723,19 @@ class TexoAudioBridge(
         "texo", "tecso", "tesco", "tex oh", "tex so", "tech so", "tek so",
         "hey texo", "hey tex oh", "hey tech so",
     )
+    // Spoken commands (English, like the wake word): quiet / sleep / wake up.
+    private val wakeNames = listOf("texo", "tecso", "tesco", "tex oh", "tex so", "tech so", "tek so")
+    private val commandPhrases: List<String> = wakeNames.flatMap { n ->
+        listOf(
+            "$n quiet", "be quiet $n", "$n be quiet",
+            "$n sleep", "$n go to sleep", "good night $n",
+            "wake up $n", "$n wake up",
+        )
+    } + listOf("you sleep", "you slept", "wake up", "go to sleep")
     private val wakeGrammar = "[" +
-        wakePhrases.joinToString(", ") { "\"$it\"" } +
+        (wakePhrases + commandPhrases).joinToString(", ") { "\"$it\"" } +
         ", \"aura\", \"hey aura\", \"[unk]\"]"
-    private val wakeAccept = wakePhrases + listOf("aura")
+    private val wakeAccept = wakePhrases + commandPhrases + listOf("aura")
     private val wakeWords = wakeAccept.flatMap { it.split(" ") }.toSet() - setOf("hey")
     // Native pre-gate. The Dart WakeWordDebouncer applies a second (0.5)
     // threshold + cooldown on top of this.
@@ -817,8 +826,23 @@ class TexoAudioBridge(
         }
         lastWakeMs = now
         try { rec.reset() } catch (_: Throwable) {}
-        val payload = mapOf("confidence" to conf)
+        val payload = mapOf("confidence" to conf, "kind" to wakeKind(json))
         main.post { wakeSink?.success(payload) }
+    }
+
+    /** What was said: "quiet", "sleep", "wakeup" or a plain "wake". */
+    private fun wakeKind(json: String?): String {
+        val text = try {
+            JSONObject(json ?: "").optString("text", "").lowercase()
+        } catch (_: Throwable) {
+            ""
+        }
+        return when {
+            text.contains("quiet") -> "quiet"
+            text.contains("sleep") || text.contains("slept") || text.contains("good night") -> "sleep"
+            text.contains("wake up") -> "wakeup"
+            else -> "wake"
+        }
     }
 
     /**
