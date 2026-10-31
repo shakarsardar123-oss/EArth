@@ -849,7 +849,11 @@ class LiveModeOrchestrator {
           'The user\'s words come from speech recognition and may contain wrong, split or '
           'misheard words: work out what they most likely meant from the context and from '
           'similar-sounding words, and answer that. Ask them to repeat only when it is '
-          'truly impossible to guess.',
+          'truly impossible to guess. '
+          'When a camera picture is attached you can SEE it: describe what is there, '
+          'read any text aloud, find objects and say where they are (left, right, top, '
+          'bottom, center), identify things and places, and answer questions about it. '
+          'Never say you cannot see the camera picture.',
       modelId: 'gemini-3.6-flash',
       temperature: 0.5,
       maxTokens: 1024,

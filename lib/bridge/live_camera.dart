@@ -86,6 +86,11 @@ class LiveCamera {
     );
     try {
       await c.initialize();
+      // The default is "auto": in a dark room every still photo (one every 2 s)
+      // fired the flash like a camera. The flash only runs when the user asks.
+      try {
+        await c.setFlashMode(FlashMode.off);
+      } catch (_) {}
     } catch (_) {
       try {
         await c.dispose();
@@ -148,6 +153,12 @@ class LiveCamera {
       try {
         await File(f.path).delete();
       } catch (_) {}
+      // Some phones switch the torch off when a photo is taken: put it back.
+      if (torchOn.value && !isFront.value) {
+        try {
+          await c.setFlashMode(FlashMode.torch);
+        } catch (_) {}
+      }
     } catch (_) {
       // ignore: a missed frame is fine
     } finally {

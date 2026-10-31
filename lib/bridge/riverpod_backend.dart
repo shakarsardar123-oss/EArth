@@ -422,7 +422,7 @@ class RiverpodBackend
   bool _overlayOnly = false; // this live session was started by the wake word
 
   bool get _wakeWanted =>
-      _c.read(sharedPreferencesProvider).getBool('ui.toggle.wake') ?? true;
+      _c.read(sharedPreferencesProvider).getBool('ui.toggle.wake') ?? false;
 
   Future<void> _initWake() async {
     _wakeRetry ??= Timer.periodic(const Duration(seconds: 20), (Timer _) => _tryStartWake());
