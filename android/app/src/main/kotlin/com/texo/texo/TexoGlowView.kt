@@ -167,6 +167,7 @@ object TexoGlow {
                 WindowManager.LayoutParams.LAYOUT_IN_DISPLAY_CUTOUT_MODE_SHORT_EDGES
         }
         try {
+            TexoDisplay.apply(lp, app)
             wm.addView(view, lp)
         } catch (_: Throwable) {
             onDone()

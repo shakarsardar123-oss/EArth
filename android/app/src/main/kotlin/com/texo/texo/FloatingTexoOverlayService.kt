@@ -283,6 +283,7 @@ class FloatingTexoOverlayService : Service() {
         layoutParams = params
 
         try {
+            TexoDisplay.apply(params, this)
             windowManager.addView(view, params)
             isShowing = true
             lastOverlayError = null
@@ -389,6 +390,7 @@ class FloatingTexoOverlayService : Service() {
         }
 
         try {
+            TexoDisplay.apply(params, this)
             windowManager.addView(subtitle, params)
             translatedSubtitleView = subtitle
             debugLog("TEXO: translated subtitle added")
@@ -505,6 +507,7 @@ class FloatingTexoOverlayService : Service() {
         }
 
         try {
+            TexoDisplay.apply(params, this)
             windowManager.addView(tv, params)
             captionView = tv
             captionParams = params

@@ -68,6 +68,11 @@ class MainActivity : FlutterActivity() {
 
     // ─── Lifecycle ───────────────────────────────────────────────
 
+    override fun onResume() {
+        super.onResume()
+        TexoDisplay.requestBestRefreshRate(this)
+    }
+
     override fun configureFlutterEngine(@NonNull flutterEngine: FlutterEngine) {
         super.configureFlutterEngine(flutterEngine)
 
