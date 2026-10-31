@@ -146,6 +146,12 @@ class _ChatScreenState extends State<ChatScreen> {
       _thinking = false;
     });
     _toBottom();
+    // "Read replies aloud" (on by default): speak at once, do not wait for a tap.
+    backend.toggles().then<void>((Map<String, bool> t) {
+      if ((t['read'] ?? true) && !reply.startsWith('ببورە') && mounted && myReq == _reqId) {
+        backend.speak(reply);
+      }
+    }).catchError((Object _) {});
   }
 
   /// Stop button: forget the running request (its answer is ignored).

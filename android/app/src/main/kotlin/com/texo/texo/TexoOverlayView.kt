@@ -141,6 +141,18 @@ class TexoOverlayView(context: Context) : View(context) {
     private var captionLayout: StaticLayout? = null
     private var captionBuilt = ""
     private val capPaint = TextPaint(Paint.ANTI_ALIAS_FLAG).apply { color = Color.WHITE }
+
+    // Typewriter + scroll state for the caption plate under the pill.
+    private var aiShown = ""            // the part of the answer typed out so far
+    private val revealRunnable = Runnable { stepReveal() }
+    private var capScroll = 0f
+    private var capUserScrolled = false
+    private var capFullH = 0f
+    private var capVisH = 0f
+    private var capDrag = false
+    private var capDragY = 0f
+    private var capSwapAt = 0L
+    private val capBar = RectF()
     private var youLayout: StaticLayout? = null
     private var aiLayout: StaticLayout? = null
     private var layoutWidth = -1
@@ -266,6 +278,7 @@ class TexoOverlayView(context: Context) : View(context) {
             if (it != aiText) {
                 aiText = it
                 texts = true
+                startReveal()
             }
         }
         (m["subs"] as? Boolean)?.let {
@@ -320,10 +333,45 @@ class TexoOverlayView(context: Context) : View(context) {
 
     /** What the caption shows: the assistant while it speaks, the user otherwise. */
     private fun captionText(): String = when {
-        mode == 2 && aiText.isNotBlank() -> aiText
+        mode == 2 && aiShown.isNotBlank() -> aiShown
         mode != 2 && youText.isNotBlank() -> youText
-        aiText.isNotBlank() -> aiText
+        aiShown.isNotBlank() -> aiShown
         else -> youText
+    }
+
+    /** The answer appears word by word; a new answer starts from an empty plate. */
+    private fun startReveal() {
+        removeCallbacks(revealRunnable)
+        if (aiText.isEmpty()) {
+            aiShown = ""
+            return
+        }
+        if (aiShown.isEmpty() || !aiText.startsWith(aiShown)) {
+            aiShown = ""
+            capScroll = 0f
+            capUserScrolled = false
+            capSwapAt = SystemClock.uptimeMillis()
+        }
+        post(revealRunnable)
+    }
+
+    private fun stepReveal() {
+        if (aiShown.length >= aiText.length) return
+        var i = aiShown.length
+        while (i < aiText.length && (aiText[i] == ' ' || aiText[i] == '\n')) i++
+        while (i < aiText.length && aiText[i] != ' ' && aiText[i] != '\n') i++
+        aiShown = aiText.substring(0, i)
+        layoutDirty = true
+        if (topSubs()) requestLayout()
+        invalidate()
+        if (aiShown.length < aiText.length) postDelayed(revealRunnable, 45L)
+    }
+
+    /** Your words: 2 lines. The answer: 3 lines. The rest scrolls. */
+    private fun visibleCapHeight(l: StaticLayout): Float {
+        val maxLines = if (aiShown.isNotBlank() && captionText() == aiShown) 3 else 2
+        return if (l.lineCount <= maxLines) l.height.toFloat()
+        else l.getLineBottom(maxLines - 1).toFloat()
     }
 
     private fun ensureLayouts(w: Int) {
@@ -336,7 +384,7 @@ class TexoOverlayView(context: Context) : View(context) {
         capPaint.textSize = dp(14f)
         captionLayout =
             if (text.isBlank()) null
-            else buildLayout(text, capPaint, inner, Layout.Alignment.ALIGN_CENTER)
+            else buildLayout(text, capPaint, inner, Layout.Alignment.ALIGN_CENTER, Int.MAX_VALUE)
     }
 
     private fun buildLayout(
@@ -344,20 +392,22 @@ class TexoOverlayView(context: Context) : View(context) {
         paint: TextPaint,
         width: Int,
         align: Layout.Alignment = Layout.Alignment.ALIGN_NORMAL,
+        maxLines: Int = 4,
     ): StaticLayout {
-        return StaticLayout.Builder.obtain(text, 0, text.length, paint, width)
+        val b = StaticLayout.Builder.obtain(text, 0, text.length, paint, width)
             .setAlignment(align)
             .setTextDirection(TextDirectionHeuristics.FIRSTSTRONG_LTR)
             .setLineSpacing(0f, 1.25f)
-            .setMaxLines(4)
-            .setEllipsize(android.text.TextUtils.TruncateAt.END)
-            .build()
+        if (maxLines != Int.MAX_VALUE) {
+            b.setMaxLines(maxLines).setEllipsize(android.text.TextUtils.TruncateAt.END)
+        }
+        return b.build()
     }
 
     private fun subsHeight(w: Int): Float {
         ensureLayouts(w)
         val l = captionLayout ?: return 0f
-        return l.height + dp(16f)
+        return visibleCapHeight(l) + dp(16f)
     }
 
     private fun layoutGeo(w: Float) {
@@ -503,6 +553,13 @@ class TexoOverlayView(context: Context) : View(context) {
         layoutGeo(width.toFloat())
         when (e.actionMasked) {
             MotionEvent.ACTION_DOWN -> {
+                if (topSubs() && !pillHidden && capFullH > capVisH + 1f && subsRect.contains(e.x, e.y)) {
+                    // Dragging on the caption scrolls it (up and down).
+                    capDrag = true
+                    capDragY = e.y
+                    pressedKey = null
+                    return true
+                }
                 val k = hit(e.x, e.y)
                 pressedKey = k
                 downX = e.x
@@ -523,6 +580,15 @@ class TexoOverlayView(context: Context) : View(context) {
                 return true
             }
             MotionEvent.ACTION_MOVE -> {
+                if (capDrag) {
+                    val d = e.y - capDragY
+                    capDragY = e.y
+                    val maxScroll = max(0f, capFullH - capVisH)
+                    capScroll = (capScroll - d).coerceIn(0f, maxScroll)
+                    capUserScrolled = capScroll < maxScroll - 2f
+                    invalidate()
+                    return true
+                }
                 val dy = e.y - downY
                 if (!pillHidden && !hiding && dy < -dp(SWIPE_DP)) {
                     hidePill()
@@ -553,6 +619,10 @@ class TexoOverlayView(context: Context) : View(context) {
                 return true
             }
             MotionEvent.ACTION_UP -> {
+                if (capDrag) {
+                    capDrag = false
+                    return true
+                }
                 val k = pressedKey
                 cancelHold()
                 pressedKey = null
@@ -568,6 +638,7 @@ class TexoOverlayView(context: Context) : View(context) {
                 return true
             }
             MotionEvent.ACTION_CANCEL -> {
+                capDrag = false
                 cancelHold()
                 pressedKey = null
                 invalidate()
@@ -581,6 +652,7 @@ class TexoOverlayView(context: Context) : View(context) {
         appearAnim?.cancel()
         removeCallbacks(holdRunnable)
         removeCallbacks(trayHideRunnable)
+        removeCallbacks(revealRunnable)
         super.onDetachedFromWindow()
     }
 
@@ -1044,20 +1116,52 @@ class TexoOverlayView(context: Context) : View(context) {
         val l = captionLayout ?: return
         var top = if (pillHidden) dp(HANDLE_H) + dp(GAP) else pillRect.bottom + dp(GAP)
         if (!pillHidden && trayOpen) top = trayRect.bottom + dp(GAP)
-        val h = l.height + dp(16f)
+
+        val visH = visibleCapHeight(l)
+        capFullH = l.height.toFloat()
+        capVisH = visH
+        val maxScroll = max(0f, capFullH - visH)
+        // Follow the newest line while text is arriving, unless the user scrolled up.
+        if (!capUserScrolled) capScroll = maxScroll
+        capScroll = capScroll.coerceIn(0f, maxScroll)
+
+        val h = visH + dp(16f)
         // The plate is only as wide as the text, so it reads like a caption.
         var tw = 0f
         for (i in 0 until l.lineCount) tw = max(tw, l.getLineWidth(i))
         val plateW = min(w - 2f * dp(PAD), tw + dp(28f))
         val left = (w - plateW) / 2f
-        subsRect.set(left, top, left + plateW, top + h)
+
+        // New text fades and slides in.
+        val age = SystemClock.uptimeMillis() - capSwapAt
+        val p = (age / 260f).coerceIn(0f, 1f)
+        val slide = (1f - p) * dp(8f)
+        subsRect.set(left, top + slide, left + plateW, top + slide + h)
+
         val rad = dp(14f)
         fill.shader = null
         fill.color = Color.parseColor("#E6000000")
+        fill.alpha = (230f * p).toInt()
         c.drawRoundRect(subsRect, rad, rad, fill)
+        fill.alpha = 255
+
         c.save()
-        c.translate(subsRect.centerX() - l.width / 2f, top + dp(8f))
+        c.clipRect(subsRect.left + dp(6f), subsRect.top + dp(8f), subsRect.right - dp(6f), subsRect.top + dp(8f) + visH)
+        c.translate(subsRect.centerX() - l.width / 2f, subsRect.top + dp(8f) - capScroll)
+        capPaint.alpha = (255f * p).toInt()
         l.draw(c)
+        capPaint.alpha = 255
         c.restore()
+
+        // A thin scroll bar when there is more text than the plate shows.
+        if (maxScroll > 1f) {
+            val trackH = visH
+            val barH = max(dp(14f), trackH * (visH / capFullH))
+            val barTop = subsRect.top + dp(8f) + (trackH - barH) * (capScroll / maxScroll)
+            capBar.set(subsRect.right - dp(7f), barTop, subsRect.right - dp(4f), barTop + barH)
+            fill.color = withAlpha(Color.WHITE, 0.35f)
+            c.drawRoundRect(capBar, dp(2f), dp(2f), fill)
+        }
+        if (p < 1f) postInvalidateOnAnimation()
     }
 }

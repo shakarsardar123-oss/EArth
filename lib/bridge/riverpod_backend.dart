@@ -422,7 +422,7 @@ class RiverpodBackend
   bool _overlayOnly = false; // this live session was started by the wake word
 
   bool get _wakeWanted =>
-      _c.read(sharedPreferencesProvider).getBool('ui.toggle.wake') ?? false;
+      _c.read(sharedPreferencesProvider).getBool('ui.toggle.wake') ?? true;
 
   Future<void> _initWake() async {
     _wakeRetry ??= Timer.periodic(const Duration(seconds: 20), (Timer _) => _tryStartWake());
@@ -509,6 +509,33 @@ class RiverpodBackend
 
   bool _sleeping = false;
   Timer? _reactTimer;
+
+  // Several faces for every reaction; the same one is never shown twice in a row.
+  static const Map<String, List<String>> _reactionSets = <String, List<String>>{
+    'run': <String>['\u{1F3C3}', '\u{1F4A8}', '\u{1F680}', '\u{1F3C3}\u200D\u2640\uFE0F'],
+    'wake': <String>['\u{1F929}', '\u{1F603}', '\u{1F973}', '\u{1F31E}'],
+    'sleep': <String>['\u{1F634}', '\u{1F971}', '\u{1F4A4}'],
+    'quiet': <String>['\u{1F92B}', '\u{1F636}', '\u{1F910}'],
+  };
+  final Map<String, String> _lastReaction = <String, String>{};
+
+  String _pickReaction(String key) {
+    final List<String> opts = _reactionSets[key] ?? const <String>['\u{1F642}'];
+    final String last = _lastReaction[key] ?? '';
+    final List<String> pool = opts.where((String e) => e != last).toList();
+    final String pick = pool[DateTime.now().microsecondsSinceEpoch % pool.length];
+    _lastReaction[key] = pick;
+    return pick;
+  }
+
+  String? _emojiOverride;
+  int _emojiUntil = 0;
+
+  /// A command like "run" / "wake up" changes the pill face for a moment.
+  void _flashEmoji(String command) {
+    _emojiOverride = _pickReaction(command.contains('run') ? 'run' : 'wake');
+    _emojiUntil = DateTime.now().millisecondsSinceEpoch + 2600;
+  }
   String? _pendingReaction; // set by a spoken Kurdish command, shown after the session ends
 
   /// Shows the pill with one emoji and no conversation. [hold] = how long it stays.
@@ -543,22 +570,27 @@ class RiverpodBackend
       case 'quiet':
         // "texo quiet": a short shush, then the pill goes away.
         _sleeping = false;
-        await _showReaction('\u{1F92B}', hold: const Duration(seconds: 3));
+        await _showReaction(_pickReaction('quiet'), hold: const Duration(seconds: 3));
         return;
       case 'sleep':
         // "texo sleep" / "you slept": sleeping face until woken up.
         _sleeping = true;
-        await _showReaction('\u{1F634}', hold: const Duration(minutes: 10));
+        await _showReaction(_pickReaction('sleep'), hold: const Duration(minutes: 10));
         return;
       case 'wakeup':
         // "wake up texo": wakes with a bright face, then the conversation starts.
         _sleeping = false;
-        await _showReaction('\u{1F929}');
+        await _showReaction(_pickReaction('wake'));
         await Future<void>.delayed(const Duration(milliseconds: 700));
         await _onWake();
         return;
       default:
-        _sleeping = false;
+        // Plain "texo" while sleeping also wakes up, with a bright face first.
+        if (_sleeping) {
+          _sleeping = false;
+          await _showReaction(_pickReaction('wake'));
+          await Future<void>.delayed(const Duration(milliseconds: 700));
+        }
         await _onWake();
     }
   }
@@ -621,6 +653,7 @@ class RiverpodBackend
       _live.caption.value = clean;
       _pushOverlay();
     };
+    orchestrator.onRestCommand = (dynamic c) => _flashEmoji('$c');
     orchestrator.onSessionEnded = (String reason) {
       _live.active.value = false;
       if (reason == 'sleep_command') _pendingReaction = 'sleep';
@@ -743,15 +776,18 @@ class RiverpodBackend
     _pendingReaction = null;
     if (pending == 'sleep') {
       _sleeping = true;
-      unawaited(_showReaction('\u{1F634}', hold: const Duration(minutes: 10)));
+      unawaited(_showReaction(_pickReaction('sleep'), hold: const Duration(minutes: 10)));
     } else if (pending == 'quiet') {
-      unawaited(_showReaction('\u{1F92B}', hold: const Duration(seconds: 3)));
+      unawaited(_showReaction(_pickReaction('quiet'), hold: const Duration(seconds: 3)));
     }
     // Back to waiting for "texo" once the microphone is free.
     Future<void>.delayed(const Duration(milliseconds: 900), _tryStartWake);
   }
 
   String _emoji(LiveMode m) {
+    if (_emojiOverride != null && DateTime.now().millisecondsSinceEpoch < _emojiUntil) {
+      return _emojiOverride!;
+    }
     if (m == LiveMode.thinking) return '\u{1F914}';
     if (m == LiveMode.speaking) {
       const List<String> e = <String>['\u{1F604}', '\u{1F62E}', '\u{1F3B5}', '\u{1F970}'];

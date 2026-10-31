@@ -57,12 +57,14 @@ typedef LiveModeScreenCaptionCallback = void Function(String text);
 // instead of being answered. Long sentences are never treated as commands.
 
 /// Which rest command was spoken.
-enum VoiceRestCommand { quiet, sleep }
+enum VoiceRestCommand { quiet, sleep, wake, run }
 
 const List<String> _kuQuietPhrases = <String>[
   'بێدەنگ بە', 'بێدەنگ', 'بێ دەنگ بە', 'بێ دەنگ', 'کپ بە', 'ئارام بە', 'ساکت بە',
   'دەنگ مەکە', 'قسە مەکە', 'هیچ مەڵێ',
 ];
+const List<String> _kuWakePhrases = <String>['هەڵسە', 'هەستە', 'بەخەبەر بە', 'بێدار بە', 'هەڵبسە'];
+const List<String> _kuRunPhrases = <String>['ڕاکە', 'ڕا بکە', 'ڕابکە'];
 const List<String> _kuSleepPhrases = <String>[
   'بنوو', 'بنو', 'بخەوە', 'بخەو', 'بچۆ بخەوە', 'بچۆ بنوو', 'شەو باش', 'شەوباش',
 ];
@@ -103,6 +105,8 @@ VoiceRestCommand? _restCommandOf(String text) {
 
   if (has(_kuSleepPhrases)) return VoiceRestCommand.sleep;
   if (has(_kuQuietPhrases)) return VoiceRestCommand.quiet;
+  if (has(_kuWakePhrases)) return VoiceRestCommand.wake;
+  if (has(_kuRunPhrases)) return VoiceRestCommand.run;
   return null;
 }
 
@@ -307,6 +311,9 @@ class LiveModeOrchestrator {
   /// to IDLE. The [String] is a short machine reason ('exit_command' |
   /// 'inactivity_timeout').
   void Function(String reason)? onSessionEnded;
+
+  /// A spoken "wake up" / "run" command: the pill reacts, the session goes on.
+  void Function(VoiceRestCommand command)? onRestCommand;
 
   /// Current Live Mode state.
   LiveModeState get state => _state;
@@ -633,6 +640,14 @@ class LiveModeOrchestrator {
     // run as a normal request (satisfies: wake/turn does not execute an
     // arbitrary tool by itself, and TTS completion is NOT what ends it).
     final VoiceRestCommand? rest = _restCommandOf(text);
+    if (rest == VoiceRestCommand.wake || rest == VoiceRestCommand.run) {
+      // Only the emoji reacts; nothing is sent to the AI and listening continues.
+      onUserRecognized?.call(text);
+      onRestCommand?.call(rest!);
+      _isProcessingRequest = false;
+      _restartListening(gen);
+      return;
+    }
     if (rest != null) {
       onUserRecognized?.call(text);
       _endSession(rest == VoiceRestCommand.sleep ? 'sleep_command' : 'quiet_command');
