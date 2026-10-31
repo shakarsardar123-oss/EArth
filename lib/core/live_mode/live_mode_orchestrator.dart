@@ -51,6 +51,61 @@ typedef LiveModeScreenCaptionCallback = void Function(String text);
 /// 3. AgentProcessor processes input → PROCESSING→SPEAKING
 /// 4. TTS speaks response, await resolves → SPEAKING→LISTENING
 /// 5. Cycle continues until user stops or error limit reached.
+// ── Spoken Sorani "rest" commands ─────────────────────────────────────────
+//
+// Short imperative phrases ("بێدەنگ بە", "بخەوە", "شەو باش") end the session
+// instead of being answered. Long sentences are never treated as commands.
+
+/// Which rest command was spoken.
+enum VoiceRestCommand { quiet, sleep }
+
+const List<String> _kuQuietPhrases = <String>[
+  'بێدەنگ بە', 'بێدەنگ', 'بێ دەنگ بە', 'بێ دەنگ', 'کپ بە', 'ئارام بە', 'ساکت بە',
+  'دەنگ مەکە', 'قسە مەکە', 'هیچ مەڵێ',
+];
+const List<String> _kuSleepPhrases = <String>[
+  'بنوو', 'بنو', 'بخەوە', 'بخەو', 'بچۆ بخەوە', 'بچۆ بنوو', 'شەو باش', 'شەوباش',
+];
+
+/// Unifies the Arabic / Persian letter variants speech recognition may produce.
+String _normalizeKu(String s) {
+  final String t = s
+      .replaceAll(RegExp('[\u200c\u200d\u064B-\u065F\u0670]'), '')
+      .replaceAll('\u064A', '\u06CC') // ي -> ی
+      .replaceAll('\u0649', '\u06CC') // ى -> ی
+      .replaceAll('\u0643', '\u06A9') // ك -> ک
+      .replaceAll('\u0647', '\u06D5') // ه -> ە
+      .replaceAll(RegExp(r'[.,!?\u061F\u060C\u061B:;"\u201C\u201D\u00AB\u00BB()\-]'), ' ')
+      .toLowerCase();
+  return t.replaceAll(RegExp(r'\s+'), ' ').trim();
+}
+
+VoiceRestCommand? _restCommandOf(String text) {
+  final List<String> tokens =
+      _normalizeKu(text).split(' ').where((String t) => t.isNotEmpty).toList();
+  if (tokens.isEmpty || tokens.length > 5) return null; // a sentence, not a command
+  bool has(List<String> phrases) {
+    for (final String p in phrases) {
+      final List<String> pt = _normalizeKu(p).split(' ');
+      for (int i = 0; i + pt.length <= tokens.length; i++) {
+        bool ok = true;
+        for (int j = 0; j < pt.length; j++) {
+          if (tokens[i + j] != pt[j]) {
+            ok = false;
+            break;
+          }
+        }
+        if (ok) return true;
+      }
+    }
+    return false;
+  }
+
+  if (has(_kuSleepPhrases)) return VoiceRestCommand.sleep;
+  if (has(_kuQuietPhrases)) return VoiceRestCommand.quiet;
+  return null;
+}
+
 class LiveModeOrchestrator {
   LiveModeOrchestrator({
     required VoiceService voiceService,
@@ -577,6 +632,12 @@ class LiveModeOrchestrator {
     // the agent — so "goodbye aura" is treated as a control phrase, never
     // run as a normal request (satisfies: wake/turn does not execute an
     // arbitrary tool by itself, and TTS completion is NOT what ends it).
+    final VoiceRestCommand? rest = _restCommandOf(text);
+    if (rest != null) {
+      onUserRecognized?.call(text);
+      _endSession(rest == VoiceRestCommand.sleep ? 'sleep_command' : 'quiet_command');
+      return;
+    }
     if (_isExitCommand(text)) {
       onUserRecognized?.call(text);
       _endSession('exit_command');

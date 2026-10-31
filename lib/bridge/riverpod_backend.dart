@@ -509,6 +509,7 @@ class RiverpodBackend
 
   bool _sleeping = false;
   Timer? _reactTimer;
+  String? _pendingReaction; // set by a spoken Kurdish command, shown after the session ends
 
   /// Shows the pill with one emoji and no conversation. [hold] = how long it stays.
   Future<void> _showReaction(String emoji, {Duration? hold}) async {
@@ -622,8 +623,10 @@ class RiverpodBackend
     };
     orchestrator.onSessionEnded = (String reason) {
       _live.active.value = false;
+      if (reason == 'sleep_command') _pendingReaction = 'sleep';
+      if (reason == 'quiet_command') _pendingReaction = 'quiet';
       // No Live screen is open (wake-word session): close the overlay too.
-      if (_overlayOnly) stopLive();
+      if (_overlayOnly || _pendingReaction != null) stopLive();
     };
     await orchestrator.startSession();
     // The old live-mode code may have registered its own overlay handler or
@@ -735,6 +738,15 @@ class RiverpodBackend
     } catch (_) {}
     _overlayOnly = false;
     _overlay.forceVisible = false;
+    // A spoken Kurdish "quiet" / "sleep" command: show the matching face.
+    final String? pending = _pendingReaction;
+    _pendingReaction = null;
+    if (pending == 'sleep') {
+      _sleeping = true;
+      unawaited(_showReaction('\u{1F634}', hold: const Duration(minutes: 10)));
+    } else if (pending == 'quiet') {
+      unawaited(_showReaction('\u{1F92B}', hold: const Duration(seconds: 3)));
+    }
     // Back to waiting for "texo" once the microphone is free.
     Future<void>.delayed(const Duration(milliseconds: 900), _tryStartWake);
   }
