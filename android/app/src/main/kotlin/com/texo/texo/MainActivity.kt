@@ -579,7 +579,16 @@ class MainActivity : FlutterActivity() {
             "verifyScreenTarget" -> handleVerifyScreenTarget(call, result)
             "openSettingsPanel" -> handleOpenSettingsPanel(call, result)
             // Debug toasts ("STT: processing", "hideOverlay called"...) are switched off.
-            "agentToast" -> result.success(true)
+            "agentToast" -> {
+                // Only short speech-to-text status notes are shown (to see when the
+                // cloud falls back to the offline model); other debug toasts stay off.
+                val note = call.argument<String>("message") ?: ""
+                if (note.startsWith("STT:")) {
+                    PhoneAgentBridge.handle(this, call, result)
+                } else {
+                    result.success(true)
+                }
+            }
             "agentBegin", "agentEnd", "agentKilled", "a11yRead", "a11yClick", "a11yTap",
             "a11yType", "a11yScroll", "a11yGlobal", "a11yEnter", "a11yStartIntent", "agentAsk" ->
                 PhoneAgentBridge.handle(this, call, result)

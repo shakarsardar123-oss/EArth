@@ -232,11 +232,46 @@ class RiverpodBackend
   void Function(String)? _hookSentence;
 
   void _initCloudStt() {
-    // The speech-to-text call uses the very provider (key, model) the chat uses.
     CloudStt.instance.resolver = () {
       final dynamic p = _c.read(selectedAIProviderProvider);
       return p is GeminiProvider ? p : null;
     };
+    // Speech-to-text goes through the very provider the chat uses.
+    CloudStt.instance.transcriber = _transcribeViaProvider;
+  }
+
+  Future<String?> _transcribeViaProvider(String wavBase64) async {
+    final provider = _c.read(selectedAIProviderProvider);
+    const AgentConfig cfg = AgentConfig(
+      id: 'stt',
+      name: 'STT',
+      description: 'speech to text',
+      systemPrompt: CloudStt.prompt,
+      modelId: 'gemini-3.6-flash',
+      temperature: 0,
+      maxTokens: 384,
+      isDefault: false,
+      isActive: true,
+    );
+    final AIMessage msg = AIMessage(
+      role: AIMessageRole.user,
+      content: 'Transcribe this audio.',
+      metadata: <String, dynamic>{
+        'attachments': <Map<String, String>>[
+          <String, String>{'mime': 'audio/wav', 'name': 'speech.wav', 'data': wavBase64},
+        ],
+      },
+    );
+    final res = await provider
+        .complete(AIRequest(
+          prompt: 'Transcribe this audio.',
+          agentConfig: cfg,
+          messages: <AIMessage>[msg],
+        ))
+        .timeout(const Duration(seconds: 8));
+    final String text = res.text.trim();
+    // A "model answered instead of transcribing" reply is not speech.
+    return text;
   }
 
   @override
@@ -266,7 +301,10 @@ class RiverpodBackend
           role: m['role'] == 'user' ? AIMessageRole.user : AIMessageRole.assistant,
           content: m['content'] ?? '',
         ),
-      AIMessage(role: AIMessageRole.user, content: text),
+      AIMessage(
+        role: AIMessageRole.user,
+        content: '$text\n\n(Current date and time: ${nowForAssistant()}.)',
+      ),
     ];
     final AIRequest req = AIRequest(
       prompt: text,

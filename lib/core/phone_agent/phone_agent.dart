@@ -175,7 +175,35 @@ class PhoneAgent {
         history.add('$step. ${jsonEncode(act)} -> '
             '${_ok(res) ? 'ok' : 'FAILED: ${res['error']}'}'
             '${repeating ? '  (You repeated this several times without progress. Try a DIFFERENT approach.)' : ''}');
-        await _sleep(a == 'wait' ? 0 : 900);
+
+        // Follow-up actions of the same reply: run them at once (no new AI call).
+        // Only actions that do not use screen element numbers are allowed, because
+        // the screen changes after the first one.
+        final rest = (act['_rest'] as List?) ?? const [];
+        var extra = 0;
+        for (final r in rest.take(5)) {
+          final ra = Map<String, dynamic>.from(r as Map);
+          final rname = '${ra['action']}';
+          const batchable = {'scroll', 'global', 'wait', 'enter', 'note', 'url', 'launch', 'tap'};
+          if (!batchable.contains(rname)) break;
+          if (rname == 'done' || rname == 'fail') break;
+          if (_stop || await _killed()) {
+            return const PhoneAgentResult(false, 'وەستێنرا', killed: true);
+          }
+          final rreason = _sensitiveReason(ra, nodes);
+          var rconsented = false;
+          if (rreason != null) {
+            rconsented = await askConsent(rreason);
+            if (!rconsented) break;
+          }
+          final rres = await _execute(rname, ra, nodes, rconsented);
+          extra++;
+          history.add('$step.$extra ${jsonEncode(ra)} -> ${_ok(rres) ? 'ok' : 'FAILED: ${rres['error']}'}');
+          if (!_ok(rres)) break;
+          if (rname != 'wait' && rname != 'note') await _sleep(500);
+        }
+
+        await _sleep(a == 'wait' || a == 'note' ? 0 : 600);
       }
     } finally {
       await _call(_sys, 'agentEnd');
@@ -245,8 +273,11 @@ class PhoneAgent {
           'type': act['type'],
           'extras': act['extras'],
         });
+      case 'note':
+        // A fact to remember for the final answer (no phone action).
+        return {'ok': true};
       case 'wait':
-        await _sleep(((_num(act['seconds']) ?? 2) * 1000).round());
+        await _sleep((((_num(act['seconds']) ?? 2).clamp(0, 25)) * 1000).round());
         return {'ok': true};
       case 'ask':
         final yes = await askConsent('${act['question'] ?? ''}');
@@ -319,7 +350,7 @@ class PhoneAgent {
   }
 
   static const String _system = r'''
-You control an Android phone through accessibility. Every turn you get the task, the current screen elements and the history. Reply with EXACTLY ONE JSON object, no prose, no markdown.
+You control an Android phone through accessibility. Every turn you get the task, the current screen elements and the history. Reply with ONE JSON object, or {"actions":[a1,a2,...]} with up to 5 actions, no prose, no markdown.
 
 Actions:
 {"action":"launch","app":"<app name or package>"}
@@ -332,6 +363,7 @@ Actions:
 {"action":"enter"}
 {"action":"tap","x":0,"y":0}                                  only if no element matches
 {"action":"wait","seconds":2}
+{"action":"note","text":"a fact you just read, to remember for the final answer"}
 {"action":"ask","question":"..."}                             ask the user yes/no
 {"action":"done","message":"short result in the user's language"}
 {"action":"fail","message":"why it cannot be done"}
@@ -341,6 +373,8 @@ Rules:
 - For any website or web search use the url action (Google search: https://www.google.com/search?q=...). You can open pages, scroll them and read them like a person.
 - Exception: the photo gallery / Google Photos / file picker is private. Never open it or read pictures from it.
 - Use "fail" only after you tried several different approaches and it is truly impossible.
+- Batch to be fast: only the FIRST action in a batch may use an element number i; the following ones must not (use scroll, wait, global, enter, note, url, launch, tap). Example for "watch 3 videos for 5 seconds each": {"actions":[{"action":"note","text":"video 1: ..."},{"action":"wait","seconds":5},{"action":"scroll","dir":"down"}]} and repeat after reading the next screen.
+- In vertical feeds (TikTok, YouTube Shorts, Reels) scroll down = the next video. Use "note" to save numbers you read (likes, comments, titles) and put all notes in the final "done" message as the statistics.
 - Add "thought":"short reasoning" to every reply.
 - Prefer launch/url/intent to open apps and searches, then click/type/scroll.
 - Use indices from the CURRENT screen only. The screen changes after every action.
@@ -353,11 +387,32 @@ Rules:
   // ── helpers ─────────────────────────────────────────────────────
 
   Map<String, dynamic>? _parse(String raw) {
-    final m = RegExp(r'\{[\s\S]*\}').firstMatch(raw);
-    if (m == null) return null;
+    // A reply may be one action, {"actions":[...]} or a JSON array of actions.
+    final arr = RegExp(r'\[[\s\S]*\]').firstMatch(raw);
+    final obj = RegExp(r'\{[\s\S]*\}').firstMatch(raw);
     try {
-      final d = jsonDecode(m.group(0)!);
-      if (d is Map && d['action'] != null) return Map<String, dynamic>.from(d);
+      final String? src = (obj != null && (arr == null || obj.start <= arr.start))
+          ? obj.group(0)
+          : arr?.group(0);
+      if (src == null) return null;
+      final d = jsonDecode(src);
+      List? list;
+      if (d is List) {
+        list = d;
+      } else if (d is Map && d['actions'] is List) {
+        list = d['actions'] as List;
+      } else if (d is Map && d['action'] != null) {
+        return Map<String, dynamic>.from(d);
+      }
+      if (list != null && list.isNotEmpty && list.first is Map) {
+        final first = Map<String, dynamic>.from(list.first as Map);
+        if (first['action'] == null) return null;
+        first['_rest'] = <Map<String, dynamic>>[
+          for (final e in list.skip(1))
+            if (e is Map && e['action'] != null) Map<String, dynamic>.from(e),
+        ];
+        return first;
+      }
     } catch (_) {}
     return null;
   }

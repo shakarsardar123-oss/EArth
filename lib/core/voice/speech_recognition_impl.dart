@@ -11,6 +11,7 @@ library;
 
 import '../phone_agent/debug_toast.dart';
 import 'cloud_stt.dart';
+import '../text/clean_reply.dart';
 import 'dart:async';
 
 import 'package:flutter/services.dart';
@@ -127,12 +128,14 @@ class SpeechRecognitionServiceImpl {
     if (!_listening) return;
     if (text == null) {
       // No internet / key / timeout: use the on-device model instead.
+      debugToast('STT: cloud failed (${CloudStt.instance.lastStatus}), offline');
       try {
         await _channel.invokeMethod<bool>('local', <String, Object?>{'id': id});
       } catch (_) {}
       return;
     }
-    if (text.isNotEmpty) _onResult?.call(text);
+    final String clean = collapseRepeats(text);
+    if (clean.isNotEmpty) _onResult?.call(clean);
   }
 
   Future<void> stopListening() async {

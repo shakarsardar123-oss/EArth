@@ -58,3 +58,28 @@ class SentenceSplitter {
     return out;
   }
 }
+
+/// The offline recogniser sometimes loops ("خۆی خۆی خۆی خۆی ..."). Keeps one copy
+/// of any word or word pair that is repeated three or more times in a row.
+String collapseRepeats(String t) {
+  final List<String> words =
+      t.split(RegExp(r'\s+')).where((String w) => w.isNotEmpty).toList();
+  final List<String> out = <String>[];
+  for (final String w in words) {
+    if (out.length >= 2 && out[out.length - 1] == w && out[out.length - 2] == w) continue;
+    out.add(w);
+  }
+  String s = out.join(' ');
+  s = s.replaceAllMapped(RegExp(r'(\S+ \S+)( \1){2,}'), (Match m) => m[1]!);
+  return s.trim();
+}
+
+/// "Sunday 2026-11-01 15:30" for the assistant, so it can answer date questions.
+String nowForAssistant() {
+  final DateTime n = DateTime.now();
+  const List<String> days = <String>[
+    'Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday', 'Sunday',
+  ];
+  String two(int v) => v.toString().padLeft(2, '0');
+  return '${days[n.weekday - 1]} ${n.year}-${two(n.month)}-${two(n.day)} ${two(n.hour)}:${two(n.minute)}';
+}

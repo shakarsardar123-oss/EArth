@@ -22,6 +22,10 @@ class CloudStt {
   /// Set by the app: returns the Gemini provider the app itself uses (or null).
   GeminiProvider? Function()? resolver;
 
+  /// Set by the app: transcribes through the SAME provider the chat uses (its
+  /// key, base URL and model). This is tried first.
+  Future<String?> Function(String wavBase64)? transcriber;
+
   late final GeminiProvider _standalone =
       GeminiProvider(secureStorage: const FlutterSecureStorage());
 
@@ -33,8 +37,11 @@ class CloudStt {
 
   GeminiProvider _provider() => resolver?.call() ?? _standalone;
 
+  /// True when speech can be sent to the cloud.
+  Future<bool> available() async => transcriber != null || await _hasKey();
+
   /// True when an API key is stored (re-checked at most every 20 s).
-  Future<bool> available() async {
+  Future<bool> _hasKey() async {
     final DateTime now = DateTime.now();
     if (_key == null || now.difference(_keyCheckedAt).inSeconds > 20) {
       try {
@@ -51,6 +58,8 @@ class CloudStt {
     if (!ok) lastStatus = 'no key';
     return ok;
   }
+
+  static const String prompt = _prompt;
 
   static const String _prompt =
       'You are a speech-to-text engine for Central Kurdish (Sorani). '
@@ -111,7 +120,19 @@ class CloudStt {
   /// was no speech) or null when the cloud could not be used.
   Future<String?> transcribe(String wavBase64) async {
     try {
-      if (!await available()) return null;
+      final Future<String?> Function(String)? viaApp = transcriber;
+      if (viaApp != null) {
+        try {
+          final String? r = await viaApp(wavBase64);
+          if (r != null) {
+            lastStatus = 'ok (app provider)';
+            return r;
+          }
+        } catch (e) {
+          lastStatus = 'provider error: $e';
+        }
+      }
+      if (!await _hasKey()) return null;
       final GeminiProvider p = _provider();
       String model = _model(p);
       http.Response r = await _post(p, model, wavBase64);
