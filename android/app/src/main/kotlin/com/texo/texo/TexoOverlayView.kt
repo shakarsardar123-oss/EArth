@@ -820,8 +820,48 @@ class TexoOverlayView(context: Context) : View(context) {
         val p = min(1f, (now - emojiChangedAt) / 550f)
         val tt = p - 1f
         val s = if (p >= 1f) 1f else 0.3f + 0.7f * (tt * tt * (3.5f * tt + 2.5f) + 1f)
+        // Every face moves according to the state: it breathes while listening,
+        // tilts while thinking, bounces with the voice while speaking, sways when
+        // asleep, shakes when running and jumps when happy.
+        val ts = now / 1000f
+        var mx = 0f
+        var my = 0f
+        var rot = 0f
+        var grow = 1f
+        val sleepy = emoji == "\uD83D\uDE34" || emoji == "\uD83E\uDD71" || emoji == "\uD83D\uDCA4"
+        val running = emoji == "\uD83C\uDFC3" || emoji == "\uD83D\uDCA8" || emoji == "\uD83D\uDE80"
+        val joyful = emoji == "\uD83E\uDD29" || emoji == "\uD83D\uDE03" || emoji == "\uD83E\uDD73" || emoji == "\uD83C\uDF1E"
+        when {
+            sleepy -> {
+                my = sin(ts * 1.1f) * dp(1.6f)
+                rot = sin(ts * 0.9f) * 5f
+                grow = 1f + 0.05f * sin(ts * 1.1f)
+            }
+            running -> {
+                mx = sin(ts * 15f) * dp(2.6f)
+                rot = sin(ts * 15f) * 6f
+            }
+            joyful -> {
+                my = -kotlin.math.abs(sin(ts * 6f)) * dp(3.2f)
+                grow = 1f + 0.08f * kotlin.math.abs(sin(ts * 6f))
+            }
+            v == 1 -> {
+                rot = sin(ts * 5f) * 9f
+                my = -kotlin.math.abs(sin(ts * 3f)) * dp(1.2f)
+            }
+            mode == 2 -> {
+                grow = 1f + 0.14f * level + 0.04f * sin(ts * 9f)
+                my = -level * dp(1.8f) * kotlin.math.abs(sin(ts * 7f))
+            }
+            else -> {
+                my = sin(ts * 2.2f) * dp(1.1f)
+                grow = 1f + 0.035f * sin(ts * 2.2f)
+            }
+        }
         c.save()
-        c.scale(s, s, cx, cy)
+        c.translate(mx, my)
+        c.rotate(rot, cx, cy)
+        c.scale(s * grow, s * grow, cx, cy)
         emojiPaint.textSize = dp(19f)
         val fm = emojiPaint.fontMetrics
         c.drawText(emoji, cx, cy - (fm.ascent + fm.descent) / 2f, emojiPaint)

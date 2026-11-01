@@ -188,3 +188,16 @@ abstract class TexoPermissionsExtras {
 abstract class TexoPickExtras {
   Future<UiAttachment?> pickKind(String kind);
 }
+
+/// Optional: a backend that can stream the answer. [onPartial] receives the
+/// whole answer so far (to show it growing), [onSentence] every finished
+/// sentence (to speak it at once instead of waiting for the end).
+abstract class TexoStreamExtras {
+  Future<String> askStreaming(
+    String text, {
+    String? conversationId,
+    List<UiAttachment> attachments = const <UiAttachment>[],
+    required void Function(String soFar) onPartial,
+    required void Function(String sentence) onSentence,
+  });
+}

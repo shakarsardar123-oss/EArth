@@ -20,6 +20,8 @@ import '../../services/voice/voice_service.dart'
     show VoiceService;
 import 'agent_processor.dart';
 import '../agent/agent_context.dart';
+import '../agent/agent_result.dart';
+import '../phone_agent/phone_control_hook.dart';
 
 import '../../domain/entities/agent_config.dart';
 import '../tts/vekol_tts_service.dart';
@@ -311,6 +313,18 @@ class LiveModeOrchestrator {
   /// to IDLE. The [String] is a short machine reason ('exit_command' |
   /// 'inactivity_timeout').
   void Function(String reason)? onSessionEnded;
+
+  /// The answer so far, while it is still arriving (for the live caption).
+  LiveModeResponseCallback? onAIPartial;
+
+  /// Set by the app: streams a plain chat answer. Returns the full text, or null
+  /// when streaming is not possible (the normal engine is used then).
+  Future<String?> Function(
+    String text,
+    List<Map<String, dynamic>> history,
+    void Function(String soFar) onPartial,
+    void Function(String sentence) onSentence,
+  )? chatStreamer;
 
   /// A spoken "wake up" / "run" command: the pill reacts, the session goes on.
   void Function(VoiceRestCommand command)? onRestCommand;
@@ -751,7 +765,19 @@ class LiveModeOrchestrator {
         maxSteps: 10,
       );
 
-      final result = await _agentProcessor.run(
+      AgentResult? result;
+      final streamer = chatStreamer;
+      if (streamer != null) {
+        // A phone task goes to the phone agent. Everything else is streamed and
+        // spoken sentence by sentence while the answer is still being written.
+        result = await phoneControlHook?.call(text, context);
+        if (!_isCurrentGeneration(gen)) return;
+        if (result == null) {
+          final bool handled = await _streamAndSpeak(gen, text, history, streamer);
+          if (handled) return;
+        }
+      }
+      result ??= await _agentProcessor.run(
         userInput: text,
         context: context,
       );
@@ -792,6 +818,79 @@ class LiveModeOrchestrator {
       if (!_isCurrentGeneration(gen)) return;
       _handleError(gen, 'AgentProcessor exception: $e');
     }
+  }
+
+  /// Streams the answer and speaks each finished sentence at once. Returns false
+  /// when nothing could be streamed (the caller then uses the normal engine).
+  Future<bool> _streamAndSpeak(
+    int gen,
+    String text,
+    List<Map<String, dynamic>> history,
+    Future<String?> Function(
+      String text,
+      List<Map<String, dynamic>> history,
+      void Function(String soFar) onPartial,
+      void Function(String sentence) onSentence,
+    ) streamer,
+  ) async {
+    final List<String> queue = <String>[];
+    bool started = false;
+    bool pumping = false;
+
+    Future<void> pump() async {
+      if (pumping) return;
+      pumping = true;
+      while (queue.isNotEmpty && _isCurrentGeneration(gen)) {
+        final String s = _cleanForSpeech(queue.removeAt(0));
+        if (s.isEmpty || speechMuted) continue;
+        try {
+          await _voiceService.speak(s, locale: 'ku');
+        } catch (_) {}
+      }
+      pumping = false;
+    }
+
+    String? full;
+    try {
+      full = await streamer(text, history, (String soFar) {
+        if (_isCurrentGeneration(gen)) onAIPartial?.call(soFar);
+      }, (String sentence) {
+        if (!_isCurrentGeneration(gen)) return;
+        if (!started) {
+          started = true;
+          _setState(LiveModeState.speaking);
+        }
+        queue.add(sentence);
+        unawaited(pump());
+      });
+    } catch (_) {
+      full = null;
+    }
+    if (!_isCurrentGeneration(gen)) return true;
+    if ((full == null || full.trim().isEmpty) && !started) return false;
+
+    while ((pumping || queue.isNotEmpty) && _isCurrentGeneration(gen)) {
+      await Future<void>.delayed(const Duration(milliseconds: 60));
+    }
+    if (!_isCurrentGeneration(gen)) return true;
+
+    final String answer = full ?? '';
+    _consecutiveErrors = 0;
+    onAIResponse?.call(answer);
+    try {
+      if (_currentConversationId != null) {
+        await _memoryService.addMessage(
+          conversationId: _currentConversationId!,
+          role: 'assistant',
+          content: answer,
+        );
+      }
+    } catch (_) {}
+    if (!_isCurrentGeneration(gen)) return true;
+    _isProcessingRequest = false;
+    _setState(LiveModeState.listening);
+    await _startListening(gen);
+    return true;
   }
 
   /// Speak the response, then restart listening.

@@ -13,6 +13,11 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:permission_handler/permission_handler.dart';
 
 import '../core/agent/agent_context.dart';
+import '../core/agent/agent_result.dart';
+import '../core/ai/gemini_provider.dart' show GeminiProvider;
+import '../core/phone_agent/phone_control_hook.dart';
+import '../core/text/clean_reply.dart';
+import '../core/voice/cloud_stt.dart';
 import '../core/ai/ai_message.dart';
 import '../core/live_mode/live_mode_providers.dart';
 import '../core/live_mode/live_mode_state.dart';
@@ -27,16 +32,22 @@ import '../presentation/widgets/api_key_settings_section.dart';
 import '../presentation/widgets/permissions_section.dart';
 import '../ui/texo_ui.dart';
 import '../ui/src/backend.dart'
-    show TexoCameraExtras, TexoPermissionsExtras, TexoPickExtras, UiPermissionItem;
+    show
+        TexoCameraExtras,
+        TexoPermissionsExtras,
+        TexoPickExtras,
+        TexoStreamExtras,
+        UiPermissionItem;
 import 'live_camera.dart';
 import 'overlay_controller.dart';
 
 /// Connects the new UI ([TexoBackend]) to the existing app logic (Riverpod).
 class RiverpodBackend
-    implements TexoBackend, TexoCameraExtras, TexoPermissionsExtras, TexoPickExtras {
+    implements TexoBackend, TexoCameraExtras, TexoPermissionsExtras, TexoPickExtras, TexoStreamExtras {
   RiverpodBackend(this._c) {
     Future<void>.microtask(_initWake);
     Future<void>.microtask(_initAssist);
+    Future<void>.microtask(_initCloudStt);
     Future<void>.delayed(const Duration(seconds: 6), _ensureBackgroundAllowed);
   }
 
@@ -215,12 +226,81 @@ class RiverpodBackend
     return UiAttachment(name: f.name, mime: _mimeFor(f.name, f.extension), bytes: bytes);
   }
 
+  // ---- streamed answers (text and speech start while the answer is still coming) ----
+
+  void Function(String)? _hookPartial;
+  void Function(String)? _hookSentence;
+
+  void _initCloudStt() {
+    // The speech-to-text call uses the very provider (key, model) the chat uses.
+    CloudStt.instance.resolver = () {
+      final dynamic p = _c.read(selectedAIProviderProvider);
+      return p is GeminiProvider ? p : null;
+    };
+  }
+
+  @override
+  Future<String> askStreaming(
+    String text, {
+    String? conversationId,
+    List<UiAttachment> attachments = const <UiAttachment>[],
+    required void Function(String soFar) onPartial,
+    required void Function(String sentence) onSentence,
+  }) {
+    _hookPartial = onPartial;
+    _hookSentence = onSentence;
+    return ask(text, conversationId: conversationId, attachments: attachments);
+  }
+
+  /// One streamed request for a plain chat message (no planner, no extra calls).
+  Future<String?> _streamPlainChat(
+    String text,
+    List<Map<String, String>> history,
+    void Function(String soFar) onPartial,
+    void Function(String sentence)? onSentence,
+  ) async {
+    final provider = _c.read(selectedAIProviderProvider);
+    final List<AIMessage> msgs = <AIMessage>[
+      for (final Map<String, String> m in history)
+        AIMessage(
+          role: m['role'] == 'user' ? AIMessageRole.user : AIMessageRole.assistant,
+          content: m['content'] ?? '',
+        ),
+      AIMessage(role: AIMessageRole.user, content: text),
+    ];
+    final AIRequest req = AIRequest(
+      prompt: text,
+      agentConfig: _c.read(agentConfigProvider),
+      messages: msgs,
+    );
+    final StringBuffer all = StringBuffer();
+    final SentenceSplitter split = SentenceSplitter();
+    await for (final r in provider.streamComplete(req).timeout(const Duration(seconds: 30))) {
+      final String piece = r.text;
+      if (piece.isEmpty) continue;
+      all.write(piece);
+      onPartial(cleanReply(all.toString()));
+      for (final String sentence in split.add(piece)) {
+        onSentence?.call(cleanReply(sentence));
+      }
+    }
+    for (final String sentence in split.flush()) {
+      onSentence?.call(cleanReply(sentence));
+    }
+    final String full = cleanReply(all.toString());
+    return full.isEmpty ? null : full;
+  }
+
   @override
   Future<String> ask(
     String text, {
     String? conversationId,
     List<UiAttachment> attachments = const <UiAttachment>[],
   }) async {
+    final void Function(String)? streamPartial = _hookPartial;
+    final void Function(String)? streamSentence = _hookSentence;
+    _hookPartial = null;
+    _hookSentence = null;
     final memory = _c.read(memoryServiceProvider);
     String? convId = _convId ?? conversationId;
     try {
@@ -272,18 +352,34 @@ class RiverpodBackend
         ));
         reply = res.text;
       } else {
-        final result = await _c.read(agentEngineProvider).run(
-              userInput: text,
-              context: AgentContext(
-                agentConfig: _c.read(agentConfigProvider),
-                conversationHistory: history,
-                maxSteps: 10,
-              ),
-            );
-        ok = result.isSuccess && result.response != null;
-        reply = ok
-            ? result.response!
-            : (result.errorMessage ?? 'ببورە، نەمتوانم وەڵام بدەمەوە.');
+        final AgentContext ctx = AgentContext(
+          agentConfig: _c.read(agentConfigProvider),
+          conversationHistory: history,
+          maxSteps: 10,
+        );
+        AgentResult? result;
+        String? streamed;
+        if (streamPartial != null) {
+          // A phone task goes to the phone agent; everything else is streamed.
+          result = await phoneControlHook?.call(text, ctx);
+          if (result == null) {
+            try {
+              streamed = await _streamPlainChat(text, history, streamPartial, streamSentence);
+            } catch (_) {
+              streamed = null;
+            }
+          }
+        }
+        if (streamed != null && streamed.trim().isNotEmpty) {
+          ok = true;
+          reply = streamed;
+        } else {
+          result ??= await _c.read(agentEngineProvider).run(userInput: text, context: ctx);
+          ok = result.isSuccess && result.response != null;
+          reply = ok
+              ? cleanReply(result.response!)
+              : (result.errorMessage ?? 'ببورە، نەمتوانم وەڵام بدەمەوە.');
+        }
       }
     } catch (e) {
       ok = false;
@@ -648,12 +744,30 @@ class RiverpodBackend
       _pushOverlay();
     };
     orchestrator.onAIResponse = (String text) {
-      final String clean = text.split('```').first.trim();
+      final String clean = cleanReply(text.split('```').first);
       _lastAi = clean;
       _live.caption.value = clean;
       _pushOverlay();
     };
     orchestrator.onRestCommand = (dynamic c) => _flashEmoji('$c');
+    orchestrator.onAIPartial = (String text) {
+      final String clean = cleanReply(text.split('```').first);
+      _lastAi = clean;
+      _live.caption.value = clean;
+      _pushOverlay();
+    };
+    orchestrator.chatStreamer = (String text, List<Map<String, dynamic>> history,
+        void Function(String) onPartial, void Function(String) onSentence) {
+      return _streamPlainChat(
+        text,
+        <Map<String, String>>[
+          for (final Map<String, dynamic> m in history)
+            <String, String>{'role': '${m['role']}', 'content': '${m['content']}'},
+        ],
+        onPartial,
+        onSentence,
+      );
+    };
     orchestrator.onSessionEnded = (String reason) {
       _live.active.value = false;
       if (reason == 'sleep_command') _pendingReaction = 'sleep';
@@ -784,16 +898,53 @@ class RiverpodBackend
     Future<void>.delayed(const Duration(milliseconds: 900), _tryStartWake);
   }
 
+  // Every state has several faces; the face changes every few seconds and never
+  // repeats the one before. While the assistant speaks, the face follows the mood
+  // of what it is saying.
+  static const Map<String, List<String>> _faces = <String, List<String>>{
+    'listening': <String>['\u{1F642}', '\u{1F60A}', '\u{1F60C}', '\u{1F442}'],
+    'thinking': <String>['\u{1F914}', '\u{1F9D0}', '\u{1F4AD}', '\u{1F928}'],
+    'greet': <String>['\u{1F44B}', '\u{1F604}', '\u{1F917}', '\u{1F64C}'],
+    'thanks': <String>['\u{1F970}', '\u{1F60A}', '\u{1F64F}', '\u{1F60C}'],
+    'sorry': <String>['\u{1F605}', '\u{1F648}', '\u{1F614}', '\u{1F97A}'],
+    'funny': <String>['\u{1F602}', '\u{1F923}', '\u{1F606}', '\u{1F61C}'],
+    'happy': <String>['\u{1F60D}', '\u{1F973}', '\u{1F929}', '\u{1F60E}'],
+    'ask': <String>['\u{1F914}', '\u{1F603}', '\u{1F9D0}', '\u{1F642}'],
+    'info': <String>['\u{1F604}', '\u{1F603}', '\u{1F642}', '\u{1F60E}', '\u{1F4A1}', '\u{1F913}'],
+  };
+  String _faceKey = '';
+  int _faceSlot = -1;
+  String _faceNow = '';
+
+  String _face(String key, int slotMs) {
+    final int slot = DateTime.now().millisecondsSinceEpoch ~/ slotMs;
+    if (_faceKey == key && _faceSlot == slot && _faceNow.isNotEmpty) return _faceNow;
+    final List<String> pool = _faces[key] ?? _faces['info']!;
+    final List<String> opts = pool.where((String e) => e != _faceNow).toList();
+    _faceKey = key;
+    _faceSlot = slot;
+    _faceNow = opts[(slot * 31 + key.length) % opts.length];
+    return _faceNow;
+  }
+
+  String _moodOf(String t) {
+    final String s = t.trimRight();
+    if (RegExp(r'سڵاو|بەخێر|چۆنی|hello', caseSensitive: false).hasMatch(s)) return 'greet';
+    if (RegExp(r'سوپاس|thank', caseSensitive: false).hasMatch(s)) return 'thanks';
+    if (RegExp(r'ببورە|نەمتوانی|ناتوانم|هەڵە|sorry', caseSensitive: false).hasMatch(s)) return 'sorry';
+    if (RegExp(r'هاهاها|ها ها|پێکەنین|گاڵتە|joke').hasMatch(s)) return 'funny';
+    if (RegExp(r'ئافەرین|زۆر باشە|سەرکەوتوو|دڵخۆش|خۆشحاڵ').hasMatch(s)) return 'happy';
+    if (s.endsWith('\u061F') || s.endsWith('?')) return 'ask';
+    return 'info';
+  }
+
   String _emoji(LiveMode m) {
     if (_emojiOverride != null && DateTime.now().millisecondsSinceEpoch < _emojiUntil) {
       return _emojiOverride!;
     }
-    if (m == LiveMode.thinking) return '\u{1F914}';
-    if (m == LiveMode.speaking) {
-      const List<String> e = <String>['\u{1F604}', '\u{1F62E}', '\u{1F3B5}', '\u{1F970}'];
-      return e[(DateTime.now().millisecondsSinceEpoch ~/ 2200) % e.length];
-    }
-    return '\u{1F642}';
+    if (m == LiveMode.thinking) return _face('thinking', 2600);
+    if (m == LiveMode.speaking) return _face(_moodOf(_lastAi), 3200);
+    return _face('listening', 4200);
   }
 
   void _pushOverlay() {
@@ -915,6 +1066,30 @@ class RiverpodBackend
           bodyEn: 'For alarms and reminders, and so the TEXO overlay can run.',
         ),
         UiPermissionItem(
+          id: 'location',
+          icon: Icons.location_on_outlined,
+          titleKu: 'شوێن',
+          titleEn: 'Location',
+          bodyKu: 'بۆ ئەوەی بزانم لە کوێیت و ڕێنماییت بکەم.',
+          bodyEn: 'So I know where you are and can guide you.',
+        ),
+        UiPermissionItem(
+          id: 'nearby',
+          icon: Icons.bluetooth_searching,
+          titleKu: 'ئامێرە نزیکەکان',
+          titleEn: 'Nearby devices',
+          bodyKu: 'بۆ پەیوەندیکردن بە بلوتوس و ئامێرە نزیکەکان.',
+          bodyEn: 'To connect to Bluetooth and nearby devices.',
+        ),
+        UiPermissionItem(
+          id: 'audio',
+          icon: Icons.music_note_outlined,
+          titleKu: 'مۆسیقا و دەنگ',
+          titleEn: 'Music and audio',
+          bodyKu: 'بۆ ئەوەی بتوانم دەنگ و مۆسیقا بخوێنمەوە و بیانگێڕمەوە.',
+          bodyEn: 'So I can play and read audio and music.',
+        ),
+        UiPermissionItem(
           id: 'camera',
           icon: Icons.photo_camera_outlined,
           titleKu: 'کامێرا',
@@ -957,6 +1132,12 @@ class RiverpodBackend
         return Permission.notification.isGranted;
       case 'camera':
         return Permission.camera.isGranted;
+      case 'location':
+        return Permission.locationWhenInUse.isGranted;
+      case 'nearby':
+        return Permission.bluetoothConnect.isGranted;
+      case 'audio':
+        return Permission.audio.isGranted;
       case 'overlay':
         final Object? ro = await _sysCh.invokeMethod<Object?>('hasPermission');
         return ro is Map && ro['granted'] == true;
@@ -980,6 +1161,15 @@ class RiverpodBackend
         break;
       case 'camera':
         await Permission.camera.request();
+        break;
+      case 'location':
+        await Permission.locationWhenInUse.request();
+        break;
+      case 'nearby':
+        await Permission.bluetoothConnect.request();
+        break;
+      case 'audio':
+        await Permission.audio.request();
         break;
       case 'overlay':
         await _sysCh.invokeMethod<Object?>('requestPermission');

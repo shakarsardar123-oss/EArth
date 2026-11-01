@@ -130,28 +130,79 @@ class _ChatScreenState extends State<ChatScreen> {
     final int myReq = ++_reqId;
     _toBottom();
     String reply;
+    int liveIdx = -1;
+    bool wantSpeak = true;
+    final List<String> speakQ = <String>[];
+    bool pumping = false;
+
+    Future<void> pump() async {
+      if (pumping) return;
+      pumping = true;
+      while (speakQ.isNotEmpty && mounted && myReq == _reqId) {
+        try {
+          await backend.speak(speakQ.removeAt(0));
+        } catch (_) {}
+      }
+      pumping = false;
+    }
+
     try {
-      reply = await backend.ask(
-        text,
-        conversationId: widget.conversationId,
-        attachments: attachments,
-      );
+      if (backend is TexoStreamExtras) {
+        try {
+          wantSpeak = (await backend.toggles())['read'] ?? true;
+        } catch (_) {}
+        reply = await (backend as TexoStreamExtras).askStreaming(
+          text,
+          conversationId: widget.conversationId,
+          attachments: attachments,
+          onPartial: (String soFar) {
+            if (!mounted || myReq != _reqId) return;
+            setState(() {
+              if (liveIdx < 0) {
+                _msgs.add(_Msg(false, soFar));
+                liveIdx = _msgs.length - 1;
+                _thinking = false;
+              } else {
+                _msgs[liveIdx] = _Msg(false, soFar);
+              }
+            });
+            _toBottom();
+          },
+          onSentence: (String sentence) {
+            if (!wantSpeak || sentence.trim().isEmpty) return;
+            speakQ.add(sentence);
+            pump();
+          },
+        );
+      } else {
+        reply = await backend.ask(
+          text,
+          conversationId: widget.conversationId,
+          attachments: attachments,
+        );
+      }
     } catch (e) {
       reply = '$e';
     }
     // Cancelled with the stop button (or a newer request started): drop the answer.
     if (!mounted || myReq != _reqId) return;
     setState(() {
-      _msgs.add(_Msg(false, reply, fresh: true));
+      if (liveIdx >= 0) {
+        _msgs[liveIdx] = _Msg(false, reply);
+      } else {
+        _msgs.add(_Msg(false, reply, fresh: true));
+      }
       _thinking = false;
     });
     _toBottom();
-    // "Read replies aloud" (on by default): speak at once, do not wait for a tap.
-    backend.toggles().then<void>((Map<String, bool> t) {
-      if ((t['read'] ?? true) && !reply.startsWith('ببورە') && mounted && myReq == _reqId) {
-        backend.speak(reply);
-      }
-    }).catchError((Object _) {});
+    // Nothing was streamed (phone task or error): read the whole answer now.
+    if (liveIdx < 0) {
+      backend.toggles().then<void>((Map<String, bool> t) {
+        if ((t['read'] ?? true) && !reply.startsWith('ببورە') && mounted && myReq == _reqId) {
+          backend.speak(reply);
+        }
+      }).catchError((Object _) {});
+    }
   }
 
   /// Stop button: forget the running request (its answer is ignored).
