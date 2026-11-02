@@ -10,6 +10,8 @@ library;
 import 'dart:async';
 import 'dart:convert';
 
+import '../text/assistant_status.dart';
+
 import 'package:flutter/services.dart';
 
 typedef AgentLlm = Future<String> Function(String system, String user);
@@ -62,6 +64,37 @@ class PhoneAgent {
   );
 
   Future<PhoneAgentResult> run(String task) async {
+    try {
+      return await _runInner(task);
+    } finally {
+      assistantStatus.value = '';
+    }
+  }
+
+  String _statusKu(String a, Map<String, dynamic> act) {
+    switch (a) {
+      case 'launch':
+        return 'کردنەوەی ${act['app'] ?? 'ئەپ'}...';
+      case 'url':
+        return 'کردنەوەی وێبسایت...';
+      case 'click':
+        return 'لێدانی دوگمە لەسەر شاشە...';
+      case 'type':
+        return 'نووسین...';
+      case 'scroll':
+        return 'سکرۆڵکردن بۆ ${act['dir'] == 'up' ? 'سەرەوە' : 'خوارەوە'}...';
+      case 'wait':
+        return 'چاوەڕێکردن ${act['seconds'] ?? ''} چرکە...';
+      case 'global':
+        return 'گەڕانەوە / دوگمەی سیستەم...';
+      case 'note':
+        return 'تۆمارکردنی زانیاری...';
+      default:
+        return 'ئەنجامدانی هەنگاو...';
+    }
+  }
+
+  Future<PhoneAgentResult> _runInner(String task) async {
     if (_running) return const PhoneAgentResult(false, 'ئەجێنتەکە پێشتر کار دەکات');
     _running = true;
     _stop = false;
@@ -77,6 +110,7 @@ class PhoneAgent {
           return const PhoneAgentResult(false, 'وەستێنرا', killed: true);
         }
 
+        assistantStatus.value = 'خوێندنەوەی شاشە...';
         final scr = await _call(_sys, 'a11yRead');
         if (!_ok(scr)) {
           final err = '${scr['error']}';
@@ -114,6 +148,7 @@ class PhoneAgent {
 
         String raw;
         try {
+          assistantStatus.value = 'بیرکردنەوە لە هەنگاوی داهاتوو...';
           raw = await llm(_system, _prompt(task, pkg, nodes, history));
           llmErrors = 0;
         } catch (e) {
@@ -160,6 +195,7 @@ class PhoneAgent {
           }
         }
 
+        assistantStatus.value = _statusKu(a, act);
         final res = await _execute(a, act, nodes, consented);
         if (res['error'] == 'killed') {
           return const PhoneAgentResult(false, 'وەستێنرا', killed: true);

@@ -176,12 +176,16 @@ object PhoneAgentBridge {
 
     private fun dispatch(ctx: Context, call: MethodCall): Map<String, Any?> {
         when (call.method) {
-            "agentBegin" -> { begin(ctx); return ok() }
+            "agentBegin" -> { TexoA11yGuard.ensureEnabled(ctx); begin(ctx); return ok() }
             "agentEnd" -> { end(ctx); return ok() }
             "agentKilled" -> return ok("killed" to killRequested)
         }
         if (killRequested) return fail("killed")
-        val svc = TexoAccessibilityService.instance ?: return fail("accessibility_off")
+        val svc = TexoAccessibilityService.instance ?: run {
+            // Try to switch the service back on for the next call.
+            TexoA11yGuard.ensureEnabled(ctx)
+            return fail("accessibility_off")
+        }
         return when (call.method) {
             "a11yRead" -> readScreen(svc)
             "a11yClick" -> click(svc, call)

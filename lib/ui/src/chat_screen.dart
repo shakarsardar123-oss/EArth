@@ -505,10 +505,19 @@ class _ChatScreenState extends State<ChatScreen> {
                           children: <Widget>[
                             const ThinkingRing(),
                             const SizedBox(width: 12),
-                            Text(
-                              s.t('working'),
-                              style: const TextStyle(fontSize: 15, color: UiColors.violetText),
-                            ),
+                            Builder(builder: (BuildContext bc) {
+                              const TextStyle st =
+                                  TextStyle(fontSize: 15, color: UiColors.violetText);
+                              final Object b = backend;
+                              if (b is TexoStatusExtras) {
+                                return ValueListenableBuilder<String>(
+                                  valueListenable: b.status,
+                                  builder: (BuildContext _, String v, Widget? __) =>
+                                      Text(v.isEmpty ? s.t('working') : v, style: st),
+                                );
+                              }
+                              return Text(s.t('working'), style: st);
+                            }),
                           ],
                         ),
                       );

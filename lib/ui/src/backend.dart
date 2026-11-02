@@ -189,6 +189,12 @@ abstract class TexoPickExtras {
   Future<UiAttachment?> pickKind(String kind);
 }
 
+/// Optional: a live description of what the assistant is doing ("opening
+/// TikTok...", "reading the screen...") to show instead of a plain "working...".
+abstract class TexoStatusExtras {
+  ValueListenable<String> get status;
+}
+
 /// Optional: a backend that can stream the answer. [onPartial] receives the
 /// whole answer so far (to show it growing), [onSentence] every finished
 /// sentence (to speak it at once instead of waiting for the end).

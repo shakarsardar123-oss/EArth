@@ -16,6 +16,7 @@ import '../core/agent/agent_context.dart';
 import '../core/agent/agent_result.dart';
 import '../core/ai/gemini_provider.dart' show GeminiProvider;
 import '../core/phone_agent/phone_control_hook.dart';
+import '../core/text/assistant_status.dart';
 import '../core/text/clean_reply.dart';
 import '../core/voice/cloud_stt.dart';
 import '../core/ai/ai_message.dart';
@@ -36,6 +37,7 @@ import '../ui/src/backend.dart'
         TexoCameraExtras,
         TexoPermissionsExtras,
         TexoPickExtras,
+        TexoStatusExtras,
         TexoStreamExtras,
         UiPermissionItem;
 import 'live_camera.dart';
@@ -43,7 +45,7 @@ import 'overlay_controller.dart';
 
 /// Connects the new UI ([TexoBackend]) to the existing app logic (Riverpod).
 class RiverpodBackend
-    implements TexoBackend, TexoCameraExtras, TexoPermissionsExtras, TexoPickExtras, TexoStreamExtras {
+    implements TexoBackend, TexoCameraExtras, TexoPermissionsExtras, TexoPickExtras, TexoStreamExtras, TexoStatusExtras {
   RiverpodBackend(this._c) {
     Future<void>.microtask(_initWake);
     Future<void>.microtask(_initAssist);
@@ -231,6 +233,9 @@ class RiverpodBackend
   void Function(String)? _hookPartial;
   void Function(String)? _hookSentence;
 
+  @override
+  ValueListenable<String> get status => assistantStatus;
+
   void _initCloudStt() {
     CloudStt.instance.resolver = () {
       final dynamic p = _c.read(selectedAIProviderProvider);
@@ -242,6 +247,9 @@ class RiverpodBackend
 
   Future<String?> _transcribeViaProvider(String wavBase64) async {
     final provider = _c.read(selectedAIProviderProvider);
+    // Only Gemini understands the audio. With another provider selected (ChatGPT,
+    // ...) return null: the Gemini key saved in Settings is used directly instead.
+    if (provider.id != 'gemini') return null;
     const AgentConfig cfg = AgentConfig(
       id: 'stt',
       name: 'STT',
@@ -295,6 +303,7 @@ class RiverpodBackend
     void Function(String sentence)? onSentence,
   ) async {
     final provider = _c.read(selectedAIProviderProvider);
+    assistantStatus.value = 'ناردنی پرسیارەکە بۆ ${provider.displayName}...';
     final List<AIMessage> msgs = <AIMessage>[
       for (final Map<String, String> m in history)
         AIMessage(
@@ -316,6 +325,7 @@ class RiverpodBackend
     await for (final r in provider.streamComplete(req).timeout(const Duration(seconds: 30))) {
       final String piece = r.text;
       if (piece.isEmpty) continue;
+      assistantStatus.value = 'نووسینی وەڵام...';
       all.write(piece);
       onPartial(cleanReply(all.toString()));
       for (final String sentence in split.add(piece)) {
@@ -335,6 +345,7 @@ class RiverpodBackend
     String? conversationId,
     List<UiAttachment> attachments = const <UiAttachment>[],
   }) async {
+    assistantStatus.value = 'خەریکی ئامادەکردنی پرسیارەکەم...';
     final void Function(String)? streamPartial = _hookPartial;
     final void Function(String)? streamSentence = _hookSentence;
     _hookPartial = null;
@@ -947,7 +958,7 @@ class RiverpodBackend
     'sorry': <String>['\u{1F605}', '\u{1F648}', '\u{1F614}', '\u{1F97A}'],
     'funny': <String>['\u{1F602}', '\u{1F923}', '\u{1F606}', '\u{1F61C}'],
     'happy': <String>['\u{1F60D}', '\u{1F973}', '\u{1F929}', '\u{1F60E}'],
-    'ask': <String>['\u{1F914}', '\u{1F603}', '\u{1F9D0}', '\u{1F642}'],
+    'ask': <String>['\u{1F914}', '\u{1F603}', '\u{1F9D0}', '\u{1F642}', '\u{1F644}'],
     'info': <String>['\u{1F604}', '\u{1F603}', '\u{1F642}', '\u{1F60E}', '\u{1F4A1}', '\u{1F913}'],
   };
   String _faceKey = '';

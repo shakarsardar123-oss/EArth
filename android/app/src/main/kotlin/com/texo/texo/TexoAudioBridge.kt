@@ -143,7 +143,7 @@ class TexoAudioBridge(
                     "start" -> result.success(startStt())
                     "stop" -> { stopStt(); result.success(true) }
                     "setCloud" -> {
-                        sttCloud = (call.arguments as? Boolean) ?: false
+                        sttCloud = false
                         result.success(true)
                     }
                     "local" -> {

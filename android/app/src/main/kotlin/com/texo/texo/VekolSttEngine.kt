@@ -865,10 +865,22 @@ class VekolSttEngine(
                         }
 
                         tokenIds.add(nextToken)
-                        if (tokenIds.size >= 12) {
-                            val tail = tokenIds.subList(tokenIds.size - 8, tokenIds.size)
-                            if (tail.toSet().size <= 2) {
-                                return decodeTokens(tokenIds.subList(0, tokenIds.size - 6))
+                        // Loop guard: the same group of 1..6 tokens three times in a
+                        // row is the model repeating itself ("خۆی خۆی خۆی ..."): stop
+                        // and keep a single copy.
+                        if (tokenIds.size >= 10) {
+                            val end = tokenIds.size
+                            for (n in 1..6) {
+                                if (end < 4 + 3 * n) continue
+                                var same = true
+                                for (k in 0 until n) {
+                                    val t = tokenIds[end - 1 - k]
+                                    if (t != tokenIds[end - 1 - k - n] || t != tokenIds[end - 1 - k - 2 * n]) {
+                                        same = false
+                                        break
+                                    }
+                                }
+                                if (same) return decodeTokens(tokenIds.subList(0, end - 2 * n))
                             }
                         }
                     }

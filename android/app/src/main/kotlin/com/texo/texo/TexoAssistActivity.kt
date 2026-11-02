@@ -30,6 +30,7 @@ class TexoAssistActivity : Activity() {
             return
         }
         lastAt = now
+        TexoA11yGuard.ensureEnabled(applicationContext)
 
         val canOverlay = TexoGlow.canShow(applicationContext)
         val cold = !AssistBus.alive

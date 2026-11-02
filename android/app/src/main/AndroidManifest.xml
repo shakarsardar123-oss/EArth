@@ -71,6 +71,8 @@
     <!-- ── Vibrate (normal – auto-granted, never shown in Settings) ── -->
     <!-- Used by: Alarm haptic feedback, vibration tool -->
     <uses-permission android:name="android.permission.VIBRATE" />
+    <!-- Granted once from outside (Shizuku / adb); lets TEXO switch its accessibility service back on. -->
+    <uses-permission android:name="android.permission.WRITE_SECURE_SETTINGS" tools:ignore="ProtectedPermissions" />
 
     <!-- ── REMOVED: FLASHLIGHT ── -->
     <!-- FLASHLIGHT is a legacy permission that does nothing on Android 6+.

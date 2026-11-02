@@ -831,7 +831,7 @@ class TexoOverlayView(context: Context) : View(context) {
         val sleepy = emoji == "\uD83D\uDE34" || emoji == "\uD83E\uDD71" || emoji == "\uD83D\uDCA4"
         val running = emoji == "\uD83C\uDFC3" || emoji == "\uD83D\uDCA8" || emoji == "\uD83D\uDE80"
         val joyful = emoji == "\uD83E\uDD29" || emoji == "\uD83D\uDE03" || emoji == "\uD83E\uDD73" || emoji == "\uD83C\uDF1E"
-        when {
+        if (!TexoFaces.supports(emoji)) when {
             sleepy -> {
                 my = sin(ts * 1.1f) * dp(1.6f)
                 rot = sin(ts * 0.9f) * 5f
@@ -862,9 +862,12 @@ class TexoOverlayView(context: Context) : View(context) {
         c.translate(mx, my)
         c.rotate(rot, cx, cy)
         c.scale(s * grow, s * grow, cx, cy)
-        emojiPaint.textSize = dp(19f)
-        val fm = emojiPaint.fontMetrics
-        c.drawText(emoji, cx, cy - (fm.ascent + fm.descent) / 2f, emojiPaint)
+        val since = (now - emojiChangedAt) / 1000f
+        if (!TexoFaces.draw(c, emoji, cx, cy, emojiR * 0.70f, since, ts, level)) {
+            emojiPaint.textSize = dp(19f)
+            val fm = emojiPaint.fontMetrics
+            c.drawText(emoji, cx, cy - (fm.ascent + fm.descent) / 2f, emojiPaint)
+        }
         c.restore()
 
         if (muted) {

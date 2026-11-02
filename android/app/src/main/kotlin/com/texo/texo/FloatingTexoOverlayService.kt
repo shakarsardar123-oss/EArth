@@ -48,6 +48,22 @@ class FloatingTexoOverlayService : Service() {
     // Bumped on every (re)start so a hide() that is still animating cannot stop a newer start.
     private var stopToken = 0
 
+    // Keeps the accessibility service switched on while the assistant is alive.
+    private val guardHandler = android.os.Handler(android.os.Looper.getMainLooper())
+    private var guardOn = false
+    private val guardTick = object : Runnable {
+        override fun run() {
+            TexoA11yGuard.ensureEnabled(applicationContext)
+            guardHandler.postDelayed(this, 20000L)
+        }
+    }
+
+    private fun startA11yGuard() {
+        if (guardOn) return
+        guardOn = true
+        guardHandler.post(guardTick)
+    }
+
     var onOverlayAction: ((String) -> Unit)? = null
 
     companion object {
@@ -99,6 +115,7 @@ class FloatingTexoOverlayService : Service() {
         }
         debugLog("TEXO: service started (foreground OK)")
         stopToken++
+        startA11yGuard()
 
         if (intent == null) {
             // The system restarted us after the app process died: nobody drives
@@ -155,6 +172,8 @@ class FloatingTexoOverlayService : Service() {
     }
 
     override fun onDestroy() {
+        guardHandler.removeCallbacksAndMessages(null)
+        guardOn = false
         debugLog("TEXO: service onDestroy")
         removeOverlayInternal()
         super.onDestroy()

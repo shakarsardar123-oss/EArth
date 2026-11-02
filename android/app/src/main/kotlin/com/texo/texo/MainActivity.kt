@@ -71,6 +71,7 @@ class MainActivity : FlutterActivity() {
     override fun onResume() {
         super.onResume()
         TexoDisplay.requestBestRefreshRate(this)
+        TexoA11yGuard.ensureEnabled(this)
     }
 
     override fun configureFlutterEngine(@NonNull flutterEngine: FlutterEngine) {
