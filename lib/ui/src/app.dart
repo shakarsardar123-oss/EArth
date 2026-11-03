@@ -50,6 +50,8 @@ class TexoUiApp extends StatefulWidget {
     required this.backend,
     this.initialLang = 'ku',
     this.onLangChanged,
+    this.initialTheme = 'light',
+    this.onThemeChanged,
     this.navigatorKey,
     this.wrap,
     this.homeWrap,
@@ -59,6 +61,12 @@ class TexoUiApp extends StatefulWidget {
 
   final TexoBackend backend;
   final String initialLang;
+
+  /// 'light', 'dark' or 'system': the theme the user chose last time.
+  final String initialTheme;
+
+  /// Called with the new theme so it can be saved and restored on the next start.
+  final ValueChanged<String>? onThemeChanged;
 
   /// Called with 'ku' or 'en' when the user switches language in Settings.
   final ValueChanged<String>? onLangChanged;
@@ -81,8 +89,10 @@ class TexoUiApp extends StatefulWidget {
 }
 
 class _TexoUiAppState extends State<TexoUiApp> {
-  late final UiSettings _settings = UiSettings(lang: widget.initialLang);
+  late final UiSettings _settings =
+      UiSettings(lang: widget.initialLang, theme: widget.initialTheme);
   late String _lastLang = widget.initialLang;
+  late String _lastTheme = widget.initialTheme;
 
   @override
   void initState() {
@@ -94,6 +104,10 @@ class _TexoUiAppState extends State<TexoUiApp> {
     if (_settings.lang != _lastLang) {
       _lastLang = _settings.lang;
       widget.onLangChanged?.call(_lastLang);
+    }
+    if (_settings.theme != _lastTheme) {
+      _lastTheme = _settings.theme;
+      widget.onThemeChanged?.call(_lastTheme);
     }
   }
 

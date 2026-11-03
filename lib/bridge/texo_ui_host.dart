@@ -27,11 +27,15 @@ class TexoUiHost extends StatefulWidget {
 
 class _TexoUiHostState extends State<TexoUiHost> {
   late final RiverpodBackend _backend;
+  late final String _savedTheme;
 
   @override
   void initState() {
     super.initState();
-    _backend = RiverpodBackend(ProviderScope.containerOf(context, listen: false));
+    final ProviderContainer container = ProviderScope.containerOf(context, listen: false);
+    _backend = RiverpodBackend(container);
+    // The dark / light choice survives closing the app.
+    _savedTheme = _backend.savedTheme;
   }
 
   @override
@@ -40,6 +44,8 @@ class _TexoUiHostState extends State<TexoUiHost> {
       backend: _backend,
       initialLang: widget.initialLang,
       onLangChanged: widget.onLangChanged,
+      initialTheme: _savedTheme,
+      onThemeChanged: _backend.saveTheme,
       navigatorKey: widget.navigatorKey,
       homeWrap: (Widget home) => SecurityConfirmationHost(child: home),
       localizationsDelegates: S.localizationsDelegates,

@@ -4,10 +4,12 @@ import 'backend.dart';
 import 'strings.dart';
 
 class UiSettings extends ChangeNotifier {
-  UiSettings({String lang = 'ku'}) : _lang = lang;
+  UiSettings({String lang = 'ku', String theme = 'light'})
+      : _lang = lang,
+        _theme = theme;
 
   String _lang;
-  String _theme = 'light';
+  String _theme;
 
   String get lang => _lang;
   String get theme => _theme;

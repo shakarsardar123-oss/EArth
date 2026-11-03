@@ -253,6 +253,13 @@ class RiverpodBackend
   @override
   ValueListenable<String> get status => assistantStatus;
 
+  /// The theme the user chose last time ('light', 'dark' or 'system').
+  String get savedTheme => _c.read(sharedPreferencesProvider).getString('ui.theme') ?? 'light';
+
+  void saveTheme(String value) {
+    _c.read(sharedPreferencesProvider).setString('ui.theme', value);
+  }
+
   void _initCloudStt() {
     CloudStt.instance.resolver = () {
       final dynamic p = _c.read(selectedAIProviderProvider);
