@@ -17,7 +17,7 @@ Downloading packages...
   dbus 0.7.15 (0.8.0 available)
   device_info_plus 10.1.2 (13.3.0 available)
   device_info_plus_platform_interface 7.0.3 (8.1.0 available)
-  file_picker 10.3.10 (13.3.1 available)
+  file_picker 10.3.10 (13.3.2 available)
   file_selector_macos 0.9.5+1 (0.9.5+2 available)
   flutter_lints 3.0.2 (6.0.0 available)
   flutter_local_notifications 17.2.4 (22.3.3 available)
@@ -86,7 +86,7 @@ Downloading packages...
   dbus 0.7.15 (0.8.0 available)
   device_info_plus 10.1.2 (13.3.0 available)
   device_info_plus_platform_interface 7.0.3 (8.1.0 available)
-  file_picker 10.3.10 (13.3.1 available)
+  file_picker 10.3.10 (13.3.2 available)
   file_selector_macos 0.9.5+1 (0.9.5+2 available)
   flutter_lints 3.0.2 (6.0.0 available)
   flutter_local_notifications 17.2.4 (22.3.3 available)
@@ -144,21 +144,21 @@ Analyzing 4 items...
    info • Missing a required trailing comma. Try adding a trailing comma • lib/bridge/live_camera.dart:120:82 • require_trailing_commas
 warning • Unused import: '../presentation/screens/vision_screen.dart'. Try removing the import directive • lib/bridge/riverpod_backend.dart:31:8 • unused_import
    info • The import of '../ui/src/backend.dart' is unnecessary because all of the used elements are also provided by the import of '../ui/texo_ui.dart'. Try removing the import directive • lib/bridge/riverpod_backend.dart:35:8 • unnecessary_import
-   info • Missing a required trailing comma. Try adding a trailing comma • lib/bridge/riverpod_backend.dart:278:10 • require_trailing_commas
-   info • Missing a required trailing comma. Try adding a trailing comma • lib/bridge/riverpod_backend.dart:370:12 • require_trailing_commas
-   info • Missing a required trailing comma. Try adding a trailing comma • lib/bridge/riverpod_backend.dart:401:10 • require_trailing_commas
-   info • Missing a required trailing comma. Try adding a trailing comma • lib/bridge/riverpod_backend.dart:467:8 • require_trailing_commas
-   info • Missing a required trailing comma. Try adding a trailing comma • lib/bridge/riverpod_backend.dart:809:74 • require_trailing_commas
-warning • Unused import: '../errors/result.dart'. Try removing the import directive • lib/core/ai/gemini_provider.dart:31:8 • unused_import
-   info • The member 'getApiKey' overrides an inherited member but isn't annotated with '@override'. Try adding the '@override' annotation • lib/core/ai/gemini_provider.dart:154:19 • annotate_overrides
-   info • The member 'setApiKey' overrides an inherited member but isn't annotated with '@override'. Try adding the '@override' annotation • lib/core/ai/gemini_provider.dart:158:16 • annotate_overrides
-   info • The member 'deleteApiKey' overrides an inherited member but isn't annotated with '@override'. Try adding the '@override' annotation • lib/core/ai/gemini_provider.dart:162:16 • annotate_overrides
-   info • The member 'getBaseUrl' overrides an inherited member but isn't annotated with '@override'. Try adding the '@override' annotation • lib/core/ai/gemini_provider.dart:167:18 • annotate_overrides
-   info • The member 'setBaseUrl' overrides an inherited member but isn't annotated with '@override'. Try adding the '@override' annotation • lib/core/ai/gemini_provider.dart:173:16 • annotate_overrides
-warning • The left operand can't be null, so the right operand is never executed. Try removing the operator and the right operand • lib/core/ai/gemini_provider.dart:488:9 • dead_null_aware_expression
-   info • Missing a required trailing comma. Try adding a trailing comma • lib/core/ai/gemini_provider.dart:646:14 • require_trailing_commas
-warning • The left operand can't be null, so the right operand is never executed. Try removing the operator and the right operand • lib/core/ai/gemini_provider.dart:730:9 • dead_null_aware_expression
-   info • Missing a required trailing comma. Try adding a trailing comma • lib/core/ai/gemini_provider.dart:1046:10 • require_trailing_commas
+   info • Missing a required trailing comma. Try adding a trailing comma • lib/bridge/riverpod_backend.dart:295:10 • require_trailing_commas
+   info • Missing a required trailing comma. Try adding a trailing comma • lib/bridge/riverpod_backend.dart:421:12 • require_trailing_commas
+   info • Missing a required trailing comma. Try adding a trailing comma • lib/bridge/riverpod_backend.dart:452:10 • require_trailing_commas
+   info • Missing a required trailing comma. Try adding a trailing comma • lib/bridge/riverpod_backend.dart:527:8 • require_trailing_commas
+   info • Missing a required trailing comma. Try adding a trailing comma • lib/bridge/riverpod_backend.dart:869:74 • require_trailing_commas
+warning • Unused import: '../errors/result.dart'. Try removing the import directive • lib/core/ai/gemini_provider.dart:33:8 • unused_import
+   info • The member 'getApiKey' overrides an inherited member but isn't annotated with '@override'. Try adding the '@override' annotation • lib/core/ai/gemini_provider.dart:160:19 • annotate_overrides
+   info • The member 'setApiKey' overrides an inherited member but isn't annotated with '@override'. Try adding the '@override' annotation • lib/core/ai/gemini_provider.dart:164:16 • annotate_overrides
+   info • The member 'deleteApiKey' overrides an inherited member but isn't annotated with '@override'. Try adding the '@override' annotation • lib/core/ai/gemini_provider.dart:168:16 • annotate_overrides
+   info • The member 'getBaseUrl' overrides an inherited member but isn't annotated with '@override'. Try adding the '@override' annotation • lib/core/ai/gemini_provider.dart:173:18 • annotate_overrides
+   info • The member 'setBaseUrl' overrides an inherited member but isn't annotated with '@override'. Try adding the '@override' annotation • lib/core/ai/gemini_provider.dart:179:16 • annotate_overrides
+warning • The left operand can't be null, so the right operand is never executed. Try removing the operator and the right operand • lib/core/ai/gemini_provider.dart:494:9 • dead_null_aware_expression
+   info • Missing a required trailing comma. Try adding a trailing comma • lib/core/ai/gemini_provider.dart:652:14 • require_trailing_commas
+warning • The left operand can't be null, so the right operand is never executed. Try removing the operator and the right operand • lib/core/ai/gemini_provider.dart:736:9 • dead_null_aware_expression
+   info • Missing a required trailing comma. Try adding a trailing comma • lib/core/ai/gemini_provider.dart:1080:10 • require_trailing_commas
    info • Missing a required trailing comma. Try adding a trailing comma • lib/ui/overlay_test_main.dart:20:4 • require_trailing_commas
    info • Use 'const' with the constructor to improve performance. Try adding the 'const' keyword to the constructor invocation • lib/ui/src/app.dart:154:34 • prefer_const_constructors
    info • The import of 'dart:typed_data' is unnecessary because all of the used elements are also provided by the import of 'package:flutter/foundation.dart'. Try removing the import directive • lib/ui/src/backend.dart:1:8 • unnecessary_import
@@ -179,7 +179,7 @@ warning • The left operand can't be null, so the right operand is never execut
    info • Missing a required trailing comma. Try adding a trailing comma • lib/ui/src/settings_screen.dart:319:64 • require_trailing_commas
    info • Missing a required trailing comma. Try adding a trailing comma • lib/ui/src/settings_screen.dart:321:63 • require_trailing_commas
 
-38 issues found. (ran in 12.0s)
+38 issues found. (ran in 11.3s)
 analyze exit code: 0
 ----- whole app compile (flutter build bundle) -----
 bundle exit code: 0
