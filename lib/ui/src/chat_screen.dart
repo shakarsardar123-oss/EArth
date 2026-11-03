@@ -198,7 +198,7 @@ class _ChatScreenState extends State<ChatScreen> {
     // Nothing was streamed (phone task or error): read the whole answer now.
     if (liveIdx < 0) {
       backend.toggles().then<void>((Map<String, bool> t) {
-        if ((t['read'] ?? true) && !reply.startsWith('ببورە') && mounted && myReq == _reqId) {
+        if ((t['read'] ?? true) && !reply.startsWith('ببورە') && !reply.startsWith('نەمتوانی') && mounted && myReq == _reqId) {
           backend.speak(reply);
         }
       }).catchError((Object _) {});

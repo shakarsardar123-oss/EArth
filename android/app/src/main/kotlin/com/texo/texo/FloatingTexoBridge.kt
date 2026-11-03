@@ -127,6 +127,13 @@ object FloatingTexoBridge {
                 result.success(isAccessibilityEnabled(activity))
             }
 
+            "notifyAnswer" -> {
+                val title = call.argument<String>("title") ?: "TEXO"
+                val text = call.argument<String>("text") ?: ""
+                postAnswerNotification(activity, title, text)
+                result.success(true)
+            }
+
             "openAccessibilitySettings" -> {
                 try {
                     activity.startActivity(
@@ -338,6 +345,42 @@ object FloatingTexoBridge {
                 connection,
                 Context.BIND_AUTO_CREATE,
             )
+        }
+    }
+
+    /** The answer as a notification (used when the app is not on screen). */
+    private fun postAnswerNotification(ctx: Context, title: String, text: String) {
+        try {
+            val nm = ctx.getSystemService(Context.NOTIFICATION_SERVICE) as android.app.NotificationManager
+            if (android.os.Build.VERSION.SDK_INT >= android.os.Build.VERSION_CODES.O) {
+                nm.createNotificationChannel(
+                    android.app.NotificationChannel(
+                        "texo_answers", "TEXO answers",
+                        android.app.NotificationManager.IMPORTANCE_DEFAULT,
+                    ),
+                )
+            }
+            val open = android.app.PendingIntent.getActivity(
+                ctx, 41,
+                Intent(ctx, MainActivity::class.java)
+                    .addFlags(Intent.FLAG_ACTIVITY_NEW_TASK or Intent.FLAG_ACTIVITY_SINGLE_TOP),
+                android.app.PendingIntent.FLAG_UPDATE_CURRENT or android.app.PendingIntent.FLAG_IMMUTABLE,
+            )
+            val b = if (android.os.Build.VERSION.SDK_INT >= android.os.Build.VERSION_CODES.O) {
+                android.app.Notification.Builder(ctx, "texo_answers")
+            } else {
+                @Suppress("DEPRECATION")
+                android.app.Notification.Builder(ctx)
+            }
+            b.setSmallIcon(ctx.applicationInfo.icon)
+                .setContentTitle(title)
+                .setContentText(text.take(140))
+                .setStyle(android.app.Notification.BigTextStyle().bigText(text))
+                .setContentIntent(open)
+                .setAutoCancel(true)
+                .setOnlyAlertOnce(true)
+            nm.notify(4107, b.build())
+        } catch (_: Throwable) {
         }
     }
 

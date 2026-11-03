@@ -232,6 +232,23 @@ class RiverpodBackend
 
   void Function(String)? _hookPartial;
   void Function(String)? _hookSentence;
+  bool _hookSearch = false;
+
+  // ---- the answer as a notification while the app is not on screen ----
+  int _notifyAt = 0;
+
+  bool get _inBackground {
+    final AppLifecycleState? st = WidgetsBinding.instance.lifecycleState;
+    return st != null && st != AppLifecycleState.resumed;
+  }
+
+  void _notifyBackground(String text, {bool force = false}) {
+    if (!_inBackground || text.trim().isEmpty) return;
+    final int now = DateTime.now().millisecondsSinceEpoch;
+    if (!force && now - _notifyAt < 900) return;
+    _notifyAt = now;
+    _sysCh.invokeMethod<Object?>('notifyAnswer', <String, Object?>{'title': 'TEXO', 'text': text}).catchError((Object _) => null);
+  }
 
   @override
   ValueListenable<String> get status => assistantStatus;
@@ -292,6 +309,7 @@ class RiverpodBackend
   }) {
     _hookPartial = onPartial;
     _hookSentence = onSentence;
+    _hookSearch = true;
     return ask(text, conversationId: conversationId, attachments: attachments);
   }
 
@@ -322,15 +340,45 @@ class RiverpodBackend
     );
     final StringBuffer all = StringBuffer();
     final SentenceSplitter split = SentenceSplitter();
-    await for (final r in provider.streamComplete(req).timeout(const Duration(seconds: 30))) {
-      final String piece = r.text;
-      if (piece.isEmpty) continue;
-      assistantStatus.value = 'نووسینی وەڵام...';
-      all.write(piece);
-      onPartial(cleanReply(all.toString()));
-      for (final String sentence in split.add(piece)) {
-        onSentence?.call(cleanReply(sentence));
+    assistantSources.value = <String>[];
+
+    Future<void> run() async {
+      await for (final r in provider.streamComplete(req).timeout(const Duration(seconds: 40))) {
+        final String piece = r.text;
+        if (piece.isEmpty) continue;
+        if (assistantStatus.value.startsWith('ناردنی') ||
+            assistantStatus.value.startsWith('گەڕانم')) {
+          assistantStatus.value = 'نووسینی وەڵام...';
+        }
+        all.write(piece);
+        final String shown = cleanReply(all.toString());
+        onPartial(shown);
+        _notifyBackground(shown);
+        for (final String sentence in split.add(piece)) {
+          onSentence?.call(cleanReply(sentence));
+        }
       }
+    }
+
+    // Chat answers may search the web (not the voice conversation: it must be fast).
+    final bool search = onSentence != null && _hookSearch && provider.id == 'gemini';
+    try {
+      GeminiProvider.searchEnabled = search;
+      if (search) assistantStatus.value = 'خەریکی بیرکردنەوە و گەڕانم لە ئینتەرنێت...';
+      try {
+        await run();
+      } catch (_) {
+        // The search tool was refused: ask again without it.
+        if (search && all.isEmpty) {
+          GeminiProvider.searchEnabled = false;
+          assistantStatus.value = 'ناردنی پرسیارەکە بۆ ${provider.displayName}...';
+          await run();
+        } else {
+          rethrow;
+        }
+      }
+    } finally {
+      GeminiProvider.searchEnabled = false;
     }
     for (final String sentence in split.flush()) {
       onSentence?.call(cleanReply(sentence));
@@ -346,10 +394,13 @@ class RiverpodBackend
     List<UiAttachment> attachments = const <UiAttachment>[],
   }) async {
     assistantStatus.value = 'خەریکی ئامادەکردنی پرسیارەکەم...';
+    assistantSources.value = <String>[];
     final void Function(String)? streamPartial = _hookPartial;
     final void Function(String)? streamSentence = _hookSentence;
     _hookPartial = null;
     _hookSentence = null;
+    final bool allowSearch = _hookSearch;
+    _hookSearch = false;
     final memory = _c.read(memoryServiceProvider);
     String? convId = _convId ?? conversationId;
     try {
@@ -413,26 +464,33 @@ class RiverpodBackend
           result = await phoneControlHook?.call(text, ctx);
           if (result == null) {
             try {
+              _hookSearch = allowSearch;
               streamed = await _streamPlainChat(text, history, streamPartial, streamSentence);
             } catch (_) {
               streamed = null;
+            } finally {
+              _hookSearch = false;
             }
           }
         }
         if (streamed != null && streamed.trim().isNotEmpty) {
           ok = true;
           reply = streamed;
+          final List<String> src = assistantSources.value;
+          if (src.isNotEmpty) {
+            reply = '$reply\n\nسەرچاوەکان:\n${src.take(5).map((String e) => '\u2022 $e').join('\n')}';
+          }
         } else {
           result ??= await _c.read(agentEngineProvider).run(userInput: text, context: ctx);
           ok = result.isSuccess && result.response != null;
           reply = ok
               ? cleanReply(result.response!)
-              : (result.errorMessage ?? 'ببورە، نەمتوانم وەڵام بدەمەوە.');
+              : (result.errorMessage ?? 'نەمتوانی ئەم کارە ئەنجام بدەم و شکستم هێنا.');
         }
       }
     } catch (e) {
       ok = false;
-      reply = 'ببورە، هەڵەیەک ڕوویدا: $e';
+      reply = 'نەمتوانی وەڵام بدەمەوە و شکستم هێنا: $e';
     }
 
     if (ok && convId != null) {
@@ -441,6 +499,8 @@ class RiverpodBackend
         await memory.addMessage(conversationId: convId, role: 'assistant', content: reply);
       } catch (_) {}
     }
+    // The app is not on screen: bring the answer as a notification.
+    _notifyBackground(reply, force: true);
     return reply;
   }
 

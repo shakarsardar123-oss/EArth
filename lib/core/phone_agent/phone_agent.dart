@@ -181,7 +181,7 @@ class PhoneAgent {
                 'app another way, then continue.');
             continue;
           }
-          return PhoneAgentResult(false, '${act['message'] ?? 'نەتوانرا'}');
+          return PhoneAgentResult(false, 'نەمتوانی ئەم کارە ئەنجام بدەم و شکستم هێنا: ${act['message'] ?? ''}');
         }
 
         // ── consent gate ──

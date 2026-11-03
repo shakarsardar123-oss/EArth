@@ -16,6 +16,8 @@
 library;
 
 import 'dart:convert';
+
+import '../text/assistant_status.dart';
 import 'dart:async';
 
 import 'package:flutter_secure_storage/flutter_secure_storage.dart';
@@ -57,6 +59,10 @@ const kDefaultGeminiChatModel = 'gemini-3.6-flash';
 /// native request/response format. API key is stored securely
 /// in FlutterSecureStorage with a Gemini-specific key.
 class GeminiProvider implements AIProvider, ModelDiscovery {
+  /// When true, streamed chat requests may use Google Search (the answer can then
+  /// be grounded in web pages, whose names are listed as sources).
+  static bool searchEnabled = false;
+
   GeminiProvider({
     required this.secureStorage,
     this.connectionStorage,
@@ -753,6 +759,10 @@ class GeminiProvider implements AIProvider, ModelDiscovery {
     final tools = _buildToolDeclarations(request.toolDefinitions);
     if (tools != null && tools.isNotEmpty) {
       body['tools'] = tools;
+    } else if (searchEnabled) {
+      body['tools'] = <Map<String, dynamic>>[
+        <String, dynamic>{'google_search': <String, dynamic>{}},
+      ];
     }
 
     final generateUri = buildGenerateContentUri(
@@ -845,6 +855,30 @@ class GeminiProvider implements AIProvider, ModelDiscovery {
       final candidate = candidates.first as Map<String, dynamic>;
       final content = candidate['content'] as Map<String, dynamic>?;
       final parts = content?['parts'] as List<dynamic>?;
+
+      // Web search: what it looked for and which pages it used.
+      final grounding = candidate['groundingMetadata'];
+      if (grounding is Map) {
+        final queries = grounding['webSearchQueries'];
+        if (queries is List && queries.isNotEmpty) {
+          assistantStatus.value = 'گەڕان لە ئینتەرنێت: ${queries.first}';
+        }
+        final chunks = grounding['groundingChunks'];
+        if (chunks is List) {
+          final found = <String>[];
+          for (final ch in chunks) {
+            final web = ch is Map ? ch['web'] : null;
+            if (web is Map) {
+              final title = '${web['title'] ?? ''}'.trim();
+              final uri = '${web['uri'] ?? ''}';
+              final host = Uri.tryParse(uri)?.host ?? '';
+              final label = title.isNotEmpty ? title : host;
+              if (label.isNotEmpty && !found.contains(label)) found.add(label);
+            }
+          }
+          if (found.isNotEmpty) assistantSources.value = found;
+        }
+      }
 
       var text = '';
       List<AIToolCall>? toolCalls;

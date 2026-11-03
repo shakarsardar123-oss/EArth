@@ -21,7 +21,7 @@ import kotlin.math.sin
  */
 object TexoFaces {
 
-    private enum class Kind { SMILE, THINK, TALK, SLEEP, PARTY, STARS, SUN, ROLL, LAUGH, LOVE, SHUSH, SWEAT, SAD }
+    private enum class Kind { SMILE, THINK, TALK, SLEEP, PARTY, STARS, SUN, ROLL, LAUGH, LOVE, SHUSH, SWEAT, SAD, WAVE, HUG, CHEER, PRAY, RUN, WIND, ROCKET }
 
     private val FACE = Color.parseColor("#FFCB3D")
     private val RIM = Color.parseColor("#E39A00")
@@ -48,6 +48,13 @@ object TexoFaces {
         "\uD83E\uDD2B", "\uD83E\uDD10", "\uD83D\uDE36" -> Kind.SHUSH
         "\uD83D\uDE05", "\uD83D\uDE48" -> Kind.SWEAT
         "\uD83D\uDE14", "\uD83E\uDD7A" -> Kind.SAD
+        "\uD83D\uDC4B" -> Kind.WAVE
+        "\uD83E\uDD17" -> Kind.HUG
+        "\uD83D\uDE4C" -> Kind.CHEER
+        "\uD83D\uDE4F" -> Kind.PRAY
+        "\uD83C\uDFC3" -> Kind.RUN
+        "\uD83D\uDCA8" -> Kind.WIND
+        "\uD83D\uDE80" -> Kind.ROCKET
         else -> null
     }
 
@@ -144,6 +151,22 @@ object TexoFaces {
         p.strokeWidth = r * 0.06f
         p.color = RIM
         c.drawCircle(cx, cy, r * 0.97f, p)
+    }
+
+    private fun hand(c: Canvas, x: Float, y: Float, r: Float, rot: Float) {
+        c.save()
+        c.rotate(rot, x, y)
+        oval(c, x, y, r * 0.17f, r * 0.21f, FACE)
+        for (i in 0 until 4) {
+            oval(c, x + (i - 1.5f) * r * 0.11f, y - r * 0.27f, r * 0.045f, r * 0.13f, FACE)
+        }
+        oval(c, x - r * 0.19f, y - r * 0.02f, r * 0.05f, r * 0.11f, FACE)
+        p.style = Paint.Style.STROKE
+        p.strokeWidth = r * 0.03f
+        p.color = RIM
+        rect.set(x - r * 0.17f, y - r * 0.21f, x + r * 0.17f, y + r * 0.21f)
+        c.drawOval(rect, p)
+        c.restore()
     }
 
     private fun zzz(c: Canvas, cx: Float, cy: Float, r: Float, now: Float) {
@@ -373,6 +396,134 @@ object TexoFaces {
                 path.quadTo(dx + r * 0.14f, dy + r * 0.02f, dx, dy + r * 0.10f)
                 path.quadTo(dx - r * 0.14f, dy + r * 0.02f, dx, dy - r * 0.16f)
                 c.drawPath(path, p)
+            }
+            Kind.WAVE -> {
+                base(c, cx - r * 0.10f, cy + r * 0.05f, r * 0.82f)
+                val o = blink(now)
+                eye(c, cx - r * 0.34f, cy - r * 0.04f, r * 0.82f, o)
+                eye(c, cx + r * 0.14f, cy - r * 0.04f, r * 0.82f, o)
+                smile(c, cx - r * 0.10f, cy + r * 0.10f, r * 0.82f, 0.36f)
+                hand(c, cx + r * 0.78f, cy - r * 0.05f, r, sin(now * 9f) * 28f)
+            }
+            Kind.HUG -> {
+                base(c, cx, cy, r * 0.88f)
+                val o = blink(now, 3.0f)
+                arc(c, cx - r * 0.29f, cy - r * 0.10f, r * 0.13f, r * 0.11f, 200f, 140f, r * 0.07f)
+                arc(c, cx + r * 0.29f, cy - r * 0.10f, r * 0.13f, r * 0.11f, 200f, 140f, r * 0.07f)
+                if (o < 0f) return false
+                smile(c, cx, cy + r * 0.05f, r * 0.88f, 0.38f)
+                val k = 0.5f + 0.5f * sin(now * 5f)
+                hand(c, cx - r * (1.00f - 0.28f * k), cy + r * 0.55f, r, 25f)
+                hand(c, cx + r * (1.00f - 0.28f * k), cy + r * 0.55f, r, -25f)
+            }
+            Kind.CHEER -> {
+                base(c, cx, cy + r * 0.10f, r * 0.82f)
+                arc(c, cx - r * 0.27f, cy - r * 0.02f, r * 0.13f, r * 0.11f, 200f, 140f, r * 0.07f)
+                arc(c, cx + r * 0.27f, cy - r * 0.02f, r * 0.13f, r * 0.11f, 200f, 140f, r * 0.07f)
+                openMouth(c, cx, cy + r * 0.22f, r, r * 0.26f, r * 0.26f)
+                val lift = r * 0.16f * abs(sin(now * 6f))
+                hand(c, cx - r * 0.98f, cy - r * 0.52f - lift, r, -12f)
+                hand(c, cx + r * 0.98f, cy - r * 0.52f - lift, r, 12f)
+            }
+            Kind.PRAY -> {
+                c.translate(0f, sin(now * 3f) * r * 0.05f)
+                for (side in intArrayOf(-1, 1)) {
+                    c.save()
+                    c.rotate(side * 9f, cx, cy + r * 0.5f)
+                    oval(c, cx + side * r * 0.17f, cy, r * 0.20f, r * 0.58f, FACE)
+                    p.style = Paint.Style.STROKE
+                    p.strokeWidth = r * 0.04f
+                    p.color = RIM
+                    rect.set(cx + side * r * 0.17f - r * 0.20f, cy - r * 0.58f, cx + side * r * 0.17f + r * 0.20f, cy + r * 0.58f)
+                    c.drawOval(rect, p)
+                    c.restore()
+                }
+                for (i in 0 until 3) {
+                    val ph = (now * 0.8f + i * 0.33f) % 1f
+                    star(c, cx + r * 1.0f * cos(i * 2.2f), cy - r * 0.9f + ph * r * 0.5f * sin(i + 1f), r * 0.13f * sin(PI.toFloat() * ph), Color.parseColor("#FFEB3B"), 0f)
+                }
+            }
+            Kind.RUN -> {
+                // speed lines behind the runner
+                for (i in 0 until 3) {
+                    val ph = (now * 2.2f + i * 0.33f) % 1f
+                    val x1 = cx - r * (0.9f + ph * 0.9f)
+                    line(c, x1, cy - r * 0.35f + i * r * 0.35f, x1 - r * 0.45f, cy - r * 0.35f + i * r * 0.35f, r * 0.07f, Color.argb(((1f - ph) * 200).toInt(), 140, 140, 160))
+                }
+                c.translate(sin(now * 10f) * r * 0.06f, -abs(sin(now * 10f)) * r * 0.09f)
+                base(c, cx, cy, r)
+                eye(c, cx - r * 0.33f, cy - r * 0.14f, r, 1f, 0.2f, 0f)
+                eye(c, cx + r * 0.33f, cy - r * 0.14f, r, 1f, 0.2f, 0f)
+                line(c, cx - r * 0.50f, cy - r * 0.40f, cx - r * 0.16f, cy - r * 0.32f, r * 0.07f)
+                line(c, cx + r * 0.16f, cy - r * 0.32f, cx + r * 0.50f, cy - r * 0.40f, r * 0.07f)
+                openMouth(c, cx, cy + r * 0.22f, r, r * 0.17f, r * 0.17f + r * 0.05f * sin(now * 10f))
+                val ph = (now * 1.3f) % 1f
+                p.style = Paint.Style.FILL
+                p.color = DROP
+                c.drawCircle(cx + r * 0.7f, cy - r * 0.5f + ph * r * 0.8f, r * 0.08f, p)
+            }
+            Kind.WIND -> {
+                base(c, cx - r * 0.18f, cy, r * 0.86f)
+                val rr = r * 0.86f
+                eye(c, cx - r * 0.18f - rr * 0.33f, cy - rr * 0.12f, rr, 1f)
+                eye(c, cx - r * 0.18f + rr * 0.33f, cy - rr * 0.12f, rr, 1f)
+                p.style = Paint.Style.FILL
+                p.color = Color.argb(150, 255, 120, 120)
+                c.drawCircle(cx - r * 0.18f - rr * 0.55f, cy + rr * 0.12f, rr * 0.16f, p)
+                c.drawCircle(cx - r * 0.18f + rr * 0.55f, cy + rr * 0.12f, rr * 0.16f, p)
+                oval(c, cx - r * 0.18f, cy + rr * 0.28f, rr * 0.08f, rr * 0.10f, MOUTH)
+                for (i in 0 until 3) {
+                    val ph = (now * 1.6f + i * 0.3f) % 1f
+                    val y = cy + rr * 0.20f + (i - 1) * r * 0.22f
+                    val x0 = cx + r * 0.05f + ph * r * 0.9f
+                    path.reset()
+                    path.moveTo(x0, y)
+                    path.quadTo(x0 + r * 0.25f, y - r * 0.12f, x0 + r * 0.5f, y)
+                    p.style = Paint.Style.STROKE
+                    p.strokeCap = Paint.Cap.ROUND
+                    p.strokeWidth = r * 0.07f
+                    p.color = Color.argb(((1f - ph) * 220).toInt(), 150, 190, 230)
+                    c.drawPath(path, p)
+                }
+            }
+            Kind.ROCKET -> {
+                c.rotate(35f + sin(now * 14f) * 2f, cx, cy)
+                c.translate(sin(now * 20f) * r * 0.02f, -abs(sin(now * 3f)) * r * 0.06f)
+                // flame
+                val fl = r * (0.45f + 0.20f * sin(now * 25f))
+                path.reset()
+                path.moveTo(cx - r * 0.20f, cy + r * 0.62f)
+                path.lineTo(cx, cy + r * 0.62f + fl)
+                path.lineTo(cx + r * 0.20f, cy + r * 0.62f)
+                path.close()
+                p.style = Paint.Style.FILL
+                p.color = Color.parseColor("#FF9800")
+                c.drawPath(path, p)
+                p.color = Color.parseColor("#FFEB3B")
+                c.drawCircle(cx, cy + r * 0.70f, r * 0.10f, p)
+                // fins
+                p.color = Color.parseColor("#E53935")
+                path.reset()
+                path.moveTo(cx - r * 0.30f, cy + r * 0.10f)
+                path.lineTo(cx - r * 0.55f, cy + r * 0.62f)
+                path.lineTo(cx - r * 0.25f, cy + r * 0.50f)
+                path.close()
+                c.drawPath(path, p)
+                path.reset()
+                path.moveTo(cx + r * 0.30f, cy + r * 0.10f)
+                path.lineTo(cx + r * 0.55f, cy + r * 0.62f)
+                path.lineTo(cx + r * 0.25f, cy + r * 0.50f)
+                path.close()
+                c.drawPath(path, p)
+                // body and nose
+                oval(c, cx, cy + r * 0.05f, r * 0.30f, r * 0.62f, Color.parseColor("#ECEFF1"))
+                path.reset()
+                path.moveTo(cx - r * 0.28f, cy - r * 0.30f)
+                path.quadTo(cx, cy - r * 1.05f, cx + r * 0.28f, cy - r * 0.30f)
+                path.close()
+                p.color = Color.parseColor("#E53935")
+                c.drawPath(path, p)
+                oval(c, cx, cy - r * 0.05f, r * 0.13f, r * 0.13f, Color.parseColor("#40C4FF"))
             }
             Kind.SAD -> {
                 c.translate(0f, sin(now * 1.5f) * r * 0.03f)
