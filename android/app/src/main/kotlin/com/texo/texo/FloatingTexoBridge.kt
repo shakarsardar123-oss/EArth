@@ -127,6 +127,16 @@ object FloatingTexoBridge {
                 result.success(isAccessibilityEnabled(activity))
             }
 
+            "startWakeService" -> {
+                TexoWakeService.start(activity)
+                result.success(true)
+            }
+
+            "stopWakeService" -> {
+                TexoWakeService.stop(activity)
+                result.success(true)
+            }
+
             "notifyAnswer" -> {
                 val title = call.argument<String>("title") ?: "TEXO"
                 val text = call.argument<String>("text") ?: ""

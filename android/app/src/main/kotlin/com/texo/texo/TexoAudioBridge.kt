@@ -70,6 +70,30 @@ class TexoAudioBridge(
     @Volatile private var micVadEnabled = false
     @Volatile private var wakeEnabled = false
 
+    // The last few seconds of microphone audio while listening for the wake word.
+    private val ring = ShortArray(16000 * 6)
+    private var ringPos = 0
+    private var ringFilled = 0
+
+    private fun ringWrite(buf: ShortArray, n: Int) {
+        for (i in 0 until n) {
+            ring[ringPos] = buf[i]
+            ringPos = (ringPos + 1) % ring.size
+        }
+        ringFilled = minOf(ring.size, ringFilled + n)
+    }
+
+    private fun ringSnapshot(seconds: Int): ShortArray {
+        val want = minOf(ringFilled, seconds * 16000)
+        val out = ShortArray(want)
+        var idx = (ringPos - want + ring.size) % ring.size
+        for (i in 0 until want) {
+            out[i] = ring[idx]
+            idx = (idx + 1) % ring.size
+        }
+        return out
+    }
+
     // ── Sorani STT (Vekol) ──
     @Volatile private var sttEnabled = false
     private var sttSink: EventChannel.EventSink? = null
@@ -143,7 +167,7 @@ class TexoAudioBridge(
                     "start" -> result.success(startStt())
                     "stop" -> { stopStt(); result.success(true) }
                     "setCloud" -> {
-                        sttCloud = false
+                        sttCloud = (call.arguments as? Boolean) ?: false
                         result.success(true)
                     }
                     "local" -> {
@@ -680,6 +704,7 @@ class TexoAudioBridge(
 
                 // Consumer B: acoustic wake-word inference (grammar-constrained).
                 if (wakeEnabled) {
+                    ringWrite(buf, n)
                     feedWake(buf, n)
                 }
 
@@ -826,7 +851,15 @@ class TexoAudioBridge(
         }
         lastWakeMs = now
         try { rec.reset() } catch (_: Throwable) {}
-        val payload = mapOf("confidence" to conf, "kind" to wakeKind(json))
+        val kind = wakeKind(json)
+        val payload = HashMap<String, Any?>()
+        payload["confidence"] = conf
+        payload["kind"] = kind
+        if (kind == "wake") {
+            // What was just said, including the words after "texo" ("hey texo, open
+            // YouTube"): the app transcribes it so the command is not lost.
+            payload["wav"] = pcmToWavBase64(ringSnapshot(4))
+        }
         main.post { wakeSink?.success(payload) }
     }
 

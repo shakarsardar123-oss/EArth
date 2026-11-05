@@ -233,6 +233,15 @@ class RiverpodBackend
   void Function(String)? _hookPartial;
   void Function(String)? _hookSentence;
   bool _hookSearch = false;
+  bool _searchOk = true; // switched off for good if Google Search ever fails
+
+  /// Only questions about current things go to Google Search (it is slower).
+  bool _needsWeb(String t) {
+    final String s = t.toLowerCase();
+    return RegExp(
+      '(\u0626\u06D5\u0645\u0695\u06C6|\u062F\u0648\u0627\u06CC\u06CC\u0646|\u0647\u06D5\u0648\u0627\u06B5|\u0646\u0631\u062E|\u06A9\u06D5\u0634\u0648\u0647\u06D5\u0648\u0627|\u0626\u06D5\u0646\u062C\u0627\u0645\u06CC \u06CC\u0627\u0631\u06CC|\u062F\u06C6\u0644\u0627\u0631|\u062F\u06CC\u0646\u0627\u0631|today|latest|news|price|weather|score|search|google|http|www\\.)',
+    ).hasMatch(s);
+  }
 
   // ---- the answer as a notification while the app is not on screen ----
   int _notifyAt = 0;
@@ -350,7 +359,7 @@ class RiverpodBackend
     assistantSources.value = <String>[];
 
     Future<void> run() async {
-      await for (final r in provider.streamComplete(req).timeout(const Duration(seconds: 40))) {
+      await for (final r in provider.streamComplete(req).timeout(Duration(seconds: GeminiProvider.searchEnabled ? 12 : 30))) {
         final String piece = r.text;
         if (piece.isEmpty) continue;
         if (assistantStatus.value.startsWith('ناردنی') ||
@@ -368,7 +377,11 @@ class RiverpodBackend
     }
 
     // Chat answers may search the web (not the voice conversation: it must be fast).
-    final bool search = onSentence != null && _hookSearch && provider.id == 'gemini';
+    final bool search = onSentence != null &&
+        _hookSearch &&
+        _searchOk &&
+        provider.id == 'gemini' &&
+        _needsWeb(text);
     try {
       GeminiProvider.searchEnabled = search;
       if (search) assistantStatus.value = 'خەریکی بیرکردنەوە و گەڕانم لە ئینتەرنێت...';
@@ -377,6 +390,7 @@ class RiverpodBackend
       } catch (_) {
         // The search tool was refused: ask again without it.
         if (search && all.isEmpty) {
+          _searchOk = false; // do not try the search tool again
           GeminiProvider.searchEnabled = false;
           assistantStatus.value = 'ناردنی پرسیارەکە بۆ ${provider.displayName}...';
           await run();
@@ -569,6 +583,9 @@ class RiverpodBackend
         unawaited(_tryStartWake());
       } else {
         await _stopWake();
+        try {
+          await _sysCh.invokeMethod<Object?>('stopWakeService');
+        } catch (_) {}
       }
     }
   }
@@ -641,7 +658,17 @@ class RiverpodBackend
     await _tryStartWake();
   }
 
+  Future<void> _startWakeService() async {
+    // A microphone foreground service lets "Hey Texo" work in the background.
+    try {
+      await _sysCh.invokeMethod<Object?>('startWakeService');
+    } catch (_) {}
+  }
+
   Future<void> _tryStartWake() async {
+    if (_wakeWanted && await Permission.microphone.isGranted) {
+      unawaited(_startWakeService());
+    }
     if (_wakeOn || _liveRunning || !_wakeWanted) return;
     try {
       if (!await Permission.microphone.isGranted) return;
@@ -803,8 +830,46 @@ class RiverpodBackend
           await _showReaction(_pickReaction('wake'));
           await Future<void>.delayed(const Duration(milliseconds: 700));
         }
+        // "Hey texo, <command>": transcribe the last seconds at the same time the
+        // conversation starts, then hand the command over.
+        Future<String?>? heard;
+        final Object? wav = ev is Map ? ev['wav'] : null;
+        if (wav is String && wav.isNotEmpty) {
+          heard = CloudStt.instance.transcribe(wav);
+        }
         await _onWake();
+        if (heard != null) {
+          try {
+            final String? text = await heard.timeout(const Duration(seconds: 8));
+            final String cmd = _commandAfterWake(text ?? '');
+            if (cmd.length >= 2 && _liveRunning) {
+              // wait until the session is really listening
+              for (int i = 0; i < 20; i++) {
+                final LiveMode m = _c.read(liveModeOrchestratorProvider).state == LiveModeState.listening
+                    ? LiveMode.listening
+                    : LiveMode.thinking;
+                if (m == LiveMode.listening) break;
+                await Future<void>.delayed(const Duration(milliseconds: 150));
+              }
+              _c.read(liveModeOrchestratorProvider).injectUserText(cmd);
+            }
+          } catch (_) {}
+        }
     }
+  }
+
+  static final RegExp _wakeWord = RegExp(
+    '(\u062A\u06CE\u06A9\u0633\u06C6|\u062A\u06CC\u06A9\u0633\u06C6|\u062A\u06CE\u06A9\u0633\u0648|\u062A\u06CC\u06A9\u0633\u0648|texo|tecso|tesco|tex oh)',
+    caseSensitive: false,
+  );
+
+  /// The part of a transcript that comes AFTER the last wake word.
+  String _commandAfterWake(String text) {
+    final String t = text.replaceAll(RegExp(r'[.,!?\u061F\u060C"]'), ' ');
+    final Iterable<RegExpMatch> all = _wakeWord.allMatches(t);
+    if (all.isEmpty) return '';
+    final String rest = t.substring(all.last.end).trim();
+    return rest.replaceAll(RegExp(r'\s+'), ' ');
   }
 
   /// "texo" was heard: only the overlay appears and the live conversation starts.

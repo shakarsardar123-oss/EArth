@@ -215,6 +215,11 @@
 
         <!-- Floating AURA overlay: foreground service that owns the native WindowManager overlay view. -->
         <service
+            android:name=".TexoWakeService"
+            android:exported="false"
+            android:foregroundServiceType="microphone" />
+
+        <service
             android:name=".ScreenCaptureService"
             android:exported="false"
             android:foregroundServiceType="mediaProjection" />

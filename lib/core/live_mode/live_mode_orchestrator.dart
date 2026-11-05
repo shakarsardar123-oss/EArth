@@ -634,6 +634,13 @@ class LiveModeOrchestrator {
     }
   }
 
+  /// A sentence that was spoken together with the wake word ("hey texo, open
+  /// YouTube") and transcribed afterwards: handled like any recognised speech.
+  void injectUserText(String text) {
+    if (_state != LiveModeState.listening || _isProcessingRequest) return;
+    _onRecognizedFinal(_generation, text);
+  }
+
   /// Called when STT produces a final recognition result.
   void _onRecognizedFinal(int gen, String text) {
     if (!_isCurrentGeneration(gen)) return;
