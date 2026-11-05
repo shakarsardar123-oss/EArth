@@ -467,6 +467,21 @@ class GeminiProvider implements AIProvider, ModelDiscovery {
     ];
   }
 
+  /// Newer Gemini models "think" before they answer, which adds many seconds
+  /// before the first word and spends the daily quota faster. A voice assistant
+  /// needs a quick answer, so thinking is kept to a minimum. If a model does not
+  /// accept the field, the request is repeated once without it.
+  Map<String, dynamic>? _thinkingConfigFor(String model) {
+    final String m = model.toLowerCase();
+    if (m.contains('gemini-3')) {
+      return <String, dynamic>{'thinkingLevel': 'low'};
+    }
+    if (m.contains('2.5') && m.contains('flash')) {
+      return <String, dynamic>{'thinkingBudget': 0};
+    }
+    return null;
+  }
+
   @override
   Future<AIResponse> complete(AIRequest request) async {
     final apiKey = await getApiKey();
@@ -509,6 +524,10 @@ class GeminiProvider implements AIProvider, ModelDiscovery {
         'maxOutputTokens': maxTokens,
       },
     };
+    final Map<String, dynamic>? thinking = _thinkingConfigFor(model);
+    if (thinking != null) {
+      (body['generationConfig'] as Map<String, dynamic>)['thinkingConfig'] = thinking;
+    }
 
     // System instruction
     final systemInstruction = _buildSystemInstruction(request);
@@ -534,7 +553,7 @@ class GeminiProvider implements AIProvider, ModelDiscovery {
         apiKey: apiKey,
       );
 
-      final response = await _httpClient
+      var response = await _httpClient
           .post(
             uri,
             headers: {
@@ -543,6 +562,20 @@ class GeminiProvider implements AIProvider, ModelDiscovery {
             body: jsonEncode(body),
           )
           .timeout(const Duration(seconds: 120));
+      if (response.statusCode == 400 &&
+          thinking != null &&
+          response.body.toLowerCase().contains('think')) {
+        (body['generationConfig'] as Map<String, dynamic>).remove('thinkingConfig');
+        response = await _httpClient
+            .post(
+              uri,
+              headers: {
+                'Content-Type': 'application/json',
+              },
+              body: jsonEncode(body),
+            )
+            .timeout(const Duration(seconds: 120));
+      }
 
       stopwatch.stop();
 
@@ -750,6 +783,10 @@ class GeminiProvider implements AIProvider, ModelDiscovery {
         'maxOutputTokens': maxTokens,
       },
     };
+    final Map<String, dynamic>? thinking = _thinkingConfigFor(model);
+    if (thinking != null) {
+      (body['generationConfig'] as Map<String, dynamic>)['thinkingConfig'] = thinking;
+    }
 
     final systemInstruction = _buildSystemInstruction(request);
     if (systemInstruction != null) {
@@ -789,7 +826,27 @@ class GeminiProvider implements AIProvider, ModelDiscovery {
     http.StreamedResponse response;
 
     try {
-      response = await _httpClient.send(httpRequest);
+      response = await _httpClient
+          .send(httpRequest)
+          .timeout(const Duration(seconds: 45));
+      if (response.statusCode == 400 && thinking != null) {
+        final String firstError = await response.stream.bytesToString();
+        if (firstError.toLowerCase().contains('think')) {
+          // This model does not accept the thinking field: repeat without it.
+          (body['generationConfig'] as Map<String, dynamic>).remove('thinkingConfig');
+          final http.Request retry = http.Request('POST', uri)
+            ..headers['Content-Type'] = 'application/json'
+            ..body = jsonEncode(body);
+          response = await _httpClient
+              .send(retry)
+              .timeout(const Duration(seconds: 45));
+        } else {
+          response = http.StreamedResponse(
+            Stream<List<int>>.value(utf8.encode(firstError)),
+            400,
+          );
+        }
+      }
     } on http.ClientException catch (e) {
       throw AIProviderException(
         message: 'Network error: ${e.message}',
@@ -798,7 +855,7 @@ class GeminiProvider implements AIProvider, ModelDiscovery {
       );
     } on TimeoutException {
       throw AIProviderException(
-        message: 'Request timed out after 120 seconds',
+        message: 'Request timed out (no answer from Gemini)',
         providerId: id,
         errorCode: 'TIMEOUT',
       );

@@ -118,6 +118,14 @@ class TexoAudioBridge(
     // Cloud STT: when on, the finished utterance is handed to Dart (as WAV) instead of
     // running the slow on-device model. Dart asks for "local" if the cloud fails.
     @Volatile private var sttCloud = false
+
+    // Live preview: while the user speaks, the audio so far is transcribed again
+    // now and then and sent to Dart as {"type":"partial"} (free, on-device).
+    @Volatile private var sttPartialGen = 0
+    private var sttSincePartialMs = 0L
+    private var sttLastPartialText = ""
+    private val sttPartialMinSpeechMs = 1000L
+    private val sttPartialEveryMs = 1400L
     @Volatile private var lastUtterance: ShortArray? = null
     @Volatile private var utteranceSeq = 0
 
@@ -289,6 +297,29 @@ class TexoAudioBridge(
 
     /** Debug: save each utterance fed to the model as a WAV in Download/texo_utterances. */
     @android.annotation.SuppressLint("NewApi")
+    /** Called with sttLock held, for every frame of speech. */
+    private fun maybeStartPartial() {
+        if (sttCloud) return // the cloud path would spend the daily quota
+        if (sttSpeechMs < sttPartialMinSpeechMs) return
+        val engine = sttEngine ?: return // the model is created by the first full utterance
+        val every = maxOf(sttPartialEveryMs, engine.lastPartialMs)
+        if (sttSincePartialMs < every) return
+        if (engine.isBusy()) return
+        if (sttPcmSize < 16000 / 2) return
+        sttSincePartialMs = 0L
+        val snapshot = sttPcmBuffer.copyOf(sttPcmSize)
+        val gen = sttPartialGen
+        engine.transcribePartial(snapshot) { text ->
+            val t = text.trim()
+            main.post {
+                if (gen == sttPartialGen && t.isNotEmpty() && t != sttLastPartialText) {
+                    sttLastPartialText = t
+                    sttSink?.success(mapOf("type" to "partial", "text" to t))
+                }
+            }
+        }
+    }
+
     private fun runLocalStt(utterance: ShortArray) {
         Thread {
             try {
@@ -483,6 +514,9 @@ class TexoAudioBridge(
                     sttSpeechStarted = true
                     sttSilenceMs = 0L
                     sttSpeechMs = frameMs
+                    sttPartialGen++
+                    sttSincePartialMs = 0L
+                    sttLastPartialText = ""
                     sttVoicedMs = frameMs
                     // Pre-roll: keep the quiet audio just before the threshold
                     // crossing so soft word onsets are not clipped.
@@ -524,6 +558,8 @@ class TexoAudioBridge(
                 sttPcmSize += copyCount
             }
             sttSpeechMs += frameMs
+            sttSincePartialMs += frameMs
+            maybeStartPartial()
 
             // Noise that stays high even between words is not speech: follow the
             // quietest moment of every second.
@@ -558,6 +594,7 @@ class TexoAudioBridge(
 
             if (reachedSilence || reachedMaximum || reachedForced) {
                 sttForceEnd = false
+                sttPartialGen++
                 val sampleCount = sttPcmSize
                 val durationMs =
                     (sampleCount * 1000L) / sttSampleRate

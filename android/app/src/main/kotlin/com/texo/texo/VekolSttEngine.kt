@@ -106,16 +106,81 @@ class VekolSttEngine(
             return
         }
 
+        // A finished utterance always wins over a live preview: the preview stops.
+        finalPending.incrementAndGet()
         executor.execute {
             try {
+                runningPartial = false
                 val t0 = System.nanoTime()
-                val text = transcribeBlocking(samples)
+                val text = normalizeSorani(transcribeBlocking(samples))
                 val ms = (System.nanoTime() - t0) / 1_000_000
                 TexoLog.log(context, "STT: ${samples.size / 16} ms audio -> ${ms} ms [${text}]")
                 onResult(text)
             } catch (t: Throwable) {
                 onError(t)
+            } finally {
+                finalPending.decrementAndGet()
             }
+        }
+    }
+
+    // ── live preview (words while the user is still speaking) ──
+    private val finalPending = java.util.concurrent.atomic.AtomicInteger(0)
+    private val partialBusy = java.util.concurrent.atomic.AtomicBoolean(false)
+    @Volatile private var runningPartial = false
+    @Volatile var lastPartialMs: Long = 0L
+        private set
+
+    /** True while a preview or a final transcription is using the model. */
+    fun isBusy(): Boolean = partialBusy.get() || finalPending.get() > 0
+
+    /**
+     * Transcribe the audio spoken so far, only to show it on screen. Skipped when
+     * the model is busy; abandoned as soon as the real utterance is finished.
+     */
+    fun transcribePartial(samples: ShortArray, onResult: (String) -> Unit) {
+        if (closed || finalPending.get() > 0) return
+        if (!partialBusy.compareAndSet(false, true)) return
+        executor.execute {
+            try {
+                if (finalPending.get() > 0) return@execute
+                runningPartial = true
+                val t0 = System.nanoTime()
+                val text = normalizeSorani(transcribeBlocking(samples))
+                lastPartialMs = (System.nanoTime() - t0) / 1_000_000
+                if (finalPending.get() == 0 && text.isNotBlank()) onResult(text)
+            } catch (_: java.util.concurrent.CancellationException) {
+                // the real utterance arrived: this preview is not needed any more
+            } catch (_: Throwable) {
+            } finally {
+                runningPartial = false
+                partialBusy.set(false)
+            }
+        }
+    }
+
+    /**
+     * One spelling for every letter: the model sometimes writes the Arabic or
+     * Urdu form of a letter, which then does not match the words the app knows
+     * (commands, wake word). Spaces are tidied too.
+     */
+    private fun normalizeSorani(t: String): String {
+        val sb = StringBuilder(t.length)
+        for (ch in t) {
+            when (ch) {
+                '\u06BE', '\u06C1' -> sb.append('\u0647') // heh variants -> heh
+                '\u064A', '\u0649' -> sb.append('\u06CC') // Arabic yeh -> Kurdish yeh
+                '\u0643' -> sb.append('\u06A9')            // Arabic kaf -> Kurdish kaf
+                '\u0640' -> {}                              // tatweel
+                else -> sb.append(ch)
+            }
+        }
+        return sb.toString().replace(Regex("\\s+"), " ").trim()
+    }
+
+    private fun abortIfFinalWaiting() {
+        if (runningPartial && finalPending.get() > 0) {
+            throw java.util.concurrent.CancellationException("final transcription is waiting")
         }
     }
 
@@ -138,7 +203,7 @@ class VekolSttEngine(
     }
 
     private fun transcribeBlocking(samples: ShortArray): String {
-        maxNewTokens = (12 + 10 * (samples.size / 16000.0)).toInt().coerceIn(16, 80)
+        maxNewTokens = (12 + 16 * (samples.size / 16000.0)).toInt().coerceIn(16, 200)
         val features = whisperLogMel(normalizeLevel(samples))
 
         val featureData = Array(1) {
@@ -165,6 +230,8 @@ class VekolSttEngine(
                 if (encoderTensor != null) {
                     try {
                         return decodeCached(encoderTensor)
+                    } catch (c: java.util.concurrent.CancellationException) {
+                        throw c
                     } catch (t: Throwable) {
                         TexoLog.log(context, "STT: cached decoder failed (" + t.javaClass.simpleName + ": " + t.message + "), using the slow path")
                     }
@@ -579,6 +646,7 @@ class VekolSttEngine(
 
         try {
             while (tokenIds.size < maxTokens) {
+                abortIfFinalWaiting()
                 val first = encoderHolder == null
                 val ids =
                     if (first) LongArray(tokenIds.size) { tokenIds[it] }

@@ -74,6 +74,7 @@ class RiverpodBackend
   int _ttsAt = 0;
   bool _muteStopped = false;
   bool _liveRunning = false;
+  StreamSubscription<dynamic>? _partialSub; // live words while the user is speaking
   Future<void> _tail = Future<void>.value();
   String _lastPushKey = '';
   int _lastPushAt = 0;
@@ -335,8 +336,9 @@ class RiverpodBackend
     String text,
     List<Map<String, String>> history,
     void Function(String soFar) onPartial,
-    void Function(String sentence)? onSentence,
-  ) async {
+    void Function(String sentence)? onSentence, {
+    bool fromVoice = false,
+  }) async {
     final provider = _c.read(selectedAIProviderProvider);
     assistantStatus.value = 'ناردنی پرسیارەکە بۆ ${provider.displayName}...';
     final List<AIMessage> msgs = <AIMessage>[
@@ -347,7 +349,9 @@ class RiverpodBackend
         ),
       AIMessage(
         role: AIMessageRole.user,
-        content: '$text\n\n(Current date and time: ${nowForAssistant()}.)',
+        content: fromVoice
+            ? '$text\n\n(This text came from speech recognition and may contain wrongly heard Kurdish words. Work out what the person most likely meant from the context and answer that. Current date and time: ${nowForAssistant()}.)'
+            : '$text\n\n(Current date and time: ${nowForAssistant()}.)',
       ),
     ];
     final AIRequest req = AIRequest(
@@ -916,6 +920,19 @@ class RiverpodBackend
     _lastYou = '';
     _lastAi = '';
     _live.caption.value = '';
+    // Words appear on the screen while the user is still speaking.
+    _partialSub?.cancel();
+    _partialSub = const EventChannel('com.texo.texo/stt.events')
+        .receiveBroadcastStream()
+        .listen((dynamic ev) {
+      if (ev is! Map || ev['type'] != 'partial') return;
+      if (!_liveRunning || _c.read(liveModeStateProvider) != LiveModeState.listening) return;
+      final String t = '${ev['text'] ?? ''}'.trim();
+      if (t.isEmpty) return;
+      _lastYou = t;
+      _live.caption.value = t;
+      _pushOverlay();
+    }, onError: (Object _) {});
     _ttsSub?.cancel();
     _ttsSub = _c.read(voiceServiceImplProvider).speakingLevelStream.listen((double v) {
       _ttsLevel = v.clamp(0.0, 1.0).toDouble();
@@ -953,6 +970,7 @@ class RiverpodBackend
         ],
         onPartial,
         onSentence,
+        fromVoice: true,
       );
     };
     orchestrator.onSessionEnded = (String reason) {
@@ -1062,6 +1080,8 @@ class RiverpodBackend
     _levelTimer = null;
     _liveSub?.close();
     _liveSub = null;
+    await _partialSub?.cancel();
+    _partialSub = null;
     _live.level.value = 0;
     await _cam.stop();
     await _overlay.stop();
