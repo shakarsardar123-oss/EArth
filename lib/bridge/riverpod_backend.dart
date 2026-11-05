@@ -14,6 +14,7 @@ import 'package:permission_handler/permission_handler.dart';
 
 import '../core/agent/agent_context.dart';
 import '../core/agent/agent_result.dart';
+import '../core/agent/tool_intent.dart';
 import '../core/ai/gemini_provider.dart' show GeminiProvider;
 import '../core/phone_agent/phone_control_hook.dart';
 import '../core/text/assistant_status.dart';
@@ -443,6 +444,9 @@ class RiverpodBackend
         }
       } catch (_) {}
     }
+    // A long history makes every answer slower and spends the daily quota faster.
+    if (history.length > 10) history.removeRange(0, history.length - 10);
+    if (historyMsgs.length > 10) historyMsgs.removeRange(0, historyMsgs.length - 10);
 
     String reply;
     bool ok = true;
@@ -483,7 +487,9 @@ class RiverpodBackend
         if (streamPartial != null) {
           // A phone task goes to the phone agent; everything else is streamed.
           result = await phoneControlHook?.call(text, ctx);
-          if (result == null) {
+          // A task (alarm, reminder, call, settings, ...) needs the tools, which
+          // only the agent engine has: do not answer it with a plain stream.
+          if (result == null && !looksLikeToolTask(text)) {
             try {
               _hookSearch = allowSearch;
               streamed = await _streamPlainChat(text, history, streamPartial, streamSentence);

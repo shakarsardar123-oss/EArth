@@ -21,6 +21,7 @@ import '../../services/voice/voice_service.dart'
 import 'agent_processor.dart';
 import '../agent/agent_context.dart';
 import '../agent/agent_result.dart';
+import '../agent/tool_intent.dart';
 import '../phone_agent/phone_control_hook.dart';
 
 import '../../domain/entities/agent_config.dart';
@@ -779,7 +780,9 @@ class LiveModeOrchestrator {
         // spoken sentence by sentence while the answer is still being written.
         result = await phoneControlHook?.call(text, context);
         if (!_isCurrentGeneration(gen)) return;
-        if (result == null) {
+        // Tasks (alarm, reminder, call, settings, ...) need the tools of the agent
+        // engine; the plain stream has none, so only non-tasks are streamed.
+        if (result == null && !looksLikeToolTask(text)) {
           final bool handled = await _streamAndSpeak(gen, text, history, streamer);
           if (handled) return;
         }
