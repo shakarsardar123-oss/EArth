@@ -20,6 +20,7 @@ import '../core/phone_agent/phone_control_hook.dart';
 import '../core/text/assistant_status.dart';
 import '../core/text/clean_reply.dart';
 import '../core/voice/cloud_stt.dart';
+import '../core/voice/speech_recognition_impl.dart' show SpeechRecognitionServiceImpl;
 import '../core/ai/ai_message.dart';
 import '../core/live_mode/live_mode_providers.dart';
 import '../core/live_mode/live_mode_state.dart';
@@ -922,17 +923,13 @@ class RiverpodBackend
     _live.caption.value = '';
     // Words appear on the screen while the user is still speaking.
     _partialSub?.cancel();
-    _partialSub = const EventChannel('com.texo.texo/stt.events')
-        .receiveBroadcastStream()
-        .listen((dynamic ev) {
-      if (ev is! Map || ev['type'] != 'partial') return;
+    _partialSub = SpeechRecognitionServiceImpl.partials.stream.listen((String t) {
       if (!_liveRunning || _c.read(liveModeStateProvider) != LiveModeState.listening) return;
-      final String t = '${ev['text'] ?? ''}'.trim();
       if (t.isEmpty) return;
       _lastYou = t;
       _live.caption.value = t;
       _pushOverlay();
-    }, onError: (Object _) {});
+    });
     _ttsSub?.cancel();
     _ttsSub = _c.read(voiceServiceImplProvider).speakingLevelStream.listen((double v) {
       _ttsLevel = v.clamp(0.0, 1.0).toDouble();

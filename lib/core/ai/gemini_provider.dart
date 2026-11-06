@@ -519,7 +519,7 @@ class GeminiProvider implements AIProvider, ModelDiscovery {
     // Build the Gemini-native request body
     final body = <String, dynamic>{
       'contents': _buildContents(request),
-      'generationConfig': {
+      'generationConfig': <String, dynamic>{
         'temperature': temperature,
         'maxOutputTokens': maxTokens,
       },
@@ -778,7 +778,7 @@ class GeminiProvider implements AIProvider, ModelDiscovery {
 
     final body = <String, dynamic>{
       'contents': _buildContents(request),
-      'generationConfig': {
+      'generationConfig': <String, dynamic>{
         'temperature': temperature,
         'maxOutputTokens': maxTokens,
       },

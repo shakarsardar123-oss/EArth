@@ -452,8 +452,29 @@ class TexoAudioBridge(
         val ok = ensureCapture()
         if (!ok) {
             sttEnabled = false
+        } else {
+            preloadSttEngine()
         }
         return ok
+    }
+
+    @Volatile private var sttPreloading = false
+
+    /** Load the on-device model in the background (outside sttLock: the mic thread uses it). */
+    private fun preloadSttEngine() {
+        if (sttCloud || sttEngine != null || sttPreloading) return
+        sttPreloading = true
+        Thread {
+            try {
+                val e = VekolSttEngine(context)
+                synchronized(sttLock) {
+                    if (sttEngine == null) sttEngine = e else e.dispose()
+                }
+            } catch (_: Throwable) {
+            } finally {
+                sttPreloading = false
+            }
+        }.start()
     }
 
     private fun stopStt() {

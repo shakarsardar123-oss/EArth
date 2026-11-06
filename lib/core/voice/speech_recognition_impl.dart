@@ -22,6 +22,12 @@ class SpeechRecognitionServiceImpl {
   static const EventChannel _events =
       EventChannel('com.texo.texo/stt.events');
 
+  /// Words heard so far while the user is still speaking (live preview).
+  /// One shared stream: a second EventChannel listener would replace the
+  /// recogniser's own listener and stop the final results.
+  static final StreamController<String> partials =
+      StreamController<String>.broadcast();
+
   bool _initialized = false;
   bool _listening = false;
   StreamSubscription<dynamic>? _eventSubscription;
@@ -70,6 +76,16 @@ class SpeechRecognitionServiceImpl {
           case 'processing':
             debugToast('STT: processing');
             // Vekol inference is running.
+            break;
+
+          case 'partial':
+            {
+              final Object? p = event['text'];
+              if (p is String && p.trim().isNotEmpty) {
+                partials.add(p.trim());
+                _onPartial?.call(p.trim());
+              }
+            }
             break;
 
           case 'result':
