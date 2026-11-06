@@ -568,6 +568,7 @@ class MainActivity : FlutterActivity() {
     private fun handleSystemControl(call: MethodCall, result: MethodChannel.Result) {
         when (call.method) {
             "getBluetoothState" -> handleGetBluetoothState(result)
+            "listPairedBluetooth" -> handleListPairedBluetooth(result)
             "setBluetoothEnabled" -> handleSetBluetoothEnabled(call, result)
             "getWifiState" -> handleGetWifiState(result)
             "setWifiEnabled" -> handleSetWifiEnabled(call, result)
@@ -618,6 +619,20 @@ class MainActivity : FlutterActivity() {
         } else {
             @Suppress("DEPRECATION")
             BluetoothAdapter.getDefaultAdapter()
+        }
+    }
+
+    private fun handleListPairedBluetooth(result: MethodChannel.Result) {
+        val adapter = bluetoothAdapter()
+        if (adapter == null) {
+            result.success(mapOf("supported" to false, "devices" to emptyList<Map<String, Any>>()))
+            return
+        }
+        try {
+            val list = adapter.bondedDevices.map { d -> mapOf("name" to (d.name ?: ""), "address" to d.address) }
+            result.success(mapOf("supported" to true, "devices" to list))
+        } catch (e: SecurityException) {
+            result.success(mapOf("supported" to true, "needsPermission" to true, "devices" to emptyList<Map<String, Any>>()))
         }
     }
 

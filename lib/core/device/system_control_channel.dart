@@ -34,6 +34,7 @@ abstract class SystemControlChannel {
   ///
   /// Success keys: `supported` (bool), `enabled` (bool).
   Future<DeviceChannelResult> getBluetoothState();
+  Future<DeviceChannelResult> listPairedBluetooth();
 
   /// Requests enabling/disabling Bluetooth.
   ///

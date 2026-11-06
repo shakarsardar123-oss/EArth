@@ -23,6 +23,10 @@ class StubSystemControlChannel implements SystemControlChannel {
       _unsupported('getBluetoothState');
 
   @override
+  Future<DeviceChannelResult> listPairedBluetooth() async =>
+      _unsupported('listPairedBluetooth');
+
+  @override
   Future<DeviceChannelResult> setBluetoothEnabled(bool enable) async =>
       _unsupported('setBluetoothEnabled');
 

@@ -17,6 +17,7 @@ import '../../core/errors/result.dart';
 /// Method names shared verbatim between Flutter and Kotlin.
 abstract class SystemControlMethods {
   static const String getBluetoothState = 'getBluetoothState';
+  static const String listPairedBluetooth = 'listPairedBluetooth';
   static const String setBluetoothEnabled = 'setBluetoothEnabled';
   static const String getWifiState = 'getWifiState';
   static const String setWifiEnabled = 'setWifiEnabled';
@@ -37,6 +38,10 @@ class AndroidSystemControlChannel implements SystemControlChannel {
   @override
   Future<DeviceChannelResult> getBluetoothState() =>
       _invoke(SystemControlMethods.getBluetoothState);
+
+  @override
+  Future<DeviceChannelResult> listPairedBluetooth() =>
+      _invoke(SystemControlMethods.listPairedBluetooth);
 
   @override
   Future<DeviceChannelResult> setBluetoothEnabled(bool enable) =>

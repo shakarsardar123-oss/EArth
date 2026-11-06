@@ -48,9 +48,9 @@ class BluetoothControlTool extends Tool {
             description:
                 'کردار: state (خوێندنەوە), enable (چالاکی), disable (ناچالاکی). '
                 '— '
-                'Action: state (read), enable, disable.',
+                'Action: state (read), enable, disable, list_paired (list paired devices).',
             isRequired: true,
-            enumValues: ['state', 'enable', 'disable'],
+            enumValues: ['state', 'enable', 'disable', 'list_paired'],
             example: 'state',
             label: 'کردار',
             hintText: 'state',
@@ -80,7 +80,7 @@ class BluetoothControlTool extends Tool {
     if (action == null || action.isEmpty) {
       return 'action is required. — کردار پێویستە.';
     }
-    if (!['state', 'enable', 'disable'].contains(action)) {
+    if (!['state', 'enable', 'disable', 'list_paired'].contains(action)) {
       return 'action must be state, enable, or disable. '
           '— کردار دەبێت state یان enable یان disable بێت.';
     }
@@ -106,6 +106,9 @@ class BluetoothControlTool extends Tool {
         case 'state':
           final r = await _channel.getBluetoothState();
           return _resultFromChannel(r);
+
+        case 'list_paired':
+          return _resultFromChannel(await _channel.listPairedBluetooth());
 
         case 'enable':
           final r = await _channel.setBluetoothEnabled(true);
