@@ -284,6 +284,37 @@ class PhoneControlProcessor implements AgentProcessor {
         if (r['ok'] != false && r['error'] == null) return 'کردمەوە.';
       }
     }
+
+    final low = t.toLowerCase();
+    final isBt = low.contains('بلوتوس') || low.contains('بلوتوث') || low.contains('bluetooth');
+    final isWifi = RegExp(r'وای ?فای|wifi|wi-fi').hasMatch(low);
+    final wantsOn = RegExp(r'هەڵکە|هەڵبکە|چالاک|turn on|enable').hasMatch(low);
+    final wantsOff = RegExp(r'بکوژێنەوە|دایبخە|ناچالاک|turn off|disable').hasMatch(low);
+    final wantsList = RegExp(r'ئامێر|لیست|جووتکراو|paired|devices').hasMatch(low);
+
+    if (isBt && wantsList && !wantsOn && !wantsOff) {
+      final r = await _fastCall(_sys, 'listPairedBluetooth', {});
+      if (r['needsPermission'] == true) return 'مۆڵەتی بلوتوسم نییە.';
+      final devs = r['devices'];
+      if (devs is List && devs.isNotEmpty) {
+        final names = devs
+            .map((d) => d is Map ? (d['name'] ?? '').toString() : '')
+            .where((n) => n.isNotEmpty)
+            .join('، ');
+        return 'ئامێرە جووتکراوەکان: $names';
+      }
+      if (devs is List) return 'هیچ ئامێرێکی جووتکراو نییە.';
+    }
+    if ((isBt || isWifi) && (wantsOn || wantsOff)) {
+      final r = await _fastCall(
+          _sys, isBt ? 'setBluetoothEnabled' : 'setWifiEnabled', {'enable': wantsOn});
+      if (r['ok'] != false && r['error'] == null) {
+        if (r['requiresUserAction'] == true || r['method'] == 'settings_panel') {
+          return 'پانێلەکەم کردەوە، خۆت بیگۆڕە.';
+        }
+        return wantsOn ? 'هەڵمکرد.' : 'کوژاندمەوە.';
+      }
+    }
     return null;
   }
 
