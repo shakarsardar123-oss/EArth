@@ -20,9 +20,9 @@ Downloading packages...
   file_picker 10.3.10 (13.3.2 available)
   file_selector_macos 0.9.5+1 (0.9.5+2 available)
   flutter_lints 3.0.2 (6.0.0 available)
-  flutter_local_notifications 17.2.4 (22.3.3 available)
-  flutter_local_notifications_linux 4.0.1 (8.0.2 available)
-  flutter_local_notifications_platform_interface 7.2.0 (12.2.0 available)
+  flutter_local_notifications 17.2.4 (23.0.0 available)
+  flutter_local_notifications_linux 4.0.1 (9.0.0 available)
+  flutter_local_notifications_platform_interface 7.2.0 (13.0.0 available)
   flutter_riverpod 2.6.1 (3.4.3 available)
   flutter_secure_storage 10.3.3 (11.2.0 available)
   flutter_secure_storage_darwin 0.3.2 (0.4.3 available)
@@ -47,7 +47,7 @@ Downloading packages...
   permission_handler 11.4.0 (13.0.2 available)
   permission_handler_android 12.1.0 (14.1.1 available)
   permission_handler_apple 9.6.1 (9.6.5 available)
-  permission_handler_windows 0.2.2 (0.2.3 available)
+  permission_handler_windows 0.2.2 (0.2.4 available)
   petitparser 7.0.2 (7.1.0 available)
   riverpod 2.6.1 (3.4.3 available)
   shared_preferences 2.5.5 (2.5.6 available)
@@ -90,9 +90,9 @@ Downloading packages...
   file_picker 10.3.10 (13.3.2 available)
   file_selector_macos 0.9.5+1 (0.9.5+2 available)
   flutter_lints 3.0.2 (6.0.0 available)
-  flutter_local_notifications 17.2.4 (22.3.3 available)
-  flutter_local_notifications_linux 4.0.1 (8.0.2 available)
-  flutter_local_notifications_platform_interface 7.2.0 (12.2.0 available)
+  flutter_local_notifications 17.2.4 (23.0.0 available)
+  flutter_local_notifications_linux 4.0.1 (9.0.0 available)
+  flutter_local_notifications_platform_interface 7.2.0 (13.0.0 available)
   flutter_riverpod 2.6.1 (3.4.3 available)
   flutter_secure_storage 10.3.3 (11.2.0 available)
   flutter_secure_storage_darwin 0.3.2 (0.4.3 available)
@@ -117,7 +117,7 @@ Downloading packages...
   permission_handler 11.4.0 (13.0.2 available)
   permission_handler_android 12.1.0 (14.1.1 available)
   permission_handler_apple 9.6.1 (9.6.5 available)
-  permission_handler_windows 0.2.2 (0.2.3 available)
+  permission_handler_windows 0.2.2 (0.2.4 available)
   petitparser 7.0.2 (7.1.0 available)
   riverpod 2.6.1 (3.4.3 available)
   shared_preferences 2.5.5 (2.5.6 available)
@@ -144,14 +144,13 @@ Analyzing 4 items...
 
    info • The import of 'dart:typed_data' is unnecessary because all of the used elements are also provided by the import of 'package:flutter/foundation.dart'. Try removing the import directive • lib/bridge/live_camera.dart:3:8 • unnecessary_import
    info • Missing a required trailing comma. Try adding a trailing comma • lib/bridge/live_camera.dart:120:82 • require_trailing_commas
-warning • Unused import: '../presentation/screens/vision_screen.dart'. Try removing the import directive • lib/bridge/riverpod_backend.dart:32:8 • unused_import
-   info • The import of '../ui/src/backend.dart' is unnecessary because all of the used elements are also provided by the import of '../ui/texo_ui.dart'. Try removing the import directive • lib/bridge/riverpod_backend.dart:36:8 • unnecessary_import
-   info • Missing a required trailing comma. Try adding a trailing comma • lib/bridge/riverpod_backend.dart:313:10 • require_trailing_commas
-   info • Missing a required trailing comma. Try adding a trailing comma • lib/bridge/riverpod_backend.dart:447:12 • require_trailing_commas
-   info • Missing a required trailing comma. Try adding a trailing comma • lib/bridge/riverpod_backend.dart:481:10 • require_trailing_commas
-   info • Missing a required trailing comma. Try adding a trailing comma • lib/bridge/riverpod_backend.dart:558:8 • require_trailing_commas
-   info • Missing a required trailing comma. Try adding a trailing comma • lib/bridge/riverpod_backend.dart:935:30 • require_trailing_commas
-   info • Missing a required trailing comma. Try adding a trailing comma • lib/bridge/riverpod_backend.dart:964:74 • require_trailing_commas
+warning • Unused import: '../presentation/screens/vision_screen.dart'. Try removing the import directive • lib/bridge/riverpod_backend.dart:33:8 • unused_import
+   info • The import of '../ui/src/backend.dart' is unnecessary because all of the used elements are also provided by the import of '../ui/texo_ui.dart'. Try removing the import directive • lib/bridge/riverpod_backend.dart:37:8 • unnecessary_import
+   info • Missing a required trailing comma. Try adding a trailing comma • lib/bridge/riverpod_backend.dart:314:10 • require_trailing_commas
+   info • Missing a required trailing comma. Try adding a trailing comma • lib/bridge/riverpod_backend.dart:448:12 • require_trailing_commas
+   info • Missing a required trailing comma. Try adding a trailing comma • lib/bridge/riverpod_backend.dart:482:10 • require_trailing_commas
+   info • Missing a required trailing comma. Try adding a trailing comma • lib/bridge/riverpod_backend.dart:559:8 • require_trailing_commas
+   info • Missing a required trailing comma. Try adding a trailing comma • lib/bridge/riverpod_backend.dart:961:74 • require_trailing_commas
 warning • Unused import: '../errors/result.dart'. Try removing the import directive • lib/core/ai/gemini_provider.dart:33:8 • unused_import
    info • The member 'getApiKey' overrides an inherited member but isn't annotated with '@override'. Try adding the '@override' annotation • lib/core/ai/gemini_provider.dart:160:19 • annotate_overrides
    info • The member 'setApiKey' overrides an inherited member but isn't annotated with '@override'. Try adding the '@override' annotation • lib/core/ai/gemini_provider.dart:164:16 • annotate_overrides
@@ -182,12 +181,12 @@ warning • The left operand can't be null, so the right operand is never execut
    info • Missing a required trailing comma. Try adding a trailing comma • lib/ui/src/settings_screen.dart:319:64 • require_trailing_commas
    info • Missing a required trailing comma. Try adding a trailing comma • lib/ui/src/settings_screen.dart:321:63 • require_trailing_commas
 
-39 issues found. (ran in 8.4s)
+38 issues found. (ran in 13.0s)
 analyze exit code: 0
 ----- whole app compile (flutter build bundle) -----
 bundle exit code: 0
   permission_handler_apple 9.6.1 (9.6.5 available)
-  permission_handler_windows 0.2.2 (0.2.3 available)
+  permission_handler_windows 0.2.2 (0.2.4 available)
   petitparser 7.0.2 (7.1.0 available)
   riverpod 2.6.1 (3.4.3 available)
   shared_preferences 2.5.5 (2.5.6 available)
