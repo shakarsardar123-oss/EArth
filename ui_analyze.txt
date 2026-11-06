@@ -9,7 +9,7 @@ Downloading packages...
   camera_android 0.10.11+1 (0.10.12 available)
   camera_avfoundation 0.9.23+2 (0.11.1 available)
   camera_platform_interface 2.13.1 (2.15.0 available)
-  camera_web 0.3.5+6 (0.3.5+7 available)
+  camera_web 0.3.5+6 (0.3.6 available)
   code_assets 2.0.0 (2.2.0 available)
   connectivity_plus 6.1.5 (7.3.2 available)
   cross_file 0.3.5+5 (0.4.0 available)
@@ -32,8 +32,8 @@ Downloading packages...
   geolocator_android 4.6.2 (5.2.1 available)
   geolocator_apple 2.3.14 (2.4.3 available)
   geolocator_platform_interface 4.3.0 (4.4.1 available)
-  google_mlkit_commons 0.8.1 (1.0.0 available)
-  google_mlkit_face_detection 0.11.1 (1.0.0 available)
+  google_mlkit_commons 0.8.1 (1.0.1 available)
+  google_mlkit_face_detection 0.11.1 (1.0.1 available)
   image_picker 1.2.3 (1.2.4 available)
   image_picker_android 0.8.13+23 (0.8.13+25 available)
   image_picker_ios 0.8.13+7 (0.8.13+15 available)
@@ -79,7 +79,7 @@ Downloading packages...
   camera_android 0.10.11+1 (0.10.12 available)
   camera_avfoundation 0.9.23+2 (0.11.1 available)
   camera_platform_interface 2.13.1 (2.15.0 available)
-  camera_web 0.3.5+6 (0.3.5+7 available)
+  camera_web 0.3.5+6 (0.3.6 available)
   code_assets 2.0.0 (2.2.0 available)
   connectivity_plus 6.1.5 (7.3.2 available)
   cross_file 0.3.5+5 (0.4.0 available)
@@ -102,8 +102,8 @@ Downloading packages...
   geolocator_android 4.6.2 (5.2.1 available)
   geolocator_apple 2.3.14 (2.4.3 available)
   geolocator_platform_interface 4.3.0 (4.4.1 available)
-  google_mlkit_commons 0.8.1 (1.0.0 available)
-  google_mlkit_face_detection 0.11.1 (1.0.0 available)
+  google_mlkit_commons 0.8.1 (1.0.1 available)
+  google_mlkit_face_detection 0.11.1 (1.0.1 available)
   image_picker 1.2.3 (1.2.4 available)
   image_picker_android 0.8.13+23 (0.8.13+25 available)
   image_picker_ios 0.8.13+7 (0.8.13+15 available)
@@ -182,7 +182,7 @@ warning • The left operand can't be null, so the right operand is never execut
    info • Missing a required trailing comma. Try adding a trailing comma • lib/ui/src/settings_screen.dart:319:64 • require_trailing_commas
    info • Missing a required trailing comma. Try adding a trailing comma • lib/ui/src/settings_screen.dart:321:63 • require_trailing_commas
 
-39 issues found. (ran in 13.1s)
+39 issues found. (ran in 9.6s)
 analyze exit code: 0
 ----- whole app compile (flutter build bundle) -----
 bundle exit code: 0
