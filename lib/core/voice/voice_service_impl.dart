@@ -152,33 +152,51 @@ class VoiceServiceImpl implements VoiceService {
     _setState(VoiceState.idle);
   }
 
-  /// Speaks Kurdish text with the offline Vekol model, sentence by sentence.
-  /// Returns false only if nothing could be spoken (caller falls back).
+  /// Speaks Kurdish text with the offline Vekol model.
+  /// The first chunk is tiny so sound starts quickly; the rest is prepared
+  /// while the previous part is still playing. Returns false only if nothing
+  /// could be spoken (caller falls back).
   Future<bool> _speakKurdish(String text) async {
     _stopRequested = false;
-    final sentences = text
-        .split(RegExp(r'(?<=[.!?؟\n])\s*'))
-        .map((s) => s.trim())
-        .where((s) => s.isNotEmpty)
-        .toList();
-    if (sentences.isEmpty) return false;
+    final tts = VekolTtsService.instance;
+    final chunks = tts.prepareChunks(text);
+    if (chunks.isEmpty) return false;
 
-    Future<Uint8List> synth(String sentence) async {
-      final waveform = await VekolTtsService.instance.synthesizeText(sentence);
-      return VekolTtsService.instance.waveformToWav(waveform);
+    // Unit 0 = first chunk alone (fast start); the rest grouped up to ~110 chars.
+    final units = <List<TtsChunk>>[
+      [chunks.first],
+    ];
+    var cur = <TtsChunk>[];
+    var curLen = 0;
+    for (final c in chunks.skip(1)) {
+      if (cur.isNotEmpty && curLen + c.text.length > 110) {
+        units.add(cur);
+        cur = <TtsChunk>[];
+        curLen = 0;
+      }
+      cur.add(c);
+      curLen += c.text.length;
+    }
+    if (cur.isNotEmpty) units.add(cur);
+
+    Future<Uint8List> synth(List<TtsChunk> unit) async {
+      final waveform = await tts.synthesizeUnit(unit);
+      if (waveform.isEmpty) return Uint8List(0);
+      return tts.waveformToWav(waveform);
     }
 
     var spokeAny = false;
-    Future<Uint8List>? next = synth(sentences.first);
+    Future<Uint8List>? next = synth(units.first);
     try {
-      for (var i = 0; i < sentences.length; i++) {
+      for (var i = 0; i < units.length; i++) {
         if (_stopRequested) break;
         final wav = await next!;
-        // Start preparing the NEXT sentence while this one is playing.
-        next = (i + 1 < sentences.length && !_stopRequested)
-            ? synth(sentences[i + 1])
+        // Start preparing the NEXT unit while this one is playing.
+        next = (i + 1 < units.length && !_stopRequested)
+            ? synth(units[i + 1])
             : null;
         if (_stopRequested) break;
+        if (wav.isEmpty) continue;
         await _playWav(wav);
         spokeAny = true;
       }

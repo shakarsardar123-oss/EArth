@@ -23,11 +23,12 @@ class VekolTtsBridge(
         private const val MODEL_PATH = "vekol/model.onnx"
         private const val CONFIG_PATH = "vekol/model.onnx.json"
         private const val SAMPLE_RATE = 22050
-        // Voice character. noise_w low = flat, robotic rhythm; 0.8 is Piper's default.
+        // The model's own settings (model.onnx.json "inference"); listening tests
+        // preferred these, and whole sentences, over short pieces.
         private const val NOISE_SCALE = 0.667f
         private const val LENGTH_SCALE = 1.0f
-        private const val NOISE_W = 0.8f
-        private const val MAX_CHUNK = 70
+        private const val NOISE_W = 0.35f
+        private const val MAX_CHUNK = 160
         private const val GAP_SECONDS = 0.13f
     }
 
@@ -300,7 +301,7 @@ class VekolTtsBridge(
             for ((i, piece) in pieces.withIndex()) {
                 val clean = piece.trim().trimEnd('.', '!', '?', '؟', '،', '؛', ',', ';', ':').trim()
                 if (clean.isEmpty()) continue
-                out.add(clean + if (i == pieces.size - 1) ending else '.')
+                out.add(clean + if (i == pieces.size - 1) ending else '،')
             }
         }
         return out
