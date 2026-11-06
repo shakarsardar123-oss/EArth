@@ -90,7 +90,7 @@ class RetryingAIProvider implements AIProvider {
         RegExp(r'"retryDelay"\s*:\s*"([0-9]+(?:\.[0-9]+)?)s"').firstMatch(t);
     final secs = m != null
         ? double.parse(m.group(1)!) + 1
-        : 4.0 * pow(2, attempt).toDouble();
+        : 1.0 * pow(2, attempt).toDouble();
     if (secs > 45) return null; // long wait = daily quota, retrying is useless
     return Duration(milliseconds: (secs * 1000).round());
   }
