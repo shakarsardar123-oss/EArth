@@ -65,6 +65,46 @@ class RiverpodBackend
   bool _subs = false;
   String _lastYou = '';
   String _lastAi = '';
+
+  // Typewriter: the answer is shown letter by letter, like it is being written
+  // while it is spoken, instead of appearing in whole sentences.
+  static const int _typeTickMs = 55; // ~18 letters a second
+  String _aiTarget = '';
+  int _aiShown = 0;
+  Timer? _typeTimer;
+
+  void _typeAi(String full) {
+    if (full.isEmpty) return;
+    // a different answer (not the same text growing): start from nothing
+    if (!full.startsWith(_aiTarget) && !_aiTarget.startsWith(full)) _aiShown = 0;
+    _aiTarget = full;
+    _typeTimer ??= Timer.periodic(
+        const Duration(milliseconds: _typeTickMs), (Timer _) => _typeStep());
+  }
+
+  void _typeStep() {
+    final List<int> runes = _aiTarget.runes.toList();
+    if (_aiShown >= runes.length) {
+      _typeTimer?.cancel();
+      _typeTimer = null;
+      return;
+    }
+    // steady speed, faster only when the text is far ahead of the screen
+    final int backlog = runes.length - _aiShown;
+    final int step = backlog > 80 ? 4 : (backlog > 40 ? 3 : (backlog > 20 ? 2 : 1));
+    _aiShown = _aiShown + step > runes.length ? runes.length : _aiShown + step;
+    final String shown = String.fromCharCodes(runes.take(_aiShown));
+    _lastAi = shown;
+    _live.caption.value = shown;
+    _pushOverlay();
+  }
+
+  void _resetTypewriter() {
+    _typeTimer?.cancel();
+    _typeTimer = null;
+    _aiTarget = '';
+    _aiShown = 0;
+  }
   bool _translateOn = false;
   String _translatedSubtitle = '';
   String _lastCaptionSource = '';
@@ -919,6 +959,7 @@ class RiverpodBackend
     _levelTimer = Timer.periodic(const Duration(milliseconds: 16), (Timer _) => _tickLevel());
     _live.active.value = true;
     _lastYou = '';
+    _resetTypewriter();
     _lastAi = '';
     _live.caption.value = '';
     // Words appear on the screen while the user is still speaking.
@@ -940,22 +981,18 @@ class RiverpodBackend
     final orchestrator = _c.read(liveModeOrchestratorProvider);
     orchestrator.onScreenCaption = _handleScreenCaption;
     orchestrator.onUserRecognized = (String text) {
+      _resetTypewriter();
+      _lastAi = '';
       _lastYou = text;
       _live.caption.value = text;
       _pushOverlay();
     };
     orchestrator.onAIResponse = (String text) {
-      final String clean = cleanReply(text.split('```').first);
-      _lastAi = clean;
-      _live.caption.value = clean;
-      _pushOverlay();
+      _typeAi(cleanReply(text.split('```').first));
     };
     orchestrator.onRestCommand = (dynamic c) => _flashEmoji('$c');
     orchestrator.onAIPartial = (String text) {
-      final String clean = cleanReply(text.split('```').first);
-      _lastAi = clean;
-      _live.caption.value = clean;
-      _pushOverlay();
+      _typeAi(cleanReply(text.split('```').first));
     };
     orchestrator.chatStreamer = (String text, List<Map<String, dynamic>> history,
         void Function(String) onPartial, void Function(String) onSentence) {
@@ -1079,6 +1116,7 @@ class RiverpodBackend
     _liveSub = null;
     await _partialSub?.cancel();
     _partialSub = null;
+    _resetTypewriter();
     _live.level.value = 0;
     await _cam.stop();
     await _overlay.stop();
