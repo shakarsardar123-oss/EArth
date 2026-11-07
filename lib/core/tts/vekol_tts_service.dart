@@ -25,9 +25,9 @@ class VekolTtsService {
   // noise_scale : lower = steadier, less trembling (too low = monotone)
   // length_scale: lower = faster speech (1.0 = model default, 0.85 = ~18% faster)
   // noise_w     : lower = more even rhythm, higher = more varied timing
-  static const double _noiseScale = 0.55;
-  static const double _lengthScale = 0.85;
-  static const double _noiseW = 0.6;
+  static const double _noiseScale = 0.30;
+  static const double _lengthScale = 0.95;
+  static const double _noiseW = 0.35;
 
   // ---- chunking / pauses ----------------------------------------------------
   static const int _sampleRate = 22050;
