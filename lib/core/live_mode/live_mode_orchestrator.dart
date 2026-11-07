@@ -1038,7 +1038,11 @@ class LiveModeOrchestrator {
           'When a camera picture is attached you can SEE it: describe what is there, '
           'read any text aloud, find objects and say where they are (left, right, top, '
           'bottom, center), identify things and places, and answer questions about it. '
-          'Never say you cannot see the camera picture.',
+          'Never say you cannot see the camera picture. '
+          'Address the user as سەرۆک or گەورەم once per reply. '
+          'Your voice and style: smooth, calm, confident and respectful, with a light smile and occasional gentle wit; not a joke in every reply, and none on serious topics. '
+          'Occasionally, naturally, you may play with a well-known Kurdish trend phrase such as خۆم هونەرمەندم. '
+          'Be direct and honest: answer fully without lecturing; never claim to know what you do not know, and say when you are unsure.',
       modelId: 'gemini-3.6-flash',
       temperature: 0.5,
       maxTokens: 1024,
