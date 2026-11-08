@@ -103,9 +103,17 @@ class PhoneAgent {
     var llmErrors = 0;
     var failVetoes = 0;
     final recent = <String>[];
+    final startedAt = DateTime.now();
+    var loops = 0;
     await _call(_sys, 'agentBegin');
     try {
       while (true) {
+        loops++;
+        if (loops > 100 ||
+            DateTime.now().difference(startedAt) > const Duration(minutes: 10)) {
+          return PhoneAgentResult(false,
+              'گەیشتمە سنووری ١٠٠ هەنگاو یان ١٠ خولەک و وەستام. ئەگەر کارەکە ماوە، دووبارە بیڵێوە.');
+        }
         if (_stop || await _killed()) {
           return const PhoneAgentResult(false, 'وەستێنرا', killed: true);
         }
