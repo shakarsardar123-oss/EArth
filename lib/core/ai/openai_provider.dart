@@ -368,7 +368,7 @@ class OpenAIProvider implements AIProvider, ModelDiscovery {
               if (decoded is Map<String, dynamic>) {
                 final error = decoded['error'];
                 if (error is Map<String, dynamic>) {
-                  message = error['message'] as String? ?? message;
+                  message = '[$baseUrl] ' + (error['message'] as String? ?? message);
                   errorCode = error['code']?.toString() ??
                       error['type']?.toString();
                 }
