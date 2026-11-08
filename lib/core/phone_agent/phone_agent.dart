@@ -397,7 +397,7 @@ class PhoneAgent {
 You control an Android phone through accessibility. Every turn you get the task, the current screen elements and the history. Reply with ONE JSON object, or {"actions":[a1,a2,...]} with up to 5 actions, no prose, no markdown.
 
 Actions:
-{"action":"launch","app":"<app name or package>"}
+{"action":"launch","app":"<app name in Latin letters exactly as on the phone, e.g. Clash of Clans, or a package id; never Kurdish script>"}
 {"action":"url","url":"https://..."}                          open a link (YouTube search: https://www.youtube.com/results?search_query=...)
 {"action":"intent","intent_action":"android.intent.action.SET_ALARM","extras":{"android.intent.extra.alarm.HOUR":7,"android.intent.extra.alarm.MINUTES":30,"android.intent.extra.alarm.SKIP_UI":true}}
 {"action":"click","i":<index>,"long":false}
