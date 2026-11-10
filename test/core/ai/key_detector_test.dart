@@ -1,5 +1,5 @@
 import 'package:flutter_test/flutter_test.dart';
-import '../../../lib/core/ai/key_detector.dart';
+import 'package:aura_assistant/core/ai/key_detector.dart';
 
 void main() {
   test('detects OpenRouter before OpenAI', () {
@@ -26,8 +26,7 @@ void main() {
   });
 
   test('honours preferred order and returns null when nothing is chat', () {
-    expect(pickChatModel(['a-gpt-4o', 'b-gpt-4o-mini'],
-        preferred: ['gpt-4o-mini']), 'b-gpt-4o-mini');
+    expect(pickChatModel(['a-gpt-4o', 'b-gpt-4o-mini'], preferred: ['gpt-4o-mini']), 'b-gpt-4o-mini');
     expect(pickChatModel(['whisper-1']), isNull);
   });
 }
