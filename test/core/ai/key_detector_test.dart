@@ -1,5 +1,5 @@
 import 'package:flutter_test/flutter_test.dart';
-import 'package:aura_assistant/core/ai/key_detector.dart';
+import 'package:texo/core/ai/key_detector.dart';
 
 void main() {
   test('detects OpenRouter before OpenAI', () {
