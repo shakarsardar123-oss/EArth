@@ -20,7 +20,7 @@ Downloading packages...
   file_picker 10.3.10 (13.3.3 available)
   file_selector_macos 0.9.5+1 (0.9.5+2 available)
   flutter_lints 3.0.2 (6.0.0 available)
-  flutter_local_notifications 17.2.4 (23.0.0 available)
+  flutter_local_notifications 17.2.4 (23.0.1 available)
   flutter_local_notifications_linux 4.0.1 (9.0.0 available)
   flutter_local_notifications_platform_interface 7.2.0 (13.0.0 available)
   flutter_riverpod 2.6.1 (3.5.0 available)
@@ -32,8 +32,8 @@ Downloading packages...
   geolocator_android 4.6.2 (5.2.1 available)
   geolocator_apple 2.3.14 (2.4.3 available)
   geolocator_platform_interface 4.3.0 (4.4.1 available)
-  google_mlkit_commons 0.8.1 (1.0.2 available)
-  google_mlkit_face_detection 0.11.1 (1.0.1 available)
+  google_mlkit_commons 0.8.1 (1.0.3 available)
+  google_mlkit_face_detection 0.11.1 (1.0.3 available)
   image_picker 1.2.3 (1.2.4 available)
   image_picker_android 0.8.13+23 (0.8.13+25 available)
   image_picker_ios 0.8.13+7 (0.8.13+15 available)
@@ -43,7 +43,7 @@ Downloading packages...
   lints 3.0.0 (6.1.0 available)
   material_color_utilities 0.13.0 (0.13.1 available)
   nm 0.5.0 (0.6.0 available)
-  objective_c 9.6.0 (9.6.3 available)
+  objective_c 9.6.0 (9.6.4 available)
   permission_handler 11.4.0 (13.0.2 available)
   permission_handler_android 12.1.0 (14.1.1 available)
   permission_handler_apple 9.6.1 (9.6.5 available)
@@ -51,8 +51,8 @@ Downloading packages...
   petitparser 7.0.2 (7.1.0 available)
   riverpod 2.6.1 (3.5.0 available)
   shared_preferences 2.5.5 (2.5.6 available)
-  shared_preferences_android 2.4.28 (2.5.4 available)
-  shared_preferences_foundation 2.5.7 (2.6.1 available)
+  shared_preferences_android 2.4.28 (2.5.5 available)
+  shared_preferences_foundation 2.5.7 (2.6.2 available)
   sqflite 2.4.4 (2.4.6 available)
   sqflite_android 2.4.4 (2.4.6 available)
   sqflite_common 2.5.12 (2.5.17 available)
@@ -90,7 +90,7 @@ Downloading packages...
   file_picker 10.3.10 (13.3.3 available)
   file_selector_macos 0.9.5+1 (0.9.5+2 available)
   flutter_lints 3.0.2 (6.0.0 available)
-  flutter_local_notifications 17.2.4 (23.0.0 available)
+  flutter_local_notifications 17.2.4 (23.0.1 available)
   flutter_local_notifications_linux 4.0.1 (9.0.0 available)
   flutter_local_notifications_platform_interface 7.2.0 (13.0.0 available)
   flutter_riverpod 2.6.1 (3.5.0 available)
@@ -102,8 +102,8 @@ Downloading packages...
   geolocator_android 4.6.2 (5.2.1 available)
   geolocator_apple 2.3.14 (2.4.3 available)
   geolocator_platform_interface 4.3.0 (4.4.1 available)
-  google_mlkit_commons 0.8.1 (1.0.2 available)
-  google_mlkit_face_detection 0.11.1 (1.0.1 available)
+  google_mlkit_commons 0.8.1 (1.0.3 available)
+  google_mlkit_face_detection 0.11.1 (1.0.3 available)
   image_picker 1.2.3 (1.2.4 available)
   image_picker_android 0.8.13+23 (0.8.13+25 available)
   image_picker_ios 0.8.13+7 (0.8.13+15 available)
@@ -113,7 +113,7 @@ Downloading packages...
   lints 3.0.0 (6.1.0 available)
   material_color_utilities 0.13.0 (0.13.1 available)
   nm 0.5.0 (0.6.0 available)
-  objective_c 9.6.0 (9.6.3 available)
+  objective_c 9.6.0 (9.6.4 available)
   permission_handler 11.4.0 (13.0.2 available)
   permission_handler_android 12.1.0 (14.1.1 available)
   permission_handler_apple 9.6.1 (9.6.5 available)
@@ -121,8 +121,8 @@ Downloading packages...
   petitparser 7.0.2 (7.1.0 available)
   riverpod 2.6.1 (3.5.0 available)
   shared_preferences 2.5.5 (2.5.6 available)
-  shared_preferences_android 2.4.28 (2.5.4 available)
-  shared_preferences_foundation 2.5.7 (2.6.1 available)
+  shared_preferences_android 2.4.28 (2.5.5 available)
+  shared_preferences_foundation 2.5.7 (2.6.2 available)
   sqflite 2.4.4 (2.4.6 available)
   sqflite_android 2.4.4 (2.4.6 available)
   sqflite_common 2.5.12 (2.5.17 available)
@@ -151,7 +151,8 @@ warning • Unused import: '../presentation/screens/vision_screen.dart'. Try rem
    info • Missing a required trailing comma. Try adding a trailing comma • lib/bridge/riverpod_backend.dart:488:12 • require_trailing_commas
    info • Missing a required trailing comma. Try adding a trailing comma • lib/bridge/riverpod_backend.dart:522:10 • require_trailing_commas
    info • Missing a required trailing comma. Try adding a trailing comma • lib/bridge/riverpod_backend.dart:599:8 • require_trailing_commas
-   info • Missing a required trailing comma. Try adding a trailing comma • lib/bridge/riverpod_backend.dart:998:74 • require_trailing_commas
+   info • The local variable '_t0' starts with an underscore. Try renaming the variable to not start with an underscore • lib/bridge/riverpod_backend.dart:889:17 • no_leading_underscores_for_local_identifiers
+   info • Missing a required trailing comma. Try adding a trailing comma • lib/bridge/riverpod_backend.dart:1002:74 • require_trailing_commas
 warning • Unused import: '../errors/result.dart'. Try removing the import directive • lib/core/ai/gemini_provider.dart:33:8 • unused_import
    info • The member 'getApiKey' overrides an inherited member but isn't annotated with '@override'. Try adding the '@override' annotation • lib/core/ai/gemini_provider.dart:160:19 • annotate_overrides
    info • The member 'setApiKey' overrides an inherited member but isn't annotated with '@override'. Try adding the '@override' annotation • lib/core/ai/gemini_provider.dart:164:16 • annotate_overrides
@@ -182,7 +183,7 @@ warning • The left operand can't be null, so the right operand is never execut
    info • Missing a required trailing comma. Try adding a trailing comma • lib/ui/src/settings_screen.dart:319:64 • require_trailing_commas
    info • Missing a required trailing comma. Try adding a trailing comma • lib/ui/src/settings_screen.dart:321:63 • require_trailing_commas
 
-39 issues found. (ran in 8.5s)
+40 issues found. (ran in 10.2s)
 analyze exit code: 0
 ----- whole app compile (flutter build bundle) -----
 bundle exit code: 0
@@ -191,8 +192,8 @@ bundle exit code: 0
   petitparser 7.0.2 (7.1.0 available)
   riverpod 2.6.1 (3.5.0 available)
   shared_preferences 2.5.5 (2.5.6 available)
-  shared_preferences_android 2.4.28 (2.5.4 available)
-  shared_preferences_foundation 2.5.7 (2.6.1 available)
+  shared_preferences_android 2.4.28 (2.5.5 available)
+  shared_preferences_foundation 2.5.7 (2.6.2 available)
   sqflite 2.4.4 (2.4.6 available)
   sqflite_android 2.4.4 (2.4.6 available)
   sqflite_common 2.5.12 (2.5.17 available)
