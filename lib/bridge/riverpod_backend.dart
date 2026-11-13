@@ -886,7 +886,11 @@ class RiverpodBackend
         Future<String?>? heard;
         final Object? wav = ev is Map ? ev['wav'] : null;
         if (wav is String && wav.isNotEmpty) {
-          heard = CloudStt.instance.transcribe(wav);
+          final _t0 = DateTime.now();
+          heard = CloudStt.instance.transcribe(wav).then((r) {
+            debugPrint('TEXO_TIMING stt=${DateTime.now().difference(_t0).inMilliseconds}ms');
+            return r;
+          });
         }
         await _onWake();
         if (heard != null) {
