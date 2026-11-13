@@ -35,7 +35,7 @@ object TexoFaces {
     private val rect = RectF()
 
     private fun kindOf(e: String): Kind? = when (e) {
-        "\uD83D\uDE42", "\uD83D\uDE0A", "\uD83D\uDE0C", "\uD83D\uDC42" -> Kind.SMILE
+        "\uD83D\uDE42", "\uD83D\uDE0A", "\uD83D\uDE0C", "\uD83D\uDC42", "\uD83E\uDDA6" -> Kind.SMILE
         "\uD83E\uDD14", "\uD83E\uDDD0", "\uD83E\uDD28", "\uD83D\uDCAD" -> Kind.THINK
         "\uD83D\uDE04", "\uD83D\uDE03", "\uD83D\uDE0E", "\uD83E\uDD13", "\uD83D\uDCA1" -> Kind.TALK
         "\uD83D\uDE34", "\uD83E\uDD71", "\uD83D\uDCA4" -> Kind.SLEEP

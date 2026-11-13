@@ -81,7 +81,11 @@ class OpenAIProvider implements AIProvider, ModelDiscovery {
   /// Retrieves the stored base URL from secure storage.
   Future<String> getBaseUrl() async {
     final url = await secureStorage.read(key: _baseUrlStorageKey);
-    return url ?? _defaultBaseUrl;
+    if (url != null && url.isNotEmpty) return url;
+    final k = await secureStorage.read(key: _apiKeyStorageKey);
+    if (k != null && k.trim().startsWith('sk-or-')) return 'https://openrouter.ai/api/v1';
+    if (k != null && k.trim().startsWith('gsk_')) return 'https://api.groq.com/openai/v1';
+    return _defaultBaseUrl;
   }
 
   /// Stores a custom base URL in secure storage.
