@@ -870,7 +870,11 @@ class LiveModeOrchestrator {
           started = true;
           _setState(LiveModeState.speaking);
         }
-        queue.add(sentence);
+        // Speak in short clauses as they arrive instead of waiting for the full sentence.
+        for (final part in sentence.split(RegExp(r'(?<=[،,؛;:.!؟?])\s+'))) {
+          final t = part.trim();
+          if (t.isNotEmpty) queue.add(t);
+        }
         unawaited(pump());
       });
     } catch (_) {
