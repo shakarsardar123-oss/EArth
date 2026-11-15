@@ -150,8 +150,52 @@ class VekolTtsService {
     '…': '.',
   };
 
+  static const Map<String, String> _latinWords = {
+    'youtube': 'یوتیوب', 'facebook': 'فەیسبووک', 'instagram': 'ئینستاگرام',
+    'tiktok': 'تیکتۆک', 'whatsapp': 'واتسئەپ', 'telegram': 'تێلێگرام',
+    'wifi': 'وایفای', 'wi-fi': 'وایفای', 'bluetooth': 'بلوتوث',
+    'error': 'ئێرۆر', 'google': 'گووگڵ', 'chrome': 'کرۆم',
+    'barzan': 'بەرزان', 'ja3far': 'جەعفەر', 'clash': 'کلاش',
+    'of': 'ئۆف', 'clans': 'کلانس', 'ok': 'ئۆکەی',
+  };
+  static const Map<String, String> _latinLetters = {
+    'a': 'ا', 'b': 'ب', 'c': 'ک', 'd': 'د', 'e': 'ێ', 'f': 'ف', 'g': 'گ',
+    'h': 'ه', 'i': 'ی', 'j': 'ج', 'k': 'ک', 'l': 'ل', 'm': 'م', 'n': 'ن',
+    'o': 'ۆ', 'p': 'پ', 'q': 'ق', 'r': 'ر', 's': 'س', 't': 'ت', 'u': 'ۆ',
+    'v': 'ڤ', 'w': 'و', 'x': 'کس', 'y': 'ی', 'z': 'ز',
+  };
+  static const Map<String, String> _digitLetters = {
+    '2': 'ء', '3': 'ع', '4': 'ا', '5': 'خ', '6': 'خ', '7': 'ح', '8': 'ح', '9': 'ق',
+  };
+
+  /// Turns Latin words/letters into Sorani script before normalising.
+  String _latinToSorani(String text) {
+    final words = text.split(RegExp(r'(\s+)'));
+    final out = StringBuffer();
+    for (final w in words) {
+      if (w.trim().isEmpty) { out.write(w); continue; }
+      final key = w.toLowerCase();
+      final hit = _latinWords[key];
+      if (hit != null) { out.write(hit); continue; }
+      if (!RegExp(r'[a-zA-Z]').hasMatch(w)) { out.write(w); continue; }
+      final isNumSplit = RegExp(r'[0-9]').hasMatch(w);
+      for (final ch in w.split('')) {
+        final l = ch.toLowerCase();
+        if (_latinLetters.containsKey(l)) {
+          out.write(_latinLetters[l]);
+        } else if (isNumSplit && _digitLetters.containsKey(ch)) {
+          out.write(_digitLetters[ch]);
+        } else {
+          out.write(ch);
+        }
+      }
+    }
+    return out.toString();
+  }
+
   String _normalize(String text) {
     final buffer = StringBuffer();
+    text = _latinToSorani(text);
 
     for (final rune in text.runes) {
       // Arabic-Indic and Persian digits -> ASCII digits.
