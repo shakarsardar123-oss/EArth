@@ -31,8 +31,8 @@ class VekolTtsService {
 
   // ---- chunking / pauses ----------------------------------------------------
   static const int _sampleRate = 22050;
-  static const int _firstChunkMin = 20; // first chunk is short -> fast start
-  static const int _maxChunkLength = 70;
+  static const int _firstChunkMin = 40; // first chunk is short -> fast start
+  static const int _maxChunkLength = 100;
   static const double _gapInsideSentence = 0.05; // seconds
   static const double _gapAfterSentence = 0.16; // seconds
   static const double _lowpassHz = 6500;
