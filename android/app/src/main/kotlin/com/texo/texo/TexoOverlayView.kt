@@ -244,7 +244,21 @@ class TexoOverlayView(context: Context) : View(context) {
 
     // ---- public API -------------------------------------------------------------------
 
+    private var userBg: Int? = null
+    private var userFg: Int? = null
+
+    private fun applyPalette() {
+        val bg = userBg ?: Color.parseColor("#FF0B0B0E")
+        val fg = TexoColors.readable(userFg ?: Color.WHITE, bg)
+        capPaint.color = fg
+        aiPaint.color = fg
+        youPaint.color = withAlpha(fg, 0.8f)
+        invalidate()
+    }
+
     fun applyState(m: Map<*, *>) {
+        (m["bgName"] as? String)?.let { n -> TexoColors.parse(n)?.let { userBg = it; applyPalette() } }
+        (m["fgName"] as? String)?.let { n -> TexoColors.parse(n)?.let { userFg = it; applyPalette() } }
         (m["mode"] as? String)?.let {
             mode = when (it) {
                 "thinking" -> 1
@@ -746,7 +760,7 @@ class TexoOverlayView(context: Context) : View(context) {
         tmpRect.inset(-dp(1.5f), -dp(1.5f))
         c.drawRoundRect(tmpRect, r + dp(1.5f), r + dp(1.5f), stroke)
 
-        gradientFill(pillRect, Color.parseColor("#FF0B0B0E"), Color.parseColor("#FF000000"))
+        gradientFill(pillRect, userBg ?: Color.parseColor("#FF0B0B0E"), userBg ?: Color.parseColor("#FF000000"))
         c.drawRoundRect(pillRect, r, r, fill)
         fill.shader = null
         stroke.color = withAlpha(Color.WHITE, 0.14f)

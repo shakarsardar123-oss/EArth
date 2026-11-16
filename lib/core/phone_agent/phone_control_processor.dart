@@ -33,6 +33,8 @@ class PhoneControlProcessor implements AgentProcessor {
 
   static const MethodChannel _sys =
       MethodChannel('com.texo.texo/system_control');
+  static const MethodChannel _ovColor =
+      MethodChannel('com.texo.texo/floating_texo_overlay');
 
   late final PhoneAgent _agent = PhoneAgent(
     llm: _llm,
@@ -42,7 +44,7 @@ class PhoneControlProcessor implements AgentProcessor {
 
   // Cheap pre-filter so ordinary chat never pays for a classifier call.
   static final RegExp _hint = RegExp(
-    r'(تێم|تاریک|دارک|theme|dark mode|light mode|بکەرەوە|بکەوە|بکەنەوە|هەڵکە|هەڵبکە|دابنێ|دایبنێ|بدۆزەوە|بگەڕێ|بچۆ|بنێرە|بنووسە|'
+    r'(ئۆڤەر|ڕەنگ|overlay|color|تێم|تاریک|دارک|theme|dark mode|light mode|بکەرەوە|بکەوە|بکەنەوە|هەڵکە|هەڵبکە|دابنێ|دایبنێ|بدۆزەوە|بگەڕێ|بچۆ|بنێرە|بنووسە|'
     r'دایبگرە|بگۆڕە|بکوژێنەوە|ئەلارم|ئەلەرم|ئەپ|یوتوب|فەیسبووک|ئینستاگرام|تیکتۆک|'
     r'واتسئەپ|تێلێگرام|سناپ|گۆرانی|وای ?فای|بلوتوس|open|launch|play|search|go to|'
     r'alarm|turn on|turn off|send|call|youtube|facebook|instagram|whatsapp|'
@@ -293,6 +295,36 @@ class PhoneControlProcessor implements AgentProcessor {
     if (themeWord && !low.contains('ئۆڤەر') && (wDark != wLight)) {
       themeRequest.value = wDark ? 'dark' : 'light';
       return wDark ? 'تێمی تاریکم دانا.' : 'تێمی ڕووناکم دانا.';
+    }
+    if ((low.contains('ئۆڤەر') || low.contains('overlay')) &&
+        RegExp(r'ڕەنگ|بکە بە|بگۆڕە|color').hasMatch(low)) {
+      const colorWords = [
+        'ڕەش', 'رەش', 'سپی', 'سوور', 'شین', 'سەوز', 'زەرد', 'مۆر', 'پرتەقاڵی',
+        'پەمەیی', 'خۆڵەمێشی', 'ئاسمانی', 'قاوەیی', 'black', 'white', 'red',
+        'blue', 'green', 'yellow', 'purple', 'orange', 'pink', 'gray', 'grey',
+        'brown', 'sky',
+      ];
+      String? bgName;
+      String? fgName;
+      for (final clause in low.split(RegExp(r'\s+و\s+|[،,]'))) {
+        if (!colorWords.any((w) => clause.contains(w))) continue;
+        if (RegExp(r'دەق|نووسین|فۆنت|text|font').hasMatch(clause)) {
+          fgName ??= clause;
+        } else {
+          bgName ??= clause;
+        }
+      }
+      if (bgName != null || fgName != null) {
+        try {
+          await _ovColor.invokeMethod<dynamic>('overlayState', <String, dynamic>{
+            if (bgName != null) 'bgName': bgName,
+            if (fgName != null) 'fgName': fgName,
+          });
+          return 'ڕەنگەکەم بۆ ئۆڤەرلا نارد (ئەگەر ئۆڤەرلا کراوەیە دەگۆڕێت).';
+        } catch (_) {
+          return 'نەمتوانی ڕەنگ بنێرم بۆ ئۆڤەرلا.';
+        }
+      }
     }
     final isBt = low.contains('بلوتوس') || low.contains('بلوتوث') || low.contains('bluetooth');
     final isWifi = RegExp(r'وای ?فای|wifi|wi-fi').hasMatch(low);
