@@ -108,6 +108,10 @@
         android:maxSdkVersion="30" />
     <!-- API 31+ runtime BT permission (needed to read adapter state). -->
     <uses-permission android:name="android.permission.BLUETOOTH_CONNECT" />
+    <uses-permission android:name="android.permission.BLUETOOTH_SCAN"
+        android:usesPermissionFlags="neverForLocation"
+        tools:targetApi="s" />
+    <uses-permission android:name="android.permission.READ_CONTACTS" />
 
     <!-- ── Phase 6: Wi-Fi control ── -->
     <!-- State read + (API ≤ 28) direct toggle. On API 29+ we open the panel. -->

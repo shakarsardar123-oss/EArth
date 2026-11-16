@@ -228,6 +228,67 @@ class PhoneControlProcessor implements AgentProcessor {
   /// Returns a reply text on success, null to fall back to the agent.
   Future<String?> _tryFast(String text) async {
     final t = text.trim();
+    final lowT = t.toLowerCase();
+    var asciiT = lowT;
+    const arDigits = '٠١٢٣٤٥٦٧٨٩';
+    for (var i = 0; i < 10; i++) {
+      asciiT = asciiT.replaceAll(arDigits[i], '$i');
+    }
+    final noYt = !lowT.contains('یوتوب') && !lowT.contains('یوتیوب') && !lowT.contains('youtube');
+    final onPhone = RegExp(r'لە (ناو )?(مۆبایل|مۆبایلەکەم|ئامێر|فایل)|لەسەر مۆبایل|لە گەلەری').hasMatch(lowT);
+    final songish = RegExp(r'گۆرانی|موزیک|میوزیک|مۆزیک|song|music').hasMatch(lowT);
+    final byLength = RegExp(r'(\d{1,2})\s*[:.]\s*(\d{2})').firstMatch(asciiT);
+    if (songish && noYt && (onPhone || byLength != null)) {
+      var minMs = 0;
+      var maxMs = 0;
+      if (byLength != null) {
+        final sec = int.parse(byLength.group(1)!) * 60 + int.parse(byLength.group(2)!);
+        minMs = (sec - 2) * 1000;
+        maxMs = (sec + 2) * 1000;
+      }
+      const stop = {
+        'گۆرانی', 'گۆرانییەک', 'گۆرانیەک', 'گۆرانییەکم', 'گۆرانیەکم', 'گۆرانییەکی', 'گۆرانیەکی',
+        'موزیک', 'میوزیک', 'لە', 'ناو', 'مۆبایل', 'مۆبایلەکەم', 'مۆبایلەکە', 'هەیە', 'پێمە', 'پێیە',
+        'نووسیومە', 'کۆنەکە', 'ئەوە', 'کە', 'هەڵکە', 'لێبدە', 'بۆم', 'بدۆزەوە', 'دابنێ', 'سانیەیە',
+        'چرکەیە', 'خولەکە', 'ماوەکەی', 'ئەو', 'ئەم', 'و', 'بە', 'یەک', 'پەخش', 'بکە',
+      };
+      final who = lowT
+          .split(RegExp(r'\s+'))
+          .where((w) => w.isNotEmpty && !stop.contains(w) && !RegExp(r'[0-9٠-٩:.]').hasMatch(w))
+          .join(' ');
+      final r = await _fastCall(_sys, 'searchAudio', {'query': who, 'minMs': minMs, 'maxMs': maxMs});
+      if (r['needsPermission'] == true) {
+        return 'مۆڵەتی خوێندنەوەی گۆرانییەکانم نەبوو، داوام کرد؛ ڕێگە بدە و دووبارە بیڵێ.';
+      }
+      if (r['ok'] == false) return 'گەڕان لە گۆرانییەکانی مۆبایل شکستی هێنا.';
+      final items = (r['items'] as List?) ?? const [];
+      if (items.isEmpty) return 'هیچ گۆرانییەکم نەدۆزییەوە لەو مۆبایلەدا بەو وەسفە.';
+      final first = items.first as Map;
+      final p = await _fastCall(_sys, 'playAudio', {'id': first['id']});
+      final names = items.take(3).map((d) => d is Map ? '${d['title']}' : '').join('، ');
+      if (p['ok'] != false && p['error'] == null) {
+        return items.length == 1 ? 'لێمدا: ${first['title']}.' : 'یەکەمیانم لێدا (${first['title']}). ئەوانی تر: $names';
+      }
+      return 'گۆرانییەکەم دۆزییەوە (${first['title']}) بەڵام نەمتوانی لێی بدەم.';
+    }
+    final callish = RegExp(r'پەیوەندی (بکە|پێوە بکە)|تەلەفۆن (بکە|بۆ)|زەنگ (بۆ|لێبدە)|\bcall\b').hasMatch(lowT);
+    if (callish && !lowT.contains('بلوتوس') && !lowT.contains('وایفای') && !lowT.contains('wifi')) {
+      const cstop = {
+        'پەیوەندی', 'بکە', 'بە', 'بۆ', 'تەلەفۆن', 'زەنگ', 'لێبدە', 'پێوە', 'call', 'تکایە',
+        'ئەو', 'ئەم', 'کەسە', 'ژمارەی', 'ژمارە',
+      };
+      final who = lowT.split(RegExp(r'\s+')).where((w) => w.isNotEmpty && !cstop.contains(w)).join(' ');
+      final r = await _fastCall(_sys, 'dialContact', {'query': who});
+      if (r['needsPermission'] == true) {
+        return 'مۆڵەتی کۆنتاکتەکانم نەبوو، داوام کرد؛ ڕێگە بدە و دووبارە بیڵێ.';
+      }
+      if (r['error'] == 'not_found') return 'لە کۆنتاکتەکاندا نەمدۆزییەوە: $who';
+      if (r['error'] == 'ambiguous') {
+        return 'چەند کەسێک دەچن: ${((r['names'] as List?) ?? const []).join('، ')}. کامیان؟';
+      }
+      if (r['ok'] == false) return 'نەمتوانی ژمارەکە بکەمەوە.';
+      return 'ژمارەی ${r['name']}م کردەوە لە دایلەر؛ دوگمەی پەیوەندی دابگرە.';
+    }
     final tokens = t.split(RegExp(r'\s+'));
     final hasYoutube = tokens.any((w) {
       final l = w.toLowerCase();
@@ -330,7 +391,7 @@ class PhoneControlProcessor implements AgentProcessor {
     final isWifi = RegExp(r'وای ?فای|wifi|wi-fi').hasMatch(low);
     final wantsOn = RegExp(r'هەڵکە|هەڵبکە|چالاک|turn on|enable').hasMatch(low);
     final wantsOff = RegExp(r'بکوژێنەوە|دایبخە|ناچالاک|turn off|disable').hasMatch(low);
-    final wantsList = RegExp(r'ئامێر|لیست|جووتکراو|paired|devices').hasMatch(low);
+    final wantsList = RegExp(r'جووتکراو|paired').hasMatch(low);
 
     if (isBt && wantsList && !wantsOn && !wantsOff) {
       final r = await _fastCall(_sys, 'listPairedBluetooth', {});
@@ -353,6 +414,47 @@ class PhoneControlProcessor implements AgentProcessor {
           return 'پانێلەکەم کردەوە، خۆت بیگۆڕە.';
         }
         return wantsOn ? 'هەڵمکرد.' : 'کوژاندمەوە.';
+      }
+    }
+
+    if (RegExp(r'فلاش|فڵاش|flashlight|torch|چرای مۆبایل').hasMatch(low)) {
+      final tOn = RegExp(r'هەڵکە|هەڵبکە|بگیرسێنە|turn on|\bon\b').hasMatch(low);
+      final tOff = RegExp(r'بکوژێنەوە|بیکوژێنەوە|دایبخە|turn off|\boff\b').hasMatch(low);
+      if (tOn != tOff) {
+        final r = await _fastCall(_sys, 'torch', {'on': tOn});
+        if (r['ok'] != false && r['error'] == null) return tOn ? 'فلاشم هەڵکرد.' : 'فلاشم کوژاندەوە.';
+        return 'نەمتوانی فلاش بگۆڕم (${r['error'] ?? 'نەزانراو'}).';
+      }
+    }
+
+    if (isBt && !wantsOn && !wantsOff) {
+      if (RegExp(r'نزیک|دەوروبەر|بدۆزەوە|بگەڕێ|scan|nearby').hasMatch(low)) {
+        final r = await _fastCall(_sys, 'scanBluetooth', {});
+        if (r['needsPermission'] == true) {
+          return 'مۆڵەتی گەڕانی بلوتوسم نەبوو، داوام کرد؛ ڕێگە بدە و دووبارە بیڵێ.';
+        }
+        if (r['ok'] == false) {
+          return r['error'] == 'bluetooth_off' ? 'بلوتوس کوژاوەتەوە؛ یەکەم هەڵی بکە.' : 'گەڕانی بلوتوس نەستا.';
+        }
+        final devs = (r['devices'] as List?) ?? const [];
+        if (devs.isEmpty) {
+          return 'هیچ ئامێرێکی نزیکم نەدۆزییەوە؛ دڵنیابە ئامێرەکە لە دۆخی جووتبوون (pairing) دایە.';
+        }
+        final names = devs
+            .take(5)
+            .map((d) => d is Map ? ('${d['name']}'.isEmpty ? 'بێ ناو' : '${d['name']}') : '')
+            .join('، ');
+        return 'نزیکترین ئامێرەکان: $names. بڵێ «پەیوەست بە» و ناوی ئامێرەکە.';
+      }
+      if (RegExp(r'پەیوەست|جووت بکە|connect|pair').hasMatch(low)) {
+        final r = await _fastCall(_sys, 'bondBluetooth', {'query': low});
+        if (r['needsPermission'] == true) return 'مۆڵەتی بلوتوسم نەبوو، داوام کرد؛ ڕێگە بدە و دووبارە بیڵێ.';
+        if (r['error'] == 'no_scan') return 'یەکەم بڵێ «ئامێرە نزیکەکان بدۆزەوە».';
+        if (r['error'] == 'ambiguous') {
+          return 'کامیان؟ ${((r['names'] as List?) ?? const []).join('، ')}';
+        }
+        if (r['ok'] == false) return 'نەمتوانی جووتی بکەم.';
+        return 'داوای جووتکردنی ${r['name']}م نارد؛ ئەگەر پەنجەرەیەک هات «Pair» بدە.';
       }
     }
     return null;
