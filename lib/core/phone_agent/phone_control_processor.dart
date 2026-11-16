@@ -5,6 +5,7 @@
 /// (the hook already ran inside it), so nothing is classified twice.
 library;
 
+import '../../ui/src/theme_bus.dart';
 import 'dart:convert';
 import 'dart:io';
 
@@ -41,7 +42,7 @@ class PhoneControlProcessor implements AgentProcessor {
 
   // Cheap pre-filter so ordinary chat never pays for a classifier call.
   static final RegExp _hint = RegExp(
-    r'(بکەرەوە|بکەوە|بکەنەوە|هەڵکە|هەڵبکە|دابنێ|دایبنێ|بدۆزەوە|بگەڕێ|بچۆ|بنێرە|بنووسە|'
+    r'(تێم|تاریک|دارک|theme|dark mode|light mode|بکەرەوە|بکەوە|بکەنەوە|هەڵکە|هەڵبکە|دابنێ|دایبنێ|بدۆزەوە|بگەڕێ|بچۆ|بنێرە|بنووسە|'
     r'دایبگرە|بگۆڕە|بکوژێنەوە|ئەلارم|ئەلەرم|ئەپ|یوتوب|فەیسبووک|ئینستاگرام|تیکتۆک|'
     r'واتسئەپ|تێلێگرام|سناپ|گۆرانی|وای ?فای|بلوتوس|open|launch|play|search|go to|'
     r'alarm|turn on|turn off|send|call|youtube|facebook|instagram|whatsapp|'
@@ -286,6 +287,13 @@ class PhoneControlProcessor implements AgentProcessor {
     }
 
     final low = t.toLowerCase();
+    final themeWord = RegExp(r'تێم|ڕەنگی ئەپ|theme|dark mode|light mode|مۆدی تاریک|دارک مۆد').hasMatch(low);
+    final wDark = RegExp(r'تاریک|ڕەش|دارک|dark').hasMatch(low);
+    final wLight = RegExp(r'ڕووناک|سپی|لایت|light').hasMatch(low);
+    if (themeWord && !low.contains('ئۆڤەر') && (wDark != wLight)) {
+      themeRequest.value = wDark ? 'dark' : 'light';
+      return wDark ? 'تێمی تاریکم دانا.' : 'تێمی ڕووناکم دانا.';
+    }
     final isBt = low.contains('بلوتوس') || low.contains('بلوتوث') || low.contains('bluetooth');
     final isWifi = RegExp(r'وای ?فای|wifi|wi-fi').hasMatch(low);
     final wantsOn = RegExp(r'هەڵکە|هەڵبکە|چالاک|turn on|enable').hasMatch(low);

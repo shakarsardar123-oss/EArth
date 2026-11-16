@@ -1,3 +1,4 @@
+import 'theme_bus.dart';
 import 'package:flutter/cupertino.dart' show CupertinoLocalizations;
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart' show SystemUiOverlayStyle;
@@ -98,6 +99,14 @@ class _TexoUiAppState extends State<TexoUiApp> {
   void initState() {
     super.initState();
     _settings.addListener(_onSettings);
+    themeRequest.addListener(_onThemeRequest);
+  }
+
+  void _onThemeRequest() {
+    final String v = themeRequest.value;
+    if (v.isEmpty) return;
+    themeRequest.value = '';
+    if (v == 'dark' || v == 'light' || v == 'system') _settings.setTheme(v);
   }
 
   void _onSettings() {
@@ -113,6 +122,7 @@ class _TexoUiAppState extends State<TexoUiApp> {
 
   @override
   void dispose() {
+    themeRequest.removeListener(_onThemeRequest);
     _settings.removeListener(_onSettings);
     _settings.dispose();
     super.dispose();
