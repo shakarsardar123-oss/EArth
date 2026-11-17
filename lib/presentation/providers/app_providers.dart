@@ -8,6 +8,7 @@
 /// - Default AgentConfig modelId changed to gemini-3.6-flash.
 library;
 
+import '../../services/ai/fallback_ai_provider.dart';
 import '../../core/tools/device/web_search_tool.dart';
 import '../../core/tools/device/youtube_play_tool.dart';
 import '../../services/ai/retrying_ai_provider.dart';
@@ -239,10 +240,13 @@ final _selectedAIProviderRawProvider = Provider<AIProvider>((ref) {
     case ConnectionType.gemini:
       // Primary/default: use native Gemini provider, wrapped with AUTO
       // model self-healing (rediscover + retry-once on model-not-found).
-      return AutoModelProvider(
-        inner: ref.watch(geminiProviderProvider),
-        storage: storage,
-        preferenceOrder: ModelSelector.geminiPreferenceOrder,
+      return FallbackAIProvider(
+        AutoModelProvider(
+          inner: ref.watch(geminiProviderProvider),
+          storage: storage,
+          preferenceOrder: ModelSelector.geminiPreferenceOrder,
+        ),
+        ref.watch(openaiProviderProvider),
       );
     case ConnectionType.openaiCompatible:
     case ConnectionType.customOpenAI:
