@@ -70,6 +70,12 @@ class PhoneControlProcessor implements AgentProcessor {
   }
 
   Future<AgentResult?> tryHandle(String userInput, AgentContext context) async {
+    if (RegExp(r'وەستێنە|ڕاگرە|وەستە|stop|cancel').hasMatch(userInput.toLowerCase())) {
+      _cancelRequested = true;
+      try { _agent.stop(); } catch (_) {}
+      return const AgentResult.success(response: 'وەستێنرا.');
+    }
+    _cancelRequested = false;
     if (!_hint.hasMatch(userInput)) return null;
     _modelId = context.agentConfig.modelId;
 
@@ -226,7 +232,10 @@ class PhoneControlProcessor implements AgentProcessor {
 
   /// Direct Android intents, no LLM and no screen reading.
   /// Returns a reply text on success, null to fall back to the agent.
+  bool _cancelRequested = false;
+
   Future<String?> _tryFast(String text) async {
+    if (_cancelRequested) return null;
     final t = text.trim();
     final lowT = t.toLowerCase();
     var asciiT = lowT;
