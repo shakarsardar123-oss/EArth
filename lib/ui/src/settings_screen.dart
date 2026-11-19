@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import '../../ui/src/pose_test_screen.dart';
 
 import 'backend.dart';
 import 'colors.dart';
@@ -257,6 +258,13 @@ class _SettingsScreenState extends State<SettingsScreen> {
                 child: ListView(
                   padding: const EdgeInsets.fromLTRB(16, 6, 16, 28),
                   children: <Widget>[
+                    ListTile(
+                      leading: const Icon(Icons.accessibility_new),
+                      title: const Text('تاقیکردنەوەی پۆز (FPS)'),
+                      onTap: () => Navigator.of(context).push(
+                        MaterialPageRoute<void>(builder: (_) => const PoseTestScreen()),
+                      ),
+                    ),
                     _card(
                       child: Column(
                         crossAxisAlignment: CrossAxisAlignment.start,
