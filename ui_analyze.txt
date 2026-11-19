@@ -112,12 +112,38 @@ warning • The left operand can't be null, so the right operand is never execut
    info • Missing a required trailing comma. Try adding a trailing comma • lib/ui/src/live_painter.dart:231:12 • require_trailing_commas
    info • Missing a required trailing comma. Try adding a trailing comma • lib/ui/src/live_painter.dart:233:53 • require_trailing_commas
    info • Missing a required trailing comma. Try adding a trailing comma • lib/ui/src/live_screen.dart:282:6 • require_trailing_commas
+  error • The method 'WriteBuffer' isn't defined for the type '_PoseTestScreenState'. Try correcting the name to the name of an existing method, or defining a method named 'WriteBuffer' • lib/ui/src/pose_test_screen.dart:82:19 • undefined_method
    info • Parameters ''key' and 'child'' could be super parameters. Trying converting ''key' and 'child'' to super parameters • lib/ui/src/scope.dart:31:9 • use_super_parameters
-   info • Missing a required trailing comma. Try adding a trailing comma • lib/ui/src/settings_screen.dart:319:64 • require_trailing_commas
-   info • Missing a required trailing comma. Try adding a trailing comma • lib/ui/src/settings_screen.dart:321:63 • require_trailing_commas
+   info • Missing a required trailing comma. Try adding a trailing comma • lib/ui/src/settings_screen.dart:327:64 • require_trailing_commas
+   info • Missing a required trailing comma. Try adding a trailing comma • lib/ui/src/settings_screen.dart:329:63 • require_trailing_commas
 
-40 issues found. (ran in 13.5s)
-analyze exit code: 0
+41 issues found. (ran in 9.8s)
+analyze exit code: 1
 ----- whole app compile (flutter build bundle) -----
-bundle exit code: 0
-/home/runner/work/EArth/EArth/l10n.yaml: The argument "synthetic-package" no longer has any effect and should be removed. See http://flutter.dev/to/flutter-gen-deprecation
+bundle exit code: 1
+2:lib/ui/src/pose_test_screen.dart:82:19: Error: The method 'WriteBuffer' isn't defined for the type '_PoseTestScreenState'.
+<asynchronous suspension>
+#10     BuildBundleCommand.runCommand (package:flutter_tools/src/commands/build_bundle.dart:146:5)
+<asynchronous suspension>
+#11     FlutterCommand.run.<anonymous closure> (package:flutter_tools/src/runner/flutter_command.dart:1663:27)
+<asynchronous suspension>
+#12     AppContext.run.<anonymous closure> (package:flutter_tools/src/base/context.dart:154:19)
+<asynchronous suspension>
+#13     CommandRunner.runCommand (package:args/command_runner.dart:212:13)
+<asynchronous suspension>
+#14     FlutterCommandRunner.runCommand.<anonymous closure> (package:flutter_tools/src/runner/flutter_command_runner.dart:496:9)
+<asynchronous suspension>
+#15     AppContext.run.<anonymous closure> (package:flutter_tools/src/base/context.dart:154:19)
+<asynchronous suspension>
+#16     FlutterCommandRunner.runCommand (package:flutter_tools/src/runner/flutter_command_runner.dart:431:5)
+<asynchronous suspension>
+#17     FlutterCommandRunner.run.<anonymous closure> (package:flutter_tools/src/runner/flutter_command_runner.dart:307:33)
+<asynchronous suspension>
+#18     run.<anonymous closure>.<anonymous closure> (package:flutter_tools/runner.dart:104:11)
+<asynchronous suspension>
+#19     AppContext.run.<anonymous closure> (package:flutter_tools/src/base/context.dart:154:19)
+<asynchronous suspension>
+#20     main (package:flutter_tools/executable.dart:103:3)
+<asynchronous suspension>
+
+Failed to build bundle.
