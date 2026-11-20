@@ -21,6 +21,9 @@ class _PoseTestScreenState extends State<PoseTestScreen> {
   double _fps = 0;
   int _landmarks = 0;
   String _status = 'ئامادە دەبێت...';
+  int _hits = 0;
+  String _info = '';
+  String _lastErr = '';
   Timer? _fpsTimer;
 
   @override
@@ -66,10 +69,13 @@ class _PoseTestScreenState extends State<PoseTestScreen> {
       if (input == null) return;
       final poses = await _detector.processImage(input);
       _frames++;
+      if (poses.isNotEmpty) _hits++;
+      _info = r'w${img.width} h${img.height} fmt${img.format.raw} planes${img.planes.length} bpr${img.planes.first.bytesPerRow}';
       if (mounted) {
         setState(() => _landmarks = poses.isEmpty ? 0 : poses.first.landmarks.length);
       }
-    } catch (_) {
+    } catch (e) {
+      _lastErr = '$e';
     } finally {
       _busy = false;
     }
@@ -121,7 +127,7 @@ class _PoseTestScreenState extends State<PoseTestScreen> {
           Padding(
             padding: const EdgeInsets.all(12),
             child: Text(
-              'FPS: ${_fps.toStringAsFixed(0)}   خاڵەکان: $_landmarks\n$_status',
+              'FPS: ${_fps.toStringAsFixed(0)}   خاڵەکان: $_landmarks   دۆزراو: $_hits\n$_info\n$_lastErr\n$_status',
               textAlign: TextAlign.center,
             ),
           ),
