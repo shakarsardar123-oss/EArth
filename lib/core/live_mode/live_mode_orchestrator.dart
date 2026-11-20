@@ -415,7 +415,12 @@ class LiveModeOrchestrator {
         'بەڵێ گەورەم، گوێم لێتە.',
         'گەورەم، چیت پێویستە؟',
       ];
-      final g = greetings[DateTime.now().millisecond % greetings.length];
+      final g0 = greetings[DateTime.now().millisecond % greetings.length];
+      // Sometimes address the user as سەرۆک or گەورەم (about 1 time in 3).
+      final addressed = DateTime.now().second % 3 == 0
+          ? g0.replaceAll('گەورەم', (DateTime.now().millisecond % 2 == 0) ? 'سەرۆک' : 'گەورەم')
+          : g0;
+      final g = addressed;
       try {
         _setState(LiveModeState.speaking);
         await _voiceService.speak(g, locale: 'ku');
