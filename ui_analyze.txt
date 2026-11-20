@@ -117,11 +117,12 @@ warning • The left operand can't be null, so the right operand is never execut
    info • Missing a required trailing comma. Try adding a trailing comma • lib/ui/src/settings_screen.dart:327:64 • require_trailing_commas
    info • Missing a required trailing comma. Try adding a trailing comma • lib/ui/src/settings_screen.dart:329:63 • require_trailing_commas
 
-41 issues found. (ran in 14.0s)
+41 issues found. (ran in 10.0s)
 analyze exit code: 1
 ----- whole app compile (flutter build bundle) -----
 bundle exit code: 1
-2:lib/ui/src/pose_test_screen.dart:82:19: Error: The method 'WriteBuffer' isn't defined for the type '_PoseTestScreenState'.
+2:lib/core/live_mode/live_mode_orchestrator.dart:429:9: Error: No named parameter with the name 'conversationId'.
+8:lib/ui/src/pose_test_screen.dart:82:19: Error: The method 'WriteBuffer' isn't defined for the type '_PoseTestScreenState'.
 <asynchronous suspension>
 #10     BuildBundleCommand.runCommand (package:flutter_tools/src/commands/build_bundle.dart:146:5)
 <asynchronous suspension>
