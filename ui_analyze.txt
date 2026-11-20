@@ -37,9 +37,9 @@ Downloading packages...
 + google_mlkit_pose_detection 0.11.1 (1.0.3 available)
   image_picker 1.2.3 (1.2.4 available)
   image_picker_android 0.8.13+23 (0.8.13+25 available)
-  image_picker_ios 0.8.13+7 (0.8.13+15 available)
+  image_picker_ios 0.8.13+7 (0.8.13+16 available)
   image_picker_platform_interface 2.11.1 (2.11.2 available)
-  jni 1.0.3 (1.1.2 available)
+  jni 1.0.3 (1.2.1 available)
   jni_flutter 1.0.3 (1.1.0 available)
   lints 3.0.0 (6.1.0 available)
   material_color_utilities 0.13.0 (0.13.1 available)
@@ -117,7 +117,7 @@ warning • The left operand can't be null, so the right operand is never execut
    info • Missing a required trailing comma. Try adding a trailing comma • lib/ui/src/settings_screen.dart:327:64 • require_trailing_commas
    info • Missing a required trailing comma. Try adding a trailing comma • lib/ui/src/settings_screen.dart:329:63 • require_trailing_commas
 
-41 issues found. (ran in 9.8s)
+41 issues found. (ran in 10.8s)
 analyze exit code: 1
 ----- whole app compile (flutter build bundle) -----
 bundle exit code: 1
