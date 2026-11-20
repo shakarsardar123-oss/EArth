@@ -1,3 +1,4 @@
+import 'dart:typed_data';
 import 'dart:async';
 import 'package:camera/camera.dart';
 import 'package:flutter/material.dart';
@@ -79,12 +80,15 @@ class _PoseTestScreenState extends State<PoseTestScreen> {
     if (cam == null) return null;
     final rotation = InputImageRotationValue.fromRawValue(cam.description.sensorOrientation);
     if (rotation == null) return null;
-    final bytes = WriteBuffer();
+    final total = img.planes.fold<int>(0, (n, pl) => n + pl.bytes.length);
+    final all = Uint8List(total);
+    var off = 0;
     for (final plane in img.planes) {
-      bytes.putUint8List(plane.bytes);
+      all.setRange(off, off + plane.bytes.length, plane.bytes);
+      off += plane.bytes.length;
     }
     return InputImage.fromBytes(
-      bytes: bytes.done().buffer.asUint8List(),
+      bytes: all,
       metadata: InputImageMetadata(
         size: Size(img.width.toDouble(), img.height.toDouble()),
         rotation: rotation,

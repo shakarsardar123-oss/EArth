@@ -425,10 +425,6 @@ class LiveModeOrchestrator {
         _setState(LiveModeState.speaking);
         await _voiceService.speak(g, locale: 'ku');
       } catch (_) {}
-      if (!_isCurrentGeneration(gen)) return LiveModeSession(
-        conversationId: _currentConversationId ?? '',
-        generation: gen,
-      );
     }
 
     // Screen capture (the "Start recording or casting?" system dialog) is no
