@@ -178,6 +178,16 @@ class _ApiKeySettingsSectionState extends ConsumerState<ApiKeySettingsSection> {
       }
 
       // Save connection type
+      // Auto-detect the provider from the key prefix (sk-or- => OpenRouter).
+      {
+        final String k0 = _apiKeyController.text.trim();
+        if (k0.startsWith('sk-or-')) {
+          _selectedProviderType = ConnectionType.customOpenAI;
+          _baseUrlController.text = 'https://openrouter.ai/api/v1';
+          connectionStorage.setConnectionType(_selectedProviderType);
+          await connectionStorage.setModel('google/gemma-4-31b-it:free');
+        }
+      }
       connectionStorage.setConnectionType(_selectedProviderType);
 
       // Save model. When the user explicitly picked a model in the UI we
