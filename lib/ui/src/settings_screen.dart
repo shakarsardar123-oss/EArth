@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import '../../ui/src/pose_test_screen.dart';
+import 'pose_test_screen.dart';
 
 import 'backend.dart';
 import 'colors.dart';
