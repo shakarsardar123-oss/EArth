@@ -408,6 +408,24 @@ class LiveModeOrchestrator {
       debugToast('TEXO overlay error: $e');
     }
 
+    // Greet the user right away so the session feels alive (no LLM call).
+    {
+      const greetings = <String>[
+        'بەڵێ گەورەم، لێرەم.',
+        'بەڵێ گەورەم، گوێم لێتە.',
+        'گەورەم، چیت پێویستە؟',
+      ];
+      final g = greetings[DateTime.now().millisecond % greetings.length];
+      try {
+        _setState(LiveModeState.speaking);
+        await _voiceService.speak(g, locale: 'ku');
+      } catch (_) {}
+      if (!_isCurrentGeneration(gen)) return LiveModeSession(
+        conversationId: _currentConversationId ?? '',
+        generation: gen,
+      );
+    }
+
     // Screen capture (the "Start recording or casting?" system dialog) is no
     // longer started with Live Mode: it is only asked for when a feature needs it.
     await _startListening(gen);
