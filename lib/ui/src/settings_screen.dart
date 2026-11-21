@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'pose_test_screen.dart';
+import 'object_test_screen.dart';
 
 import 'backend.dart';
 import 'colors.dart';
@@ -258,6 +259,13 @@ class _SettingsScreenState extends State<SettingsScreen> {
                 child: ListView(
                   padding: const EdgeInsets.fromLTRB(16, 6, 16, 28),
                   children: <Widget>[
+                    ListTile(
+                      leading: const Icon(Icons.center_focus_strong),
+                      title: const Text('تاقیکردنەوەی ئامێر و شت'),
+                      onTap: () => Navigator.of(context).push(
+                        MaterialPageRoute<void>(builder: (_) => const ObjectTestScreen()),
+                      ),
+                    ),
                     ListTile(
                       leading: const Icon(Icons.accessibility_new),
                       title: const Text('تاقیکردنەوەی پۆز (FPS)'),
