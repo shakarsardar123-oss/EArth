@@ -22,12 +22,14 @@ class MemoryDatabase {
     final dbPath = await getDatabasesPath();
     final path = p.join(dbPath, _dbName);
 
-    return openDatabase(
+    final db = await openDatabase(
       path,
       version: _dbVersion,
       onCreate: _onCreate,
       onUpgrade: _onUpgrade,
     );
+    await _ensureSummaryTable(db);
+    return db;
   }
 
   /// Creates tables for first-time initialization.
@@ -68,6 +70,38 @@ class MemoryDatabase {
   /// Handles database upgrades.
   Future<void> _onUpgrade(Database db, int oldVersion, int newVersion) async {
     // Future schema migrations go here.
+  }
+
+  /// Creates the daily-summary table if missing (runs on every start, safe).
+  Future<void> _ensureSummaryTable(Database db) async {
+    await db.execute('''
+      CREATE TABLE IF NOT EXISTS daily_summaries (
+        day TEXT PRIMARY KEY,
+        summary TEXT NOT NULL,
+        created_at INTEGER NOT NULL
+      )
+    ''');
+  }
+
+  /// Saves or replaces the summary for [day] (format yyyy-MM-dd).
+  Future<void> saveDailySummary(String day, String summary) async {
+    final db = await database;
+    await db.insert(
+      'daily_summaries',
+      {
+        'day': day,
+        'summary': summary,
+        'created_at': DateTime.now().millisecondsSinceEpoch,
+      },
+      conflictAlgorithm: ConflictAlgorithm.replace,
+    );
+  }
+
+  /// Latest stored summary, or null when none exists.
+  Future<String?> getLastSummary() async {
+    final db = await database;
+    final rows = await db.query('daily_summaries', orderBy: 'day DESC', limit: 1);
+    return rows.isEmpty ? null : rows.first['summary'] as String;
   }
 
   /// Closes the database.
