@@ -17,7 +17,7 @@ Downloading packages...
   dbus 0.7.15 (0.8.1 available)
   device_info_plus 10.1.2 (13.3.0 available)
   device_info_plus_platform_interface 7.0.3 (8.1.0 available)
-  file_picker 10.3.10 (13.4.0 available)
+  file_picker 10.3.10 (13.4.1 available)
   file_selector_macos 0.9.5+1 (0.9.5+2 available)
   flutter_lints 3.0.2 (6.0.0 available)
   flutter_local_notifications 17.2.4 (23.0.3 available)
@@ -116,7 +116,7 @@ warning • The left operand can't be null, so the right operand is never execut
    info • Missing a required trailing comma. Try adding a trailing comma • lib/ui/src/settings_screen.dart:327:64 • require_trailing_commas
    info • Missing a required trailing comma. Try adding a trailing comma • lib/ui/src/settings_screen.dart:329:63 • require_trailing_commas
 
-40 issues found. (ran in 9.2s)
+40 issues found. (ran in 8.9s)
 analyze exit code: 0
 ----- whole app compile (flutter build bundle) -----
 bundle exit code: 0
