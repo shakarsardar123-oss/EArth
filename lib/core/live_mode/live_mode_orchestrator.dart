@@ -408,25 +408,6 @@ class LiveModeOrchestrator {
       debugToast('TEXO overlay error: $e');
     }
 
-    // Greet the user right away so the session feels alive (no LLM call).
-    {
-      const greetings = <String>[
-        'بەڵێ گەورەم، لێرەم.',
-        'بەڵێ گەورەم، گوێم لێتە.',
-        'گەورەم، چیت پێویستە؟',
-      ];
-      final g0 = greetings[DateTime.now().millisecond % greetings.length];
-      // Sometimes address the user as سەرۆک or گەورەم (about 1 time in 3).
-      final addressed = DateTime.now().second % 3 == 0
-          ? g0.replaceAll('گەورەم', (DateTime.now().millisecond % 2 == 0) ? 'سەرۆک' : 'گەورەم')
-          : g0;
-      final g = addressed;
-      try {
-        _setState(LiveModeState.speaking);
-        await _voiceService.speak(g, locale: 'ku');
-      } catch (_) {}
-    }
-
     // Screen capture (the "Start recording or casting?" system dialog) is no
     // longer started with Live Mode: it is only asked for when a feature needs it.
     await _startListening(gen);
