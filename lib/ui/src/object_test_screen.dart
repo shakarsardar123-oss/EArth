@@ -24,6 +24,8 @@ class _ObjectTestScreenState extends State<ObjectTestScreen> {
   Size _size = const Size(1, 1);
   String _text = 'ئامادە دەبێت...';
   String _status = '';
+  String _lastSpoken = '';
+  final Set<String> _spokenOnce = <String>{};
 
   @override
   void initState() {
@@ -81,6 +83,14 @@ class _ObjectTestScreenState extends State<ObjectTestScreen> {
       if (mounted) {
         setState(() => _text = lines.isEmpty ? 'هیچ شتێک نەدۆزرایەوە' : lines.join('\n'));
       }
+      if (objs.isNotEmpty && objs.first.labels.isNotEmpty) {
+        final name = objs.first.labels.first.text;
+        if (!_spokenOnce.contains(name)) {
+          _spokenOnce.add(name);
+          _lastSpoken = name;
+          try { await _speak('لێرەوە دەبینم: $name'); } catch (_) {}
+        }
+      }
     } catch (e) {
       if (mounted) setState(() => _status = 'هەڵەی پرۆسێس: $e');
     } finally {
@@ -110,6 +120,13 @@ class _ObjectTestScreenState extends State<ObjectTestScreen> {
       ),
     );
   }
+
+  Future<void> _speak(String text) async {
+    // Wired to the app's voice service through a provider in the screen's parent.
+    if (_speakFn != null) await _speakFn!(text);
+  }
+
+  Future<void> Function(String)? _speakFn;
 
   @override
   void dispose() {
