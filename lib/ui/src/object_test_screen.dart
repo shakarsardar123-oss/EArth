@@ -3,6 +3,7 @@ import 'dart:typed_data';
 import 'package:camera/camera.dart';
 import 'package:flutter/material.dart';
 import 'package:google_mlkit_object_detection/google_mlkit_object_detection.dart';
+import 'scope.dart';
 
 /// Detects objects in the camera image and shows labels + rough position.
 class ObjectTestScreen extends StatefulWidget {
@@ -123,10 +124,8 @@ class _ObjectTestScreenState extends State<ObjectTestScreen> {
 
   Future<void> _speak(String text) async {
     // Wired to the app's voice service through a provider in the screen's parent.
-    if (_speakFn != null) await _speakFn!(text);
+    await UiScope.of(context).backend.speak(text);
   }
-
-  Future<void> Function(String)? _speakFn;
 
   @override
   void dispose() {
