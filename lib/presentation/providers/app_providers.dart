@@ -244,12 +244,12 @@ final _selectedAIProviderRawProvider = Provider<AIProvider>((ref) {
         AutoModelProvider(
           inner: ref.watch(geminiProviderProvider),
           storage: storage,
-          preferenceOrder: ModelSelector.geminiPreferenceOrder,
+          preferenceOrder: const ['gemini-3.5-flash-lite'],
         ),
         AutoModelProvider(
           inner: ref.watch(geminiProviderProvider),
           storage: storage,
-          preferenceOrder: const ['gemini-3.5-flash-lite'],
+          preferenceOrder: ModelSelector.geminiPreferenceOrder,
         ),
       );
     case ConnectionType.openaiCompatible:
