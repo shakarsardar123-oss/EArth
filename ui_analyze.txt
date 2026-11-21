@@ -3,33 +3,123 @@ Framework • revision 9584c6713b (2 months ago) • 2026-09-10 15:25:10 -0700
 Engine • hash 0e228ec8c8d2abc9fcf1d053e8a40665bb859ec7 (revision 06a2e2a110) (2 months ago) • 2026-09-03 16:07:13.000Z
 Tools • Dart 3.13.3 • DevTools 2.60.0
 Resolving dependencies...
-Because no versions of google_mlkit_face_detection match >0.11.1 <0.12.0 and google_mlkit_face_detection >=0.10.1 <0.11.1 depends on google_mlkit_commons ^0.7.1, google_mlkit_face_detection >=0.10.1 <0.11.1-∞ or >0.11.1 <0.12.0 requires google_mlkit_commons ^0.7.1.
-And because google_mlkit_face_detection 0.11.1 depends on google_mlkit_commons ^0.8.1 and google_mlkit_object_detection ^0.11.0 depends on google_mlkit_commons ^0.6.0, google_mlkit_object_detection ^0.11.0 is incompatible with google_mlkit_face_detection >=0.10.1 <0.12.0.
-So, because texo depends on both google_mlkit_face_detection ^0.11.0 and google_mlkit_object_detection ^0.11.0, version solving failed.
-
-
-You can try the following suggestion to make the pubspec resolve:
-* Try upgrading your constraint on google_mlkit_object_detection: flutter pub add google_mlkit_object_detection:^0.13.0
-Failed to update packages.
+Downloading packages...
+  android_alarm_manager_plus 4.0.8 (5.1.2 available)
+  camera 0.10.6 (0.12.2 available)
+  camera_android 0.10.11+1 (0.10.13 available)
+  camera_avfoundation 0.9.23+2 (0.11.1 available)
+  camera_platform_interface 2.13.1 (2.15.1 available)
+  camera_web 0.3.5+6 (0.3.6 available)
+  code_assets 2.0.0 (2.2.0 available)
+  connectivity_plus 6.1.5 (7.3.2 available)
+  cross_file 0.3.5+5 (0.4.0 available)
+  crypto 3.0.7 (3.0.8 available)
+  dbus 0.7.15 (0.8.1 available)
+  device_info_plus 10.1.2 (13.3.0 available)
+  device_info_plus_platform_interface 7.0.3 (8.1.0 available)
+  file_picker 10.3.10 (13.4.1 available)
+  file_selector_macos 0.9.5+1 (0.9.5+2 available)
+  flutter_lints 3.0.2 (6.0.0 available)
+  flutter_local_notifications 17.2.4 (23.0.3 available)
+  flutter_local_notifications_linux 4.0.1 (9.0.0 available)
+  flutter_local_notifications_platform_interface 7.2.0 (13.0.0 available)
+  flutter_riverpod 2.6.1 (3.5.0 available)
+  flutter_secure_storage 10.3.3 (11.2.0 available)
+  flutter_secure_storage_darwin 0.3.2 (0.4.3 available)
+  flutter_secure_storage_platform_interface 2.1.0 (2.1.1 available)
+  flutter_secure_storage_windows 4.1.0 (4.2.2 available)
+  geolocator 13.0.4 (14.1.2 available)
+  geolocator_android 4.6.2 (5.2.1 available)
+  geolocator_apple 2.3.14 (2.4.3 available)
+  geolocator_platform_interface 4.3.0 (4.4.1 available)
+< google_mlkit_commons 0.7.1 (was 0.8.1) (1.0.3 available)
+< google_mlkit_face_detection 0.11.0 (was 0.11.1) (1.0.3 available)
++ google_mlkit_object_detection 0.13.0 (1.0.3 available)
++ google_mlkit_pose_detection 0.11.1 (1.0.3 available)
+  image_picker 1.2.3 (1.2.4 available)
+  image_picker_android 0.8.13+23 (0.8.13+25 available)
+  image_picker_ios 0.8.13+7 (0.8.13+16 available)
+  image_picker_platform_interface 2.11.1 (2.11.2 available)
+  jni 1.0.3 (1.2.1 available)
+  jni_flutter 1.0.3 (1.1.0 available)
+  lints 3.0.0 (6.1.0 available)
+  material_color_utilities 0.13.0 (0.13.1 available)
+  nm 0.5.0 (0.6.0 available)
+  objective_c 9.6.0 (9.6.4 available)
+  permission_handler 11.4.0 (13.0.2 available)
+  permission_handler_android 12.1.0 (14.1.1 available)
+  permission_handler_apple 9.6.1 (9.6.5 available)
+  permission_handler_windows 0.2.2 (0.2.4 available)
+  petitparser 7.0.2 (7.1.0 available)
+  riverpod 2.6.1 (3.5.0 available)
+  shared_preferences 2.5.5 (2.5.6 available)
+  shared_preferences_android 2.4.28 (2.5.5 available)
+  shared_preferences_foundation 2.5.7 (2.6.2 available)
+  sqflite 2.4.4 (2.4.6 available)
+  sqflite_android 2.4.4 (2.4.6 available)
+  sqflite_common 2.5.12 (2.5.17 available)
+  sqflite_darwin 2.4.4 (2.4.6 available)
+  sqflite_platform_interface 2.4.2 (2.4.4 available)
+  synchronized 3.4.2 (3.6.1+1 available)
+  test_api 0.7.12 (0.7.15 available)
+  timezone 0.9.4 (0.11.2 available)
+  vector_math 2.4.2 (2.4.4 available)
+  vm_service 15.3.0 (15.4.0 available)
+  web 1.1.1 (1.1.2 available)
+  win32 5.15.0 (6.4.0 available)
+  win32_registry 1.1.5 (3.0.3 available)
+  xml 7.0.1 (7.1.0 available)
+Changed 4 dependencies!
+65 packages have newer versions incompatible with dependency constraints.
+Try `flutter pub outdated` for more information.
+/home/runner/work/EArth/EArth/l10n.yaml: The argument "synthetic-package" no longer has any effect and should be removed. See http://flutter.dev/to/flutter-gen-deprecation
 ----- analyze (new UI + bridge) -----
-Resolving dependencies...
-Because no versions of google_mlkit_face_detection match >0.11.1 <0.12.0 and google_mlkit_face_detection >=0.10.1 <0.11.1 depends on google_mlkit_commons ^0.7.1, google_mlkit_face_detection >=0.10.1 <0.11.1-∞ or >0.11.1 <0.12.0 requires google_mlkit_commons ^0.7.1.
-And because google_mlkit_face_detection 0.11.1 depends on google_mlkit_commons ^0.8.1 and google_mlkit_object_detection ^0.11.0 depends on google_mlkit_commons ^0.6.0, google_mlkit_object_detection ^0.11.0 is incompatible with google_mlkit_face_detection >=0.10.1 <0.12.0.
-So, because texo depends on both google_mlkit_face_detection ^0.11.0 and google_mlkit_object_detection ^0.11.0, version solving failed.
+Analyzing 4 items...                                            
 
+   info • The import of 'dart:typed_data' is unnecessary because all of the used elements are also provided by the import of 'package:flutter/foundation.dart'. Try removing the import directive • lib/bridge/live_camera.dart:3:8 • unnecessary_import
+   info • Missing a required trailing comma. Try adding a trailing comma • lib/bridge/live_camera.dart:120:82 • require_trailing_commas
+warning • Unused import: '../presentation/screens/vision_screen.dart'. Try removing the import directive • lib/bridge/riverpod_backend.dart:33:8 • unused_import
+   info • The import of '../ui/src/backend.dart' is unnecessary because all of the used elements are also provided by the import of '../ui/texo_ui.dart'. Try removing the import directive • lib/bridge/riverpod_backend.dart:37:8 • unnecessary_import
+   info • Missing a required trailing comma. Try adding a trailing comma • lib/bridge/riverpod_backend.dart:82:76 • require_trailing_commas
+   info • Missing a required trailing comma. Try adding a trailing comma • lib/bridge/riverpod_backend.dart:354:10 • require_trailing_commas
+   info • Missing a required trailing comma. Try adding a trailing comma • lib/bridge/riverpod_backend.dart:488:12 • require_trailing_commas
+   info • Missing a required trailing comma. Try adding a trailing comma • lib/bridge/riverpod_backend.dart:522:10 • require_trailing_commas
+   info • Missing a required trailing comma. Try adding a trailing comma • lib/bridge/riverpod_backend.dart:599:8 • require_trailing_commas
+   info • The local variable '_t0' starts with an underscore. Try renaming the variable to not start with an underscore • lib/bridge/riverpod_backend.dart:889:17 • no_leading_underscores_for_local_identifiers
+   info • Missing a required trailing comma. Try adding a trailing comma • lib/bridge/riverpod_backend.dart:1002:74 • require_trailing_commas
+warning • Unused import: '../errors/result.dart'. Try removing the import directive • lib/core/ai/gemini_provider.dart:33:8 • unused_import
+   info • The member 'getApiKey' overrides an inherited member but isn't annotated with '@override'. Try adding the '@override' annotation • lib/core/ai/gemini_provider.dart:160:19 • annotate_overrides
+   info • The member 'setApiKey' overrides an inherited member but isn't annotated with '@override'. Try adding the '@override' annotation • lib/core/ai/gemini_provider.dart:164:16 • annotate_overrides
+   info • The member 'deleteApiKey' overrides an inherited member but isn't annotated with '@override'. Try adding the '@override' annotation • lib/core/ai/gemini_provider.dart:168:16 • annotate_overrides
+   info • The member 'getBaseUrl' overrides an inherited member but isn't annotated with '@override'. Try adding the '@override' annotation • lib/core/ai/gemini_provider.dart:173:18 • annotate_overrides
+   info • The member 'setBaseUrl' overrides an inherited member but isn't annotated with '@override'. Try adding the '@override' annotation • lib/core/ai/gemini_provider.dart:179:16 • annotate_overrides
+warning • The left operand can't be null, so the right operand is never executed. Try removing the operator and the right operand • lib/core/ai/gemini_provider.dart:509:9 • dead_null_aware_expression
+   info • Missing a required trailing comma. Try adding a trailing comma • lib/core/ai/gemini_provider.dart:685:14 • require_trailing_commas
+warning • The left operand can't be null, so the right operand is never executed. Try removing the operator and the right operand • lib/core/ai/gemini_provider.dart:769:9 • dead_null_aware_expression
+   info • Missing a required trailing comma. Try adding a trailing comma • lib/core/ai/gemini_provider.dart:1137:10 • require_trailing_commas
+   info • Missing a required trailing comma. Try adding a trailing comma • lib/ui/overlay_test_main.dart:20:4 • require_trailing_commas
+   info • Use 'const' with the constructor to improve performance. Try adding the 'const' keyword to the constructor invocation • lib/ui/src/app.dart:178:34 • prefer_const_constructors
+   info • The import of 'dart:typed_data' is unnecessary because all of the used elements are also provided by the import of 'package:flutter/foundation.dart'. Try removing the import directive • lib/ui/src/backend.dart:1:8 • unnecessary_import
+   info • Missing a required trailing comma. Try adding a trailing comma • lib/ui/src/chat_screen.dart:520:30 • require_trailing_commas
+   info • Use 'const' with the constructor to improve performance. Try adding the 'const' keyword to the constructor invocation • lib/ui/src/dark.dart:37:20 • prefer_const_constructors
+   info • The import of 'dart:typed_data' is unnecessary because all of the used elements are also provided by the import of 'package:flutter/foundation.dart'. Try removing the import directive • lib/ui/src/demo_backend.dart:3:8 • unnecessary_import
+   info • The private field _ku could be 'final'. Try making the field 'final' • lib/ui/src/demo_backend.dart:72:8 • prefer_final_fields
+   info • Missing a required trailing comma. Try adding a trailing comma • lib/ui/src/history_screen.dart:119:114 • require_trailing_commas
+   info • Missing a required trailing comma. Try adding a trailing comma • lib/ui/src/history_screen.dart:160:24 • require_trailing_commas
+   info • Missing a required trailing comma. Try adding a trailing comma • lib/ui/src/history_screen.dart:221:26 • require_trailing_commas
+   info • Parameter 'repaint' could be a super parameter. Trying converting 'repaint' to a super parameter • lib/ui/src/live_painter.dart:53:3 • use_super_parameters
+   info • Missing a required trailing comma. Try adding a trailing comma • lib/ui/src/live_painter.dart:61:8 • require_trailing_commas
+   info • Missing a required trailing comma. Try adding a trailing comma • lib/ui/src/live_painter.dart:223:101 • require_trailing_commas
+   info • Missing a required trailing comma. Try adding a trailing comma • lib/ui/src/live_painter.dart:231:12 • require_trailing_commas
+   info • Missing a required trailing comma. Try adding a trailing comma • lib/ui/src/live_painter.dart:233:53 • require_trailing_commas
+   info • Missing a required trailing comma. Try adding a trailing comma • lib/ui/src/live_screen.dart:282:6 • require_trailing_commas
+warning • The value of the field '_lastSpoken' isn't used. Try removing the field, or using it • lib/ui/src/object_test_screen.dart:28:10 • unused_field
+   info • Parameters ''key' and 'child'' could be super parameters. Trying converting ''key' and 'child'' to super parameters • lib/ui/src/scope.dart:31:9 • use_super_parameters
+   info • Missing a required trailing comma. Try adding a trailing comma • lib/ui/src/settings_screen.dart:335:64 • require_trailing_commas
+   info • Missing a required trailing comma. Try adding a trailing comma • lib/ui/src/settings_screen.dart:337:63 • require_trailing_commas
 
-You can try the following suggestion to make the pubspec resolve:
-* Try upgrading your constraint on google_mlkit_object_detection: flutter pub add google_mlkit_object_detection:^0.13.0
-Failed to update packages.
-analyze exit code: 1
+41 issues found. (ran in 12.8s)
+analyze exit code: 0
 ----- whole app compile (flutter build bundle) -----
-bundle exit code: 1
-Resolving dependencies...
-Because no versions of google_mlkit_face_detection match >0.11.1 <0.12.0 and google_mlkit_face_detection >=0.10.1 <0.11.1 depends on google_mlkit_commons ^0.7.1, google_mlkit_face_detection >=0.10.1 <0.11.1-∞ or >0.11.1 <0.12.0 requires google_mlkit_commons ^0.7.1.
-And because google_mlkit_face_detection 0.11.1 depends on google_mlkit_commons ^0.8.1 and google_mlkit_object_detection ^0.11.0 depends on google_mlkit_commons ^0.6.0, google_mlkit_object_detection ^0.11.0 is incompatible with google_mlkit_face_detection >=0.10.1 <0.12.0.
-So, because texo depends on both google_mlkit_face_detection ^0.11.0 and google_mlkit_object_detection ^0.11.0, version solving failed.
-
-
-You can try the following suggestion to make the pubspec resolve:
-* Try upgrading your constraint on google_mlkit_object_detection: flutter pub add google_mlkit_object_detection:^0.13.0
-Failed to update packages.
+bundle exit code: 0
+/home/runner/work/EArth/EArth/l10n.yaml: The argument "synthetic-package" no longer has any effect and should be removed. See http://flutter.dev/to/flutter-gen-deprecation
