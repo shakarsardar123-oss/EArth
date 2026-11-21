@@ -70,7 +70,7 @@ class _PoseTestScreenState extends State<PoseTestScreen> {
       final poses = await _detector.processImage(input);
       _frames++;
       if (poses.isNotEmpty) _hits++;
-      _info = r'w${img.width} h${img.height} fmt${img.format.raw} planes${img.planes.length} bpr${img.planes.first.bytesPerRow}';
+      _info = 'w${img.width} h${img.height} fmt${img.format.raw} planes${img.planes.length} bpr${img.planes.first.bytesPerRow}';
       if (mounted) {
         setState(() => _landmarks = poses.isEmpty ? 0 : poses.first.landmarks.length);
       }
