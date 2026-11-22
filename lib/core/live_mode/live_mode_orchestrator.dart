@@ -600,6 +600,27 @@ class LiveModeOrchestrator {
   // ── Core Cycle ──
 
   /// Start listening with generation guard.
+  /// Runs the same fast phone commands as the chat path. Returns the reply
+  /// text when a command was handled, or null to let Gemini answer.
+  AgentContext _fastContext() => AgentContext(
+        agentConfig: const AgentConfig(
+          id: 'live_fast', name: 'TEXO', description: 'live fast path',
+          systemPrompt: '', modelId: 'default'),
+        conversationHistory: const <Map<String, dynamic>>[],
+        maxSteps: 10,
+      );
+
+  Future<String?> _tryFastLocal(String text) async {
+    final hook = phoneControlHook;
+    if (hook == null) return null;
+    try {
+      final r = await hook(text, _fastContext());
+      return r?.response;
+    } catch (_) {
+      return null;
+    }
+  }
+
   Future<void> _startListening(int gen) async {
     if (!_isCurrentGeneration(gen)) return;
     if (_micPaused) return;
@@ -768,6 +789,13 @@ class LiveModeOrchestrator {
       );
 
       AgentResult? result;
+      // Fast local commands first (apps, flashlight, bluetooth...). No LLM.
+      final fastHandled = await _tryFastLocal(text);
+      if (fastHandled != null) {
+        await _voiceService.speak(fastHandled, locale: 'ku');
+        await _startListening(gen);
+        return;
+      }
       final streamer = chatStreamer;
       if (streamer != null) {
         // A phone task goes to the phone agent. Everything else is streamed and
