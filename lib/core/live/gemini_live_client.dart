@@ -1,3 +1,4 @@
+import 'live_prompt.dart';
 import 'dart:async';
 import 'dart:convert';
 import 'dart:io';
@@ -9,7 +10,7 @@ class GeminiLiveClient {
   GeminiLiveClient({
     required this.apiKey,
     this.model = 'models/gemini-2.5-flash-native-audio-preview-12-2025',
-    this.systemInstruction = '',
+    this.systemInstruction = kLiveSystemPrompt,
   });
 
   final String apiKey;
