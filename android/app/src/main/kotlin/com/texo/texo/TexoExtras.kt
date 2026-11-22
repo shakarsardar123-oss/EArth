@@ -328,6 +328,7 @@ object TexoExtras {
             maxOf(min, 3200) * 2)
         micRecord = rec
         micRunning = true
+        micChannel = systemChannelRef
         rec.startRecording()
         pcmExec.execute {
             val buf = ByteArray(3200)
@@ -336,7 +337,7 @@ object TexoExtras {
                 if (n > 0) {
                     val chunk = buf.copyOf(n)
                     Handler(Looper.getMainLooper()).post {
-                        micSink?.invoke(chunk)
+                        micChannel?.invokeMethod("micChunk", chunk)
                     }
                 }
             }
@@ -346,6 +347,8 @@ object TexoExtras {
 
     /** Set by the Flutter side to receive mic chunks. */
     @Volatile var micSink: ((ByteArray) -> Unit)? = null
+    @Volatile var micChannel: io.flutter.plugin.common.MethodChannel? = null
+    @Volatile var systemChannelRef: io.flutter.plugin.common.MethodChannel? = null
 
     private fun micStop(result: MethodChannel.Result) {
         micRunning = false
