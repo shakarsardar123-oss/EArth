@@ -25,6 +25,8 @@ class _ObjectTestScreenState extends State<ObjectTestScreen> {
   Size _size = const Size(1, 1);
   String _text = 'ئامادە دەبێت...';
   String _status = '';
+  String _target = '';
+  String _findResult = '';
   String _lastSpoken = '';
   final Set<String> _spokenOnce = <String>{};
 
@@ -80,6 +82,23 @@ class _ObjectTestScreenState extends State<ObjectTestScreen> {
         }
         final l = o.labels.first;
         lines.add('${l.text} ${(l.confidence * 100).round()}% · ${_where(o.boundingBox)}');
+      }
+      if (_target.isNotEmpty) {
+        final t = _target.toLowerCase();
+        String? hit;
+        for (final o in objs) {
+          final names = o.labels.map((l) => l.text.toLowerCase()).join(' ');
+          if (names.contains(t)) {
+            hit = _where(o.boundingBox);
+            break;
+          }
+        }
+        if (hit != null && _findResult != 'found') {
+          _findResult = 'found';
+          try { await _speak('دۆزیمەوە، لە $hit'); } catch (_) {}
+        } else if (hit == null) {
+          _findResult = '';
+        }
       }
       if (mounted) {
         setState(() => _text = lines.isEmpty ? 'هیچ شتێک نەدۆزرایەوە' : lines.join('\n'));
