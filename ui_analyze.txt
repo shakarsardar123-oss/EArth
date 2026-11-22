@@ -78,15 +78,15 @@ Analyzing 4 items...
 
    info • The import of 'dart:typed_data' is unnecessary because all of the used elements are also provided by the import of 'package:flutter/foundation.dart'. Try removing the import directive • lib/bridge/live_camera.dart:3:8 • unnecessary_import
    info • Missing a required trailing comma. Try adding a trailing comma • lib/bridge/live_camera.dart:120:82 • require_trailing_commas
-warning • Unused import: '../presentation/screens/vision_screen.dart'. Try removing the import directive • lib/bridge/riverpod_backend.dart:33:8 • unused_import
-   info • The import of '../ui/src/backend.dart' is unnecessary because all of the used elements are also provided by the import of '../ui/texo_ui.dart'. Try removing the import directive • lib/bridge/riverpod_backend.dart:37:8 • unnecessary_import
-   info • Missing a required trailing comma. Try adding a trailing comma • lib/bridge/riverpod_backend.dart:82:76 • require_trailing_commas
-   info • Missing a required trailing comma. Try adding a trailing comma • lib/bridge/riverpod_backend.dart:354:10 • require_trailing_commas
-   info • Missing a required trailing comma. Try adding a trailing comma • lib/bridge/riverpod_backend.dart:488:12 • require_trailing_commas
-   info • Missing a required trailing comma. Try adding a trailing comma • lib/bridge/riverpod_backend.dart:522:10 • require_trailing_commas
-   info • Missing a required trailing comma. Try adding a trailing comma • lib/bridge/riverpod_backend.dart:599:8 • require_trailing_commas
-   info • The local variable '_t0' starts with an underscore. Try renaming the variable to not start with an underscore • lib/bridge/riverpod_backend.dart:889:17 • no_leading_underscores_for_local_identifiers
-   info • Missing a required trailing comma. Try adding a trailing comma • lib/bridge/riverpod_backend.dart:1002:74 • require_trailing_commas
+warning • Unused import: '../presentation/screens/vision_screen.dart'. Try removing the import directive • lib/bridge/riverpod_backend.dart:34:8 • unused_import
+   info • The import of '../ui/src/backend.dart' is unnecessary because all of the used elements are also provided by the import of '../ui/texo_ui.dart'. Try removing the import directive • lib/bridge/riverpod_backend.dart:38:8 • unnecessary_import
+   info • Missing a required trailing comma. Try adding a trailing comma • lib/bridge/riverpod_backend.dart:83:76 • require_trailing_commas
+   info • Missing a required trailing comma. Try adding a trailing comma • lib/bridge/riverpod_backend.dart:355:10 • require_trailing_commas
+   info • Missing a required trailing comma. Try adding a trailing comma • lib/bridge/riverpod_backend.dart:489:12 • require_trailing_commas
+   info • Missing a required trailing comma. Try adding a trailing comma • lib/bridge/riverpod_backend.dart:523:10 • require_trailing_commas
+   info • Missing a required trailing comma. Try adding a trailing comma • lib/bridge/riverpod_backend.dart:600:8 • require_trailing_commas
+   info • The local variable '_t0' starts with an underscore. Try renaming the variable to not start with an underscore • lib/bridge/riverpod_backend.dart:890:17 • no_leading_underscores_for_local_identifiers
+   info • Missing a required trailing comma. Try adding a trailing comma • lib/bridge/riverpod_backend.dart:1005:74 • require_trailing_commas
 warning • Unused import: '../errors/result.dart'. Try removing the import directive • lib/core/ai/gemini_provider.dart:33:8 • unused_import
    info • The member 'getApiKey' overrides an inherited member but isn't annotated with '@override'. Try adding the '@override' annotation • lib/core/ai/gemini_provider.dart:160:19 • annotate_overrides
    info • The member 'setApiKey' overrides an inherited member but isn't annotated with '@override'. Try adding the '@override' annotation • lib/core/ai/gemini_provider.dart:164:16 • annotate_overrides
@@ -118,7 +118,7 @@ warning • The value of the field '_lastSpoken' isn't used. Try removing the fi
    info • Missing a required trailing comma. Try adding a trailing comma • lib/ui/src/settings_screen.dart:335:64 • require_trailing_commas
    info • Missing a required trailing comma. Try adding a trailing comma • lib/ui/src/settings_screen.dart:337:63 • require_trailing_commas
 
-41 issues found. (ran in 10.3s)
+41 issues found. (ran in 13.6s)
 analyze exit code: 0
 ----- whole app compile (flutter build bundle) -----
 bundle exit code: 0
