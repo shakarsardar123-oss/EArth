@@ -1,3 +1,4 @@
+import '../core/live/live_session.dart';
 import 'dart:async';
 import 'dart:convert';
 import 'dart:io' show File;
@@ -942,6 +943,8 @@ class RiverpodBackend
     return _serial(_startLive);
   }
 
+  LiveVoiceSession? _voiceLive;
+
   Future<void> _startLive() async {
     if (_liveRunning) return;
     final PermissionStatus st = await Permission.microphone.request();
@@ -1018,6 +1021,16 @@ class RiverpodBackend
       // No Live screen is open (wake-word session): close the overlay too.
       if (_overlayOnly || _pendingReaction != null) stopLive();
     };
+    try {
+      final String? key = await _c.read(selectedAIProviderProvider).getApiKey();
+      if (key != null && key.isNotEmpty) {
+        _voiceLive ??= LiveVoiceSession(apiKey: key);
+        await _voiceLive!.start();
+        return;
+      }
+    } catch (_) {
+      // Fall back to the classic pipeline below.
+    }
     await orchestrator.startSession();
     // The old live-mode code may have registered its own overlay handler or
     // shown the pill while the app is visible: take both back.
