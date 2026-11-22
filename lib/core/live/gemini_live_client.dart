@@ -84,6 +84,26 @@ class GeminiLiveClient {
     await _setup!.future.timeout(const Duration(seconds: 20));
   }
 
+  /// Sends one chunk of microphone audio: PCM 16-bit mono, 16 kHz.
+  void sendAudio(Uint8List pcm16k) {
+    final ws = _ws;
+    if (ws == null) return;
+    ws.add(jsonEncode({
+      'realtimeInput': {
+        'mediaChunks': [
+          {'mimeType': 'audio/pcm;rate=16000', 'data': base64Encode(pcm16k)},
+        ],
+      },
+    }));
+  }
+
+  /// Tells the model the user has stopped speaking (end of a turn).
+  void endAudioStream() {
+    final ws = _ws;
+    if (ws == null) return;
+    ws.add(jsonEncode({'realtimeInput': {'audioStreamEnd': true}}));
+  }
+
   /// Sends one user text turn. The model answers with audio on [audioChunks].
   void sendText(String text) {
     final ws = _ws;
