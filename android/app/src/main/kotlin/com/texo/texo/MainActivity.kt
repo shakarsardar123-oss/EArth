@@ -569,7 +569,7 @@ class MainActivity : FlutterActivity() {
         when (call.method) {
             "getBluetoothState" -> handleGetBluetoothState(result)
             "listPairedBluetooth" -> handleListPairedBluetooth(result)
-            "torch", "scanBluetooth", "bondBluetooth", "searchAudio", "playAudio", "dialContact" ->
+            "torch", "scanBluetooth", "bondBluetooth", "searchAudio", "playAudio", "dialContact", "pcmWrite", "pcmStop" ->
                 TexoExtras.handle(this, call, result)
             "setBluetoothEnabled" -> handleSetBluetoothEnabled(call, result)
             "getWifiState" -> handleGetWifiState(result)

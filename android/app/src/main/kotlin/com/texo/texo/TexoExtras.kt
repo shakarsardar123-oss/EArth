@@ -58,6 +58,8 @@ object TexoExtras {
                 "searchAudio" -> searchAudio(a, call, result)
                 "playAudio" -> playAudio(a, call, result)
                 "dialContact" -> dialContact(a, call, result)
+                "pcmWrite" -> pcmWrite(call, result)
+                "pcmStop" -> pcmStop(result)
                 else -> result.notImplemented()
             }
         } catch (e: Throwable) {
@@ -269,5 +271,39 @@ object TexoExtras {
                 result.success(mapOf("ok" to true, "name" to e.key))
             }
         }
+    }
+
+    // ── PCM player for Gemini Live audio (24 kHz, mono, 16-bit) ──
+    private val pcmExec = java.util.concurrent.Executors.newSingleThreadExecutor()
+    private var pcmTrack: android.media.AudioTrack? = null
+
+    private fun pcmEnsure() {
+        if (pcmTrack != null) return
+        val min = android.media.AudioTrack.getMinBufferSize(
+            24000, android.media.AudioFormat.CHANNEL_OUT_MONO, android.media.AudioFormat.ENCODING_PCM_16BIT)
+        pcmTrack = android.media.AudioTrack(
+            android.media.AudioManager.STREAM_MUSIC, 24000,
+            android.media.AudioFormat.CHANNEL_OUT_MONO, android.media.AudioFormat.ENCODING_PCM_16BIT,
+            maxOf(min * 2, 9600), android.media.AudioTrack.MODE_STREAM).also { it.play() }
+    }
+
+    private fun pcmWrite(call: MethodCall, result: MethodChannel.Result) {
+        val bytes = call.argument<ByteArray>("data")
+        if (bytes == null) {
+            result.success(mapOf("ok" to false, "error" to "no_data"))
+            return
+        }
+        pcmExec.execute {
+            try { pcmEnsure(); pcmTrack?.write(bytes, 0, bytes.size) } catch (_: Throwable) {}
+        }
+        result.success(mapOf("ok" to true))
+    }
+
+    private fun pcmStop(result: MethodChannel.Result) {
+        pcmExec.execute {
+            try { pcmTrack?.stop(); pcmTrack?.release() } catch (_: Throwable) {}
+            pcmTrack = null
+        }
+        result.success(mapOf("ok" to true))
     }
 }
