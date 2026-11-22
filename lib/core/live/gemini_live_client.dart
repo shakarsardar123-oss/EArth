@@ -28,6 +28,11 @@ class GeminiLiveClient {
       StreamController<void>.broadcast();
   final StreamController<String> _heard =
       StreamController<String>.broadcast();
+  final StreamController<void> _interruptedCtrl =
+      StreamController<void>.broadcast();
+
+  /// Fires when the user starts speaking over the model (barge-in).
+  Stream<void> get interrupted => _interruptedCtrl.stream;
 
   /// PCM 16-bit mono, 24 kHz chunks of the model's spoken reply.
   Stream<Uint8List> get audioChunks => _audio.stream;
@@ -111,6 +116,7 @@ class GeminiLiveClient {
 
     final sc = d['serverContent'] as Map<String, dynamic>?;
     if (sc == null) return;
+    if (sc['interrupted'] == true) _interruptedCtrl.add(null);
 
     final inT = sc['inputTranscription'] as Map<String, dynamic>?;
     final heardText = inT?['text'] as String?;
