@@ -546,15 +546,9 @@ class LiveModeOrchestrator {
 
 
   Future<void> _startScreenUnderstanding() async {
+    // Screen capture is opt-in: never open the MediaProjection dialog during Live.
     if (!_screenCaptureService.state.canCaptureFrames) {
-      final captureResult = await _screenCaptureService.startCapture(
-        const ScreenCaptureConfig(),
-      );
-
-      if (captureResult.isFailure ||
-          !_screenCaptureService.state.canCaptureFrames) {
-        return;
-      }
+      return;
     }
 
     await _screenFrameSub?.cancel();
