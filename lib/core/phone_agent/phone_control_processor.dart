@@ -233,6 +233,8 @@ class PhoneControlProcessor implements AgentProcessor {
   /// Direct Android intents, no LLM and no screen reading.
   /// Returns a reply text on success, null to fall back to the agent.
   bool _cancelRequested = false;
+  /// Set by voice/chat; read by the object finder screen.
+  static String objectFindTarget = '';
 
   Future<String?> _tryFast(String text) async {
     if (_cancelRequested) return null;
@@ -359,6 +361,11 @@ class PhoneControlProcessor implements AgentProcessor {
     }
 
     final low = t.toLowerCase();
+    final findM = RegExp(r'(.+?)\s*(?:م|ت|ی)?\s*(?:بۆ\s*)?بدۆزەوە').firstMatch(low);
+    if (findM != null && findM.group(1)!.trim().length >= 2 && !low.contains('ئەپ') && !low.contains('یوتوب')) {
+      objectFindTarget = findM.group(1)!.trim();
+      return 'باشە، بەدوای ${objectFindTarget} دەگەڕێم. ئامێرەکە بکەرەوە و پیشانی بدە.';
+    }
     final themeWord = RegExp(r'تێم|ڕەنگی ئەپ|theme|dark mode|light mode|مۆدی تاریک|دارک مۆد').hasMatch(low);
     final wDark = RegExp(r'تاریک|ڕەش|دارک|dark').hasMatch(low);
     final wLight = RegExp(r'ڕووناک|سپی|لایت|light').hasMatch(low);

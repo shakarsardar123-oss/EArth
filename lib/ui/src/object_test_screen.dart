@@ -1,3 +1,4 @@
+import '../../core/phone_agent/phone_control_processor.dart';
 import 'dart:async';
 import 'dart:typed_data';
 import 'package:camera/camera.dart';
@@ -26,15 +27,16 @@ class _ObjectTestScreenState extends State<ObjectTestScreen> {
   String _text = 'ئامادە دەبێت...';
   String _status = '';
   String _target = '';
+  @override
+  void initState() {
+    super.initState();
+    _target = PhoneControlProcessor.objectFindTarget;
+    _start();
+  }
   String _findResult = '';
   String _lastSpoken = '';
   final Set<String> _spokenOnce = <String>{};
 
-  @override
-  void initState() {
-    super.initState();
-    _start();
-  }
 
   Future<void> _start() async {
     try {
