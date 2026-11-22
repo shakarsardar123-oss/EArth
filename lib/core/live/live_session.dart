@@ -1,3 +1,4 @@
+import 'mic_capture.dart';
 import 'dart:typed_data';
 import 'dart:async';
 
@@ -10,6 +11,7 @@ class LiveVoiceSession {
   LiveVoiceSession({required String apiKey}) : _client = GeminiLiveClient(apiKey: apiKey);
 
   final GeminiLiveClient _client;
+  late final MicCapture _mic = MicCapture(_client);
   final PcmPlayer _player = PcmPlayer();
   StreamSubscription<Uint8List>? _audioSub;
   StreamSubscription<void>? _intSub;
@@ -18,6 +20,7 @@ class LiveVoiceSession {
     await _client.connect();
     _audioSub = _client.audioChunks.listen((chunk) => _player.write(chunk));
     _intSub = _client.interrupted.listen((_) => _player.stop());
+    await _mic.start();
   }
 
   /// Sends one text turn; the answer arrives as audio.
@@ -26,6 +29,7 @@ class LiveVoiceSession {
   Future<void> stop() async {
     await _audioSub?.cancel();
     await _intSub?.cancel();
+    await _mic.stop();
     await _client.close();
     await _player.stop();
   }

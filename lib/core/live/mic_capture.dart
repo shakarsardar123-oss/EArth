@@ -10,20 +10,21 @@ class MicCapture {
     _ch.setMethodCallHandler(_onCall);
   }
 
-  static const MethodChannel _ch = MethodChannel('com.texo.texo/system_control');
+  static const MethodChannel _ctl = MethodChannel('com.texo.texo/system_control');
+  static const MethodChannel _ch = MethodChannel('com.texo.texo/mic_out');
   final GeminiLiveClient _client;
   bool _on = false;
 
   bool get isOn => _on;
 
   Future<bool> start() async {
-    final r = await _ch.invokeMethod<Map<dynamic, dynamic>>('micStart');
+    final r = await _ctl.invokeMethod<Map<dynamic, dynamic>>('micStart');
     _on = r?['ok'] == true;
     return _on;
   }
 
   Future<void> stop() async {
-    await _ch.invokeMethod<dynamic>('micStop');
+    await _ctl.invokeMethod<dynamic>('micStop');
     _on = false;
     _client.endAudioStream();
   }

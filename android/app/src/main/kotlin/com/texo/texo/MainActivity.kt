@@ -119,7 +119,7 @@ class MainActivity : FlutterActivity() {
             .setMethodCallHandler(::handleDeviceActions)
 
         // Phase 6: system-control channel (bluetooth/wifi/memory/gesture/panels)
-        TexoExtras.systemChannelRef = MethodChannel(flutterEngine.dartExecutor.binaryMessenger, systemControlChannel)
+        TexoExtras.systemChannelRef = MethodChannel(flutterEngine.dartExecutor.binaryMessenger, "com.texo.texo/mic_out")
         MethodChannel(flutterEngine.dartExecutor.binaryMessenger, systemControlChannel)
             .setMethodCallHandler(::handleSystemControl)
 
