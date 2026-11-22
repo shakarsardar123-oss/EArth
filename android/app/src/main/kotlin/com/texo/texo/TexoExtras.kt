@@ -59,6 +59,8 @@ object TexoExtras {
                 "playAudio" -> playAudio(a, call, result)
                 "dialContact" -> dialContact(a, call, result)
                 "pcmWrite" -> pcmWrite(call, result)
+                "micStart" -> micStart(a, call, result)
+                "micStop" -> micStop(result)
                 "pcmStop" -> pcmStop(result)
                 else -> result.notImplemented()
             }
@@ -304,6 +306,51 @@ object TexoExtras {
             try { pcmTrack?.stop(); pcmTrack?.release() } catch (_: Throwable) {}
             pcmTrack = null
         }
+        result.success(mapOf("ok" to true))
+    }
+
+    // ── Microphone capture for Gemini Live (16 kHz, mono, 16-bit PCM) ──
+    private var micRecord: android.media.AudioRecord? = null
+    @Volatile private var micRunning = false
+
+    private fun micStart(a: Activity, call: MethodCall, result: MethodChannel.Result) {
+        if (!has(a, Manifest.permission.RECORD_AUDIO)) {
+            a.requestPermissions(arrayOf(Manifest.permission.RECORD_AUDIO), 4715)
+            result.success(mapOf("ok" to false, "needsPermission" to true))
+            return
+        }
+        if (micRunning) { result.success(mapOf("ok" to true)); return }
+        val min = android.media.AudioRecord.getMinBufferSize(
+            16000, android.media.AudioFormat.CHANNEL_IN_MONO, android.media.AudioFormat.ENCODING_PCM_16BIT)
+        val rec = android.media.AudioRecord(
+            android.media.MediaRecorder.AudioSource.VOICE_COMMUNICATION, 16000,
+            android.media.AudioFormat.CHANNEL_IN_MONO, android.media.AudioFormat.ENCODING_PCM_16BIT,
+            maxOf(min, 3200) * 2)
+        micRecord = rec
+        micRunning = true
+        rec.startRecording()
+        pcmExec.execute {
+            val buf = ByteArray(3200)
+            while (micRunning) {
+                val n = rec.read(buf, 0, buf.size)
+                if (n > 0) {
+                    val chunk = buf.copyOf(n)
+                    Handler(Looper.getMainLooper()).post {
+                        micSink?.invoke(chunk)
+                    }
+                }
+            }
+        }
+        result.success(mapOf("ok" to true))
+    }
+
+    /** Set by the Flutter side to receive mic chunks. */
+    @Volatile var micSink: ((ByteArray) -> Unit)? = null
+
+    private fun micStop(result: MethodChannel.Result) {
+        micRunning = false
+        try { micRecord?.stop(); micRecord?.release() } catch (_: Throwable) {}
+        micRecord = null
         result.success(mapOf("ok" to true))
     }
 }
