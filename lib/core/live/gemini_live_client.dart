@@ -104,6 +104,19 @@ class GeminiLiveClient {
     ws.add(jsonEncode({'realtimeInput': {'audioStreamEnd': true}}));
   }
 
+  /// Sends one camera frame (JPEG) into the live conversation.
+  void sendImage(Uint8List jpeg) {
+    final ws = _ws;
+    if (ws == null) return;
+    ws.add(jsonEncode({
+      'realtimeInput': {
+        'mediaChunks': [
+          {'mimeType': 'image/jpeg', 'data': base64Encode(jpeg)},
+        ],
+      },
+    }));
+  }
+
   /// Sends one user text turn. The model answers with audio on [audioChunks].
   void sendText(String text) {
     final ws = _ws;
