@@ -184,6 +184,9 @@ class DemoBackend implements TexoBackend {
   Future<void> speak(String text) async {}
 
   @override
+  Future<String> askVision(String imageBase64, String question) async => 'دیمۆ: وەڵامی نموونەیی';
+
+  @override
   Future<List<UiConversation>> conversations() async {
     final DateTime now = DateTime.now();
     return <UiConversation>[

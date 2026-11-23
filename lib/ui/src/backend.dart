@@ -122,6 +122,8 @@ abstract class TexoBackend {
     List<UiAttachment> attachments = const <UiAttachment>[],
   });
   Future<void> speak(String text);
+  /// Sends a JPEG/PNG (base64) and a question to Gemini; returns the answer text.
+  Future<String> askVision(String imageBase64, String question);
 
   Future<List<UiConversation>> conversations();
   Future<List<UiMessage>> messages(String conversationId);

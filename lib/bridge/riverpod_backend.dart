@@ -578,6 +578,42 @@ class RiverpodBackend
   }
 
   @override
+  @override
+  Future<String> askVision(String imageBase64, String question) async {
+    final p = _c.read(geminiProviderProvider);
+    final key = await p.getApiKey();
+    if (key == null || key.isEmpty) return 'کلیلی Gemini نییە.';
+    final url = 'https://generativelanguage.googleapis.com/v1beta/models/gemini-3.5-flash-lite:generateContent?key=$key';
+    final body = {
+      'contents': [
+        {
+          'parts': [
+            {'inline_data': {'mime_type': 'image/jpeg', 'data': imageBase64}},
+            {'text': question},
+          ]
+        }
+      ]
+    };
+    final client = HttpClient();
+    try {
+      final req = await client.postUrl(Uri.parse(url));
+      req.headers.contentType = ContentType.json;
+      req.write(jsonEncode(body));
+      final res = await req.close();
+      final text = await res.transform(utf8.decoder).join();
+      final d = jsonDecode(text) as Map<String, dynamic>;
+      final cands = d['candidates'] as List<dynamic>?;
+      if (cands == null || cands.isEmpty) return 'هەڵە: ${text.substring(0, text.length.clamp(0, 160))}';
+      final parts = (cands.first as Map<String, dynamic>)['content']['parts'] as List<dynamic>;
+      return (parts.first as Map<String, dynamic>)['text'] as String? ?? 'وەڵام نەهات.';
+    } catch (e) {
+      return 'هەڵە: $e';
+    } finally {
+      client.close();
+    }
+  }
+
+  @override
   Future<void> speak(String text) async {
     await _c.read(voiceServiceImplProvider).speak(text);
   }
