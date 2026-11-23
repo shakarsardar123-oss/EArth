@@ -1,3 +1,4 @@
+import '../phone_agent/phone_control_processor.dart';
 import '../live/live_prompt.dart';
 /// live_mode_orchestrator.dart
 /// AURA Assistant – P0 Remediation: Live Mode Orchestrator
@@ -798,6 +799,7 @@ class LiveModeOrchestrator {
       final findM = RegExp(r'(.+?)\s*(?:م|ت|ی)?\s*(?:بۆ\s*)?بدۆزەوە').firstMatch(text.trim());
       if (findM != null && findM.group(1)!.trim().length >= 2) {
         objectFindTargetLive = findM.group(1)!.trim();
+        PhoneControlProcessor.objectFindTarget = objectFindTargetLive;
         await _voiceService.speak('باشە، بەدوای ${objectFindTargetLive} دەگەڕێم.', locale: 'ku');
         await _startListening(gen);
         return;
