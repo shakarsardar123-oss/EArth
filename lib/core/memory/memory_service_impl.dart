@@ -11,6 +11,8 @@ class MemoryServiceImpl implements MemoryService {
   final _uuid = UuidUtil();
 
   @override
+  Future<String?> getLastSummary() => _db.getLastSummary();
+
   Future<String> createConversation({String? title, String? agentId}) async {
     final db = await _db.database;
     final id = _uuid.v4();

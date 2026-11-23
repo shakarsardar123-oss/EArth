@@ -363,6 +363,8 @@ class LiveModeOrchestrator {
 
   /// Start a Live Mode session.
   /// Returns the session, or null if cannot start.
+  String? _lastSummary;
+
   Future<LiveModeSession?> startSession() async {
     if (_state != LiveModeState.idle) return null;
 
@@ -376,6 +378,7 @@ class LiveModeOrchestrator {
 
     // Ensure we have a conversation for memory continuity.
     try {
+      _lastSummary = await _memoryService.getLastSummary();
       _currentConversationId = await _memoryService.createConversation(
         title: 'دەنگی زیندوو',
         agentId: 'default',
