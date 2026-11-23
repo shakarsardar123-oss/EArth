@@ -365,6 +365,7 @@ class LiveModeOrchestrator {
   /// Start a Live Mode session.
   /// Returns the session, or null if cannot start.
   String? _lastSummary;
+  String objectFindTargetLive = '';
 
   Future<LiveModeSession?> startSession() async {
     if (_state != LiveModeState.idle) return null;
@@ -793,6 +794,14 @@ class LiveModeOrchestrator {
       );
 
       AgentResult? result;
+      // "find X" in live: hand the target to the object screen (no model call).
+      final findM = RegExp(r'(.+?)\s*(?:م|ت|ی)?\s*(?:بۆ\s*)?بدۆزەوە').firstMatch(text.trim());
+      if (findM != null && findM.group(1)!.trim().length >= 2) {
+        objectFindTargetLive = findM.group(1)!.trim();
+        await _voiceService.speak('باشە، بەدوای ${objectFindTargetLive} دەگەڕێم.', locale: 'ku');
+        await _startListening(gen);
+        return;
+      }
       // Stop words end speech immediately, without asking the model.
       if (const ['وەستێنە', 'ڕاگرە', 'بەس', 'stop'].any((w) => text.trim().toLowerCase().startsWith(w))) {
         try { await _voiceService.stopListening(); } catch (_) {}
