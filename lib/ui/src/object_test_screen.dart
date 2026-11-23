@@ -148,6 +148,25 @@ class _ObjectTestScreenState extends State<ObjectTestScreen> {
     await UiScope.of(context).backend.speak(text);
   }
 
+  bool _askingVision = false;
+
+  Future<void> _askVision(String what) async {
+    final cam = _cam;
+    if (cam == null || _askingVision) return;
+    _askingVision = true;
+    try {
+      final img = await cam.takePicture();
+      final bytes = await img.readAsBytes();
+      final r = await UiScope.of(context).backend.speak('تاقیکردنەوە: $what');
+      if (mounted) setState(() => _status = 'وێنە گیرا (${bytes.length} بایت)');
+      // Gemini call goes through the app's provider in the next step.
+    } catch (e) {
+      if (mounted) setState(() => _status = 'هەڵە: $e');
+    } finally {
+      _askingVision = false;
+    }
+  }
+
   @override
   void dispose() {
     _cam?.dispose();
