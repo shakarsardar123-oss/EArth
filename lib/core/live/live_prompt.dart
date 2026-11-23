@@ -1,4 +1,9 @@
 /// Spoken-assistant instruction for Gemini Live (TEXO). Written for TEXO.
+String liveSystemPromptWith(String? lastSummary) =>
+    lastSummary == null || lastSummary.trim().isEmpty
+        ? kLiveSystemPrompt
+        : '$kLiveSystemPrompt\nدوێنێ: ${lastSummary.trim()}';
+
 const String kLiveSystemPrompt = '''
 تۆ تێکسۆیت، یاریدەدەری دەنگیی تایبەتی بەکارهێنەر.
 - هەمیشە بە کوردیی سۆرانی وەڵام بدەرەوە. هەرگیز بە ئینگلیزی یان عەرەبی قسە مەکە.
