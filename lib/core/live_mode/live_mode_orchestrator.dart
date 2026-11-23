@@ -1,5 +1,3 @@
-import '../phone_agent/phone_control_processor.dart';
-import '../live/live_prompt.dart';
 /// live_mode_orchestrator.dart
 /// AURA Assistant – P0 Remediation: Live Mode Orchestrator
 ///
@@ -14,6 +12,8 @@ import '../live/live_prompt.dart';
 ///
 /// NEVER uses timers for TTS completion — relies on VoiceService.speak() await.
 library;
+import '../phone_agent/phone_control_processor.dart';
+import '../live/live_prompt.dart';
 
 import '../phone_agent/debug_toast.dart';
 import 'dart:async';

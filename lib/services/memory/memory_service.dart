@@ -3,6 +3,9 @@
 /// Phase 2+ will implement local + cloud memory. Phase 1 defines
 /// the contract.
 abstract class MemoryService {
+  /// Latest daily summary text, or null.
+  Future<String?> getLastSummary();
+
   /// Creates a new conversation and returns its id.
   Future<String> createConversation({String? title, String? agentId});
 
