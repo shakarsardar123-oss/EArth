@@ -790,7 +790,7 @@ class LiveModeOrchestrator {
 
       AgentResult? result;
       // Stop words end speech immediately, without asking the model.
-      if (RegExp(r'^(وەستێنە|ڕاگرە|بەس|stop)\b', caseSensitive: false).hasMatch(text.trim())) {
+      if (const ['وەستێنە', 'ڕاگرە', 'بەس', 'stop'].any((w) => text.trim().toLowerCase().startsWith(w))) {
         try { await _voiceService.stopListening(); } catch (_) {}
         _setState(LiveModeState.idle);
         return;
