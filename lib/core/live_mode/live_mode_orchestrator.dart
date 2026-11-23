@@ -789,6 +789,12 @@ class LiveModeOrchestrator {
       );
 
       AgentResult? result;
+      // Stop words end speech immediately, without asking the model.
+      if (RegExp(r'^(وەستێنە|ڕاگرە|بەس|stop)\b', caseSensitive: false).hasMatch(text.trim())) {
+        try { await _voiceService.stopListening(); } catch (_) {}
+        _setState(LiveModeState.idle);
+        return;
+      }
       // Fast local commands first (apps, flashlight, bluetooth...). No LLM.
       final fastHandled = await _tryFastLocal(text);
       if (fastHandled != null) {
