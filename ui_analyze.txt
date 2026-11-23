@@ -119,7 +119,7 @@ warning • The value of the field '_lastSpoken' isn't used. Try removing the fi
    info • Missing a required trailing comma. Try adding a trailing comma • lib/ui/src/settings_screen.dart:335:64 • require_trailing_commas
    info • Missing a required trailing comma. Try adding a trailing comma • lib/ui/src/settings_screen.dart:337:63 • require_trailing_commas
 
-41 issues found. (ran in 13.6s)
+41 issues found. (ran in 11.0s)
 analyze exit code: 0
 ----- whole app compile (flutter build bundle) -----
 bundle exit code: 0
