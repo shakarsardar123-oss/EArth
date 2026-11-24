@@ -1,4 +1,3 @@
-import '../live/live_greeting.dart';
 /// live_mode_orchestrator.dart
 /// AURA Assistant – P0 Remediation: Live Mode Orchestrator
 ///
@@ -13,6 +12,7 @@ import '../live/live_greeting.dart';
 ///
 /// NEVER uses timers for TTS completion — relies on VoiceService.speak() await.
 library;
+import '../live/live_greeting.dart';
 import '../phone_agent/phone_control_processor.dart';
 import '../live/live_prompt.dart';
 
