@@ -20,6 +20,7 @@ class LiveVoiceSession {
     await _client.connect();
     _audioSub = _client.audioChunks.listen((chunk) => _player.write(chunk));
     _intSub = _client.interrupted.listen((_) => _player.stop());
+    return true;
     final micOk = await _mic.start();
     if (!micOk) {
       await stop();
