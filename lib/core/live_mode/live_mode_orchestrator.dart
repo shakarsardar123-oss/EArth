@@ -1,3 +1,4 @@
+import '../live/live_greeting.dart';
 /// live_mode_orchestrator.dart
 /// AURA Assistant – P0 Remediation: Live Mode Orchestrator
 ///
@@ -416,6 +417,11 @@ class LiveModeOrchestrator {
 
     // Screen capture (the "Start recording or casting?" system dialog) is no
     // longer started with Live Mode: it is only asked for when a feature needs it.
+    // Greet by time of day before listening (no LLM).
+    try {
+      _setState(LiveModeState.speaking);
+      await _voiceService.speak(liveGreeting(DateTime.now()), locale: 'ku');
+    } catch (_) {}
     await _startListening(gen);
 
     return LiveModeSession(
