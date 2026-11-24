@@ -72,7 +72,7 @@ const List<String> _kuQuietPhrases = <String>[
 const List<String> _kuWakePhrases = <String>['هەڵسە', 'هەستە', 'بەخەبەر بە', 'بێدار بە', 'هەڵبسە'];
 const List<String> _kuRunPhrases = <String>['ڕاکە', 'ڕا بکە', 'ڕابکە'];
 const List<String> _kuSleepPhrases = <String>[
-  'بنوو', 'بنو', 'بخەوە', 'بخەو', 'بچۆ بخەوە', 'بچۆ بنوو', 'شەو باش', 'شەوباش',
+  'بنوو', 'بنو', 'بخەوە', 'بخەو', 'بچۆ بخەوە', 'بچۆ بنوو', 'شەو باش', 'شەوباش', 'شەو', 
 ];
 
 /// Unifies the Arabic / Persian letter variants speech recognition may produce.
