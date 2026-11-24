@@ -129,8 +129,33 @@ warning • The value of the local variable 'r' isn't used. Try removing the var
    info • Missing a required trailing comma. Try adding a trailing comma • lib/ui/src/settings_screen.dart:335:64 • require_trailing_commas
    info • Missing a required trailing comma. Try adding a trailing comma • lib/ui/src/settings_screen.dart:337:63 • require_trailing_commas
 
-51 issues found. (ran in 13.6s)
+51 issues found. (ran in 13.2s)
 analyze exit code: 0
 ----- whole app compile (flutter build bundle) -----
-bundle exit code: 0
-/home/runner/work/EArth/EArth/l10n.yaml: The argument "synthetic-package" no longer has any effect and should be removed. See http://flutter.dev/to/flutter-gen-deprecation
+bundle exit code: 1
+2:lib/core/live/live_session.dart:19:16: Error: A non-null value must be returned since the return type 'bool' doesn't allow null.
+<asynchronous suspension>
+#10     BuildBundleCommand.runCommand (package:flutter_tools/src/commands/build_bundle.dart:146:5)
+<asynchronous suspension>
+#11     FlutterCommand.run.<anonymous closure> (package:flutter_tools/src/runner/flutter_command.dart:1663:27)
+<asynchronous suspension>
+#12     AppContext.run.<anonymous closure> (package:flutter_tools/src/base/context.dart:154:19)
+<asynchronous suspension>
+#13     CommandRunner.runCommand (package:args/command_runner.dart:212:13)
+<asynchronous suspension>
+#14     FlutterCommandRunner.runCommand.<anonymous closure> (package:flutter_tools/src/runner/flutter_command_runner.dart:496:9)
+<asynchronous suspension>
+#15     AppContext.run.<anonymous closure> (package:flutter_tools/src/base/context.dart:154:19)
+<asynchronous suspension>
+#16     FlutterCommandRunner.runCommand (package:flutter_tools/src/runner/flutter_command_runner.dart:431:5)
+<asynchronous suspension>
+#17     FlutterCommandRunner.run.<anonymous closure> (package:flutter_tools/src/runner/flutter_command_runner.dart:307:33)
+<asynchronous suspension>
+#18     run.<anonymous closure>.<anonymous closure> (package:flutter_tools/runner.dart:104:11)
+<asynchronous suspension>
+#19     AppContext.run.<anonymous closure> (package:flutter_tools/src/base/context.dart:154:19)
+<asynchronous suspension>
+#20     main (package:flutter_tools/executable.dart:103:3)
+<asynchronous suspension>
+
+Failed to build bundle.
