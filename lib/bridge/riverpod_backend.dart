@@ -1062,8 +1062,8 @@ class RiverpodBackend
       final String? key = await _c.read(selectedAIProviderProvider).getApiKey();
       if (key != null && key.isNotEmpty) {
         _voiceLive ??= LiveVoiceSession(apiKey: key);
-        await _voiceLive!.start();
-        return;
+        final ok = await _voiceLive!.start();
+        if (ok) return;
       }
     } catch (_) {
       // Fall back to the classic pipeline below.

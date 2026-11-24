@@ -16,11 +16,15 @@ class LiveVoiceSession {
   StreamSubscription<Uint8List>? _audioSub;
   StreamSubscription<void>? _intSub;
 
-  Future<void> start() async {
+  Future<bool> start() async {
     await _client.connect();
     _audioSub = _client.audioChunks.listen((chunk) => _player.write(chunk));
     _intSub = _client.interrupted.listen((_) => _player.stop());
-    await _mic.start();
+    final micOk = await _mic.start();
+    if (!micOk) {
+      await stop();
+      throw StateError('mic not available');
+    }
   }
 
   /// Sends one text turn; the answer arrives as audio.
