@@ -236,6 +236,9 @@ class PhoneControlProcessor implements AgentProcessor {
   /// Set by voice/chat; read by the object finder screen.
   static String objectFindTarget = '';
 
+  // ignore: library_private_types_in_public_api
+  Future<String?> tryFastForTest(String text) => _tryFast(text);
+
   Future<String?> _tryFast(String text) async {
     if (_cancelRequested) return null;
     final t = text.trim();
