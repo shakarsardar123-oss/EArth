@@ -129,7 +129,7 @@ warning • The value of the local variable 'r' isn't used. Try removing the var
    info • Missing a required trailing comma. Try adding a trailing comma • lib/ui/src/settings_screen.dart:335:64 • require_trailing_commas
    info • Missing a required trailing comma. Try adding a trailing comma • lib/ui/src/settings_screen.dart:337:63 • require_trailing_commas
 
-51 issues found. (ran in 11.6s)
+51 issues found. (ran in 9.8s)
 analyze exit code: 0
 ----- whole app compile (flutter build bundle) -----
 bundle exit code: 0
