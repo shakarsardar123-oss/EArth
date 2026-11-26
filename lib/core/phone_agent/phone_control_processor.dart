@@ -109,7 +109,7 @@ class PhoneControlProcessor implements AgentProcessor {
 
   /// Words that mean "do something on the phone / open an app".
   static final RegExp _actionLike = RegExp(
-    r'(بکەرەوە|بکەوە|بکەنەوە|ئەپ|یوتوب|یوتیوب|فەیسبووک|ئینستاگرام|تیکتۆک|واتسئەپ|تێلێگرام|سناپ|'
+    r'(بکەرەوە|بکەوە|بکەنەوە|ئەپ|یوتوب|یوتیوب|فەیسبووک|ئینستاگرام|تیکتۆک|واتسئەپ|تێلێگرام|سناپ|فلاش|هەڵکە|کوژێنەوە|'
     r'وێبسایت|مالپەڕ|گووگڵ|کرۆم|براوزەر|website|browser|google|chrome|open|launch)',
     caseSensitive: false,
   );
