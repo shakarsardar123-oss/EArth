@@ -1,3 +1,4 @@
+import 'package:flutter/foundation.dart';
 import 'live_prompt.dart';
 import 'dart:async';
 import 'dart:convert';
@@ -154,6 +155,7 @@ class GeminiLiveClient {
     final inT = sc['inputTranscription'] as Map<String, dynamic>?;
     final heardText = inT?['text'] as String?;
     if (heardText != null && heardText.isNotEmpty) _heard.add(heardText);
+    if (heardText != null && heardText.isNotEmpty) debugPrint('TEXO heard: $heardText');
 
     final modelTurn = sc['modelTurn'] as Map<String, dynamic>?;
     final parts = (modelTurn?['parts'] as List<dynamic>?) ?? const [];
